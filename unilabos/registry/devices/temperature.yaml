@@ -1,0 +1,62 @@
+heaterstirrer.dalong:
+  class:
+    module: unilabos.devices.heaterstirrer.dalong:HeaterStirrer_DaLong
+    type: python
+    status_types:
+      temp: Float64
+      temp_warning: Float64
+      stir_speed: Float64
+    action_value_mappings:
+      set_temp_warning:
+        type: SendCmd
+        goal:
+          command: temp
+        feedback: {}
+        result:
+          success: success
+      set_temp_target:
+        type: SendCmd
+        goal:
+          command: temp
+        feedback: {}
+        result:
+          success: success
+      heatchill:
+        type: HeatChill
+        goal:
+          vessel: vessel
+          temp: temp
+          time: time
+          purpose: purpose
+        feedback:
+          status: status
+        result:
+          success: success
+
+chiller:
+  class:
+    module: unilabos.devices.temperature.chiller:Chiller
+    type: python
+    action_value_mappings:
+      set_temperature:
+        type: SendCmd
+        goal:
+          command: command
+        feedback: {}
+        result:
+          success: success
+tempsensor:
+  class:
+    module: unilabos.devices.temperature.sensor_node:TempSensorNode
+    type: python
+    status_types:
+      value: Float64
+      warning: Float64
+    action_value_mappings:
+      set_warning:
+        type: SendCmd
+        goal:
+          command: command
+        feedback: {}
+        result:
+          success: success

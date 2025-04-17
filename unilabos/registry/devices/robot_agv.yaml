@@ -1,0 +1,28 @@
+# 仙工智能底盘（知行使用）
+agv.SEER:
+  class:
+    module: unilabos.devices.agv.agv_navigator:AgvNavigator
+    type: python
+    status_types:
+      pose: Float64MultiArray
+      status: String
+    action_value_mappings:
+      send_nav_task:
+        type: SendCmd
+        goal:
+          command: command
+        feedback: {}
+        result:
+          success: success
+  schema:
+    properties:
+      pose:
+        type: array
+        items:
+          type: number
+      status:
+        type: string
+    required:
+      - status
+    additionalProperties: false
+    type: object

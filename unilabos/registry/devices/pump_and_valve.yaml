@@ -1,0 +1,35 @@
+syringe_pump_with_valve.runze:
+  class:
+    module: unilabos.devices.pump_and_valve.runze_backbone:RunzeSyringePump
+    type: python
+  schema:
+    type: object
+    properties:
+      status:
+        type: string
+        description: The status of the device
+      position:
+        type: number
+        description: The volume of the syringe
+      speed_max:
+        type: number
+        description: The speed of the syringe
+      valve_position:
+        type: string
+        description: The position of the valve
+    required:
+      - status
+      - position
+      - valve_position
+    additionalProperties: false
+
+
+solenoid_valve.mock:
+  class:
+    module: unilabos.devices.pump_and_valve.solenoid_valve_mock:SolenoidValveMock
+    type: python
+
+solenoid_valve:
+  class:
+    module: unilabos.devices.pump_and_valve.solenoid_valve:SolenoidValve
+    type: python

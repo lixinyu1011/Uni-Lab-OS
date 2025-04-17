@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}UniLab API{% endblock %}
+
+{% block header %}UniLab API{% endblock %}
+
+{% block nav %}
+<a href="/status" class="status-link">System Status</a>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Available Endpoints</h2>
+    {% for route in routes %}
+    <div class="endpoint">
+        <span class="method">{{ route.method }}</span>
+        <a href="{{ route.path }}">{{ route.path }}</a>
+        <p>{{ route.summary }}</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %} 

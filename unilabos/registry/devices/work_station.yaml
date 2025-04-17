@@ -1,0 +1,6 @@
+workstation:
+  class:
+    module: unilabos.ros.nodes.presets.protocol_node:ROS2ProtocolNode
+    type: ros2
+  schema:
+    properties: {}

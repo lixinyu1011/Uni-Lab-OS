@@ -1,0 +1,23 @@
+# 光学表征设备：红外、紫外可见、拉曼等
+raman_home_made:
+  class:
+    module: unilabos.devices.raman_uv.home_made_raman:RamanObj
+    type: python
+    status_types:
+      status: String
+    action_value_mappings:
+      raman_cmd:
+        type: SendCmd
+        goal:
+          command: command
+        feedback: {}
+        result:
+          success: success
+  schema:
+    properties:
+      status:
+        type: string
+    required:
+      - status
+    additionalProperties: false
+    type: object

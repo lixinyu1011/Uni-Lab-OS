@@ -1,0 +1,29 @@
+agilent_1_reservoir_290ml:
+  class: 
+    module: pylabrobot.resources.opentrons.reserviors:agilent_1_reservoir_290ml
+    type: pylabrobot
+
+axygen_1_reservoir_90ml:
+  class: 
+    module: pylabrobot.resources.opentrons.reserviors:axygen_1_reservoir_90ml
+    type: pylabrobot
+
+nest_12_reservoir_15ml:
+  class: 
+    module: pylabrobot.resources.opentrons.reserviors:nest_12_reservoir_15ml
+    type: pylabrobot
+
+nest_1_reservoir_195ml:
+  class: 
+    module: pylabrobot.resources.opentrons.reserviors:nest_1_reservoir_195ml
+    type: pylabrobot
+
+nest_1_reservoir_290ml:
+  class: 
+    module: pylabrobot.resources.opentrons.reserviors:nest_1_reservoir_290ml
+    type: pylabrobot
+
+usascientific_12_reservoir_22ml:
+  class: 
+    module: pylabrobot.resources.opentrons.reserviors:usascientific_12_reservoir_22ml
+    type: pylabrobot

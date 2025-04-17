@@ -1,0 +1,9 @@
+vacuum_pump.mock:
+  class:
+    module: unilabos.devices.pump_and_valve.vacuum_pump_mock:VacuumPumpMock
+    type: python
+
+gas_source.mock:
+  class:
+    module: unilabos.devices.pump_and_valve.vacuum_pump_mock:VacuumPumpMock
+    type: python

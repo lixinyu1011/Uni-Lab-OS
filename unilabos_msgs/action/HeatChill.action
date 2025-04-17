@@ -1,0 +1,11 @@
+# Organic
+string vessel
+float64 temp
+float64 time
+bool stir
+float64 stir_speed
+string purpose
+---
+bool success
+---
+string status

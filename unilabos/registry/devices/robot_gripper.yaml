@@ -1,0 +1,36 @@
+gripper.mock:
+  class:
+    module: unilabos.devices.gripper.mock:MockGripper
+    type: python
+    status_types:
+      position: Float64
+      torque: Float64
+      status: String
+    action_value_mappings:
+      push_to:
+        type: GripperCommand
+        goal:
+          command.position: position
+          command.max_effort: torque
+        feedback:
+          position: position
+          effort: torque
+        result:
+          position: position
+          effort: torque
+
+
+gripper.misumi_rz:
+  class:
+    module: unilabos.devices.motor:Grasp.EleGripper
+    type: python
+    status_types:
+      status: String
+    action_value_mappings:
+      execute_command_from_outer:
+        type: SendCmd
+        goal:
+          command: command
+        feedback: {}
+        result:
+          success: success

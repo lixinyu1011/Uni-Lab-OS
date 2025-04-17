@@ -1,0 +1,18 @@
+# Organic
+string from_vessel
+string to_vessel
+float64 volume
+string amount
+float64 time
+bool viscous
+string rinsing_solvent
+float64 rinsing_volume
+int32 rinsing_repeats
+bool solid
+---
+bool success
+---
+string status
+string current_device
+builtin_interfaces/Duration time_spent
+builtin_interfaces/Duration time_remaining

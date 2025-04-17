@@ -1,0 +1,1241 @@
+{% extends "base.html" %}
+
+{% block title %}UniLab System Status{% endblock %}
+
+{% block header %}UniLab System Status{% endblock %}
+
+{% block top_info %}
+<!-- 系统模式显示 -->
+<div class="system-mode-banner">
+    <div class="mode-indicator {% if is_host_mode %}host-mode{% else %}slave-mode{% endif %}">
+        系统模式: <strong>{{ "主机模式 (HOST)" if is_host_mode else "从机模式 (SLAVE)" }}</strong>
+    </div>
+</div>
+
+{% if registry_info %}
+<div class="registry-info">
+    {% if registry_info.paths %}
+    <div class="registry-path">
+        <strong>注册表路径:</strong>
+        <ul class="path-list">
+        {% for path in registry_info.paths %}
+            <li>
+                <span class="path">{{ path }}</span>
+                <span class="folder-link" onclick="openFolder('{{ path }}')" title="打开文件夹">📁</span>
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    
+    {% if registry_info.devices_paths %}
+    <div class="registry-path">
+        <strong>设备目录:</strong>
+        <ul class="path-list">
+        {% for path in registry_info.devices_paths %}
+            <li>
+                <span class="path">{{ path }}</span>
+                <span class="folder-link" onclick="openFolder('{{ path }}')" title="打开文件夹">📁</span>
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    
+    {% if registry_info.device_comms_paths %}
+    <div class="registry-path">
+        <strong>设备通信目录:</strong>
+        <ul class="path-list">
+        {% for path in registry_info.device_comms_paths %}
+            <li>
+                <span class="path">{{ path }}</span>
+                <span class="folder-link" onclick="openFolder('{{ path }}')" title="打开文件夹">📁</span>
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    
+    {% if registry_info.resources_paths %}
+    <div class="registry-path">
+        <strong>资源目录:</strong>
+        <ul class="path-list">
+        {% for path in registry_info.resources_paths %}
+            <li>
+                <span class="path">{{ path }}</span>
+                <span class="folder-link" onclick="openFolder('{{ path }}')" title="打开文件夹">📁</span>
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+<div class="nav-tabs">
+    {% if is_host_mode and host_node_info.available %}
+    <a href="#host-node-section" class="nav-tab">主机节点</a>
+    {% endif %}
+    <a href="#online-devices-section" class="nav-tab">本地设备</a>
+    <a href="#devices-section" class="nav-tab">设备类型</a>
+    <a href="#resources-section" class="nav-tab">资源类型</a>
+    <a href="#modules-section" class="nav-tab">转换器模块</a>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- 主机节点信息部分 -->
+{% if is_host_mode and host_node_info.available %}
+<div class="card" id="host-node-section">
+    <h2>主机节点信息</h2>
+    
+    <!-- 主机控制的设备 -->
+    <div class="host-section">
+        <h3>已管理设备 <span class="count-badge">{{ host_node_info.devices|length }}</span></h3>
+        <table class="responsive-table">
+            <tr>
+                <th>设备ID</th>
+                <th>命名空间</th>
+                <th>状态</th>
+            </tr>
+            {% for device_id, device_info in host_node_info.devices.items() %}
+            <tr>
+                <td>{{ device_id }}</td>
+                <td>{{ device_info.namespace }}</td>
+                <td><span class="status-badge online">{{ "在线" if device_info.is_online else "离线" }}</span></td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="3" class="empty-state">没有发现已管理的设备</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    
+    <!-- 主机的动作客户端 -->
+    <div class="host-section">
+        <h3>动作客户端 <span class="count-badge">{{ host_node_info.action_clients|length }}</span></h3>
+        <table class="responsive-table collapsible-table">
+            <h4>已接纳动作:</h4>
+            <table class="inner-table">
+                <tr>
+                    <th>话题</th>
+                    <th>类型</th>
+                    <th></th>
+                </tr>
+                {% for action_name, action_info in host_node_info.action_clients.items() %}
+                <tr class="action-row collapsible-sub-row" data-target="action-cmd-{{ loop.index }}-{{ device_loop_index }}">
+                    <td>{{ action_name }}</td>
+                    <td>{{ action_info.type_name }}</td>
+                    <td><span class="toggle-sub-indicator">▼</span></td>
+                </tr>
+                <tr id="action-cmd-{{ loop.index }}-{{ device_loop_index }}" class="cmd-row" style="display: none;">
+                    <td colspan="5">
+                        <div class="cmd-block">
+                            <strong>发送命令:</strong>
+                            <div class="cmd-line">
+                                <pre>ros2 action send_goal {{ action_info.action_path }} {{ action_info.type_name_convert }} "{{ action_info.goal_info }}"</pre>
+                                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling.textContent, event)">复制</button>
+                            </div>
+                            
+                            <p class="goal-tip">提示: 根据目标结构修改命令参数</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </table>
+    </div>
+    
+    <!-- 主机已订阅的主题 -->
+    <div class="host-section">
+        <h3>已订阅主题 <span class="count-badge">{{ host_node_info.subscribed_topics|length }}</span></h3>
+        <div class="topics-container">
+            {% if host_node_info.subscribed_topics %}
+            <div class="topics-list">
+                {% for topic in host_node_info.subscribed_topics %}
+                <div class="topic-item">
+                    <span class="topic-name">{{ topic }}</span>
+                    <button class="copy-btn small" onclick="copyToClipboard('{{ topic }}', event)" title="复制主题名">复制</button>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">没有发现已订阅的主题</div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- 设备状态 -->
+    {% if host_node_info.device_status %}
+    <div class="host-section">
+        <h3>设备状态</h3>
+        <table class="responsive-table">
+            <tr>
+                <th>设备ID</th>
+                <th>属性</th>
+                <th>值</th>
+                <th>最后更新</th>
+            </tr>
+            {% for device_id, properties in host_node_info.device_status.items() %}
+                {% for prop_name, prop_value in properties.items() %}
+                <tr>
+                    {% if loop.first %}
+                    <td rowspan="{{ properties|length }}">{{ device_id }}</td>
+                    {% endif %}
+                    <td>{{ prop_name }}</td>
+                    <td>{{ prop_value }}</td>
+                    <td>
+                        {% if device_id in host_node_info.device_status_timestamps and prop_name in host_node_info.device_status_timestamps[device_id] %}
+                            {% set ts_info = host_node_info.device_status_timestamps[device_id][prop_name] %}
+                            {% if ts_info.elapsed >= 0 %}
+                                <span class="timestamp" title="{{ ts_info.timestamp }}">{{ ts_info.elapsed }} 秒前</span>
+                            {% else %}
+                                <span class="timestamp not-updated">未更新</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="timestamp not-updated">无数据</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+            <tr>
+                <td colspan="4" class="empty-state">没有设备状态数据</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- 当前中断设备部分 -->
+<div class="card" id="online-devices-section">
+    <h2>Local Devices</h2>
+    <table class="responsive-table">
+        <tr>
+            <th>Device ID</th>
+            <th>节点名称</th>
+            <th>命名空间</th>
+            <th>状态项</th>
+            <th>动作数</th>
+        </tr>
+        {% for device_id, device_info in ros_node_info.registered_devices.items() %}
+        {% set device_loop_index = loop.index %}
+        <tr class="collapsible-row device-row" data-target="device-detail-{{ loop.index }}">
+            <td>{{ device_id }}</td>
+            <td>{{ device_info.node_name }}</td>
+            <td>{{ device_info.namespace }}</td>
+            <td>{{ ros_node_info.device_topics.get(device_id, {})|length }}</td>
+            <td>{{ ros_node_info.device_actions.get(device_id, {})|length }} <span class="toggle-indicator">▼</span></td>
+        </tr>
+        <tr id="device-detail-{{ loop.index }}" class="detail-row" style="display: none;">
+            <td colspan="5">
+                <div class="content-full">
+                    UUID: {{ device_info.uuid }}
+                    {% if device_id in ros_node_info.device_topics %}
+                    <h4>已发布状态:</h4>
+                    <table class="inner-table">
+                        <tr>
+                            <th>名称</th>
+                            <th>类型</th>
+                            <th>话题</th>
+                            <th>间隔</th>
+                            <th></th>
+                        </tr>
+                        {% for status_name, status_info in ros_node_info.device_topics[device_id].items() %}
+                        <tr class="topic-row collapsible-sub-row" data-target="topic-cmd-{{ loop.index }}-{{ device_loop_index }}">
+                            <td>{{ status_name }}</td>
+                            <td>{{ status_info.type_name }}</td>
+                            <td>{{ status_info.topic_path }}</td>
+                            <td>{{ status_info.timer_period }}</td>
+                            <td><span class="toggle-sub-indicator">▼</span></td>
+                        </tr>
+                        <tr id="topic-cmd-{{ loop.index }}-{{ device_loop_index }}" class="cmd-row" style="display: none;">
+                            <td colspan="5">
+                                <div class="cmd-block">
+                                    <strong>订阅命令:</strong>
+                                    <div class="cmd-line">
+                                        <pre>ros2 topic echo {{ status_info.topic_path }}</pre>
+                                        <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling.textContent, event)">复制</button>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                    {% endif %}
+                    
+                    {% if device_id in ros_node_info.device_actions %}
+                    <h4>已发布动作:</h4>
+                    <table class="inner-table">
+                        <tr>
+                            <th>名称</th>
+                            <th>类型</th>
+                            <th>话题</th>
+                            <th></th>
+                        </tr>
+                        {% for action_name, action_info in ros_node_info.device_actions[device_id].items() %}
+                        <tr class="action-row collapsible-sub-row" data-target="action-cmd-{{ loop.index }}-{{ device_loop_index }}">
+                            <td>{{ action_name }}</td>
+                            <td>{{ action_info.type_name }}</td>
+                            <td>{{ action_info.action_path }}</td>
+                            <td><span class="toggle-sub-indicator">▼</span></td>
+                        </tr>
+                        <tr id="action-cmd-{{ loop.index }}-{{ device_loop_index }}" class="cmd-row" style="display: none;">
+                            <td colspan="5">
+                                <div class="cmd-block">
+                                    <strong>发送命令:</strong>
+                                    <div class="cmd-line">
+                                        <pre>ros2 action send_goal {{ action_info.action_path }} {{ action_info.type_name_convert }} "{{ action_info.goal_info }}"</pre>
+                                        <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling.textContent, event)">复制</button>
+                                    </div>
+                                    
+                                    <p class="goal-tip">提示: 根据目标结构修改命令参数</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                    {% endif %}
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<!-- 设备部分 -->
+<div class="card" id="devices-section">
+    <h2>Device Types</h2>
+    <table class="responsive-table">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>File Path</th>
+            <th></th>
+        </tr>
+        {% for device in devices %}
+        <tr class="collapsible-row" data-target="device-info-{{ loop.index }}">
+            <td>{{ device.id }}</td>
+            <td>{{ device.name }}</td>
+            <td class="file-path">
+                {{ device.file_path }}
+                <span class="folder-link" onclick="openFolder('{{ device.file_path }}'); event.stopPropagation();" title="打开文件夹">📁</span>
+            </td>
+            <td><span class="toggle-indicator">▼</span></td>
+        </tr>
+        <tr id="device-info-{{ loop.index }}" class="detail-row" style="display: none;">
+            <td colspan="5">
+                <div class="content-full">
+                    <pre>{{ device.class_json }}</pre>
+                    
+                    {% if device.is_online %}
+                    <div class="status-badge"><span class="online-status">在线</span></div>
+                    {% endif %}
+                    
+                    {% if device.is_online and device.status_publishers %}
+                    <h4>状态发布者:</h4>
+                    <ul class="detail-list">
+                        {% for status_name, status_info in device.status_publishers.items() %}
+                        <li>
+                            <strong>{{ status_name }}</strong> - 类型: {{ status_info.type }}
+                            <br>话题: {{ status_info.topic }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    
+                    {% if device.is_online and device.actions %}
+                    <h4>可用动作:</h4>
+                    <ul class="detail-list">
+                        {% for action_name, action_info in device.actions.items() %}
+                        <li>
+                            <strong>{{ action_name }}</strong> - 类型: {{ action_info.type }}
+                            <br>话题: {{ action_info.topic }}
+                            <br>
+                            <div class="cmd-block">
+                                <strong>发送命令:</strong>
+                                <div class="cmd-line">
+                                    <pre>{{ action_info.command }}</pre>
+                                    <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling.textContent, event)">复制</button>
+                                    <button class="debug-btn" onclick="toggleDebugInfo(this, event)">调试</button>
+                                    <div class="debug-info" style="display:none;">
+                                        <pre>{{ action_info|tojson(indent=2) }}</pre>
+                                    </div>
+                                </div>
+                                
+                                <p class="goal-tip">提示: 根据目标结构修改命令参数</p>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<!-- 资源部分 -->
+<div class="card" id="resources-section">
+    <h2>Resource Types</h2>
+    <table class="responsive-table">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>File Path</th>
+        </tr>
+        {% for resource in resources %}
+        <tr>
+            <td>{{ resource.id }}</td>
+            <td>{{ resource.name }}</td>
+            <td class="file-path">
+                {{ resource.file_path }}
+                <span class="folder-link" onclick="openFolder('{{ resource.file_path }}')" title="打开文件夹">📁</span>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<!-- 模块部分 -->
+<div class="card" id="modules-section">
+    <h2>Converter Modules</h2>
+    <h3>Loaded Modules</h3>
+    <table class="responsive-table">
+        <tr>
+            <th>Module Path</th>
+        </tr>
+        {% for module in modules.names %}
+        <tr>
+            <td>{{ module }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h3>Available Classes 
+        <span class="classes-count">({{ modules.total_count }})</span>
+    </h3>
+    <table class="responsive-table">
+        <tr>
+            <th>Class Name</th>
+        </tr>
+        {% for class_name in modules.classes %}
+        <tr>
+            <td>{{ class_name }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<!-- 返回顶部按钮 -->
+<button id="back-to-top" title="返回顶部">↑</button>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    // 在页面加载完成后执行初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        initFolderOpener();
+        initCollapsibleRows();
+        initScrollToSections();
+        initBackToTop();
+        initWebSocket();
+    });
+
+    // WebSocket连接
+    let ws = null;
+    let reconnectAttempts = 0;
+    const maxReconnectAttempts = 5;
+    const reconnectDelay = 3000; // 3秒
+    let connectionStatusElement = null;
+    
+    function showConnectionStatus(status, message) {
+        // 如果状态元素不存在，创建一个
+        if (!connectionStatusElement) {
+            connectionStatusElement = document.createElement('div');
+            connectionStatusElement.className = 'connection-status';
+            document.body.appendChild(connectionStatusElement);
+        }
+        
+        connectionStatusElement.className = 'connection-status ' + status;
+        connectionStatusElement.innerHTML = `<span class="status-dot"></span><span class="status-text">${message}</span>`;
+        
+        // 3秒后自动隐藏
+        if (status === 'connected') {
+            setTimeout(() => {
+                connectionStatusElement.style.opacity = '0';
+            }, 3000);
+        } else {
+            connectionStatusElement.style.opacity = '1';
+        }
+    }
+
+    function initWebSocket() {
+        // 获取WebSocket URL
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/api/v1/ws/device_status`;
+        
+        showConnectionStatus('connecting', '正在连接服务器...');
+        
+        ws = new WebSocket(wsUrl);
+        
+        ws.onopen = function() {
+            console.log('WebSocket连接已建立');
+            showConnectionStatus('connected', '已连接到服务器');
+            reconnectAttempts = 0;
+        };
+        
+        ws.onmessage = function(event) {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.type === 'device_status') {
+                    updateDeviceStatus(data.data);
+                }
+            } catch (error) {
+                console.error('处理WebSocket消息时出错:', error);
+            }
+        };
+        
+        ws.onclose = function(event) {
+            console.log(`WebSocket连接已关闭，代码: ${event.code}, 原因: ${event.reason}`);
+            
+            if (event.wasClean) {
+                showConnectionStatus('disconnected', '连接已正常关闭');
+            } else {
+                showConnectionStatus('error', '连接意外断开');
+            }
+            
+            if (reconnectAttempts < maxReconnectAttempts) {
+                showConnectionStatus('reconnecting', `正在尝试重新连接 (${reconnectAttempts + 1}/${maxReconnectAttempts})...`);
+                setTimeout(initWebSocket, reconnectDelay);
+                reconnectAttempts++;
+            } else {
+                showConnectionStatus('error', '重连失败，请刷新页面重试');
+            }
+        };
+        
+        ws.onerror = function(error) {
+            console.error('WebSocket错误:', error);
+            showConnectionStatus('error', 'WebSocket连接错误');
+        };
+    }
+
+    function updateDeviceStatus(data) {
+        const { device_status, device_status_timestamps } = data;
+        
+        // 查找设备状态表格 - 在host-node-section下，寻找具有"设备状态"标题的host-section
+        const deviceStatusSections = Array.from(document.querySelectorAll('#host-node-section .host-section h3'))
+            .filter(h3 => h3.textContent.trim() === '设备状态')
+            .map(h3 => h3.parentElement);
+            
+        if (deviceStatusSections.length === 0) {
+            console.log('未找到设备状态部分');
+            return;
+        }
+        
+        const statusSection = deviceStatusSections[0];
+        const table = statusSection.querySelector('table.responsive-table');
+        
+        if (!table) {
+            console.log('未找到设备状态表格');
+            return;
+        }
+        
+        // 保存表头
+        const header = table.rows[0].cloneNode(true);
+        
+        // 清空表格（保留表头）
+        while (table.rows.length > 1) {
+            table.deleteRow(1);
+        }
+        
+        // 没有数据时显示空状态行
+        if (Object.keys(device_status).length === 0) {
+            const emptyRow = table.insertRow();
+            const emptyCell = emptyRow.insertCell();
+            emptyCell.colSpan = 4;
+            emptyCell.className = 'empty-state';
+            emptyCell.textContent = '没有设备状态数据';
+            return;
+        }
+        
+        // 添加数据行
+        for (const [device_id, properties] of Object.entries(device_status)) {
+            const propNames = Object.keys(properties);
+            
+            for (let i = 0; i < propNames.length; i++) {
+                const prop_name = propNames[i];
+                const prop_value = properties[prop_name];
+                
+                const row = table.insertRow();
+                
+                // 如果是设备的第一个属性，添加设备ID单元格
+                if (i === 0) {
+                    const deviceCell = row.insertCell();
+                    deviceCell.rowSpan = propNames.length;
+                    deviceCell.textContent = device_id;
+                }
+                
+                // 添加属性名称单元格
+                const propCell = row.insertCell();
+                propCell.textContent = prop_name;
+                
+                // 添加属性值单元格
+                const valueCell = row.insertCell();
+                valueCell.textContent = prop_value;
+                
+                // 添加时间戳单元格
+                const timestampCell = row.insertCell();
+                const tsInfo = device_status_timestamps[device_id]?.[prop_name];
+                
+                if (tsInfo && tsInfo.elapsed >= 0) {
+                    const timestampSpan = document.createElement('span');
+                    timestampSpan.className = 'timestamp';
+                    timestampSpan.setAttribute('title', tsInfo.timestamp);
+                    timestampSpan.textContent = `${Math.round(tsInfo.elapsed)} 秒前`;
+                    timestampCell.appendChild(timestampSpan);
+                } else {
+                    const notUpdatedSpan = document.createElement('span');
+                    notUpdatedSpan.className = 'timestamp not-updated';
+                    notUpdatedSpan.textContent = '未更新';
+                    timestampCell.appendChild(notUpdatedSpan);
+                }
+            }
+        }
+    }
+
+    // 文件夹打开功能
+    function initFolderOpener() {
+        function openFolder(path) {
+            if (!path) {
+                alert("路径为空");
+                return;
+            }
+            
+            // 对于Windows路径，确保格式正确
+            const formattedPath = path.includes(':\\') ? path : path.replace(':', ':\\');
+            
+            fetch(`/open-folder?path=${encodeURIComponent(formattedPath)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'error') {
+                        alert('错误: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('请求失败: ' + error);
+                });
+        }
+        
+        // 确保openFolder函数在全局范围内可用
+        window.openFolder = openFolder;
+    }
+    
+    // 折叠行功能
+    function initCollapsibleRows() {
+        // 设备行点击事件
+        const deviceRows = document.querySelectorAll('.collapsible-row');
+        deviceRows.forEach(row => {
+            row.addEventListener("click", function() {
+                const targetId = this.getAttribute('data-target');
+                if (!targetId) return;
+                
+                const content = document.getElementById(targetId);
+                if (!content) return;
+                
+                this.classList.toggle("active");
+                
+                if (content.style.display === "table-row") {
+                    content.style.display = "none";
+                    const indicator = this.querySelector('.toggle-indicator');
+                    if (indicator) indicator.textContent = "▼";
+                } else {
+                    content.style.display = "table-row";
+                    const indicator = this.querySelector('.toggle-indicator');
+                    if (indicator) indicator.textContent = "▲";
+                }
+            });
+        });
+        
+        // 子行点击事件（状态和动作行）
+        const subRows = document.querySelectorAll('.collapsible-sub-row');
+        subRows.forEach(row => {
+            row.addEventListener("click", function(e) {
+                const targetId = this.getAttribute('data-target');
+                if (!targetId) return;
+                
+                const content = document.getElementById(targetId);
+                if (!content) return;
+                
+                if (content.style.display === "table-row" || content.style.display === "") {
+                    content.style.display = "none";
+                    const indicator = this.querySelector('.toggle-sub-indicator');
+                    if (indicator) indicator.textContent = "▼";
+                } else {
+                    content.style.display = "table-row";
+                    const indicator = this.querySelector('.toggle-sub-indicator');
+                    if (indicator) indicator.textContent = "▲";
+                }
+                
+                // 阻止事件冒泡
+                e.stopPropagation();
+            });
+        });
+    }
+    
+    // 初始化导航标签跳转
+    function initScrollToSections() {
+        const navTabs = document.querySelectorAll('.nav-tab');
+        navTabs.forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId && targetId.startsWith('#')) {
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                }
+            });
+        });
+    }
+    
+    // 初始化返回顶部按钮
+    function initBackToTop() {
+        const backToTopBtn = document.getElementById("back-to-top");
+        if (!backToTopBtn) return;
+        
+        // 显示/隐藏按钮
+        window.addEventListener('scroll', function() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                backToTopBtn.style.display = "block";
+            } else {
+                backToTopBtn.style.display = "none";
+            }
+        });
+        
+        // 点击返回顶部
+        backToTopBtn.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    }
+    
+    // 复制功能
+    function copyToClipboard(text, event) {
+        if (event) event.stopPropagation();
+        const textToCopy = text.trim();
+        
+        // 使用现代API复制
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => {
+                    showCopySuccess(event.target);
+                })
+                .catch(err => {
+                    console.error('复制失败: ', err);
+                    fallbackCopy(textToCopy, event.target);
+                });
+        } else {
+            fallbackCopy(textToCopy, event.target);
+        }
+    }
+    
+    // 复制功能的后备方案
+    function fallbackCopy(text, button) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.select();
+        
+        try {
+            const successful = document.execCommand('copy');
+            if (successful) {
+                showCopySuccess(button);
+            } else {
+                alert("复制失败，请手动复制");
+            }
+        } catch (err) {
+            console.error('复制失败: ', err);
+            alert("复制失败，请手动复制");
+        }
+        
+        document.body.removeChild(textarea);
+    }
+    
+    // 显示复制成功
+    function showCopySuccess(button) {
+        const originalText = button.textContent;
+        button.textContent = "已复制!";
+        button.classList.add("copy-success");
+        
+        setTimeout(() => {
+            button.textContent = originalText;
+            button.classList.remove("copy-success");
+        }, 1500);
+    }
+    
+    // 调试信息切换
+    function toggleDebugInfo(btn, event) {
+        event.stopPropagation();
+        const debugInfo = btn.nextElementSibling;
+        if (debugInfo.style.display === "none" || debugInfo.style.display === "") {
+            debugInfo.style.display = "block";
+            btn.textContent = "隐藏调试";
+        } else {
+            debugInfo.style.display = "none";
+            btn.textContent = "调试";
+        }
+    }
+</script>
+<style>
+    /* 基础样式改进 */
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+    
+    .card {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        margin-bottom: 30px;
+        padding: 20px;
+        background-color: #fff;
+        transition: all 0.3s ease;
+        scroll-margin-top: 20px; /* 为锚点添加滚动边距 */
+    }
+    
+    .card h2 {
+        margin-top: 0;
+        color: #333;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 10px;
+    }
+    
+    /* 导航标签美化 */
+    .nav-tabs {
+        display: flex;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 5px;
+        flex-wrap: wrap;
+    }
+    
+    .nav-tab {
+        padding: 8px 16px;
+        margin-right: 5px;
+        background-color: #f5f5f5;
+        border-radius: 5px 5px 0 0;
+        text-decoration: none;
+        color: #555;
+        transition: all 0.2s ease;
+        font-weight: 500;
+    }
+    
+    .nav-tab:hover {
+        background-color: #e0e0e0;
+        color: #333;
+    }
+    
+    /* 表格样式美化 */
+    .responsive-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+    
+    .responsive-table th {
+        background-color: #f5f5f5;
+        color: #333;
+        font-weight: 600;
+        text-align: left;
+        padding: 12px 15px;
+        border-bottom: 2px solid #ddd;
+    }
+    
+    .responsive-table td {
+        padding: 10px 15px;
+        border-bottom: 1px solid #eee;
+        vertical-align: middle;
+    }
+    
+    /* 可折叠行美化 */
+    .collapsible-row {
+        transition: background-color 0.2s ease;
+        cursor: pointer;
+    }
+    
+    .collapsible-row:hover {
+        background-color: #f9f9f9;
+    }
+    
+    .collapsible-row.active {
+        background-color: #f0f7ff;
+        border-left: 3px solid #4285f4;
+    }
+    
+    .toggle-indicator, .toggle-sub-indicator {
+        font-size: 12px;
+        color: #888;
+        float: right;
+        transition: transform 0.2s ease;
+    }
+    
+    .collapsible-row.active .toggle-indicator {
+        transform: rotate(180deg);
+        color: #4285f4;
+    }
+    
+    /* 详情行样式 */
+    .detail-row td {
+        padding: 0;
+    }
+    
+    .content-full {
+        padding: 15px;
+        background-color: #fafafa;
+        border-top: 1px solid #eee;
+    }
+    
+    /* 子表格（内部表格）样式 */
+    .inner-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 10px 0;
+        font-size: 13px;
+    }
+    
+    .inner-table th {
+        background-color: #eef2f7;
+        padding: 8px 10px;
+        font-weight: 500;
+    }
+    
+    .inner-table td {
+        padding: 8px 10px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    /* 状态和动作行样式 */
+    .topic-row, .action-row {
+        background-color: #f9f9f9;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+    
+    .topic-row:hover, .action-row:hover {
+        background-color: #f0f0f0;
+    }
+    
+    /* 复制按钮美化 */
+    .toggle-cmd-btn {
+        background: #f0f0f0;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 4px 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .toggle-cmd-btn:hover {
+        background: #e0e0e0;
+    }
+    
+    .copy-btn {
+        background: #eef;
+        border: 1px solid #ccf;
+        border-radius: 4px;
+        padding: 4px 10px;
+        cursor: pointer;
+        margin-left: 10px;
+        transition: all 0.2s ease;
+    }
+    
+    .copy-btn:hover {
+        background: #ddf;
+    }
+    
+    .copy-success {
+        background: #dffddf !important;
+        color: #2c7c2c !important;
+    }
+    
+    .debug-btn {
+        background: #fee;
+        border: 1px solid #fcc;
+        border-radius: 4px;
+        padding: 4px 10px;
+        cursor: pointer;
+        margin-left: 5px;
+        font-size: 12px;
+        transition: all 0.2s ease;
+    }
+    
+    .debug-btn:hover {
+        background: #fdd;
+    }
+    
+    /* 命令块样式优化 */
+    .cmd-block {
+        background: #f8f8f8;
+        border: 1px solid #eee;
+        border-radius: 4px;
+        padding: 12px;
+        margin: 8px 0;
+    }
+    
+    .cmd-line {
+        display: flex;
+        align-items: center;
+        margin: 8px 0;
+        background: #fff;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        overflow-x: auto;
+        font-family: 'Consolas', 'Monaco', monospace;
+    }
+    
+    .cmd-line pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-all;
+        flex: 1;
+    }
+    
+    /* 路径和文件夹链接样式 */
+    .folder-link {
+        cursor: pointer;
+        margin-left: 5px;
+        color: #4285f4;
+        transition: transform 0.2s ease;
+    }
+    
+    .folder-link:hover {
+        transform: scale(1.1);
+    }
+    
+    .path-list {
+        list-style-type: none;
+        padding-left: 10px;
+    }
+    
+    .path-list li {
+        margin-bottom: 5px;
+    }
+    
+    /* 返回顶部按钮 */
+    #back-to-top {
+        display: none;
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 99;
+        font-size: 18px;
+        border: none;
+        outline: none;
+        background-color: #4285f4;
+        color: white;
+        cursor: pointer;
+        padding: 10px 15px;
+        border-radius: 50%;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+    }
+    
+    #back-to-top:hover {
+        background-color: #3367d6;
+        transform: translateY(-2px);
+    }
+    
+    /* 在线状态标签 */
+    .online-status {
+        display: inline-block;
+        background-color: #4caf50;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+    
+    /* 详情列表样式 */
+    .detail-list {
+        padding-left: 15px;
+    }
+    
+    .detail-list li {
+        margin-bottom: 15px;
+        padding-bottom: 12px;
+        border-bottom: 1px dashed #eee;
+    }
+    
+    /* 提示文本样式 */
+    .goal-tip {
+        font-size: 12px;
+        color: #666;
+        margin-top: 8px;
+        font-style: italic;
+        background: #fffde7;
+        padding: 5px 8px;
+        border-radius: 3px;
+        border-left: 3px solid #ffd54f;
+    }
+    
+    /* 调试信息样式 */
+    .debug-info {
+        margin-top: 8px;
+        background: #fffde7;
+        border: 1px solid #fff9c4;
+        border-radius: 4px;
+        padding: 10px;
+        font-size: 12px;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    /* 时间戳样式 */
+    .timestamp {
+        font-size: 13px;
+        background-color: #f5f5f5;
+        padding: 3px 6px;
+        border-radius: 3px;
+        color: #555;
+        transition: background-color 0.3s ease;
+    }
+    
+    .timestamp.not-updated {
+        background-color: #fff3e0;
+        color: #e65100;
+    }
+    
+    .timestamp[title]:hover::after {
+        content: '时间戳: ' attr(title);
+        position: absolute;
+        background: #333;
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: 4px;
+        z-index: 10;
+        font-size: 12px;
+        margin-top: 5px;
+        margin-left: -10px;
+    }
+    
+    /* 响应式样式优化 */
+    @media screen and (max-width: 768px) {
+        .responsive-table {
+            width: 100%;
+            overflow-x: auto;
+            display: block;
+        }
+        
+        .nav-tabs {
+            overflow-x: auto;
+            white-space: nowrap;
+            display: block;
+            padding-bottom: 10px;
+        }
+        
+        .nav-tab {
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+        
+        .file-path {
+            max-width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .cmd-block {
+            padding: 10px;
+            overflow-x: auto;
+        }
+        
+        .cmd-block pre {
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-size: 12px;
+        }
+        
+        .device-row td:nth-child(3) {
+            display: none;
+        }
+    }
+    
+    /* 动画效果 */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .detail-row {
+        animation: fadeIn 0.3s ease;
+    }
+    
+    /* 连接状态样式 */
+    .connection-status {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 10px 15px;
+        border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        background-color: #f5f5f5;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+        transition: opacity 0.3s ease;
+    }
+    
+    .connection-status .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+    
+    .connection-status.connecting .status-dot {
+        background-color: #ffc107;
+        animation: pulse 1.5s infinite;
+    }
+    
+    .connection-status.connected .status-dot {
+        background-color: #4caf50;
+    }
+    
+    .connection-status.disconnected .status-dot {
+        background-color: #9e9e9e;
+    }
+    
+    .connection-status.reconnecting .status-dot {
+        background-color: #ff9800;
+        animation: pulse 1.5s infinite;
+    }
+    
+    .connection-status.error .status-dot {
+        background-color: #f44336;
+    }
+    
+    @keyframes pulse {
+        0% { opacity: 0.5; }
+        50% { opacity: 1; }
+        100% { opacity: 0.5; }
+    }
+</style>
+{% endblock %} 

@@ -1,0 +1,6 @@
+serial:
+  class:
+    module: unilabos.ros.nodes.presets:ROS2SerialNode
+    type: ros2
+  schema:
+    properties: {}

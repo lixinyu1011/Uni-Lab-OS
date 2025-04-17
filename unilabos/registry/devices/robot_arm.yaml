@@ -1,0 +1,36 @@
+robotic_arm.UR:
+  class:
+    module: unilabos.devices.agv.ur_arm_task:UrArmTask
+    type: python
+    status_types:
+      arm_pose: Float64MultiArray
+      gripper_pose: Float64
+      arm_status: String
+      gripper_status: String
+    action_value_mappings:
+      move_pos_task:
+        type: SendCmd
+        goal:
+          command: command
+        feedback: {}
+        result:
+          success: success
+  schema:
+    properties:
+      arm_pose:
+        type: array
+        items:
+          type: number
+      gripper_pose:
+        type: number
+      arm_status:
+        type: string
+        description: 机械臂设备状态
+      gripper_status:
+        type: string
+        description: 机械爪设备状态
+    required:
+      - arm_status
+      - gripper_status
+    additionalProperties: false
+    type: object

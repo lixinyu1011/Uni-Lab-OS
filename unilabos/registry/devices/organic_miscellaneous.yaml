@@ -1,0 +1,71 @@
+separator.homemade:
+  class:
+    module: unilabos.devices.separator.homemade_grbl_conductivity:Separator_Controller
+    type: python
+    status_types:
+      sensordata: Float64
+      status: String
+    action_value_mappings:
+      stir:
+        type: Stir
+        goal:
+          stir_time: stir_time,
+          stir_speed: stir_speed
+          settling_time": settling_time
+        feedback:
+          status: status
+        result: 
+          success: success
+      valve_open_cmd:
+        type: SendCmd
+        goal: 
+          command: command
+        feedback: 
+          status: status
+        result": 
+          success: success
+  schema:
+    type: object
+    properties:
+      status:
+        type: string
+        description: The status of the device
+      sensordata:
+        type: number
+        description: 电导传感器数据
+    required:
+      - status
+      - sensordata
+    additionalProperties: false
+
+rotavap.one:
+  class:
+    module: unilabos.devices.rotavap.rotavap_one:RotavapOne
+    type: python
+    status_types:
+      pump_time: Float64
+      rotate_time: Float64
+    action_value_mappings:
+      set_timer:
+        type: SendCmd
+        goal:
+          command: command
+        feedback: {}
+        result:
+          success: success
+  schema:
+    type: object
+    properties:
+      temperature:
+        type: number
+        description: 旋蒸水浴温度
+      pump_time:
+        type: number
+        description: The pump time of the device
+      rotate_time:
+        type: number
+        description: The rotate time of the device
+    required:
+      - pump_time
+      - rotate_time
+    additionalProperties: false

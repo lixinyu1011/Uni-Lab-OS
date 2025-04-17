@@ -1,0 +1,11 @@
+# Bio
+Resource source
+Resource[] targets
+float64 source_vol
+float64[] ratios
+float64[] target_vols
+float64 aspiration_flow_rate
+float64[] dispense_flow_rates
+---
+bool success
+---

@@ -1,0 +1,21 @@
+# Organic
+string purpose  # 'wash' or 'extract'. 'wash' means that product phase will not be the added solvent phase, 'extract' means product phase will be the added solvent phase. If no solvent is added just use 'extract'.
+string product_phase # 'top' or 'bottom'. Phase that product will be in.
+string from_vessel #Contents of from_vessel are transferred to separation_vessel and separation is performed.
+string separation_vessel # Vessel in which separation of phases will be carried out.
+string to_vessel # Vessel to send product phase to.
+string waste_phase_to_vessel # Optional. Vessel to send waste phase to.
+string solvent # Optional. Solvent to add to separation vessel after contents of from_vessel has been transferred to create two phases.
+float64 solvent_volume # Optional. Volume of solvent to add.
+string through # Optional. Solid chemical to send product phase through on way to to_vessel, e.g. 'celite'.
+int32 repeats # Optional. Number of separations to perform.
+float64 stir_time # Optional. Time stir for after adding solvent, before separation of phases.
+float64 stir_speed # Optional. Speed to stir at after adding solvent, before separation of phases.
+float64 settling_time # Optional. Time
+---
+bool success
+---
+string status
+string current_device
+builtin_interfaces/Duration time_spent
+builtin_interfaces/Duration time_remaining

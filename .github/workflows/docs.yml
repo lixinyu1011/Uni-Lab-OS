@@ -1,0 +1,53 @@
+name: 构建文档
+
+on:
+  push:
+    branches: [ main, dev, 'feature/device_node_later_init' ]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/docs.yml'
+  pull_request:
+    branches: [ main, dev, 'feature/device_node_later_init' ]
+    paths:
+      - 'docs/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: 设置Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install sphinx sphinx-rtd-theme myst-parser sphinx-book-theme
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      
+      - name: 调试信息
+        run: |
+          echo "Python版本:"
+          python --version
+          echo "Sphinx版本:"
+          pip show sphinx
+          echo "查看docs目录结构:"
+          ls -la docs/
+          
+      - name: 构建文档
+        run: |
+          cd docs
+          mkdir -p _static
+          make html
+          
+      - name: 部署到GitHub Pages
+        if: github.event_name != 'pull_request'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          publish_dir: ./docs/_build/html
+          destination_dir: ${{ github.ref_name }} 

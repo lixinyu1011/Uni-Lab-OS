@@ -1,0 +1,55 @@
+linear_motion.grbl:
+  class:
+    module: unilabos.devices.cnc.grbl_sync:GrblCNC
+    type: python
+    action_value_mappings:
+      move_through_points: &move_through_points
+        type: NavigateThroughPoses
+        goal: 
+          poses[].pose.position: positions[]
+        feedback: 
+          current_pose.pose.position: position
+          navigation_time.sec: time_spent
+          estimated_time_remaining.sec: time_remaining
+          number_of_poses_remaining: pose_number_remaining
+        result: {}
+      set_spindle_speed:
+        type: SingleJointPosition
+        goal:
+          position: spindle_speed
+        feedback:
+          position: spindle_speed
+        result: {}
+  schema:
+    type: object
+    properties:
+      position:
+        type: array
+        items:
+          type: number
+        description: The position of the device
+      spindle_speed:
+        type: number
+        description: The spindle speed of the device
+    required:
+      - position
+      - spindle_speed
+    additionalProperties: false
+
+
+motor.iCL42:
+  class:
+    module: unilabos.devices.motor.iCL42:iCL42Driver
+    type: python
+    status_types:
+      motor_position: Int64
+      is_executing_run: Bool
+      success: Bool
+    action_value_mappings:
+      execute_command_from_outer:
+        type: SendCmd
+        goal:
+          command: command
+        feedback: {}
+        result:
+          success: success

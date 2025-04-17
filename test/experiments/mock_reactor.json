@@ -1,0 +1,158 @@
+{
+    "nodes": [
+        {
+            "id": "ReactorX",
+            "name": "模拟常量合成工作站",
+            "children": [
+                "reactor",
+                "vacuum_valve",
+                "gas_valve",
+                "vacuum_pump",
+                "gas_source"
+            ],
+            "parent": null,
+            "type": "device",
+            "class": "workstation",
+            "position": {
+                "x": 620.6111111111111,
+                "y": 171,
+                "z": 0
+            },
+            "config": {
+                "protocol_type": ["EvacuateAndRefillProtocol"]
+            },
+            "data": {
+            }
+        },
+        {
+            "id": "reactor",
+            "name": "reactor",
+            "children": [],
+            "parent": "ReactorX",
+            "type": "container",
+            "class": null,
+            "position": {
+                "x": 698.1111111111111,
+                "y": 428,
+                "z": 0
+            },
+            "config": {
+                "max_volume": 5000.0
+            },
+            "data": {
+                "liquid": [
+                ]
+            }
+        },
+        {
+            "id": "vacuum_valve",
+            "name": "vacuum_valve",
+            "children": [
+            ],
+            "parent": "ReactorX",
+            "type": "device",
+            "class": "solenoid_valve.mock",
+            "position": {
+                "x": 620.6111111111111,
+                "y": 171,
+                "z": 0
+            },
+            "config": {
+            },
+            "data": {
+            }
+        },
+        {
+            "id": "gas_valve",
+            "name": "gas_valve",
+            "children": [
+            ],
+            "parent": "ReactorX",
+            "type": "device",
+            "class": "solenoid_valve.mock",
+            "position": {
+                "x": 620.6111111111111,
+                "y": 171,
+                "z": 0
+            },
+            "config": {
+            },
+            "data": {
+            }
+        },
+        {
+            "id": "vacuum_pump",
+            "name": "vacuum_pump",
+            "children": [
+            ],
+            "parent": "ReactorX",
+            "type": "device",
+            "class": "vacuum_pump.mock",
+            "position": {
+                "x": 620.6111111111111,
+                "y": 171,
+                "z": 0
+            },
+            "config": {
+            },
+            "data": {
+            }
+        },
+        {
+            "id": "gas_source",
+            "name": "gas_source",
+            "children": [
+            ],
+            "parent": "ReactorX",
+            "type": "device",
+            "class": "gas_source.mock",
+            "position": {
+                "x": 620.6111111111111,
+                "y": 171,
+                "z": 0
+            },
+            "config": {
+            },
+            "data": {
+            }
+        }
+    ],
+    "links": [
+        {
+            "source": "reactor",
+            "target": "vacuum_valve",
+            "type": "physical",
+            "port": {
+                "reactor": "top",
+                "vacuum_valve": "1"
+            }
+        },
+        {
+            "source": "reactor",
+            "target": "gas_valve",
+            "type": "physical",
+            "port": {
+                "reactor": "top",
+                "gas_valve": "1"
+            }
+        },
+        {
+            "source": "vacuum_pump",
+            "target": "vacuum_valve",
+            "type": "physical",
+            "port": {
+                "vacuum_pump": "out",
+                "vacuum_valve": "0"
+            }
+        },
+        {
+            "source": "gas_source",
+            "target": "gas_valve",
+            "type": "physical",
+            "port": {
+                "gas_source": "out",
+                "gas_valve": "0"
+            }
+        }
+    ]
+}

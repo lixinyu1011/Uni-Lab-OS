@@ -1,0 +1,8 @@
+# Organic
+string vessel
+float64 temp
+string purpose
+---
+bool success
+---
+string status
