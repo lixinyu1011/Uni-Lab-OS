@@ -245,6 +245,21 @@ liquid_handler:
           target_vols: target_vols
           aspiration_flow_rate: aspiration_flow_rate
           dispense_flow_rates: dispense_flow_rates
+  handles:
+    input:
+    - handler_key: liquid-input
+      label: Liquid Input
+      data_type: resource
+      io_type: target
+      data_source: handle
+      data_key: liquid
+    output:
+    - handler_key: liquid-output
+      label: Liquid Output
+      data_type: resource
+      io_type: source
+      data_source: executor
+      data_key: liquid
   schema:
     type: object
     properties:
