@@ -1,7 +1,9 @@
-import requests
-from typing import List, Sequence, Optional, Union, Literal
+# import requests
+# from typing import List, Sequence, Optional, Union, Literal
 
-from .liquid_handler_abstract import LiquidHandlerAbstract
+# from .liquid_handler_abstract import LiquidHandlerAbstract
+
+
 
 
 class LiquidHandlerBiomek(LiquidHandlerAbstract):
@@ -16,6 +18,7 @@ class LiquidHandlerBiomek(LiquidHandlerAbstract):
         self._success = False  # 初始成功状态为 False
         self._status_queue = kwargs.get("status_queue", None)  # 状态队列
         self.temp_protocol = {}
+        self.py32_path = "/opt/py32"  # Biomek的Python 3.2路径
 
     def create_protocol(self,
         protocol_name: str,
@@ -63,6 +66,7 @@ class LiquidHandlerBiomek(LiquidHandlerAbstract):
         Returns:
             dict: 执行结果
         """
+        #use popen or subprocess to create py32 process and communicate send the temp protocol to it
         if not self.temp_protocol:
             raise ValueError("No protocol created. Please create a protocol first.")
 
