@@ -29,6 +29,8 @@ set(action_files
   "action/HeatChillStart.action"
   "action/HeatChillStop.action"
 
+  "action/LiquidHandlerProtocolCreation.action"
+
   "action/LiquidHandlerAspirate.action"
   "action/LiquidHandlerDiscardTips.action"
   "action/LiquidHandlerDispense.action"

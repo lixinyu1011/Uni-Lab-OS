@@ -1,6 +1,9 @@
 import requests
 from typing import List, Sequence, Optional, Union, Literal
+from geometry_msgs.msg import Point
+from unilabos_msgs.msg import Resource
 
+from unilabos.ros.nodes.resource_tracker import DeviceNodeResourceTracker  # type: ignore
 from .liquid_handler_abstract import LiquidHandlerAbstract
 
 
@@ -20,12 +23,14 @@ class LiquidHandlerBiomek(LiquidHandlerAbstract):
         self.temp_protocol = {}
         self.py32_path = "/opt/py32"  # Biomek的Python 3.2路径
 
-    def create_protocol(self,
+    def create_protocol(
+        self,
         protocol_name: str,
         protocol_description: str,
         protocol_version: str,
         protocol_author: str,
         protocol_date: str,
+        none_keys: List[str] = [],
     ):
         """
         创建一个新的协议。
@@ -79,11 +84,10 @@ class LiquidHandlerBiomek(LiquidHandlerAbstract):
 
     def create_resource(
         self,
-        device_id: str,
-        res_id: str,
-        class_name: str,
-        parent: str,
-        bind_locations: Point,
+        resource_tracker: DeviceNodeResourceTracker,
+        resources: list[Resource],
+        bind_parent_id: str,
+        bind_location: dict[str, float],
         liquid_input_slot: list[int],
         liquid_type: list[str],
         liquid_volume: list[int],
