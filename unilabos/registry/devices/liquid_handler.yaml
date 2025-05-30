@@ -279,9 +279,7 @@ liquid_handler.biomek:
   class:
     module: unilabos.devices.liquid_handling.biomek:LiquidHandlerBiomek
     type: python
-    status_types:
-      status: String
-      success: Boolean
+    status_types: {}
     action_value_mappings:
       create_protocol:
         type: LiquidHandlerProtocolCreation
