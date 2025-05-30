@@ -1,7 +1,7 @@
-# import requests
-# from typing import List, Sequence, Optional, Union, Literal
+import requests
+from typing import List, Sequence, Optional, Union, Literal
 
-# from .liquid_handler_abstract import LiquidHandlerAbstract
+from .liquid_handler_abstract import LiquidHandlerAbstract
 
 
 
@@ -125,6 +125,8 @@ class LiquidHandlerBiomek(LiquidHandlerAbstract):
         sources: Sequence[Container],
         targets: Sequence[Container],
         tip_racks: Sequence[TipRack],
+        solvent: Optional[str] = None,
+        TipLocation: Optional[str] = None,
         *,
         use_channels: Optional[List[int]] = None,
         asp_vols: Union[List[float], float],
@@ -145,27 +147,62 @@ class LiquidHandlerBiomek(LiquidHandlerAbstract):
         delays: Optional[List[int]] = None,
         none_keys: List[str] = []
     ):
-        # TODO：需要对好接口，下面这个是临时的
-        self.temp_protocol["steps"].append({
-            "type": "transfer",
-            "sources": [source.to_dict() for source in sources],
-            "targets": [target.to_dict() for target in targets],
-            "tip_racks": [tip_rack.to_dict() for tip_rack in tip_racks],
-            "use_channels": use_channels,
-            "asp_vols": asp_vols,
-            "dis_vols": dis_vols,
-            "asp_flow_rates": asp_flow_rates,
-            "dis_flow_rates": dis_flow_rates,
-            "offsets": offsets,
-            "touch_tip": touch_tip,
-            "liquid_height": liquid_height,
-            "blow_out_air_volume": blow_out_air_volume,
-            "spread": spread,
-            "is_96_well": is_96_well,
-            "mix_stage": mix_stage,
-            "mix_times": mix_times,
-            "mix_vol": mix_vol,
-            "mix_rate": mix_rate,
-            "mix_liquid_height": mix_liquid_height,
-            "delays": delays,
-        })
+
+        transfer_params = {
+            "Span8": False,
+            "Pod": "Pod1",
+            "items": {},                      
+            "Wash": False,
+            "Dynamic?": True,
+            "AutoSelectActiveWashTechnique": False,
+            "ActiveWashTechnique": "",
+            "ChangeTipsBetweenDests": False,
+            "ChangeTipsBetweenSources": False,
+            "DefaultCaption": "",             
+            "UseExpression": False,
+            "LeaveTipsOn": False,
+            "MandrelExpression": "",
+            "Repeats": "1",
+            "RepeatsByVolume": False,
+            "Replicates": "1",
+            "ShowTipHandlingDetails": False,
+            "ShowTransferDetails": True,
+            "Solvent": "Water",
+            "Span8Wash": False,
+            "Span8WashVolume": "2",
+            "Span8WasteVolume": "1",
+            "SplitVolume": False,
+            "SplitVolumeCleaning": False,
+            "Stop": "Destinations",
+            "TipLocation": "BC1025F",
+            "UseCurrentTips": False,
+            "UseDisposableTips": True,
+            "UseFixedTips": False,
+            "UseJIT": True,
+            "UseMandrelSelection": True,
+            "UseProbes": [True, True, True, True, True, True, True, True],
+            "WashCycles": "1",
+            "WashVolume": "110%",
+            "Wizard": False
+        }
+
+        items: dict = {}
+        for idx, (src, dst) in enumerate(zip(sources, targets)):
+            items[str(idx)] = {
+                "Source": str(src),
+                "Destination": str(dst),
+                "Volume": asp_vols[idx] 
+            }
+        transfer_params["items"] = items
+        transfer_params["Solvent"] =  solvent if solvent else "Water"
+        transfer_params["TipLocation"] = TipLocation
+
+        if len(tip_racks) == 1:
+             transfer_params['UseCurrentTips'] = True
+        elif len(tip_racks) > 1:
+            transfer_params["ChangeTipsBetweenDests"] = True
+
+        self.temp_protocol["steps"].append(transfer_params)
+        
+        return 
+    
