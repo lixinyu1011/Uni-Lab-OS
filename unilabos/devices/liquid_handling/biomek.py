@@ -175,7 +175,7 @@ class LiquidHandlerBiomek(LiquidHandlerAbstract):
             "SplitVolumeCleaning": False,
             "Stop": "Destinations",
             "TipLocation": "BC1025F",
-            "UseCurrentTips": False,
+            "UseCurrentTips": False,    
             "UseDisposableTips": True,
             "UseFixedTips": False,
             "UseJIT": True,
@@ -205,4 +205,4 @@ class LiquidHandlerBiomek(LiquidHandlerAbstract):
         self.temp_protocol["steps"].append(transfer_params)
         
         return 
-    
+    s
