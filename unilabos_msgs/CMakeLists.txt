@@ -68,6 +68,7 @@ set(action_files
   "action/LiquidHandlerSetTipRack.action"
   "action/LiquidHandlerStamp.action"
   "action/LiquidHandlerTransfer.action"
+  "action/LiquidHandlerTransferBiomek.action"
 
   "action/LiquidHandlerTransferBiomek.action"
   "action/LiquidHandlerIncubateBiomek.action"
