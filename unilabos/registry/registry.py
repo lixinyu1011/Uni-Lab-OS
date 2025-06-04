@@ -25,9 +25,7 @@ class Registry:
         self.ResourceCreateFromOuterEasy = self._replace_type_with_class(
             "ResourceCreateFromOuterEasy", "host_node", f"动作 create_resource"
         )
-        self.EmptyIn = self._replace_type_with_class(
-            "EmptyIn", "host_node", f""
-        )
+        self.EmptyIn = self._replace_type_with_class("EmptyIn", "host_node", f"")
         self.device_type_registry = {}
         self.resource_type_registry = {}
         self._setup_called = False  # 跟踪setup是否已调用
@@ -99,6 +97,8 @@ class Registry:
                     },
                     "icon": "icon_device.webp",
                     "registry_type": "device",
+                    "handles": [],
+                    "init_param_schema": {},
                     "schema": {"properties": {}, "additionalProperties": False, "type": "object"},
                     "file_path": "/",
                 }
@@ -132,6 +132,12 @@ class Registry:
                         resource_info["description"] = ""
                     if "icon" not in resource_info:
                         resource_info["icon"] = ""
+                    if "icon" not in resource_info:
+                        resource_info["icon"] = ""
+                    if "handles" not in resource_info:
+                        resource_info["handles"] = []
+                    if "init_param_schema" not in resource_info:
+                        resource_info["init_param_schema"] = {}
                     resource_info["registry_type"] = "resource"
                 self.resource_type_registry.update(data)
                 logger.debug(
@@ -194,6 +200,10 @@ class Registry:
                         device_config["description"] = ""
                     if "icon" not in device_config:
                         device_config["icon"] = ""
+                    if "handles" not in device_config:
+                        device_config["handles"] = []
+                    if "init_param_schema" not in device_config:
+                        device_config["init_param_schema"] = {}
                     device_config["registry_type"] = "device"
                     if "class" in device_config:
                         # 处理状态类型

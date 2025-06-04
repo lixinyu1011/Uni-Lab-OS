@@ -37,6 +37,7 @@ class LiquidHandlerBiomek(LiquidHandlerAbstract):
         protocol_version: str,
         protocol_author: str,
         protocol_date: str,
+        protocol_type: str,
         none_keys: List[str] = [],
     ):
         """
@@ -61,6 +62,7 @@ class LiquidHandlerBiomek(LiquidHandlerAbstract):
                 "version": protocol_version,
                 "author": protocol_author,
                 "date": protocol_date,
+                "type": protocol_type,
             },
             "labwares": [],
             "steps": [],
