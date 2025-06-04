@@ -15,8 +15,8 @@ from .liquid_handler_abstract import LiquidHandlerAbstract
 import json
 from typing import Sequence, Optional, List, Union, Literal
 
-
 class LiquidHandlerBiomek(LiquidHandlerAbstract):
+
     """
     Biomek液体处理器的实现类，继承自LiquidHandlerAbstract。
     该类用于处理Biomek液体处理器的特定操作。
@@ -29,6 +29,28 @@ class LiquidHandlerBiomek(LiquidHandlerAbstract):
         self._status_queue = kwargs.get("status_queue", None)  # 状态队列
         self.temp_protocol = {}
         self.py32_path = "/opt/py32"  # Biomek的Python 3.2路径
+        self.technique = {
+            'MC P300 high':{       
+                "use_channels": "Span8",
+                "asp_vols": [50],
+                "asp_flow_rates": 50,
+                "dis_flow_rates": 50,
+                "offsets": None,
+                "touch_tip": True,
+                "liquid_height": 20,
+                "blow_out_air_volume": 20,
+                "spread": "wide",
+                "is_96_well": True,
+                "mix_stage": "none",
+                "mix_times": None,
+                "mix_vol": None,
+                "mix_rate": None,
+                "mix_liquid_height": None,
+                "delays": None,
+                "none_keys": [] 
+            }
+        }
+
 
     def create_protocol(
         self,
@@ -143,7 +165,7 @@ class LiquidHandlerBiomek(LiquidHandlerAbstract):
         targets: Sequence[Container],
         tip_racks: Sequence[TipRack],
         solvent: Optional[str] = None,
-        TipLocation: Optional[str] = None,
+        TipLocation :str = None, 
         *,
         use_channels: Optional[List[int]] = None,
         asp_vols: Union[List[float], float],
@@ -157,7 +179,7 @@ class LiquidHandlerBiomek(LiquidHandlerAbstract):
         spread: Literal["wide", "tight", "custom"] = "wide",
         is_96_well: bool = False,
         mix_stage: Optional[Literal["none", "before", "after", "both"]] = "none",
-        mix_times: Optional[List(int)] = None,
+        mix_times: Optional[int] = None,
         mix_vol: Optional[int] = None,
         mix_rate: Optional[int] = None,
         mix_liquid_height: Optional[float] = None,
@@ -208,18 +230,44 @@ class LiquidHandlerBiomek(LiquidHandlerAbstract):
             items[str(idx)] = {
                 "Source": str(src),
                 "Destination": str(dst),
-                "Volume": asp_vols[idx] 
+                "Volume": dis_vols[idx] 
             }
         transfer_params["items"] = items
         transfer_params["Solvent"] =  solvent if solvent else "Water"
         transfer_params["TipLocation"] = TipLocation
 
         if len(tip_racks) == 1:
-             transfer_params['UseCurrentTips'] = True
+                transfer_params['UseCurrentTips'] = True
         elif len(tip_racks) > 1:
             transfer_params["ChangeTipsBetweenDests"] = True
 
         self.temp_protocol["steps"].append(transfer_params)
-        
+
         return 
-    
+        
+    def transfer_biomek(
+            self,
+            parameters: dict,
+            technique: str,
+    ):
+        """
+        处理Biomek的液体转移操作。
+
+        """
+        sources = parameters.get("source")
+        targets = parameters.get("target")
+        tip_rack = parameters.get("tip_rack")
+        volume = parameters.get("volume")
+        liquid_type = parameters.get("liquid_type", "Well Content")
+        other_params = self.technique.get(technique, {})
+
+        self.transfer_liquid(
+            sources=[sources],
+            targets=[targets],
+            TipLocation=tip_rack,
+            tip_racks=[tip_rack],
+            solvent=liquid_type,
+            dis_vols=[volume],
+            **other_params
+        )
+        return 
