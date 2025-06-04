@@ -45,6 +45,7 @@ set(action_files
   "action/LiquidHandlerReturnTips96.action"
   "action/LiquidHandlerStamp.action"
   "action/LiquidHandlerTransfer.action"
+  "action/LiquidHandlerTransferBiomek.action"
 
   "action/LiquidHandlerAdd.action"
   "action/LiquidHandlerMix.action"
