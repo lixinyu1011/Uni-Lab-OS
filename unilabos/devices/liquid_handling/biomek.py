@@ -2,7 +2,6 @@ import requests
 from typing import List, Sequence, Optional, Union, Literal
 from geometry_msgs.msg import Point
 from unilabos_msgs.msg import Resource
-from pylabrobot.liquid_handling import LiquidHandler
 from pylabrobot.resources import (
     Resource,
     TipRack,
