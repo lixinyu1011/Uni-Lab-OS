@@ -2,11 +2,19 @@ import requests
 from typing import List, Sequence, Optional, Union, Literal
 from geometry_msgs.msg import Point
 from unilabos_msgs.msg import Resource
-
+from pylabrobot.liquid_handling import LiquidHandler
+from pylabrobot.resources import (
+    Resource,
+    TipRack,
+    Container,
+    Coordinate,
+    Well
+)
 from unilabos.ros.nodes.resource_tracker import DeviceNodeResourceTracker  # type: ignore
 from .liquid_handler_abstract import LiquidHandlerAbstract
 
-
+import json
+from typing import Sequence, Optional, List, Union, Literal
 
 
 class LiquidHandlerBiomek(LiquidHandlerAbstract):
@@ -92,6 +100,10 @@ class LiquidHandlerBiomek(LiquidHandlerAbstract):
         liquid_type: list[str],
         liquid_volume: list[int],
         slot_on_deck: int,
+        res_id,
+        class_name,
+        bind_locations,
+        parent
     ):
         """
         创建一个新的资源。
