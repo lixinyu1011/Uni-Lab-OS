@@ -2,13 +2,13 @@ import requests
 from typing import List, Sequence, Optional, Union, Literal
 from geometry_msgs.msg import Point
 from unilabos_msgs.msg import Resource
+
 from pylabrobot.resources import (
-    Resource,
     TipRack,
     Container,
     Coordinate,
-    Well
 )
+
 from unilabos.ros.nodes.resource_tracker import DeviceNodeResourceTracker  # type: ignore
 from .liquid_handler_abstract import LiquidHandlerAbstract
 
@@ -123,10 +123,7 @@ class LiquidHandlerBiomek(LiquidHandlerAbstract):
         liquid_type: list[str],
         liquid_volume: list[int],
         slot_on_deck: int,
-        res_id,
-        class_name,
-        bind_locations,
-        parent
+
     ):
         """
         创建一个新的资源。
@@ -146,6 +143,16 @@ class LiquidHandlerBiomek(LiquidHandlerAbstract):
             dict: 创建的资源字典
         """
         # TODO：需要对好接口，下面这个是临时的
+        for resource in resources:
+            res_id = resource.id
+            class_name = resource.class_name
+            parent = bind_parent_id
+            bind_locations = Coordinate.from_point(resource.bind_location)
+            liquid_input_slot = liquid_input_slot
+            liquid_type = liquid_type
+            liquid_volume = liquid_volume
+            slot_on_deck = slot_on_deck
+
         resource = {
             "id": res_id,
             "class": class_name,
