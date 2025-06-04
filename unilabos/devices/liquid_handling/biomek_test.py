@@ -733,16 +733,15 @@ for step in input_steps['steps']:
     if step['operation'] != 'transfer':
         continue
     parameters = step['parameters']
-    tip_rack=parameters['tip_rack']
-    # 找到labwares中与tip_rack匹配的项的id
-    tip_rack_id = [lw['id'] for lw in labwares if lw['class_name'] == tip_rack][0]
+    
 
     handler.transfer_biomek(source=parameters['source'],
                             target=parameters['target'],
                             volume=parameters['volume'],
-                            tip_rack=tip_rack_id,
+                            tip_rack=parameters['tip_rack'],
                             aspirate_techniques='MC P300 high',
                             dispense_techniques='MC P300 high'
                             )
+    
 print(json.dumps(handler.temp_protocol['steps'],indent=4, ensure_ascii=False))
 
