@@ -296,25 +296,45 @@ class LiquidHandlerBiomek:
         self._status_queue = kwargs.get("status_queue", None)  # 状态队列
         self.temp_protocol = {}
         self.py32_path = "/opt/py32"  # Biomek的Python 3.2路径
-        self.technique = {
+        self.aspirate_techniques = {
             'MC P300 high':{       
-                "use_channels": "Span8",
-                "asp_vols": [50],
-                "asp_flow_rates": 50,
-                "dis_flow_rates": 50,
-                "offsets": None,
-                "touch_tip": True,
-                "liquid_height": 20,
-                "blow_out_air_volume": 20,
-                "spread": "wide",
-                "is_96_well": True,
-                "mix_stage": "none",
-                "mix_times": None,
-                "mix_vol": None,
-                "mix_rate": None,
-                "mix_liquid_height": None,
-                "delays": None,
-                "none_keys": [] 
+                "Solvent": "Water",
+            }
+        }
+        self.dispense_techniques = {
+            'MC P300 high':{       
+            "Span8": False,
+            "Pod": "Pod1",
+            "Wash": False,
+            "Dynamic?": True,
+            "AutoSelectActiveWashTechnique": False,
+            "ActiveWashTechnique": "",
+            "ChangeTipsBetweenDests": True,
+            "ChangeTipsBetweenSources": False,
+            "DefaultCaption": "",             
+            "UseExpression": False,
+            "LeaveTipsOn": False,
+            "MandrelExpression": "",
+            "Repeats": "1",
+            "RepeatsByVolume": False,
+            "Replicates": "1",
+            "ShowTipHandlingDetails": False,
+            "ShowTransferDetails": True,
+            "Span8Wash": False,
+            "Span8WashVolume": "2",
+            "Span8WasteVolume": "1",
+            "SplitVolume": False,
+            "SplitVolumeCleaning": False,
+            "Stop": "Destinations",
+            "UseCurrentTips": False,    
+            "UseDisposableTips": False,
+            "UseFixedTips": False,
+            "UseJIT": True,
+            "UseMandrelSelection": True,
+            "UseProbes": [True, True, True, True, True, True, True, True],
+            "WashCycles": "3",
+            "WashVolume": "110%",
+            "Wizard": False
             }
         }
 
@@ -425,34 +445,24 @@ class LiquidHandlerBiomek:
 #         }
 #         self.temp_protocol["labwares"].append(resource)
 #         return resource
+    
 
-    def transfer_liquid(
-        self,
-        sources: Sequence[Container],
-        targets: Sequence[Container],
-        tip_racks: Sequence[TipRack],
-        solvent: Optional[str] = None,
-        TipLocation :str = None, 
-        *,
-        use_channels: Optional[List[int]] = None,
-        asp_vols: Union[List[float], float],
-        dis_vols: Union[List[float], float],
-        asp_flow_rates: Optional[List[Optional[float]]] = None,
-        dis_flow_rates: Optional[List[Optional[float]]] = None,
-        offsets: Optional[List[Coordinate]] = None,
-        touch_tip: bool = False,
-        liquid_height: Optional[List[Optional[float]]] = None,
-        blow_out_air_volume: Optional[List[Optional[float]]] = None,
-        spread: Literal["wide", "tight", "custom"] = "wide",
-        is_96_well: bool = False,
-        mix_stage: Optional[Literal["none", "before", "after", "both"]] = "none",
-        mix_times: Optional[int] = None,
-        mix_vol: Optional[int] = None,
-        mix_rate: Optional[int] = None,
-        mix_liquid_height: Optional[float] = None,
-        delays: Optional[List[int]] = None,
-        none_keys: List[str] = []
+    def transfer_biomek(
+            self,
+            source: str,
+            target: str,
+            tip_rack: str,
+            volume: float,
+            aspirate_techniques: str,
+            dispense_techniques: str,
     ):
+        """
+        处理Biomek的液体转移操作。
+
+        """
+        
+        asp_params = self.aspirate_techniques.get(aspirate_techniques, {})
+        dis_params = self.dispense_techniques.get(dispense_techniques, {})
 
         transfer_params = {
             "Span8": False,
@@ -463,7 +473,7 @@ class LiquidHandlerBiomek:
             "AutoSelectActiveWashTechnique": False,
             "ActiveWashTechnique": "",
             "ChangeTipsBetweenDests": False,
-            "ChangeTipsBetweenSources": False,
+            "ChangeTipsBetweenSources": True,
             "DefaultCaption": "",             
             "UseExpression": False,
             "LeaveTipsOn": False,
@@ -493,61 +503,220 @@ class LiquidHandlerBiomek:
         }
 
         items: dict = {}
-        for idx, (src, dst) in enumerate(zip(sources, targets)):
-            items[str(idx)] = {
-                "Source": str(src),
-                "Destination": str(dst),
-                "Volume": dis_vols[idx] 
-            }
+        items["Source"] = source
+        items["Destination"] = target
+        items["Volume"] = volume 
         transfer_params["items"] = items
-        transfer_params["Solvent"] =  solvent if solvent else "Water"
-        transfer_params["TipLocation"] = TipLocation
-
-        if len(tip_racks) == 1:
-                transfer_params['UseCurrentTips'] = True
-        elif len(tip_racks) > 1:
-            transfer_params["ChangeTipsBetweenDests"] = True
-
+        transfer_params["Solvent"] =  asp_params['Solvent']
+        transfer_params["TipLocation"] = tip_rack
+        transfer_params.update(asp_params)
+        transfer_params.update(dis_params)
         self.temp_protocol["steps"].append(transfer_params)
 
         return 
-        
-    def transfer_biomek(
-            self,
-            parameters: dict,
-            technique: str,
-    ):
-        """
-        创建一个Biomek液体处理器的转移步骤。
 
-        Args:
-            step_number (int): 步骤编号
-            operation (str): 操作类型
-            description (str): 步骤描述
-            parameters (dict): 步骤参数
+labware_with_liquid = '''
+[    {
+        "id": "stock plate on P1",
+        "parent": "deck",
+        "slot_on_deck": "P1",
+        "class_name": "nest_12_reservoir_15ml",
+        "liquid_type": [
+            "master_mix"
+        ],
+        "liquid_volume": [10000],
+        "liquid_input_wells": [
+            "A1"
+        ]
+    },
+    {
+        "id": "Tip Rack BC230 TL2",
+        "parent": "deck",
+        "slot_on_deck": "TL2",
+        "class_name": "BC230",
+        "liquid_type": [],
+        "liquid_volume": [],
+        "liquid_input_wells": [
+        ]
+    },
+        {
+        "id": "Tip Rack BC230 on TL3",
+        "parent": "deck",
+        "slot_on_deck": "TL3",
+        "class_name": "BC230",
+        "liquid_type": [],
+        "liquid_volume": [],
+        "liquid_input_wells": [
+        ]
+    },
+        {
+        "id": "Tip Rack BC230 on TL4",
+        "parent": "deck",
+        "slot_on_deck": "TL4",
+        "class_name": "BC230",
+        "liquid_type": [],
+        "liquid_volume": [],
+        "liquid_input_wells": [
+        ]
+    },
+        {
+        "id": "Tip Rack BC230 on TL5",
+        "parent": "deck",
+        "slot_on_deck": "TL5",
+        "class_name": "BC230",
+        "liquid_type": [],
+        "liquid_volume": [],
+        "liquid_input_wells": [
+        ]
+    },
+            {
+        "id": "Tip Rack BC230 on P5",
+        "parent": "deck",
+        "slot_on_deck": "P5",
+        "class_name": "BC230",
+        "liquid_type": [],
+        "liquid_volume": [],
+        "liquid_input_wells": [
+        ]
+    },
+                {
+        "id": "Tip Rack BC230 on P6",
+        "parent": "deck",
+        "slot_on_deck": "P6",
+        "class_name": "BC230",
+        "liquid_type": [],
+        "liquid_volume": [],
+        "liquid_input_wells": [
+        ]
+    },
+                    {
+        "id": "Tip Rack BC230 on P7",
+        "parent": "deck",
+        "slot_on_deck": "P7",
+        "class_name": "BC230",
+        "liquid_type": [],
+        "liquid_volume": [],
+        "liquid_input_wells": [
+        ]
+    },
+    {
+        "id": "Tip Rack BC230 on P8",
+        "parent": "deck",
+        "slot_on_deck": "P8",
+        "class_name": "BC230",
+        "liquid_type": [],
+        "liquid_volume": [],
+        "liquid_input_wells": [
+        ]
+    },
+        {
+        "id": "Tip Rack BC230 P16",
+        "parent": "deck",
+        "slot_on_deck": "P16",
+        "class_name": "BC230",
+        "liquid_type": [],
+        "liquid_volume": [],
+        "liquid_input_wells": [
+        ]
+    },
+    {
+        "id": "stock plate on 4",
+        "parent": "deck",
+        "slot_on_deck": "P2",
+        "class_name": "nest_12_reservoir_15ml",
+        "liquid_type": [
+            "bind beads"
+        ],
+        "liquid_volume": [10000],
+        "liquid_input_wells": [
+            "A1"
+        ]
+    },
+        {
+        "id": "stock plate on P2",
+        "parent": "deck",
+        "slot_on_deck": "P2",
+        "class_name": "nest_12_reservoir_15ml",
+        "liquid_type": [
+            "bind beads"
+        ],
+        "liquid_volume": [10000],
+        "liquid_input_wells": [
+            "A1"
+        ]
+    },
+        {
+        "id": "stock plate on P3",
+        "parent": "deck",
+        "slot_on_deck": "P3",
+        "class_name": "nest_12_reservoir_15ml",
+        "liquid_type": [
+            "ethyl alcohol"
+        ],
+        "liquid_volume": [10000],
+        "liquid_input_wells": [
+            "A1"
+        ]
+    },
 
-        Returns:
-            dict: 创建的转移步骤字典
-        """
-        
-        sources = parameters.get("source")
-        targets = parameters.get("target")
-        tip_rack = parameters.get("tip_rack")
-        volume = parameters.get("volume")
-        liquid_type = parameters.get("liquid_type", "Well Content")
-        other_params = self.technique.get(technique, {})
+        {
+        "id": "oscillation",
+        "parent": "deck",
+        "slot_on_deck": "Orbital1",
+        "class_name": "Orbital",
+        "liquid_type": [],
+        "liquid_volume": [],
+        "liquid_input_wells": [
+        ]
+    },
+        {
+        "id": "working plate on P11",
+        "parent": "deck",
+        "slot_on_deck": "P11",
+        "class_name": "NEST 2ml Deep Well Plate",
+        "liquid_type": [
+        ],
+        "liquid_volume": [],
+        "liquid_input_wells": [
+        ]
+    },
+            {
+        "id": "magnetics module on P12",
+        "parent": "deck",
+        "slot_on_deck": "P12",
+        "class_name": "magnetics module",
+        "liquid_type": [],
+        "liquid_volume": [],
+        "liquid_input_wells": [
+        ]
+    },
+                {
+        "id": "working plate on P13",
+        "parent": "deck",
+        "slot_on_deck": "P13",
+        "class_name": "NEST 2ml Deep Well Plate",
+        "liquid_type": [
+        ],
+        "liquid_volume": [],
+        "liquid_input_wells": [
+        ]
+    },
+        {
+        "id": "waste on P22",
+        "parent": "deck",
+        "slot_on_deck": "P22",
+        "class_name": "nest_1_reservoir_195ml",
+        "liquid_type": [
+        ],
+        "liquid_volume": [],
+        "liquid_input_wells": [
+        ]
+    }
+]
 
-        self.transfer_liquid(
-            sources=[sources],
-            targets=[targets],
-            TipLocation=tip_rack,
-            tip_racks=[tip_rack],
-            solvent=liquid_type,
-            dis_vols=[volume],
-            **other_params
-        )
+'''
 
-        return 
+
 
 handler = LiquidHandlerBiomek()
 
@@ -556,13 +725,24 @@ handler.temp_protocol = {
     "labwares": [],
     "steps": []
 }
+
 input_steps = json.loads(steps_info)
+labwares = json.loads(labware_with_liquid)
 
 for step in input_steps['steps']:
     if step['operation'] != 'transfer':
         continue
     parameters = step['parameters']
-    handler.transfer_biomek(parameters, technique='MC P300 high')
+    tip_rack=parameters['tip_rack']
+    # 找到labwares中与tip_rack匹配的项的id
+    tip_rack_id = [lw['id'] for lw in labwares if lw['class_name'] == tip_rack][0]
 
+    handler.transfer_biomek(source=parameters['source'],
+                            target=parameters['target'],
+                            volume=parameters['volume'],
+                            tip_rack=tip_rack_id,
+                            aspirate_techniques='MC P300 high',
+                            dispense_techniques='MC P300 high'
+                            )
 print(json.dumps(handler.temp_protocol['steps'],indent=4, ensure_ascii=False))
 
