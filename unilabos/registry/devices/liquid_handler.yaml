@@ -1,5 +1,6 @@
 liquid_handler:
   description: Liquid handler device controlled by pylabrobot
+  icon: icon_yiyezhan.webp
   class:
     module: unilabos.devices.liquid_handling.liquid_handler_abstract:LiquidHandlerAbstract
     type: python

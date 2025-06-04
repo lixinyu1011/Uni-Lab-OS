@@ -132,8 +132,6 @@ class Registry:
                         resource_info["description"] = ""
                     if "icon" not in resource_info:
                         resource_info["icon"] = ""
-                    if "icon" not in resource_info:
-                        resource_info["icon"] = ""
                     if "handles" not in resource_info:
                         resource_info["handles"] = []
                     if "init_param_schema" not in resource_info:
