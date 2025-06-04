@@ -209,4 +209,4 @@ class LiquidHandlerBiomek(LiquidHandlerAbstract):
         self.temp_protocol["steps"].append(transfer_params)
         
         return 
-    s
+    
