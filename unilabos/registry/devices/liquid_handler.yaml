@@ -340,6 +340,17 @@ liquid_handler.biomek:
           none_keys: none_keys
         feedback: {}
         result: {}
+      transfer_biomek:
+        type: LiquidHandlerTransferBiomek
+        goal:
+          source: source,
+          target: target,
+          tip_rack: tip_rack,
+          volume: volume,
+          aspirate_techniques: aspirate_techniques,
+          dispense_techniques: dispense_techniques,
+        feedback: {}
+        result: {}
   schema:
     type: object
     properties: {}

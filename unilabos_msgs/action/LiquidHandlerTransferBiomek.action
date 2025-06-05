@@ -1,6 +1,7 @@
-Resource source
-Resource target
-Resource tip_rack
+string source
+string target
+string tip_rack
+float volume
 string aspirate_technique
 string dispense_technique
 
