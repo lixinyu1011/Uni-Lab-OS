@@ -1,7 +1,7 @@
 string source
 string target
 string tip_rack
-float volume
+float64 volume
 string aspirate_technique
 string dispense_technique
 
