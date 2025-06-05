@@ -513,7 +513,66 @@ class LiquidHandlerBiomek:
         transfer_params.update(dis_params)
         self.temp_protocol["steps"].append(transfer_params)
 
-        return 
+        return
+
+    def move_biomek(
+        self,
+        source: str,
+        target: str,
+    ):
+        """
+        处理Biomek移动板子的操作。
+
+        """
+
+        move_params = {
+            "Pod": "Pod1",
+            "GripSide": "A1 near",
+            "Source": source,
+            "Target": target,
+            "LeaveBottomLabware": False,
+        }
+        self.temp_protocol["steps"].append(move_params)
+
+        return
+    
+    def incubation_biomek(
+        self,
+        time: int,
+    ):
+        """
+        处理Biomek的孵育操作。
+        """
+        incubation_params = {
+            "BarcodeInput?": False,
+            "DeckItems": {},
+            "Layout": "Multichannel",
+            "Pause?": True,
+            "PodSetup": {},
+            "SplitterPosition": 206,
+            "VerifyPodSetup?": True
+        }
+        self.temp_protocol["steps"].append(incubation_params)
+
+        return
+    
+    def oscillation_biomek(
+        self,
+        rpm: int,
+        time: int,
+    ):
+        """
+        处理Biomek的振荡操作。
+        """   
+        oscillation_params = {
+            'Device': 'OrbitalShaker0',
+            'Parameters': (str(rpm), '2', str(time), 'CounterClockwise'), 
+            'Command': 'Timed Shake'
+        }
+        self.temp_protocol["steps"].append(oscillation_params)
+
+        return
+                      
 
 labware_with_liquid = '''
 [    {
