@@ -343,12 +343,12 @@ liquid_handler.biomek:
       transfer_biomek:
         type: LiquidHandlerTransferBiomek
         goal:
-          source: source,
-          target: target,
-          tip_rack: tip_rack,
-          volume: volume,
-          aspirate_techniques: aspirate_techniques,
-          dispense_techniques: dispense_techniques,
+          source: source
+          target: target
+          tip_rack: tip_rack
+          volume: volume
+          aspirate_techniques: aspirate_techniques
+          dispense_techniques: dispense_techniques
         feedback: {}
         result: {}
   schema:
