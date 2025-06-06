@@ -64,6 +64,7 @@ class Registry:
                                 "goal_default": yaml.safe_load(
                                     io.StringIO(get_yaml_from_goal_type(self.ResourceCreateFromOuter.Goal))
                                 ),
+                                "handles": {},
                             },
                             "create_resource": {
                                 "type": self.ResourceCreateFromOuterEasy,
@@ -84,6 +85,7 @@ class Registry:
                                 "goal_default": yaml.safe_load(
                                     io.StringIO(get_yaml_from_goal_type(self.ResourceCreateFromOuterEasy.Goal))
                                 ),
+                                "handles": {},
                             },
                             "test_latency": {
                                 "type": self.EmptyIn,
@@ -92,6 +94,7 @@ class Registry:
                                 "result": {"latency_ms": "latency_ms", "time_diff_ms": "time_diff_ms"},
                                 "schema": ros_action_to_json_schema(self.EmptyIn),
                                 "goal_default": {},
+                                "handles": {},
                             },
                         },
                     },
@@ -215,7 +218,7 @@ class Registry:
                         if "action_value_mappings" in device_config["class"]:
                             for action_name, action_config in device_config["class"]["action_value_mappings"].items():
                                 if "handles" not in action_config:
-                                    device_config["handles"] = []
+                                    action_config["handles"] = []
                                 if "type" in action_config:
                                     action_config["type"] = self._replace_type_with_class(
                                         action_config["type"], device_id, f"动作 {action_name}"
