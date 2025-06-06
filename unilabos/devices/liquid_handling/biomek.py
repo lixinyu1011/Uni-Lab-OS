@@ -23,8 +23,8 @@ class LiquidHandlerBiomek(LiquidHandlerAbstract):
     该类用于处理Biomek液体处理器的特定操作。
     """
 
-    def __init__(self, backend=None, deck=None, *args, **kwargs):
-        super().__init__(backend, deck, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._status = "Idle"  # 初始状态为 Idle
         self._success = False  # 初始成功状态为 False
         self._status_queue = kwargs.get("status_queue", None)  # 状态队列
@@ -32,45 +32,62 @@ class LiquidHandlerBiomek(LiquidHandlerAbstract):
         self.py32_path = "/opt/py32"  # Biomek的Python 3.2路径
         self.aspirate_techniques = {
             'MC P300 high':{       
-                "Solvent": "Water",
+                            'Position': 'P1', 
+                            'Height': -2.0, 
+                            'Volume': '50', 
+                            'liquidtype': 'Well Contents', 
+                            'WellsX': 12, 
+                            'LabwareClass': 'Matrix96_750uL', 
+                            'AutoSelectPrototype': True, 
+                            'ColsFirst': True, 
+                            'CustomHeight': False, 
+                            'DataSetPattern': False, 
+                            'HeightFrom': 0, 
+                            'LocalPattern': True, 
+                            'Operation': 'Aspirate', 
+                            'OverrideHeight': False, 
+                            'Pattern': (True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True),
+                            'Prototype': 'MC P300 High', 
+                            'ReferencedPattern': '', 
+                            'RowsFirst': False, 
+                            'SectionExpression': '', 
+                            'SelectionInfo': (1,), 
+                            'SetMark': True, 
+                            'Source': True, 
+                            'StartAtMark': False, 
+                            'StartAtSelection': True, 
+                            'UseExpression': False},
             }
-        }
+      
         self.dispense_techniques = {
             'MC P300 high':{       
-            "Span8": False,
-            "Pod": "Pod1",
-            "Wash": False,
-            "Dynamic?": True,
-            "AutoSelectActiveWashTechnique": False,
-            "ActiveWashTechnique": "",
-            "ChangeTipsBetweenDests": True,
-            "ChangeTipsBetweenSources": False,
-            "DefaultCaption": "",             
-            "UseExpression": False,
-            "LeaveTipsOn": False,
-            "MandrelExpression": "",
-            "Repeats": "1",
-            "RepeatsByVolume": False,
-            "Replicates": "1",
-            "ShowTipHandlingDetails": False,
-            "ShowTransferDetails": True,
-            "Span8Wash": False,
-            "Span8WashVolume": "2",
-            "Span8WasteVolume": "1",
-            "SplitVolume": False,
-            "SplitVolumeCleaning": False,
-            "Stop": "Destinations",
-            "UseCurrentTips": False,    
-            "UseDisposableTips": False,
-            "UseFixedTips": False,
-            "UseJIT": True,
-            "UseMandrelSelection": True,
-            "UseProbes": [True, True, True, True, True, True, True, True],
-            "WashCycles": "3",
-            "WashVolume": "110%",
-            "Wizard": False
-            }
+                          'Position': 'P11', 
+                          'Height': -2.0, 
+                          'Volume': '50', 
+                          'liquidtype': 'Tip Contents', 
+                          'WellsX': 12, 
+                          'LabwareClass': 'Matrix96_750uL', 
+                          'AutoSelectPrototype': True, 
+                          'ColsFirst': True, 
+                          'CustomHeight': False, 
+                          'DataSetPattern': False, 
+                          'HeightFrom': 0, 
+                          'LocalPattern': True, 
+                          'Operation': 'Dispense', 
+                          'OverrideHeight': False, 
+                          'Pattern': (True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True), 
+                          'Prototype': 'MC P300 High', 
+                          'ReferencedPattern': '', 
+                          'RowsFirst': False, 
+                          'SectionExpression': '', 
+                          'SelectionInfo': (1,), 
+                          'SetMark': True, 
+                          'Source': False, 
+                          'StartAtMark': False, 
+                          'StartAtSelection': True, 
+                          'UseExpression': False}
         }
+
 
     @classmethod
     def deserialize(cls, data: dict, allow_marshal: bool = False) -> LiquidHandler:
