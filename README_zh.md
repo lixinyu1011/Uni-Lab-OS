@@ -12,7 +12,11 @@
 [![GitHub Issues](https://img.shields.io/github/issues/dptech-corp/Uni-Lab-OS.svg)](https://github.com/dptech-corp/Uni-Lab-OS/issues)
 [![GitHub License](https://img.shields.io/github/license/dptech-corp/Uni-Lab-OS.svg)](https://github.com/dptech-corp/Uni-Lab-OS/blob/main/LICENSE)
 
-Uni-Lab 操作系统是一个用于实验室自动化的综合平台，旨在连接和控制各种实验设备，实现实验流程的自动化和标准化。
+Uni-Lab-OS是一个用于实验室自动化的综合平台，旨在连接和控制各种实验设备，实现实验流程的自动化和标准化。
+
+## 🏆 比赛
+
+欢迎参加[有机化学合成智能实验大赛](https://bohrium.dp.tech/competitions/1451645258)，使用 Uni-Lab-OS 探索自动化合成！
 
 ## 核心特点
 
