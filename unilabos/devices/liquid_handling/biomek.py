@@ -285,20 +285,29 @@ class LiquidHandlerBiomek(LiquidHandlerAbstract):
         处理Biomek的液体转移操作。
 
         """
-        
+        items = []
+
         asp_params = self.aspirate_techniques.get(aspirate_techniques, {})
         dis_params = self.dispense_techniques.get(dispense_techniques, {})
+
+        asp_params['Position'] = source
+        dis_params['Position'] = target
+        asp_params['Volume'] = str(volume)
+        dis_params['Volume'] = str(volume)
+
+        items.append(asp_params)
+        items.append(dis_params)
 
         transfer_params = {
             "Span8": False,
             "Pod": "Pod1",
-            "items": {},                      
+            "items": [],                      
             "Wash": False,
             "Dynamic?": True,
             "AutoSelectActiveWashTechnique": False,
             "ActiveWashTechnique": "",
-            "ChangeTipsBetweenDests": False,
-            "ChangeTipsBetweenSources": True,
+            "ChangeTipsBetweenDests": True,
+            "ChangeTipsBetweenSources": False,
             "DefaultCaption": "",             
             "UseExpression": False,
             "LeaveTipsOn": False,
@@ -315,30 +324,24 @@ class LiquidHandlerBiomek(LiquidHandlerAbstract):
             "SplitVolume": False,
             "SplitVolumeCleaning": False,
             "Stop": "Destinations",
-            "TipLocation": "BC1025F",
+            "TipLocation": "BC230",
             "UseCurrentTips": False,    
-            "UseDisposableTips": True,
+            "UseDisposableTips": False,
             "UseFixedTips": False,
             "UseJIT": True,
             "UseMandrelSelection": True,
             "UseProbes": [True, True, True, True, True, True, True, True],
-            "WashCycles": "1",
+            "WashCycles": "4",
             "WashVolume": "110%",
             "Wizard": False
         }
-
-        items: dict = {}
-        items["Source"] = source
-        items["Destination"] = target
-        items["Volume"] = volume 
         transfer_params["items"] = items
-        transfer_params["Solvent"] =  asp_params['Solvent']
+        transfer_params["Solvent"] = 'Water'
         transfer_params["TipLocation"] = tip_rack
-        transfer_params.update(asp_params)
-        transfer_params.update(dis_params)
         self.temp_protocol["steps"].append(transfer_params)
-        
+
         return 
+
 
 steps_info = ''' 
 {
@@ -604,6 +607,7 @@ steps_info = '''
 '''
 
 
+
 labware_with_liquid = '''
 [    {
         "id": "stock plate on P1",
@@ -806,6 +810,7 @@ labware_with_liquid = '''
 '''
 
 handler = LiquidHandlerBiomek()
+
 handler.temp_protocol = {
     "meta": {},
     "labwares": [],
@@ -819,16 +824,13 @@ for step in input_steps['steps']:
     if step['operation'] != 'transfer':
         continue
     parameters = step['parameters']
-    tip_rack=parameters['tip_rack']
-    # 找到labwares中与tip_rack匹配的项的id
-    tip_rack_id = [lw['id'] for lw in labwares if lw['class_name'] == tip_rack][0]
 
     handler.transfer_biomek(source=parameters['source'],
                             target=parameters['target'],
                             volume=parameters['volume'],
-                            tip_rack=tip_rack_id,
+                            tip_rack=parameters['tip_rack'],
                             aspirate_techniques='MC P300 high',
                             dispense_techniques='MC P300 high'
                             )
-print(json.dumps(handler.temp_protocol['steps'],indent=4, ensure_ascii=False))
+
 

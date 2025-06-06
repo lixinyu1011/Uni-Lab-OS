@@ -15,6 +15,262 @@ from pylabrobot.resources import (
 import json
 from typing import Sequence, Optional, List, Union, Literal
 
+
+
+#class LiquidHandlerBiomek(LiquidHandlerAbstract):
+
+
+class LiquidHandlerBiomek:
+    """
+    Biomek液体处理器的实现类，继承自LiquidHandlerAbstract。
+    该类用于处理Biomek液体处理器的特定操作。
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._status = "Idle"  # 初始状态为 Idle
+        self._success = False  # 初始成功状态为 False
+        self._status_queue = kwargs.get("status_queue", None)  # 状态队列
+        self.temp_protocol = {}
+        self.py32_path = "/opt/py32"  # Biomek的Python 3.2路径
+        self.aspirate_techniques = {
+            'MC P300 high':{       
+                            'Position': 'P1', 
+                            'Height': -2.0, 
+                            'Volume': '50', 
+                            'liquidtype': 'Well Contents', 
+                            'WellsX': 12, 
+                            'LabwareClass': 'Matrix96_750uL', 
+                            'AutoSelectPrototype': True, 
+                            'ColsFirst': True, 
+                            'CustomHeight': False, 
+                            'DataSetPattern': False, 
+                            'HeightFrom': 0, 
+                            'LocalPattern': True, 
+                            'Operation': 'Aspirate', 
+                            'OverrideHeight': False, 
+                            'Pattern': (True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True),
+                            'Prototype': 'MC P300 High', 
+                            'ReferencedPattern': '', 
+                            'RowsFirst': False, 
+                            'SectionExpression': '', 
+                            'SelectionInfo': (1,), 
+                            'SetMark': True, 
+                            'Source': True, 
+                            'StartAtMark': False, 
+                            'StartAtSelection': True, 
+                            'UseExpression': False},
+            }
+      
+        self.dispense_techniques = {
+            'MC P300 high':{       
+                          'Position': 'P11', 
+                          'Height': -2.0, 
+                          'Volume': '50', 
+                          'liquidtype': 'Tip Contents', 
+                          'WellsX': 12, 
+                          'LabwareClass': 'Matrix96_750uL', 
+                          'AutoSelectPrototype': True, 
+                          'ColsFirst': True, 
+                          'CustomHeight': False, 
+                          'DataSetPattern': False, 
+                          'HeightFrom': 0, 
+                          'LocalPattern': True, 
+                          'Operation': 'Dispense', 
+                          'OverrideHeight': False, 
+                          'Pattern': (True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True), 
+                          'Prototype': 'MC P300 High', 
+                          'ReferencedPattern': '', 
+                          'RowsFirst': False, 
+                          'SectionExpression': '', 
+                          'SelectionInfo': (1,), 
+                          'SetMark': True, 
+                          'Source': False, 
+                          'StartAtMark': False, 
+                          'StartAtSelection': True, 
+                          'UseExpression': False}
+        }
+
+
+    def create_protocol(
+        self,
+        protocol_name: str,
+        protocol_description: str,
+        protocol_version: str,
+        protocol_author: str,
+        protocol_date: str,
+        protocol_type: str,
+        none_keys: List[str] = [],
+    ):
+        """
+        创建一个新的协议。
+
+        Args:
+            protocol_name (str): 协议名称
+            protocol_description (str): 协议描述
+            protocol_version (str): 协议版本
+            protocol_author (str): 协议作者
+            protocol_date (str): 协议日期
+            protocol_type (str): 协议类型
+            none_keys (List[str]): 需要设置为None的键列表
+
+        Returns:
+            dict: 创建的协议字典
+        """
+        self.temp_protocol = {
+            "meta": {
+                "name": protocol_name,
+                "description": protocol_description,
+                "version": protocol_version,
+                "author": protocol_author,
+                "date": protocol_date,
+                "type": protocol_type,
+            },
+            "labwares": [],
+            "steps": [],
+        }
+        return self.temp_protocol
+
+#     def run_protocol(self):
+#         """
+#         执行创建的实验流程。
+#         工作站的完整执行流程是，
+#         从 create_protocol 开始，创建新的 method，
+#         随后执行 transfer_liquid 等操作向实验流程添加步骤，
+#         最后 run_protocol 执行整个方法。
+
+#         Returns:
+#             dict: 执行结果
+#         """
+#         #use popen or subprocess to create py32 process and communicate send the temp protocol to it
+#         if not self.temp_protocol:
+#             raise ValueError("No protocol created. Please create a protocol first.")
+
+#         # 模拟执行协议
+#         self._status = "Running"
+#         self._success = True
+#         # 在这里可以添加实际执行协议的逻辑
+
+#         response = requests.post("localhost:5000/api/protocols", json=self.temp_protocol)
+
+#     def create_resource(
+#         self,
+#         resource_tracker: DeviceNodeResourceTracker,
+#         resources: list[Resource],
+#         bind_parent_id: str,
+#         bind_location: dict[str, float],
+#         liquid_input_slot: list[int],
+#         liquid_type: list[str],
+#         liquid_volume: list[int],
+#         slot_on_deck: int,
+#         res_id,
+#         class_name,
+#         bind_locations,
+#         parent
+#     ):
+#         """
+#         创建一个新的资源。
+
+#         Args:
+#             device_id (str): 设备ID
+#             res_id (str): 资源ID
+#             class_name (str): 资源类名
+#             parent (str): 父级ID
+#             bind_locations (Point): 绑定位置
+#             liquid_input_slot (list[int]): 液体输入槽列表
+#             liquid_type (list[str]): 液体类型列表
+#             liquid_volume (list[int]): 液体体积列表
+#             slot_on_deck (int): 甲板上的槽位
+
+#         Returns:
+#             dict: 创建的资源字典
+#         """
+#         # TODO：需要对好接口，下面这个是临时的
+#         resource = {
+#             "id": res_id,
+#             "class": class_name,
+#             "parent": parent,
+#             "bind_locations": bind_locations.to_dict(),
+#             "liquid_input_slot": liquid_input_slot,
+#             "liquid_type": liquid_type,
+#             "liquid_volume": liquid_volume,
+#             "slot_on_deck": slot_on_deck,
+#         }
+#         self.temp_protocol["labwares"].append(resource)
+#         return resource
+    
+
+    def transfer_biomek(
+            self,
+            source: str,
+            target: str,
+            tip_rack: str,
+            volume: float,
+            aspirate_techniques: str,
+            dispense_techniques: str,
+    ):
+        """
+        处理Biomek的液体转移操作。
+
+        """
+        items = []
+
+        asp_params = self.aspirate_techniques.get(aspirate_techniques, {})
+        dis_params = self.dispense_techniques.get(dispense_techniques, {})
+
+        asp_params['Position'] = source
+        dis_params['Position'] = target
+        asp_params['Volume'] = str(volume)
+        dis_params['Volume'] = str(volume)
+
+        items.append(asp_params)
+        items.append(dis_params)
+
+        transfer_params = {
+            "Span8": False,
+            "Pod": "Pod1",
+            "items": [],                      
+            "Wash": False,
+            "Dynamic?": True,
+            "AutoSelectActiveWashTechnique": False,
+            "ActiveWashTechnique": "",
+            "ChangeTipsBetweenDests": True,
+            "ChangeTipsBetweenSources": False,
+            "DefaultCaption": "",             
+            "UseExpression": False,
+            "LeaveTipsOn": False,
+            "MandrelExpression": "",
+            "Repeats": "1",
+            "RepeatsByVolume": False,
+            "Replicates": "1",
+            "ShowTipHandlingDetails": False,
+            "ShowTransferDetails": True,
+            "Solvent": "Water",
+            "Span8Wash": False,
+            "Span8WashVolume": "2",
+            "Span8WasteVolume": "1",
+            "SplitVolume": False,
+            "SplitVolumeCleaning": False,
+            "Stop": "Destinations",
+            "TipLocation": "BC230",
+            "UseCurrentTips": False,    
+            "UseDisposableTips": False,
+            "UseFixedTips": False,
+            "UseJIT": True,
+            "UseMandrelSelection": True,
+            "UseProbes": [True, True, True, True, True, True, True, True],
+            "WashCycles": "4",
+            "WashVolume": "110%",
+            "Wizard": False
+        }
+        transfer_params["items"] = items
+        transfer_params["Solvent"] = 'Water'
+        transfer_params["TipLocation"] = tip_rack
+        self.temp_protocol["steps"].append(transfer_params)
+
+        return 
+
+
 steps_info = ''' 
 {
   "steps": [
@@ -280,241 +536,6 @@ steps_info = '''
 
 
 
-#class LiquidHandlerBiomek(LiquidHandlerAbstract):
-
-
-class LiquidHandlerBiomek:
-    """
-    Biomek液体处理器的实现类，继承自LiquidHandlerAbstract。
-    该类用于处理Biomek液体处理器的特定操作。
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._status = "Idle"  # 初始状态为 Idle
-        self._success = False  # 初始成功状态为 False
-        self._status_queue = kwargs.get("status_queue", None)  # 状态队列
-        self.temp_protocol = {}
-        self.py32_path = "/opt/py32"  # Biomek的Python 3.2路径
-        self.aspirate_techniques = {
-            'MC P300 high':{       
-                "Solvent": "Water",
-            }
-        }
-        self.dispense_techniques = {
-            'MC P300 high':{       
-            "Span8": False,
-            "Pod": "Pod1",
-            "Wash": False,
-            "Dynamic?": True,
-            "AutoSelectActiveWashTechnique": False,
-            "ActiveWashTechnique": "",
-            "ChangeTipsBetweenDests": True,
-            "ChangeTipsBetweenSources": False,
-            "DefaultCaption": "",             
-            "UseExpression": False,
-            "LeaveTipsOn": False,
-            "MandrelExpression": "",
-            "Repeats": "1",
-            "RepeatsByVolume": False,
-            "Replicates": "1",
-            "ShowTipHandlingDetails": False,
-            "ShowTransferDetails": True,
-            "Span8Wash": False,
-            "Span8WashVolume": "2",
-            "Span8WasteVolume": "1",
-            "SplitVolume": False,
-            "SplitVolumeCleaning": False,
-            "Stop": "Destinations",
-            "UseCurrentTips": False,    
-            "UseDisposableTips": False,
-            "UseFixedTips": False,
-            "UseJIT": True,
-            "UseMandrelSelection": True,
-            "UseProbes": [True, True, True, True, True, True, True, True],
-            "WashCycles": "3",
-            "WashVolume": "110%",
-            "Wizard": False
-            }
-        }
-
-
-    def create_protocol(
-        self,
-        protocol_name: str,
-        protocol_description: str,
-        protocol_version: str,
-        protocol_author: str,
-        protocol_date: str,
-        protocol_type: str,
-        none_keys: List[str] = [],
-    ):
-        """
-        创建一个新的协议。
-
-        Args:
-            protocol_name (str): 协议名称
-            protocol_description (str): 协议描述
-            protocol_version (str): 协议版本
-            protocol_author (str): 协议作者
-            protocol_date (str): 协议日期
-            protocol_type (str): 协议类型
-            none_keys (List[str]): 需要设置为None的键列表
-
-        Returns:
-            dict: 创建的协议字典
-        """
-        self.temp_protocol = {
-            "meta": {
-                "name": protocol_name,
-                "description": protocol_description,
-                "version": protocol_version,
-                "author": protocol_author,
-                "date": protocol_date,
-                "type": protocol_type,
-            },
-            "labwares": [],
-            "steps": [],
-        }
-        return self.temp_protocol
-
-#     def run_protocol(self):
-#         """
-#         执行创建的实验流程。
-#         工作站的完整执行流程是，
-#         从 create_protocol 开始，创建新的 method，
-#         随后执行 transfer_liquid 等操作向实验流程添加步骤，
-#         最后 run_protocol 执行整个方法。
-
-#         Returns:
-#             dict: 执行结果
-#         """
-#         #use popen or subprocess to create py32 process and communicate send the temp protocol to it
-#         if not self.temp_protocol:
-#             raise ValueError("No protocol created. Please create a protocol first.")
-
-#         # 模拟执行协议
-#         self._status = "Running"
-#         self._success = True
-#         # 在这里可以添加实际执行协议的逻辑
-
-#         response = requests.post("localhost:5000/api/protocols", json=self.temp_protocol)
-
-#     def create_resource(
-#         self,
-#         resource_tracker: DeviceNodeResourceTracker,
-#         resources: list[Resource],
-#         bind_parent_id: str,
-#         bind_location: dict[str, float],
-#         liquid_input_slot: list[int],
-#         liquid_type: list[str],
-#         liquid_volume: list[int],
-#         slot_on_deck: int,
-#         res_id,
-#         class_name,
-#         bind_locations,
-#         parent
-#     ):
-#         """
-#         创建一个新的资源。
-
-#         Args:
-#             device_id (str): 设备ID
-#             res_id (str): 资源ID
-#             class_name (str): 资源类名
-#             parent (str): 父级ID
-#             bind_locations (Point): 绑定位置
-#             liquid_input_slot (list[int]): 液体输入槽列表
-#             liquid_type (list[str]): 液体类型列表
-#             liquid_volume (list[int]): 液体体积列表
-#             slot_on_deck (int): 甲板上的槽位
-
-#         Returns:
-#             dict: 创建的资源字典
-#         """
-#         # TODO：需要对好接口，下面这个是临时的
-#         resource = {
-#             "id": res_id,
-#             "class": class_name,
-#             "parent": parent,
-#             "bind_locations": bind_locations.to_dict(),
-#             "liquid_input_slot": liquid_input_slot,
-#             "liquid_type": liquid_type,
-#             "liquid_volume": liquid_volume,
-#             "slot_on_deck": slot_on_deck,
-#         }
-#         self.temp_protocol["labwares"].append(resource)
-#         return resource
-    
-
-    def transfer_biomek(
-            self,
-            source: str,
-            target: str,
-            tip_rack: str,
-            volume: float,
-            aspirate_techniques: str,
-            dispense_techniques: str,
-    ):
-        """
-        处理Biomek的液体转移操作。
-
-        """
-        
-        asp_params = self.aspirate_techniques.get(aspirate_techniques, {})
-        dis_params = self.dispense_techniques.get(dispense_techniques, {})
-
-        transfer_params = {
-            "Span8": False,
-            "Pod": "Pod1",
-            "items": {},                      
-            "Wash": False,
-            "Dynamic?": True,
-            "AutoSelectActiveWashTechnique": False,
-            "ActiveWashTechnique": "",
-            "ChangeTipsBetweenDests": False,
-            "ChangeTipsBetweenSources": True,
-            "DefaultCaption": "",             
-            "UseExpression": False,
-            "LeaveTipsOn": False,
-            "MandrelExpression": "",
-            "Repeats": "1",
-            "RepeatsByVolume": False,
-            "Replicates": "1",
-            "ShowTipHandlingDetails": False,
-            "ShowTransferDetails": True,
-            "Solvent": "Water",
-            "Span8Wash": False,
-            "Span8WashVolume": "2",
-            "Span8WasteVolume": "1",
-            "SplitVolume": False,
-            "SplitVolumeCleaning": False,
-            "Stop": "Destinations",
-            "TipLocation": "BC1025F",
-            "UseCurrentTips": False,    
-            "UseDisposableTips": True,
-            "UseFixedTips": False,
-            "UseJIT": True,
-            "UseMandrelSelection": True,
-            "UseProbes": [True, True, True, True, True, True, True, True],
-            "WashCycles": "1",
-            "WashVolume": "110%",
-            "Wizard": False
-        }
-
-        items: dict = {}
-        items["Source"] = source
-        items["Destination"] = target
-        items["Volume"] = volume 
-        transfer_params["items"] = items
-        transfer_params["Solvent"] =  asp_params['Solvent']
-        transfer_params["TipLocation"] = tip_rack
-        transfer_params.update(asp_params)
-        transfer_params.update(dis_params)
-        self.temp_protocol["steps"].append(transfer_params)
-
-        return 
-
 labware_with_liquid = '''
 [    {
         "id": "stock plate on P1",
@@ -716,8 +737,6 @@ labware_with_liquid = '''
 
 '''
 
-
-
 handler = LiquidHandlerBiomek()
 
 handler.temp_protocol = {
@@ -733,7 +752,6 @@ for step in input_steps['steps']:
     if step['operation'] != 'transfer':
         continue
     parameters = step['parameters']
-    
 
     handler.transfer_biomek(source=parameters['source'],
                             target=parameters['target'],
@@ -742,6 +760,6 @@ for step in input_steps['steps']:
                             aspirate_techniques='MC P300 high',
                             dispense_techniques='MC P300 high'
                             )
-    
-print(json.dumps(handler.temp_protocol['steps'],indent=4, ensure_ascii=False))
+with open('biomek_temporary_protocol.json', 'w') as f:
+    json.dump(handler.temp_protocol, f, indent=4, ensure_ascii=False)
 
