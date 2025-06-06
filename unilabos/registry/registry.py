@@ -214,6 +214,8 @@ class Registry:
                         # 处理动作值映射
                         if "action_value_mappings" in device_config["class"]:
                             for action_name, action_config in device_config["class"]["action_value_mappings"].items():
+                                if "handles" not in action_config:
+                                    device_config["handles"] = []
                                 if "type" in action_config:
                                     action_config["type"] = self._replace_type_with_class(
                                         action_config["type"], device_id, f"动作 {action_name}"
