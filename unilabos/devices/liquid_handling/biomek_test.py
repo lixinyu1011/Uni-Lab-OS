@@ -1,14 +1,14 @@
-import requests
+# import requests
 from typing import List, Sequence, Optional, Union, Literal
 # from geometry_msgs.msg import Point
 # from unilabos_msgs.msg import Resource
-from pylabrobot.resources import (
-    Resource,
-    TipRack,
-    Container,
-    Coordinate,
-    Well
-)
+# from pylabrobot.resources import (
+#     Resource,
+#     TipRack,
+#     Container,
+#     Coordinate,
+#     Well
+# )
 # from unilabos.ros.nodes.resource_tracker import DeviceNodeResourceTracker  # type: ignore
 # from .liquid_handler_abstract import LiquidHandlerAbstract
 
@@ -299,13 +299,10 @@ class LiquidHandlerBiomek:
         处理Biomek的孵育操作。
         """
         incubation_params = {
-            "BarcodeInput?": False,
-            "DeckItems": {},
-            "Layout": "Multichannel",
-            "Pause?": True,
-            "PodSetup": {},
-            "SplitterPosition": 206,
-            "VerifyPodSetup?": True
+            "Message": "Paused",
+            "Location": "the whole system",
+            "Time": time,
+            "Mode": "TimedResource"
         }
         self.temp_protocol["steps"].append(incubation_params)
 
@@ -822,16 +819,23 @@ input_steps = json.loads(steps_info)
 labwares = json.loads(labware_with_liquid)
 
 for step in input_steps['steps']:
-    if step['operation'] != 'transfer':
-        continue
+    operation = step['operation']
     parameters = step['parameters']
 
-    handler.transfer_biomek(source=parameters['source'],
-                            target=parameters['target'],
-                            volume=parameters['volume'],
-                            tip_rack=parameters['tip_rack'],
-                            aspirate_techniques='MC P300 high',
-                            dispense_techniques='MC P300 high'
-                            )
+    if operation == 'transfer':
+        handler.transfer_biomek(source=parameters['source'],
+                                target=parameters['target'],
+                                volume=parameters['volume'],
+                                tip_rack=parameters['tip_rack'],
+                                aspirate_techniques='MC P300 high',
+                                dispense_techniques='MC P300 high')
+    elif operation == 'move_labware':
+        handler.move_biomek(source=parameters['source'],
+                              target=parameters['target'])
+    elif operation == 'oscillation':
+        handler.oscillation_biomek(rpm=parameters['rpm'],
+                                    time=parameters['time'])
+    elif operation == 'incubation':
+        handler.incubation_biomek(time=parameters['time'])
 
 print(json.dumps(handler.temp_protocol, indent=4))
