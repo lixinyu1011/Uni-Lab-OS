@@ -805,7 +805,9 @@ class ROS2DeviceNode:
         self.resource_tracker = DeviceNodeResourceTracker()
 
         # use_pylabrobot_creator 使用 cls的包路径检测
-        use_pylabrobot_creator = driver_class.__module__.startswith("pylabrobot") or driver_class.__name__ == "LiquidHandlerAbstract"
+        use_pylabrobot_creator = (driver_class.__module__.startswith("pylabrobot")
+                                  or driver_class.__name__ == "LiquidHandlerAbstract"
+                                  or driver_class.__name__ == "LiquidHandlerBiomek")
 
         # TODO: 要在创建之前预先请求服务器是否有当前id的物料，放到resource_tracker中，让pylabrobot进行创建
         # 创建设备类实例
