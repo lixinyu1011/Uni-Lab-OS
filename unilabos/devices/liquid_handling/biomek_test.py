@@ -13,6 +13,7 @@ from typing import List, Sequence, Optional, Union, Literal
 # from .liquid_handler_abstract import LiquidHandlerAbstract
 
 import json
+import pathlib
 from typing import Sequence, Optional, List, Union, Literal
 
 
@@ -33,6 +34,23 @@ class LiquidHandlerBiomek:
         self._status_queue = kwargs.get("status_queue", None)  # 状态队列
         self.temp_protocol = {}
         self.py32_path = "/opt/py32"  # Biomek的Python 3.2路径
+        
+        # 预定义的仪器分类
+        self.tip_racks = [
+            "BC230", "BC1025F", "BC50", "TipRack200", "TipRack1000",
+            "tip", "tips", "Tip", "Tips"
+        ]
+        
+        self.reservoirs = [
+            "AgilentReservoir", "nest_12_reservoir_15ml", "nest_1_reservoir_195ml",
+            "reservoir", "Reservoir", "waste", "Waste"
+        ]
+        
+        self.plates_96 = [
+            "BCDeep96Round", "Matrix96_750uL", "NEST 2ml Deep Well Plate", "nest_96_wellplate_100ul_pcr_full_skirt",
+            "nest_96_wellplate_200ul_flat", "Matrix96", "96", "plate", "Plate"
+        ]
+        
         self.aspirate_techniques = {
             'MC P300 high':{       
                             'Position': 'P1', 
@@ -49,7 +67,7 @@ class LiquidHandlerBiomek:
                             'LocalPattern': True, 
                             'Operation': 'Aspirate', 
                             'OverrideHeight': False, 
-                            'Pattern': (True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True),
+                            'Pattern': (True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True),
                             'Prototype': 'MC P300 High', 
                             'ReferencedPattern': '', 
                             'RowsFirst': False, 
@@ -91,6 +109,30 @@ class LiquidHandlerBiomek:
                           'UseExpression': False}
         }
 
+
+    def _get_instrument_type(self, class_name: str) -> str:
+        """
+        根据class_name判断仪器类型
+        
+        Returns:
+            str: "tip_rack", "reservoir", "plate_96", 或 "unknown"
+        """
+        # 检查是否是枪头架
+        for tip_name in self.tip_racks:
+            if tip_name in class_name:
+                return "tip_rack"
+        
+        # 检查是否是储液槽
+        for reservoir_name in self.reservoirs:
+            if reservoir_name in class_name:
+                return "reservoir"
+        
+        # 检查是否是96孔板
+        for plate_name in self.plates_96:
+            if plate_name in class_name:
+                return "plate_96"
+        
+        return "unknown"
 
     def create_protocol(
         self,
@@ -198,7 +240,104 @@ class LiquidHandlerBiomek:
 #         }
 #         self.temp_protocol["labwares"].append(resource)
 #         return resource
-    
+    def instrument_setup_biomek(
+        self,
+        id: str,
+        parent: str,
+        slot_on_deck: str,
+        class_name: str,
+        liquid_type: list[str],
+        liquid_volume: list[int],
+        liquid_input_wells: list[str],
+    ):
+        """
+        设置Biomek仪器的参数配置，完全按照Biomek的实际格式
+        
+        根据不同的仪器类型（容器、tip rack等）设置相应的参数结构
+        """
+        
+        # 判断仪器类型
+        instrument_type = self._get_instrument_type(class_name)
+        
+        config = {} # 初始化为空字典，以便在各种情况下都能返回
+
+        if instrument_type == "reservoir":
+            # 储液槽类型配置
+            config = {
+                "Properties": {
+                    "Name": id, # 使用id作为名称
+                    "Device": "",
+                    "liquidtype": liquid_type[0] if liquid_type else "Water",
+                    "BarCode": "",
+                    "SenseEveryTime": False
+                },
+                "Known": True,
+                "Class": f"LabwareClasses\\{class_name}",
+                "DataSets": {"Volume": {}},
+                "RuntimeDataSets": {"Volume": {}},
+                "EvalAmounts": (float(liquid_volume[0]),) if liquid_volume else (0.0,),
+                "Nominal": False,
+                "EvalLiquids": (liquid_type[0],) if liquid_type else ("Water",)
+            }
+            
+        elif instrument_type == "plate_96":
+            # 96孔板类型配置
+            volume_per_well = float(liquid_volume[0]) if liquid_volume else 500.0
+            liquid_per_well = liquid_type[0] if liquid_type else "Water"
+            
+            config = {
+                "Properties": {
+                    "Name": id, # 使用id作为名称
+                    "Device": "",
+                    "liquidtype": liquid_per_well,
+                    "BarCode": "",
+                    "SenseEveryTime": False
+                },
+                "Known": True,
+                "Class": f"LabwareClasses\\{class_name}",
+                "DataSets": {"Volume": {}},
+                "RuntimeDataSets": {"Volume": {}},
+                "EvalAmounts": tuple([volume_per_well] * 96),
+                "Nominal": False,
+                "EvalLiquids": tuple([liquid_per_well] * 96)
+            }
+            
+        elif instrument_type == "tip_rack":
+            # 枪头架类型配置
+            tip_config = {
+                "Class": "TipClasses\\T230",
+                "Contents": [],
+                "_RT_Contents": [],
+                "Used": False,
+                "RT_Used": False,
+                "Dirty": False,
+                "RT_Dirty": False,
+                "MaxVolumeUsed": 0.0,
+                "RT_MaxVolumeUsed": 0.0
+            }
+            
+            config = {
+                "Tips": tip_config,
+                "RT_Tips": tip_config.copy(),
+                "Properties": {},
+                "Known": False,
+                "Class": f"LabwareClasses\\{class_name}",
+                "DataSets": {"Volume": {}},
+                "RuntimeDataSets": {"Volume": {}}
+            }
+            
+        else:
+            # 未知类型或空位置的默认配置
+            config = {}
+        
+        # 将配置直接添加到labwares列表中
+        if config:  # 只有非空配置才添加
+            # 添加Name字段用于标识
+            config["Name"] = id
+            config["Position"] = slot_on_deck
+            self.temp_protocol["labwares"].append(config)
+        
+        return
 
     def transfer_biomek(
             self,
@@ -266,7 +405,8 @@ class LiquidHandlerBiomek:
         transfer_params["items"] = items
         transfer_params["Solvent"] = 'Water'
         transfer_params["TipLocation"] = tip_rack
-        self.temp_protocol["steps"].append(transfer_params)
+        tmp={'transfer': transfer_params}
+        self.temp_protocol["steps"].append(tmp)
 
         return
 
@@ -287,7 +427,8 @@ class LiquidHandlerBiomek:
             "Target": target,
             "LeaveBottomLabware": False,
         }
-        self.temp_protocol["steps"].append(move_params)
+        tmp={'move': move_params}
+        self.temp_protocol["steps"].append(tmp)
 
         return
     
@@ -304,7 +445,8 @@ class LiquidHandlerBiomek:
             "Time": time,
             "Mode": "TimedResource"
         }
-        self.temp_protocol["steps"].append(incubation_params)
+        tmp={'incubation': incubation_params}
+        self.temp_protocol["steps"].append(tmp)   
 
         return
     
@@ -321,14 +463,19 @@ class LiquidHandlerBiomek:
             'Parameters': (str(rpm), '2', str(time), 'CounterClockwise'), 
             'Command': 'Timed Shake'
         }
-        self.temp_protocol["steps"].append(oscillation_params)
+        tmp={'oscillation': oscillation_params}
+        self.temp_protocol["steps"].append(tmp)
 
         return
                       
 
 
 if __name__ == "__main__":
-
+    
+    print("=== Biomek完整流程测试 ===")
+    print("包含: 仪器设置 + 完整实验步骤")
+    
+    # 完整的步骤信息（从biomek.py复制）
     steps_info = ''' 
     {
       "steps": [
@@ -592,136 +739,104 @@ if __name__ == "__main__":
     }
     '''
 
-
-
-labware_with_liquid = '''
-[    {
-        "id": "stock plate on P1",
-        "parent": "deck",
-        "slot_on_deck": "P1",
-        "class_name": "nest_12_reservoir_15ml",
-        "liquid_type": [
-            "master_mix"
-        ],
-        "liquid_volume": [10000],
-        "liquid_input_wells": [
-            "A1"
-        ]
-    },
-    {
-        "id": "Tip Rack BC230 TL2",
-        "parent": "deck",
-        "slot_on_deck": "TL2",
-        "class_name": "BC230",
-        "liquid_type": [],
-        "liquid_volume": [],
-        "liquid_input_wells": [
-        ]
-    },
+    # 完整的labware配置信息（从biomek.py复制）
+    labware_with_liquid = '''
+    [    
         {
-            "id": "Tip Rack BC230 TL2",
+            "id": "Tip Rack BC230 on TL1",
+            "parent": "deck",
+            "slot_on_deck": "TL1",
+            "class_name": "BC230",
+            "liquid_type": [],
+            "liquid_volume": [],
+            "liquid_input_wells": []
+        },
+        {
+            "id": "Tip Rack BC230 on TL2",
             "parent": "deck",
             "slot_on_deck": "TL2",
             "class_name": "BC230",
             "liquid_type": [],
             "liquid_volume": [],
-            "liquid_input_wells": [
-            ]
+            "liquid_input_wells": []  
         },
-            {
+        {
             "id": "Tip Rack BC230 on TL3",
             "parent": "deck",
             "slot_on_deck": "TL3",
             "class_name": "BC230",
             "liquid_type": [],
             "liquid_volume": [],
-            "liquid_input_wells": [
-            ]
+            "liquid_input_wells": []
         },
-            {
+        {
             "id": "Tip Rack BC230 on TL4",
             "parent": "deck",
             "slot_on_deck": "TL4",
             "class_name": "BC230",
             "liquid_type": [],
             "liquid_volume": [],
-            "liquid_input_wells": [
-            ]
+            "liquid_input_wells": []
         },
-            {
+        {
             "id": "Tip Rack BC230 on TL5",
             "parent": "deck",
             "slot_on_deck": "TL5",
             "class_name": "BC230",
             "liquid_type": [],
             "liquid_volume": [],
-            "liquid_input_wells": [
-            ]
+            "liquid_input_wells": []
         },
-                {
+        {
             "id": "Tip Rack BC230 on P5",
             "parent": "deck",
             "slot_on_deck": "P5",
             "class_name": "BC230",
             "liquid_type": [],
             "liquid_volume": [],
-            "liquid_input_wells": [
-            ]
+            "liquid_input_wells": []
         },
-                    {
+        {
             "id": "Tip Rack BC230 on P6",
             "parent": "deck",
             "slot_on_deck": "P6",
             "class_name": "BC230",
             "liquid_type": [],
             "liquid_volume": [],
-            "liquid_input_wells": [
-            ]
-        },
-                        {
-            "id": "Tip Rack BC230 on P7",
-            "parent": "deck",
-            "slot_on_deck": "P7",
-            "class_name": "BC230",
-            "liquid_type": [],
-            "liquid_volume": [],
-            "liquid_input_wells": [
-            ]
+            "liquid_input_wells": []
         },
         {
-            "id": "Tip Rack BC230 on P8",
+            "id": "Tip Rack BC230 on P15",
             "parent": "deck",
-            "slot_on_deck": "P8",
+            "slot_on_deck": "P15",
             "class_name": "BC230",
             "liquid_type": [],
             "liquid_volume": [],
-            "liquid_input_wells": [
-            ]
+            "liquid_input_wells": []
         },
-            {
-            "id": "Tip Rack BC230 P16",
+        {
+            "id": "Tip Rack BC230 on P16",
             "parent": "deck",
             "slot_on_deck": "P16",
             "class_name": "BC230",
             "liquid_type": [],
             "liquid_volume": [],
-            "liquid_input_wells": [
-            ]
+            "liquid_input_wells": []
         },
         {
-            "id": "stock plate on 4",
+            "id": "stock plate on P1",
             "parent": "deck",
-            "slot_on_deck": "P2",
+            "slot_on_deck": "P1",
             "class_name": "nest_12_reservoir_15ml",
             "liquid_type": [
-                "bind beads"
+                "master_mix"
             ],
             "liquid_volume": [10000],
             "liquid_input_wells": [
                 "A1"
             ]
         },
-            {
+        {
             "id": "stock plate on P2",
             "parent": "deck",
             "slot_on_deck": "P2",
@@ -734,7 +849,7 @@ labware_with_liquid = '''
                 "A1"
             ]
         },
-            {
+        {
             "id": "stock plate on P3",
             "parent": "deck",
             "slot_on_deck": "P3",
@@ -747,95 +862,152 @@ labware_with_liquid = '''
                 "A1"
             ]
         },
-    
-            {
+        {
+            "id": "elution buffer on P4",
+            "parent": "deck",
+            "slot_on_deck": "P4",
+            "class_name": "nest_12_reservoir_15ml",
+            "liquid_type": [
+                "elution buffer"
+            ],
+            "liquid_volume": [5000],
+            "liquid_input_wells": [
+                "A1"
+            ]
+        },
+        {
             "id": "oscillation",
             "parent": "deck",
             "slot_on_deck": "Orbital1",
             "class_name": "Orbital",
             "liquid_type": [],
             "liquid_volume": [],
-            "liquid_input_wells": [
-            ]
+            "liquid_input_wells": []
         },
-            {
+        {
             "id": "working plate on P11",
             "parent": "deck",
             "slot_on_deck": "P11",
             "class_name": "NEST 2ml Deep Well Plate",
-            "liquid_type": [
-            ],
+            "liquid_type": [],
             "liquid_volume": [],
-            "liquid_input_wells": [
-            ]
+            "liquid_input_wells": []
         },
-                {
+        {
             "id": "magnetics module on P12",
             "parent": "deck",
             "slot_on_deck": "P12",
             "class_name": "magnetics module",
             "liquid_type": [],
             "liquid_volume": [],
-            "liquid_input_wells": [
-            ]
+            "liquid_input_wells": []
         },
-                    {
+        {
             "id": "working plate on P13",
             "parent": "deck",
             "slot_on_deck": "P13",
             "class_name": "NEST 2ml Deep Well Plate",
-            "liquid_type": [
-            ],
+            "liquid_type": [],
             "liquid_volume": [],
-            "liquid_input_wells": [
-            ]
+            "liquid_input_wells": []
         },
-            {
+        {
             "id": "waste on P22",
             "parent": "deck",
             "slot_on_deck": "P22",
             "class_name": "nest_1_reservoir_195ml",
-            "liquid_type": [
-            ],
+            "liquid_type": [],
             "liquid_volume": [],
-            "liquid_input_wells": [
-            ]
+            "liquid_input_wells": []
         }
     ]
-    
     '''
 
+    # 创建handler实例
+    handler = LiquidHandlerBiomek()
+    
+    # 创建协议
+    protocol = handler.create_protocol(
+        protocol_name="DNA纯化完整流程",
+        protocol_description="使用磁珠进行DNA纯化的完整自动化流程",
+        protocol_version="1.0",
+        protocol_author="Biomek系统",
+        protocol_date="2024-01-01",
+        protocol_type="DNA_purification"
+    )
 
+    print("\n=== 第一步：设置所有仪器 ===")
+    # 解析labware配置
+    labwares = json.loads(labware_with_liquid)
+    
+    # 设置所有仪器
+    instrument_count = 0
+    for labware in labwares:
+        print(f"设置仪器: {labware['id']} ({labware['class_name']}) 在位置 {labware['slot_on_deck']}")
+        handler.instrument_setup_biomek(
+            id=labware['id'],
+            parent=labware['parent'],
+            slot_on_deck=labware['slot_on_deck'],
+            class_name=labware['class_name'],
+            liquid_type=labware['liquid_type'],
+            liquid_volume=labware['liquid_volume'],
+            liquid_input_wells=labware['liquid_input_wells']
+        )
+        instrument_count += 1
+    
+    print(f"总共设置了 {instrument_count} 个仪器位置")
 
-handler = LiquidHandlerBiomek()
+    print("\n=== 第二步：执行实验步骤 ===")
+    # 解析步骤信息
+    input_steps = json.loads(steps_info)
+    
+    # 执行所有步骤
+    step_count = 0
+    for step in input_steps['steps']:
+        operation = step['operation']
+        parameters = step['parameters']
+        description = step['description']
+        
+        print(f"步骤 {step['step_number']}: {description}")
+        
+        if operation == 'transfer':
+            handler.transfer_biomek(
+                source=parameters['source'],
+                target=parameters['target'],
+                volume=parameters['volume'],
+                tip_rack=parameters['tip_rack'],
+                aspirate_techniques='MC P300 high',
+                dispense_techniques='MC P300 high'
+            )
+        elif operation == 'move_labware':
+            handler.move_biomek(
+                source=parameters['source'],
+                target=parameters['target']
+            )
+        elif operation == 'oscillation':
+            handler.oscillation_biomek(
+                rpm=parameters['rpm'],
+                time=parameters['time']
+            )
+        elif operation == 'incubation':
+            handler.incubation_biomek(
+                time=parameters['time']
+            )
+        
+        step_count += 1
+    
+    print(f"总共执行了 {step_count} 个步骤")
 
-handler.temp_protocol = {
-    "meta": {},
-    "labwares": [],
-    "steps": []
-}
-
-input_steps = json.loads(steps_info)
-labwares = json.loads(labware_with_liquid)
-
-for step in input_steps['steps']:
-    operation = step['operation']
-    parameters = step['parameters']
-
-    if operation == 'transfer':
-        handler.transfer_biomek(source=parameters['source'],
-                                target=parameters['target'],
-                                volume=parameters['volume'],
-                                tip_rack=parameters['tip_rack'],
-                                aspirate_techniques='MC P300 high',
-                                dispense_techniques='MC P300 high')
-    elif operation == 'move_labware':
-        handler.move_biomek(source=parameters['source'],
-                              target=parameters['target'])
-    elif operation == 'oscillation':
-        handler.oscillation_biomek(rpm=parameters['rpm'],
-                                    time=parameters['time'])
-    elif operation == 'incubation':
-        handler.incubation_biomek(time=parameters['time'])
-
-print(json.dumps(handler.temp_protocol, indent=4))
+    print("\n=== 第三步：保存完整协议 ===")
+    # 获取脚本目录
+    script_dir = pathlib.Path(__file__).parent
+    
+    # 保存完整协议
+    complete_output_path = script_dir / "complete_biomek_protocol.json"
+    with open(complete_output_path, 'w', encoding='utf-8') as f:
+        json.dump(handler.temp_protocol, f, indent=4, ensure_ascii=False)
+    
+    print(f"完整协议已保存到: {complete_output_path}")
+  
+    print("\n=== 测试完成 ===")
+    print("完整的DNA纯化流程已成功转换为Biomek格式！")
