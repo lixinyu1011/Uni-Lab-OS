@@ -2,5 +2,5 @@ int32 rpm
 int32 time
 
 ---
-
+bool success
 ---

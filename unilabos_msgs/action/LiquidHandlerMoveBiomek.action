@@ -2,5 +2,5 @@ string source
 string target
 
 ---
-
+bool success
 ---

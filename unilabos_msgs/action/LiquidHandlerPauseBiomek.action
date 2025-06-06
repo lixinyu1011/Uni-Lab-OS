@@ -1,5 +1,5 @@
 int32 time
 
 ---
-
+bool success
 ---
