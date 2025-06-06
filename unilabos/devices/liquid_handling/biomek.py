@@ -873,35 +873,35 @@ labware_with_liquid = '''
 
 handler = LiquidHandlerBiomek()
 
-    handler.temp_protocol = {
-        "meta": {},
-        "labwares": [],
-        "steps": []
-    }
+handler.temp_protocol = {
+    "meta": {},
+    "labwares": [],
+    "steps": []
+}
 
-    input_steps = json.loads(steps_info)
-    labwares = json.loads(labware_with_liquid)
+input_steps = json.loads(steps_info)
+labwares = json.loads(labware_with_liquid)
 
-    for step in input_steps['steps']:
-        operation = step['operation']
-        parameters = step['parameters']
+for step in input_steps['steps']:
+    operation = step['operation']
+    parameters = step['parameters']
 
-        if operation == 'transfer':
-            handler.transfer_biomek(source=parameters['source'],
-                                    target=parameters['target'],
-                                    volume=parameters['volume'],
-                                    tip_rack=parameters['tip_rack'],
-                                    aspirate_techniques='MC P300 high',
-                                    dispense_techniques='MC P300 high')
-        elif operation == 'move_labware':
-            handler.move_biomek(source=parameters['source'],
-                                  target=parameters['target'])
-        elif operation == 'oscillation':
-            handler.oscillation_biomek(rpm=parameters['rpm'],
-                                        time=parameters['time'])
-        elif operation == 'incubation':
-            handler.incubation_biomek(time=parameters['time'])
+    if operation == 'transfer':
+        handler.transfer_biomek(source=parameters['source'],
+                                target=parameters['target'],
+                                volume=parameters['volume'],
+                                tip_rack=parameters['tip_rack'],
+                                aspirate_techniques='MC P300 high',
+                                dispense_techniques='MC P300 high')
+    elif operation == 'move_labware':
+        handler.move_biomek(source=parameters['source'],
+                              target=parameters['target'])
+    elif operation == 'oscillation':
+        handler.oscillation_biomek(rpm=parameters['rpm'],
+                                    time=parameters['time'])
+    elif operation == 'incubation':
+        handler.incubation_biomek(time=parameters['time'])
 
-    print(json.dumps(handler.temp_protocol, indent=4))
+print(json.dumps(handler.temp_protocol, indent=4))
 
 
