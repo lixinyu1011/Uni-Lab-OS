@@ -692,8 +692,93 @@ if __name__ == "__main__":
       ]
     }
     '''
-    labware_with_liquid = '''
-    [    {
+
+
+
+labware_with_liquid = '''
+    [    
+        {
+            "id": "Tip Rack BC230 on TL1",
+            "parent": "deck",
+            "slot_on_deck": "TL1",
+            "class_name": "BC230",
+            "liquid_type": [],
+            "liquid_volume": [],
+            "liquid_input_wells": []
+        },
+        {
+            "id": "Tip Rack BC230 on TL2",
+            "parent": "deck",
+            "slot_on_deck": "TL2",
+            "class_name": "BC230",
+            "liquid_type": [],
+            "liquid_volume": [],
+            "liquid_input_wells": []  
+        },
+        {
+            "id": "Tip Rack BC230 on TL3",
+            "parent": "deck",
+            "slot_on_deck": "TL3",
+            "class_name": "BC230",
+            "liquid_type": [],
+            "liquid_volume": [],
+            "liquid_input_wells": []
+        },
+        {
+            "id": "Tip Rack BC230 on TL4",
+            "parent": "deck",
+            "slot_on_deck": "TL4",
+            "class_name": "BC230",
+            "liquid_type": [],
+            "liquid_volume": [],
+            "liquid_input_wells": []
+        },
+        {
+            "id": "Tip Rack BC230 on TL5",
+            "parent": "deck",
+            "slot_on_deck": "TL5",
+            "class_name": "BC230",
+            "liquid_type": [],
+            "liquid_volume": [],
+            "liquid_input_wells": []
+        },
+        {
+            "id": "Tip Rack BC230 on P5",
+            "parent": "deck",
+            "slot_on_deck": "P5",
+            "class_name": "BC230",
+            "liquid_type": [],
+            "liquid_volume": [],
+            "liquid_input_wells": []
+        },
+        {
+            "id": "Tip Rack BC230 on P6",
+            "parent": "deck",
+            "slot_on_deck": "P6",
+            "class_name": "BC230",
+            "liquid_type": [],
+            "liquid_volume": [],
+            "liquid_input_wells": []
+        },
+        {
+            "id": "Tip Rack BC230 on P15",
+            "parent": "deck",
+            "slot_on_deck": "P15",
+            "class_name": "BC230",
+            "liquid_type": [],
+            "liquid_volume": [],
+            "liquid_input_wells": []
+        },
+        {
+            "id": "Tip Rack BC230 on P16",
+            "parent": "deck",
+            "slot_on_deck": "P16",
+            "class_name": "BC230",
+            "liquid_type": [],
+            "liquid_volume": [],
+            "liquid_input_wells": []
+        },
+        {
             "id": "stock plate on P1",
             "parent": "deck",
             "slot_on_deck": "P1",
@@ -707,232 +792,125 @@ if __name__ == "__main__":
             ]
         },
         {
-            "id": "Tip Rack BC230 TL2",
+            "id": "stock plate on P2",
             "parent": "deck",
-            "slot_on_deck": "TL2",
-            "class_name": "BC230",
-            "liquid_type": [],
-            "liquid_volume": [],
+            "slot_on_deck": "P2",
+            "class_name": "nest_12_reservoir_15ml",
+            "liquid_type": [
+                "bind beads"
+            ],
+            "liquid_volume": [10000],
             "liquid_input_wells": [
+                "A1"
             ]
         },
-            {
-                "id": "Tip Rack BC230 TL2",
-                "parent": "deck",
-                "slot_on_deck": "TL2",
-                "class_name": "BC230",
-                "liquid_type": [],
-                "liquid_volume": [],
-                "liquid_input_wells": [
-                ]
-            },
-                {
-                "id": "Tip Rack BC230 on TL3",
-                "parent": "deck",
-                "slot_on_deck": "TL3",
-                "class_name": "BC230",
-                "liquid_type": [],
-                "liquid_volume": [],
-                "liquid_input_wells": [
-                ]
-            },
-                {
-                "id": "Tip Rack BC230 on TL4",
-                "parent": "deck",
-                "slot_on_deck": "TL4",
-                "class_name": "BC230",
-                "liquid_type": [],
-                "liquid_volume": [],
-                "liquid_input_wells": [
-                ]
-            },
-                {
-                "id": "Tip Rack BC230 on TL5",
-                "parent": "deck",
-                "slot_on_deck": "TL5",
-                "class_name": "BC230",
-                "liquid_type": [],
-                "liquid_volume": [],
-                "liquid_input_wells": [
-                ]
-            },
-                    {
-                "id": "Tip Rack BC230 on P5",
-                "parent": "deck",
-                "slot_on_deck": "P5",
-                "class_name": "BC230",
-                "liquid_type": [],
-                "liquid_volume": [],
-                "liquid_input_wells": [
-                ]
-            },
-                        {
-                "id": "Tip Rack BC230 on P6",
-                "parent": "deck",
-                "slot_on_deck": "P6",
-                "class_name": "BC230",
-                "liquid_type": [],
-                "liquid_volume": [],
-                "liquid_input_wells": [
-                ]
-            },
-                            {
-                "id": "Tip Rack BC230 on P7",
-                "parent": "deck",
-                "slot_on_deck": "P7",
-                "class_name": "BC230",
-                "liquid_type": [],
-                "liquid_volume": [],
-                "liquid_input_wells": [
-                ]
-            },
-            {
-                "id": "Tip Rack BC230 on P8",
-                "parent": "deck",
-                "slot_on_deck": "P8",
-                "class_name": "BC230",
-                "liquid_type": [],
-                "liquid_volume": [],
-                "liquid_input_wells": [
-                ]
-            },
-                {
-                "id": "Tip Rack BC230 P16",
-                "parent": "deck",
-                "slot_on_deck": "P16",
-                "class_name": "BC230",
-                "liquid_type": [],
-                "liquid_volume": [],
-                "liquid_input_wells": [
-                ]
-            },
-            {
-                "id": "stock plate on 4",
-                "parent": "deck",
-                "slot_on_deck": "P2",
-                "class_name": "nest_12_reservoir_15ml",
-                "liquid_type": [
-                    "bind beads"
-                ],
-                "liquid_volume": [10000],
-                "liquid_input_wells": [
-                    "A1"
-                ]
-            },
-                {
-                "id": "stock plate on P2",
-                "parent": "deck",
-                "slot_on_deck": "P2",
-                "class_name": "nest_12_reservoir_15ml",
-                "liquid_type": [
-                    "bind beads"
-                ],
-                "liquid_volume": [10000],
-                "liquid_input_wells": [
-                    "A1"
-                ]
-            },
-                {
-                "id": "stock plate on P3",
-                "parent": "deck",
-                "slot_on_deck": "P3",
-                "class_name": "nest_12_reservoir_15ml",
-                "liquid_type": [
-                    "ethyl alcohol"
-                ],
-                "liquid_volume": [10000],
-                "liquid_input_wells": [
-                    "A1"
-                ]
-            },
-        
-                {
-                "id": "oscillation",
-                "parent": "deck",
-                "slot_on_deck": "Orbital1",
-                "class_name": "Orbital",
-                "liquid_type": [],
-                "liquid_volume": [],
-                "liquid_input_wells": [
-                ]
-            },
-                {
-                "id": "working plate on P11",
-                "parent": "deck",
-                "slot_on_deck": "P11",
-                "class_name": "NEST 2ml Deep Well Plate",
-                "liquid_type": [
-                ],
-                "liquid_volume": [],
-                "liquid_input_wells": [
-                ]
-            },
-                    {
-                "id": "magnetics module on P12",
-                "parent": "deck",
-                "slot_on_deck": "P12",
-                "class_name": "magnetics module",
-                "liquid_type": [],
-                "liquid_volume": [],
-                "liquid_input_wells": [
-                ]
-            },
-                        {
-                "id": "working plate on P13",
-                "parent": "deck",
-                "slot_on_deck": "P13",
-                "class_name": "NEST 2ml Deep Well Plate",
-                "liquid_type": [
-                ],
-                "liquid_volume": [],
-                "liquid_input_wells": [
-                ]
-            },
-                {
-                "id": "waste on P22",
-                "parent": "deck",
-                "slot_on_deck": "P22",
-                "class_name": "nest_1_reservoir_195ml",
-                "liquid_type": [
-                ],
-                "liquid_volume": [],
-                "liquid_input_wells": [
-                ]
-            }
-        ]
-        
-        '''
-    handler = LiquidHandlerBiomek()
+        {
+            "id": "stock plate on P3",
+            "parent": "deck",
+            "slot_on_deck": "P3",
+            "class_name": "nest_12_reservoir_15ml",
+            "liquid_type": [
+                "ethyl alcohol"
+            ],
+            "liquid_volume": [10000],
+            "liquid_input_wells": [
+                "A1"
+            ]
+        },
+        {
+            "id": "elution buffer on P4",
+            "parent": "deck",
+            "slot_on_deck": "P4",
+            "class_name": "nest_12_reservoir_15ml",
+            "liquid_type": [
+                "elution buffer"
+            ],
+            "liquid_volume": [5000],
+            "liquid_input_wells": [
+                "A1"
+            ]
+        },
+        {
+            "id": "oscillation",
+            "parent": "deck",
+            "slot_on_deck": "Orbital1",
+            "class_name": "Orbital",
+            "liquid_type": [],
+            "liquid_volume": [],
+            "liquid_input_wells": []
+        },
+        {
+            "id": "working plate on P11",
+            "parent": "deck",
+            "slot_on_deck": "P11",
+            "class_name": "NEST 2ml Deep Well Plate",
+            "liquid_type": [],
+            "liquid_volume": [],
+            "liquid_input_wells": []
+        },
+        {
+            "id": "magnetics module on P12",
+            "parent": "deck",
+            "slot_on_deck": "P12",
+            "class_name": "magnetics module",
+            "liquid_type": [],
+            "liquid_volume": [],
+            "liquid_input_wells": []
+        },
+        {
+            "id": "working plate on P13",
+            "parent": "deck",
+            "slot_on_deck": "P13",
+            "class_name": "NEST 2ml Deep Well Plate",
+            "liquid_type": [],
+            "liquid_volume": [],
+            "liquid_input_wells": []
+        },
+        {
+            "id": "waste on P22",
+            "parent": "deck",
+            "slot_on_deck": "P22",
+            "class_name": "nest_1_reservoir_195ml",
+            "liquid_type": [],
+            "liquid_volume": [],
+            "liquid_input_wells": []
+        }
+    ]
+    '''
 
-    handler.temp_protocol = {
-        "meta": {},
-        "labwares": [],
-        "steps": []
-    }
 
-    input_steps = json.loads(steps_info)
-    labwares = json.loads(labware_with_liquid)
 
-    for step in input_steps['steps']:
-        operation = step['operation']
-        parameters = step['parameters']
+handler = LiquidHandlerBiomek()
 
-        if operation == 'transfer':
-            handler.transfer_biomek(source=parameters['source'],
-                                    target=parameters['target'],
-                                    volume=parameters['volume'],
-                                    tip_rack=parameters['tip_rack'],
-                                    aspirate_techniques='MC P300 high',
-                                    dispense_techniques='MC P300 high')
-        elif operation == 'move_labware':
-            handler.move_biomek(source=parameters['source'],
-                                  target=parameters['target'])
-        elif operation == 'oscillation':
-            handler.oscillation_biomek(rpm=parameters['rpm'],
-                                        time=parameters['time'])
-        elif operation == 'incubation':
-            handler.incubation_biomek(time=parameters['time'])
+handler.temp_protocol = {
+    "meta": {},
+    "labwares": [],
+    "steps": []
+}
 
-    print(json.dumps(handler.temp_protocol, indent=4))
+input_steps = json.loads(steps_info)
+labwares = json.loads(labware_with_liquid)
+
+for step in input_steps['steps']:
+    operation = step['operation']
+    parameters = step['parameters']
+
+    if operation == 'transfer':
+        handler.transfer_biomek(source=parameters['source'],
+                                target=parameters['target'],
+                                volume=parameters['volume'],
+                                tip_rack=parameters['tip_rack'],
+                                aspirate_techniques='MC P300 high',
+                                dispense_techniques='MC P300 high')
+    elif operation == 'move_labware':
+        handler.move_biomek(source=parameters['source'],
+                              target=parameters['target'])
+    elif operation == 'oscillation':
+        handler.oscillation_biomek(rpm=parameters['rpm'],
+                                    time=parameters['time'])
+    elif operation == 'incubation':
+        handler.incubation_biomek(time=parameters['time'])
+
+print(json.dumps(handler.temp_protocol, indent=4))
 
 
