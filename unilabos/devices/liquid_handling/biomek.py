@@ -93,6 +93,15 @@ class LiquidHandlerBiomek(LiquidHandlerAbstract):
     def deserialize(cls, data: dict, allow_marshal: bool = False) -> LiquidHandler:
         return LiquidHandler.deserialize(data, allow_marshal)
 
+    @property
+    def success(self):
+        """
+        获取操作是否成功的状态。
+
+        Returns:
+            bool: 如果操作成功，返回True；否则返回False。
+        """
+        return self._success
 
     def create_protocol(
         self,
