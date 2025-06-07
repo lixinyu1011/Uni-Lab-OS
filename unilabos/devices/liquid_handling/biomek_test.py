@@ -168,7 +168,7 @@ class LiquidHandlerBiomek:
                 "date": protocol_date,
                 "type": protocol_type,
             },
-            "labwares": [],
+            "labwares": {},  # 改为字典格式以匹配DeckItems
             "steps": [],
         }
         return self.temp_protocol
@@ -251,15 +251,16 @@ class LiquidHandlerBiomek:
         liquid_input_wells: list[str],
     ):
         """
-        设置Biomek仪器的参数配置，完全按照Biomek的实际格式
+        设置Biomek仪器的参数配置，按照DeckItems格式
         
         根据不同的仪器类型（容器、tip rack等）设置相应的参数结构
+        位置作为键，配置列表作为值
         """
         
         # 判断仪器类型
         instrument_type = self._get_instrument_type(class_name)
         
-        config = {} # 初始化为空字典，以便在各种情况下都能返回
+        config = None  # 初始化为None
 
         if instrument_type == "reservoir":
             # 储液槽类型配置
@@ -325,17 +326,13 @@ class LiquidHandlerBiomek:
                 "DataSets": {"Volume": {}},
                 "RuntimeDataSets": {"Volume": {}}
             }
-            
-        else:
-            # 未知类型或空位置的默认配置
-            config = {}
         
-        # 将配置直接添加到labwares列表中
-        if config:  # 只有非空配置才添加
-            # 添加Name字段用于标识
-            config["Name"] = id
-            config["Position"] = slot_on_deck
-            self.temp_protocol["labwares"].append(config)
+        # 按照DeckItems格式存储：位置作为键，配置列表作为值
+        if config is not None:
+            self.temp_protocol["labwares"][slot_on_deck] = [config]
+        else:
+            # 空位置
+            self.temp_protocol["labwares"][slot_on_deck] = []
         
         return
 
@@ -1003,7 +1000,7 @@ if __name__ == "__main__":
     script_dir = pathlib.Path(__file__).parent
     
     # 保存完整协议
-    complete_output_path = script_dir / "complete_biomek_protocol.json"
+    complete_output_path = script_dir / "complete_biomek_protocol_0607.json"
     with open(complete_output_path, 'w', encoding='utf-8') as f:
         json.dump(handler.temp_protocol, f, indent=4, ensure_ascii=False)
     
