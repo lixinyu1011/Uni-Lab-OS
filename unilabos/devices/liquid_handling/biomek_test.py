@@ -473,7 +473,8 @@ if __name__ == "__main__":
     print("包含: 仪器设置 + 完整实验步骤")
     
     # 完整的步骤信息（从biomek.py复制）
-    steps_info = {
+    steps_info = '''
+    {
   "steps": [
     {
       "step_number": 1,
@@ -737,12 +738,14 @@ if __name__ == "__main__":
         "target": "P14",
         "tip_rack": "BC230",
         "volume": 40
-      }
+          }
+        }
+      ]
     }
-  ]
-}
+'''
     # 完整的labware配置信息
-    labware_with_liquid = [
+    labware_with_liquid = '''
+    [
     {
         "id": "Tip Rack BC230 TL1",
         "parent": "deck",
@@ -914,7 +917,8 @@ if __name__ == "__main__":
         "liquid_volume": [],
         "liquid_input_wells": []
     }
-]
+    ]
+    '''
 
     # 创建handler实例
     handler = LiquidHandlerBiomek()
@@ -996,7 +1000,7 @@ if __name__ == "__main__":
     script_dir = pathlib.Path(__file__).parent
     
     # 保存完整协议
-    complete_output_path = script_dir / "complete_biomek_protocol_0607.json"
+    complete_output_path = script_dir / "complete_biomek_protocol_0608.json"
     with open(complete_output_path, 'w', encoding='utf-8') as f:
         json.dump(handler.temp_protocol, f, indent=4, ensure_ascii=False)
     
