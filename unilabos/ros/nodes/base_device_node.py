@@ -756,9 +756,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
             goal_handle.succeed()
             self.lab_logger().info(f"设置动作成功: {action_name}")
 
-            result_values = {
-                "return_value": serialize_result_info(execution_error, execution_success, action_return_value)
-            }
+            result_values = {}
             for msg_name, attr_name in action_value_mapping["result"].items():
                 if hasattr(self.driver_instance, f"get_{attr_name}"):
                     result_values[msg_name] = getattr(self.driver_instance, f"get_{attr_name}")()
@@ -772,6 +770,8 @@ class BaseROS2DeviceNode(Node, Generic[T]):
             for attr_name in result_msg_types.keys():
                 if attr_name in ["success", "reached_goal"]:
                     setattr(result_msg, attr_name, True)
+                elif attr_name == "return_info":
+                    setattr(result_msg, attr_name, serialize_result_info(execution_error, execution_success, action_return_value))
 
             self.lab_logger().info(f"动作 {action_name} 完成并返回结果")
             return result_msg

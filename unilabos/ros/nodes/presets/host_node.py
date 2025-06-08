@@ -622,7 +622,7 @@ class HostNode(BaseROS2DeviceNode):
         if uuid_str:
             for bridge in self.bridges:
                 if hasattr(bridge, "publish_job_status"):
-                    bridge.publish_job_status(result_data, uuid_str, "success", result_data)
+                    bridge.publish_job_status(result_data, uuid_str, "success", result_data.get("return_info", "{}"))
 
     def cancel_goal(self, goal_uuid: str) -> None:
         """取消目标"""
