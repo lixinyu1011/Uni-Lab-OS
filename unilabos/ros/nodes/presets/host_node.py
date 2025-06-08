@@ -868,8 +868,6 @@ class HostNode(BaseROS2DeviceNode):
         测试网络延迟的action实现
         通过5次ping-pong机制校对时间误差并计算实际延迟
         """
-        raise ValueError("test")
-        import time
         import uuid as uuid_module
 
         self.lab_logger().info("=" * 60)
