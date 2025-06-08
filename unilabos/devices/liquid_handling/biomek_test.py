@@ -468,7 +468,7 @@ class LiquidHandlerBiomek:
 
 
 if __name__ == "__main__":
-    
+
     print("=== Biomek完整流程测试 ===")
     print("包含: 仪器设置 + 完整实验步骤")
     

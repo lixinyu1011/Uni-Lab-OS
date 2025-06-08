@@ -16,20 +16,37 @@ from .liquid_handler_abstract import LiquidHandlerAbstract
 import json
 from typing import Sequence, Optional, List, Union, Literal
 
-class LiquidHandlerBiomek(LiquidHandlerAbstract):
-
+#class LiquidHandlerBiomek(LiquidHandlerAbstract):
+class LiquidHandlerBiomek:
     """
     Biomek液体处理器的实现类，继承自LiquidHandlerAbstract。
     该类用于处理Biomek液体处理器的特定操作。
     """
 
-    def __init__(self, backend=None, deck=None, *args, **kwargs):
-        super().__init__(backend, deck, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._status = "Idle"  # 初始状态为 Idle
         self._success = False  # 初始成功状态为 False
         self._status_queue = kwargs.get("status_queue", None)  # 状态队列
         self.temp_protocol = {}
         self.py32_path = "/opt/py32"  # Biomek的Python 3.2路径
+        
+        # 预定义的仪器分类
+        self.tip_racks = [
+            "BC230", "BC1025F", "BC50", "TipRack200", "TipRack1000",
+            "tip", "tips", "Tip", "Tips"
+        ]
+        
+        self.reservoirs = [
+            "AgilentReservoir", "nest_12_reservoir_15ml", "nest_1_reservoir_195ml",
+            "reservoir", "Reservoir", "waste", "Waste"
+        ]
+        
+        self.plates_96 = [
+            "BCDeep96Round", "Matrix96_750uL", "NEST 2ml Deep Well Plate", "nest_96_wellplate_100ul_pcr_full_skirt",
+            "nest_96_wellplate_200ul_flat", "Matrix96", "96", "plate", "Plate"
+        ]
+        
         self.aspirate_techniques = {
             'MC P300 high':{       
                             'Position': 'P1', 
@@ -88,6 +105,29 @@ class LiquidHandlerBiomek(LiquidHandlerAbstract):
                           'UseExpression': False}
         }
 
+    def _get_instrument_type(self, class_name: str) -> str:
+        """
+        根据class_name判断仪器类型
+        
+        Returns:
+            str: "tip_rack", "reservoir", "plate_96", 或 "unknown"
+        """
+        # 检查是否是枪头架
+        for tip_name in self.tip_racks:
+            if tip_name in class_name:
+                return "tip_rack"
+        
+        # 检查是否是储液槽
+        for reservoir_name in self.reservoirs:
+            if reservoir_name in class_name:
+                return "reservoir"
+        
+        # 检查是否是96孔板
+        for plate_name in self.plates_96:
+            if plate_name in class_name:
+                return "plate_96"
+        
+        return "unknown"
 
     @classmethod
     def deserialize(cls, data: dict, allow_marshal: bool = False) -> LiquidHandler:
@@ -137,7 +177,7 @@ class LiquidHandlerBiomek(LiquidHandlerAbstract):
                 "date": protocol_date,
                 "type": protocol_type,
             },
-            "labwares": [],
+            "labwares": {},
             "steps": [],
         }
         return self.temp_protocol
@@ -303,6 +343,104 @@ class LiquidHandlerBiomek(LiquidHandlerAbstract):
 
         return 
 
+    def instrument_setup_biomek(
+        self,
+        id: str,
+        parent: str,
+        slot_on_deck: str,
+        class_name: str,
+        liquid_type: list[str],
+        liquid_volume: list[int],
+        liquid_input_wells: list[str],
+    ):
+        """
+        设置Biomek仪器的参数配置，按照DeckItems格式
+        
+        根据不同的仪器类型（容器、tip rack等）设置相应的参数结构
+        位置作为键，配置列表作为值
+        """
+        
+        # 判断仪器类型
+        instrument_type = self._get_instrument_type(class_name)
+        
+        config = None  # 初始化为None
+
+        if instrument_type == "reservoir":
+            # 储液槽类型配置
+            config = {
+                "Properties": {
+                    "Name": id, # 使用id作为名称
+                    "Device": "",
+                    "liquidtype": liquid_type[0] if liquid_type else "Water",
+                    "BarCode": "",
+                    "SenseEveryTime": False
+                },
+                "Known": True,
+                "Class": f"LabwareClasses\\{class_name}",
+                "DataSets": {"Volume": {}},
+                "RuntimeDataSets": {"Volume": {}},
+                "EvalAmounts": (float(liquid_volume[0]),) if liquid_volume else (0,),
+                "Nominal": False,
+                "EvalLiquids": (liquid_type[0],) if liquid_type else ("Water",)
+            }
+            
+        elif instrument_type == "plate_96":
+            # 96孔板类型配置
+            volume_per_well = float(liquid_volume[0]) if liquid_volume else 0
+            liquid_per_well = liquid_type[0] if liquid_type else "Water"
+            
+            config = {
+                "Properties": {
+                    "Name": id, # 使用id作为名称
+                    "Device": "",
+                    "liquidtype": liquid_per_well,
+                    "BarCode": "",
+                    "SenseEveryTime": False
+                },
+                "Known": True,
+                "Class": f"LabwareClasses\\{class_name}",
+                "DataSets": {"Volume": {}},
+                "RuntimeDataSets": {"Volume": {}},
+                "EvalAmounts": tuple([volume_per_well] * 96),
+                "Nominal": False,
+                "EvalLiquids": tuple([liquid_per_well] * 96)
+            }
+            
+        elif instrument_type == "tip_rack":
+            # 枪头架类型配置
+            tip_config = {
+                "Class": "TipClasses\\T230",
+                "Contents": [],
+                "_RT_Contents": [],
+                "Used": False,
+                "RT_Used": False,
+                "Dirty": False,
+                "RT_Dirty": False,
+                "MaxVolumeUsed": 0.0,
+                "RT_MaxVolumeUsed": 0.0
+            }
+            
+            config = {
+                "Tips": tip_config,
+                "RT_Tips": tip_config.copy(),
+                "Properties": {},
+                "Known": False,
+                "Class": f"LabwareClasses\\{class_name}",
+                "DataSets": {"Volume": {}},
+                "RuntimeDataSets": {"Volume": {}}
+            }
+        
+        # 按照DeckItems格式存储：位置作为键，配置列表作为值
+        if config is not None:
+            self.temp_protocol["labwares"][slot_on_deck] = [config]
+        else:
+            # 空位置
+            self.temp_protocol["labwares"][slot_on_deck] = []
+        
+        return
+
+
+
     def transfer_biomek(
             self,
             source: str,
@@ -369,9 +507,11 @@ class LiquidHandlerBiomek(LiquidHandlerAbstract):
         transfer_params["items"] = items
         transfer_params["Solvent"] = 'Water'
         transfer_params["TipLocation"] = tip_rack
-        self.temp_protocol["steps"].append(transfer_params)
+        tmp={'transfer': transfer_params}
+        self.temp_protocol["steps"].append(tmp)
 
-        return 
+        return
+
 
     def move_biomek(
         self,
@@ -430,483 +570,543 @@ class LiquidHandlerBiomek(LiquidHandlerAbstract):
 
 
 if __name__ == "__main__":
-    steps_info = ''' 
+  
+    print("=== Biomek完整流程测试 ===")
+    print("包含: 仪器设置 + 完整实验步骤")
+    
+    # 完整的步骤信息（从biomek.py复制）
+    steps_info = '''
     {
-      "steps": [
-        {
-          "step_number": 1,
-          "operation": "transfer",
-          "description": "转移PCR产物或酶促反应液至0.05ml 96孔板中",
-          "parameters": {
-            "source": "P1",
-            "target": "P11",
-            "tip_rack": "BC230",
-            "volume": 50
-          }
-        },
-        {
-          "step_number": 2,
-          "operation": "transfer",
-          "description": "加入2倍体积Bind Beads BC至产物中",
-          "parameters": {
-            "source": "P2",
-            "target": "P11",
-            "tip_rack": "BC230",
-            "volume": 100
-          }
-        },
-        {
-          "step_number": 3,
-          "operation": "move_labware",
-          "description": "移动P11至Orbital1用于振荡混匀",
-          "parameters": {
-            "source": "P11",
-            "target": "Orbital1"
-          }
-        },
-        {
-          "step_number": 4,
-          "operation": "oscillation",
-          "description": "在Orbital1上振荡混匀Bind Beads BC与PCR产物（700-900rpm，300秒）",
-          "parameters": {
-            "rpm": 800,
-            "time": 300
-          }
-        },
-        {
-          "step_number": 5,
-          "operation": "move_labware",
-          "description": "移动混匀后的板回P11",
-          "parameters": {
-            "source": "Orbital1",
-            "target": "P11"
-          }
-        },
-        {
-          "step_number": 6,
-          "operation": "move_labware",
-          "description": "将P11移动到磁力架（P12）吸附3分钟",
-          "parameters": {
-            "source": "P11",
-            "target": "P12"
-          }
-        },
-        {
-          "step_number": 7,
-          "operation": "incubation",
-          "description": "磁力架上室温静置3分钟完成吸附",
-          "parameters": {
-            "time": 180
-          }
-        },
-        {
-          "step_number": 8,
-          "operation": "transfer",
-          "description": "去除上清液至废液槽",
-          "parameters": {
-            "source": "P12",
-            "target": "P22",
-            "tip_rack": "BC230",
-            "volume": 150
-          }
-        },
-        {
-          "step_number": 9,
-          "operation": "transfer",
-          "description": "加入300-500μl 75%乙醇清洗",
-          "parameters": {
-            "source": "P3",
-            "target": "P12",
-            "tip_rack": "BC230",
-            "volume": 400
-          }
-        },
-        {
-          "step_number": 10,
-          "operation": "move_labware",
-          "description": "移动清洗板到Orbital1进行振荡",
-          "parameters": {
-            "source": "P12",
-            "target": "Orbital1"
-          }
-        },
-        {
-          "step_number": 11,
-          "operation": "oscillation",
-          "description": "乙醇清洗液振荡混匀（700-900rpm, 45秒）",
-          "parameters": {
-            "rpm": 800,
-            "time": 45
-          }
-        },
-        {
-          "step_number": 12,
-          "operation": "move_labware",
-          "description": "振荡后将板移回磁力架P12吸附",
-          "parameters": {
-            "source": "Orbital1",
-            "target": "P12"
-          }
-        },
-        {
-          "step_number": 13,
-          "operation": "incubation",
-          "description": "吸附3分钟",
-          "parameters": {
-            "time": 180
-          }
-        },
-        {
-          "step_number": 14,
-          "operation": "transfer",
-          "description": "去除乙醇上清液至废液槽",
-          "parameters": {
-            "source": "P12",
-            "target": "P22",
-            "tip_rack": "BC230",
-            "volume": 400
-          }
-        },
-        {
-          "step_number": 15,
-          "operation": "transfer",
-          "description": "第二次加入300-500μl 75%乙醇清洗",
-          "parameters": {
-            "source": "P3",
-            "target": "P12",
-            "tip_rack": "BC230",
-            "volume": 400
-          }
-        },
-        {
-          "step_number": 16,
-          "operation": "move_labware",
-          "description": "再次移动清洗板到Orbital1振荡",
-          "parameters": {
-            "source": "P12",
-            "target": "Orbital1"
-          }
-        },
-        {
-          "step_number": 17,
-          "operation": "oscillation",
-          "description": "再次乙醇清洗液振荡混匀（700-900rpm, 45秒）",
-          "parameters": {
-            "rpm": 800,
-            "time": 45
-          }
-        },
-        {
-          "step_number": 18,
-          "operation": "move_labware",
-          "description": "振荡后板送回磁力架P12吸附",
-          "parameters": {
-            "source": "Orbital1",
-            "target": "P12"
-          }
-        },
-        {
-          "step_number": 19,
-          "operation": "incubation",
-          "description": "再次吸附3分钟",
-          "parameters": {
-            "time": 180
-          }
-        },
-        {
-          "step_number": 20,
-          "operation": "transfer",
-          "description": "去除乙醇上清液至废液槽",
-          "parameters": {
-            "source": "P12",
-            "target": "P22",
-            "tip_rack": "BC230",
-            "volume": 400
-          }
-        },
-        {
-          "step_number": 21,
-          "operation": "incubation",
-          "description": "空气干燥15分钟",
-          "parameters": {
-            "time": 900
-          }
-        },
-        {
-          "step_number": 22,
-          "operation": "transfer",
-          "description": "加30-50μl Elution Buffer洗脱",
-          "parameters": {
-            "source": "P4",
-            "target": "P12",
-            "tip_rack": "BC230",
-            "volume": 40
-          }
-        },
-        {
-          "step_number": 23,
-          "operation": "move_labware",
-          "description": "移动到Orbital1振荡混匀（60秒）",
-          "parameters": {
-            "source": "P12",
-            "target": "Orbital1"
-          }
-        },
-        {
-          "step_number": 24,
-          "operation": "oscillation",
-          "description": "Elution Buffer振荡混匀（700-900rpm, 60秒）",
-          "parameters": {
-            "rpm": 800,
-            "time": 60
-          }
-        },
-        {
-          "step_number": 25,
-          "operation": "move_labware",
-          "description": "振荡后送回磁力架P12",
-          "parameters": {
-            "source": "Orbital1",
-            "target": "P12"
-          }
-        },
-        {
-          "step_number": 26,
-          "operation": "incubation",
-          "description": "室温静置3分钟（洗脱反应）",
-          "parameters": {
-            "time": 180
-          }
-        },
-        {
-          "step_number": 27,
-          "operation": "transfer",
-          "description": "将上清液（DNA）转移到新板（P13）",
-          "parameters": {
-            "source": "P12",
-            "target": "P13",
-            "tip_rack": "BC230",
-            "volume": 40
+  "steps": [
+    {
+      "step_number": 1,
+      "operation": "transfer",
+      "description": "转移PCR产物或酶促反应液至0.5ml 96孔板中",
+      "parameters": {
+        "source": "P1",
+        "target": "P11",
+        "tip_rack": "BC230",
+        "volume": 50
+      }
+    },
+    {
+      "step_number": 2,
+      "operation": "transfer",
+      "description": "加入2倍体积的Bind Beads BC至产物中",
+      "parameters": {
+        "source": "P2",
+        "target": "P11",
+        "tip_rack": "BC230",
+        "volume": 100
+      }
+    },
+    {
+      "step_number": 3,
+      "operation": "oscillation",
+      "description": "振荡混匀300秒",
+      "parameters": {
+        "rpm": 800,
+        "time": 300
+      }
+    },
+    {
+      "step_number": 4,
+      "operation": "move_labware",
+      "description": "转移至96孔磁力架上吸附3分钟",
+      "parameters": {
+        "source": "P11",
+        "target": "P12"
+      }
+    },
+    {
+      "step_number": 5,
+      "operation": "incubation",
+      "description": "吸附3分钟",
+      "parameters": {
+        "time": 180
+      }
+    },
+    {
+      "step_number": 6,
+      "operation": "transfer",
+      "description": "吸弃或倒除上清液",
+      "parameters": {
+        "source": "P12",
+        "target": "P22",
+        "tip_rack": "BC230",
+        "volume": 150
+      }
+    },
+    {
+      "step_number": 7,
+      "operation": "transfer",
+      "description": "加入300-500μl 75%乙醇",
+      "parameters": {
+        "source": "P3",
+        "target": "P12",
+        "tip_rack": "BC230",
+        "volume": 400
+      }
+    },
+    {
+      "step_number": 8,
+      "operation": "move_labware",
+      "description": "移动至振荡器进行振荡混匀",
+      "parameters": {
+        "source": "P12",
+        "target": "Orbital1"
+      }
+    },
+    {
+      "step_number": 9,
+      "operation": "oscillation",
+      "description": "振荡混匀60秒",
+      "parameters": {
+        "rpm": 800,
+        "time": 60
+      }
+    },
+    {
+      "step_number": 10,
+      "operation": "move_labware",
+      "description": "转移至96孔磁力架上吸附3分钟",
+      "parameters": {
+        "source": "Orbital1",
+        "target": "P12"
+      }
+    },
+    {
+      "step_number": 11,
+      "operation": "incubation",
+      "description": "吸附3分钟",
+      "parameters": {
+        "time": 180
+      }
+    },
+    {
+      "step_number": 12,
+      "operation": "transfer",
+      "description": "吸弃或倒弃废液",
+      "parameters": {
+        "source": "P12",
+        "target": "P22",
+        "tip_rack": "BC230",
+        "volume": 400
+      }
+    },
+    {
+      "step_number": 13,
+      "operation": "transfer",
+      "description": "重复加入75%乙醇",
+      "parameters": {
+        "source": "P3",
+        "target": "P12",
+        "tip_rack": "BC230",
+        "volume": 400
+      }
+    },
+    {
+      "step_number": 14,
+      "operation": "move_labware",
+      "description": "移动至振荡器进行振荡混匀",
+      "parameters": {
+        "source": "P12",
+        "target": "Orbital1"
+      }
+    },
+    {
+      "step_number": 15,
+      "operation": "oscillation",
+      "description": "振荡混匀60秒",
+      "parameters": {
+        "rpm": 800,
+        "time": 60
+      }
+    },
+    {
+      "step_number": 16,
+      "operation": "move_labware",
+      "description": "转移至96孔磁力架上吸附3分钟",
+      "parameters": {
+        "source": "Orbital1",
+        "target": "P12"
+      }
+    },
+    {
+      "step_number": 17,
+      "operation": "incubation",
+      "description": "吸附3分钟",
+      "parameters": {
+        "time": 180
+      }
+    },
+    {
+      "step_number": 18,
+      "operation": "transfer",
+      "description": "吸弃或倒弃废液",
+      "parameters": {
+        "source": "P12",
+        "target": "P22",
+        "tip_rack": "BC230",
+        "volume": 400
+      }
+    },
+    {
+      "step_number": 19,
+      "operation": "move_labware",
+      "description": "正放96孔板，空气干燥15分钟",
+      "parameters": {
+        "source": "P12",
+        "target": "P13"
+      }
+    },
+    {
+      "step_number": 20,
+      "operation": "incubation",
+      "description": "空气干燥15分钟",
+      "parameters": {
+        "time": 900
+      }
+    },
+    {
+      "step_number": 21,
+      "operation": "transfer",
+      "description": "加入30-50μl Elution Buffer",
+      "parameters": {
+        "source": "P4",
+        "target": "P13",
+        "tip_rack": "BC230",
+        "volume": 40
+      }
+    },
+    {
+      "step_number": 22,
+      "operation": "move_labware",
+      "description": "移动至振荡器进行振荡混匀",
+      "parameters": {
+        "source": "P13",
+        "target": "Orbital1"
+      }
+    },
+    {
+      "step_number": 23,
+      "operation": "oscillation",
+      "description": "振荡混匀60秒",
+      "parameters": {
+        "rpm": 800,
+        "time": 60
+      }
+    },
+    {
+      "step_number": 24,
+      "operation": "move_labware",
+      "description": "室温静置3分钟",
+      "parameters": {
+        "source": "Orbital1",
+        "target": "P13"
+      }
+    },
+    {
+      "step_number": 25,
+      "operation": "incubation",
+      "description": "室温静置3分钟",
+      "parameters": {
+        "time": 180
+      }
+    },
+    {
+      "step_number": 26,
+      "operation": "move_labware",
+      "description": "转移至96孔磁力架上吸附2分钟",
+      "parameters": {
+        "source": "P13",
+        "target": "P12"
+      }
+    },
+    {
+      "step_number": 27,
+      "operation": "incubation",
+      "description": "吸附2分钟",
+      "parameters": {
+        "time": 120
+      }
+    },
+    {
+      "step_number": 28,
+      "operation": "transfer",
+      "description": "将DNA转移至新的板中",
+      "parameters": {
+        "source": "P12",
+        "target": "P14",
+        "tip_rack": "BC230",
+        "volume": 40
           }
         }
       ]
     }
+'''
+    # 完整的labware配置信息
+    labware_with_liquid = '''
+    [
+    {
+        "id": "Tip Rack BC230 TL1",
+        "parent": "deck",
+        "slot_on_deck": "TL1",
+        "class_name": "BC230",
+        "liquid_type": [],
+        "liquid_volume": [],
+        "liquid_input_wells": []
+    },
+    {
+        "id": "Tip Rack BC230 TL2",
+        "parent": "deck",
+        "slot_on_deck": "TL2",
+        "class_name": "BC230",
+        "liquid_type": [],
+        "liquid_volume": [],
+        "liquid_input_wells": []
+    },
+    {
+        "id": "Tip Rack BC230 TL3",
+        "parent": "deck",
+        "slot_on_deck": "TL3",
+        "class_name": "BC230",
+        "liquid_type": [],
+        "liquid_volume": [],
+        "liquid_input_wells": []
+    },
+    {
+        "id": "Tip Rack BC230 TL4",
+        "parent": "deck",
+        "slot_on_deck": "TL4",
+        "class_name": "BC230",
+        "liquid_type": [],
+        "liquid_volume": [],
+        "liquid_input_wells": []
+    },
+    {
+        "id": "Tip Rack BC230 TL5",
+        "parent": "deck",
+        "slot_on_deck": "TL5",
+        "class_name": "BC230",
+        "liquid_type": [],
+        "liquid_volume": [],
+        "liquid_input_wells": []
+    },
+    {
+        "id": "Tip Rack BC230 P5",
+        "parent": "deck",
+        "slot_on_deck": "P5",
+        "class_name": "BC230",
+        "liquid_type": [],
+        "liquid_volume": [],
+        "liquid_input_wells": []
+    },
+    {
+        "id": "Tip Rack BC230 P6",
+        "parent": "deck",
+        "slot_on_deck": "P6",
+        "class_name": "BC230",
+        "liquid_type": [],
+        "liquid_volume": [],
+        "liquid_input_wells": []
+    },
+    {
+        "id": "Tip Rack BC230 P15",
+        "parent": "deck",
+        "slot_on_deck": "P15",
+        "class_name": "BC230",
+        "liquid_type": [],
+        "liquid_volume": [],
+        "liquid_input_wells": []
+    },
+    {
+        "id": "Tip Rack BC230 P16",
+        "parent": "deck",
+        "slot_on_deck": "P16",
+        "class_name": "BC230",
+        "liquid_type": [],
+        "liquid_volume": [],
+        "liquid_input_wells": []
+    },
+    {
+        "id": "stock plate on P1",
+        "parent": "deck",
+        "slot_on_deck": "P1",
+        "class_name": "AgilentReservoir",
+        "liquid_type": ["PCR product"],
+        "liquid_volume": [5000],
+        "liquid_input_wells": ["A1"]
+    },
+    {
+        "id": "stock plate on P2",
+        "parent": "deck",
+        "slot_on_deck": "P2",
+        "class_name": "AgilentReservoir",
+        "liquid_type": ["bind beads"],
+        "liquid_volume": [100000],
+        "liquid_input_wells": ["A1"]
+    },
+    {
+        "id": "stock plate on P3",
+        "parent": "deck",
+        "slot_on_deck": "P3",
+        "class_name": "AgilentReservoir",
+        "liquid_type": ["75% ethanol"],
+        "liquid_volume": [100000],
+        "liquid_input_wells": ["A1"]
+    },
+    {
+        "id": "stock plate on P4",
+        "parent": "deck",
+        "slot_on_deck": "P4",
+        "class_name": "AgilentReservoir",
+        "liquid_type": ["Elution Buffer"],
+        "liquid_volume": [5000],
+        "liquid_input_wells": ["A1"]
+    },
+    {
+        "id": "working plate on P11",
+        "parent": "deck",
+        "slot_on_deck": "P11",
+        "class_name": "BCDeep96Round",
+        "liquid_type": [],
+        "liquid_volume": [],
+        "liquid_input_wells": []
+    },
+    {
+        "id": "working plate on P12",
+        "parent": "deck",
+        "slot_on_deck": "P12",
+        "class_name": "BCDeep96Round",
+        "liquid_type": [],
+        "liquid_volume": [],
+        "liquid_input_wells": []
+    },
+    {
+        "id": "working plate on P13",
+        "parent": "deck",
+        "slot_on_deck": "P13",
+        "class_name": "BCDeep96Round",
+        "liquid_type": [],
+        "liquid_volume": [],
+        "liquid_input_wells": []
+    },
+    {
+        "id": "working plate on P14",
+        "parent": "deck",
+        "slot_on_deck": "P14",
+        "class_name": "BCDeep96Round",
+        "liquid_type": [],
+        "liquid_volume": [],
+        "liquid_input_wells": []
+    },
+    {
+        "id": "waste on P22",
+        "parent": "deck",
+        "slot_on_deck": "P22",
+        "class_name": "AgilentReservoir",
+        "liquid_type": [],
+        "liquid_volume": [],
+        "liquid_input_wells": []
+    },
+    {
+        "id": "oscillation",
+        "parent": "deck",
+        "slot_on_deck": "Orbital1",
+        "class_name": "Orbital",
+        "liquid_type": [],
+        "liquid_volume": [],
+        "liquid_input_wells": []
+    }
+    ]
     '''
 
-    labware_with_liquid = '''
-        [    
-            {
-                "id": "Tip Rack BC230 on TL1",
-                "parent": "deck",
-                "slot_on_deck": "TL1",
-                "class_name": "BC230",
-                "liquid_type": [],
-                "liquid_volume": [],
-                "liquid_input_wells": []
-            },
-            {
-                "id": "Tip Rack BC230 on TL2",
-                "parent": "deck",
-                "slot_on_deck": "TL2",
-                "class_name": "BC230",
-                "liquid_type": [],
-                "liquid_volume": [],
-                "liquid_input_wells": []  
-            },
-            {
-                "id": "Tip Rack BC230 on TL3",
-                "parent": "deck",
-                "slot_on_deck": "TL3",
-                "class_name": "BC230",
-                "liquid_type": [],
-                "liquid_volume": [],
-                "liquid_input_wells": []
-            },
-            {
-                "id": "Tip Rack BC230 on TL4",
-                "parent": "deck",
-                "slot_on_deck": "TL4",
-                "class_name": "BC230",
-                "liquid_type": [],
-                "liquid_volume": [],
-                "liquid_input_wells": []
-            },
-            {
-                "id": "Tip Rack BC230 on TL5",
-                "parent": "deck",
-                "slot_on_deck": "TL5",
-                "class_name": "BC230",
-                "liquid_type": [],
-                "liquid_volume": [],
-                "liquid_input_wells": []
-            },
-            {
-                "id": "Tip Rack BC230 on P5",
-                "parent": "deck",
-                "slot_on_deck": "P5",
-                "class_name": "BC230",
-                "liquid_type": [],
-                "liquid_volume": [],
-                "liquid_input_wells": []
-            },
-            {
-                "id": "Tip Rack BC230 on P6",
-                "parent": "deck",
-                "slot_on_deck": "P6",
-                "class_name": "BC230",
-                "liquid_type": [],
-                "liquid_volume": [],
-                "liquid_input_wells": []
-            },
-            {
-                "id": "Tip Rack BC230 on P15",
-                "parent": "deck",
-                "slot_on_deck": "P15",
-                "class_name": "BC230",
-                "liquid_type": [],
-                "liquid_volume": [],
-                "liquid_input_wells": []
-            },
-            {
-                "id": "Tip Rack BC230 on P16",
-                "parent": "deck",
-                "slot_on_deck": "P16",
-                "class_name": "BC230",
-                "liquid_type": [],
-                "liquid_volume": [],
-                "liquid_input_wells": []
-            },
-            {
-                "id": "stock plate on P1",
-                "parent": "deck",
-                "slot_on_deck": "P1",
-                "class_name": "nest_12_reservoir_15ml",
-                "liquid_type": [
-                    "master_mix"
-                ],
-                "liquid_volume": [10000],
-                "liquid_input_wells": [
-                    "A1"
-                ]
-            },
-            {
-                "id": "stock plate on P2",
-                "parent": "deck",
-                "slot_on_deck": "P2",
-                "class_name": "nest_12_reservoir_15ml",
-                "liquid_type": [
-                    "bind beads"
-                ],
-                "liquid_volume": [10000],
-                "liquid_input_wells": [
-                    "A1"
-                ]
-            },
-            {
-                "id": "stock plate on P3",
-                "parent": "deck",
-                "slot_on_deck": "P3",
-                "class_name": "nest_12_reservoir_15ml",
-                "liquid_type": [
-                    "ethyl alcohol"
-                ],
-                "liquid_volume": [10000],
-                "liquid_input_wells": [
-                    "A1"
-                ]
-            },
-            {
-                "id": "elution buffer on P4",
-                "parent": "deck",
-                "slot_on_deck": "P4",
-                "class_name": "nest_12_reservoir_15ml",
-                "liquid_type": [
-                    "elution buffer"
-                ],
-                "liquid_volume": [5000],
-                "liquid_input_wells": [
-                    "A1"
-                ]
-            },
-            {
-                "id": "oscillation",
-                "parent": "deck",
-                "slot_on_deck": "Orbital1",
-                "class_name": "Orbital",
-                "liquid_type": [],
-                "liquid_volume": [],
-                "liquid_input_wells": []
-            },
-            {
-                "id": "working plate on P11",
-                "parent": "deck",
-                "slot_on_deck": "P11",
-                "class_name": "NEST 2ml Deep Well Plate",
-                "liquid_type": [],
-                "liquid_volume": [],
-                "liquid_input_wells": []
-            },
-            {
-                "id": "magnetics module on P12",
-                "parent": "deck",
-                "slot_on_deck": "P12",
-                "class_name": "magnetics module",
-                "liquid_type": [],
-                "liquid_volume": [],
-                "liquid_input_wells": []
-            },
-            {
-                "id": "working plate on P13",
-                "parent": "deck",
-                "slot_on_deck": "P13",
-                "class_name": "NEST 2ml Deep Well Plate",
-                "liquid_type": [],
-                "liquid_volume": [],
-                "liquid_input_wells": []
-            },
-            {
-                "id": "waste on P22",
-                "parent": "deck",
-                "slot_on_deck": "P22",
-                "class_name": "nest_1_reservoir_195ml",
-                "liquid_type": [],
-                "liquid_volume": [],
-                "liquid_input_wells": []
-            }
-        ]
-        '''
-    # 创建Biomek液体处理器实例
+    # 创建handler实例
     handler = LiquidHandlerBiomek()
+    
+    # 创建协议
+    protocol = handler.create_protocol(
+        protocol_name="DNA纯化完整流程",
+        protocol_description="使用磁珠进行DNA纯化的完整自动化流程",
+        protocol_version="1.0",
+        protocol_author="Biomek系统",
+        protocol_date="2024-01-01",
+        protocol_type="DNA_purification"
+    )
 
-    handler.temp_protocol = {
-        "meta": {},
-        "labwares": [],
-        "steps": []
-    }
-
-    input_steps = json.loads(steps_info)
+    print("\n=== 第一步：设置所有仪器 ===")
+    # 解析labware配置
     labwares = json.loads(labware_with_liquid)
+    
+    # 设置所有仪器
+    instrument_count = 0
+    for labware in labwares:
+        print(f"设置仪器: {labware['id']} ({labware['class_name']}) 在位置 {labware['slot_on_deck']}")
+        handler.instrument_setup_biomek(
+            id=labware['id'],
+            parent=labware['parent'],
+            slot_on_deck=labware['slot_on_deck'],
+            class_name=labware['class_name'],
+            liquid_type=labware['liquid_type'],
+            liquid_volume=labware['liquid_volume'],
+            liquid_input_wells=labware['liquid_input_wells']
+        )
+        instrument_count += 1
+    
+    print(f"总共设置了 {instrument_count} 个仪器位置")
 
+    print("\n=== 第二步：执行实验步骤 ===")
+    # 解析步骤信息
+    input_steps = json.loads(steps_info)
+    
+    # 执行所有步骤
+    step_count = 0
     for step in input_steps['steps']:
         operation = step['operation']
         parameters = step['parameters']
-
+        description = step['description']
+        
+        print(f"步骤 {step['step_number']}: {description}")
+        
         if operation == 'transfer':
-            handler.transfer_biomek(source=parameters['source'],
-                                    target=parameters['target'],
-                                    volume=parameters['volume'],
-                                    tip_rack=parameters['tip_rack'],
-                                    aspirate_techniques='MC P300 high',
-                                    dispense_techniques='MC P300 high')
+            handler.transfer_biomek(
+                source=parameters['source'],
+                target=parameters['target'],
+                volume=parameters['volume'],
+                tip_rack=parameters['tip_rack'],
+                aspirate_techniques='MC P300 high',
+                dispense_techniques='MC P300 high'
+            )
         elif operation == 'move_labware':
-            handler.move_biomek(source=parameters['source'],
-                                  target=parameters['target'])
+            handler.move_biomek(
+                source=parameters['source'],
+                target=parameters['target']
+            )
         elif operation == 'oscillation':
-            handler.oscillation_biomek(rpm=parameters['rpm'],
-                                        time=parameters['time'])
+            handler.oscillation_biomek(
+                rpm=parameters['rpm'],
+                time=parameters['time']
+            )
         elif operation == 'incubation':
-            handler.incubation_biomek(time=parameters['time'])
+            handler.incubation_biomek(
+                time=parameters['time']
+            )
+        
+        step_count += 1
+    
+    print(f"总共执行了 {step_count} 个步骤")
 
-    print(json.dumps(handler.temp_protocol, indent=4))
-
-
+    print("\n=== 第三步：保存完整协议 ===")
+    # 获取脚本目录
+    script_dir = pathlib.Path(__file__).parent
+    
+    # 保存完整协议
+    complete_output_path = script_dir / "complete_biomek_protocol_0608.json"
+    with open(complete_output_path, 'w', encoding='utf-8') as f:
+        json.dump(handler.temp_protocol, f, indent=4, ensure_ascii=False)
+    
+    print(f"完整协议已保存到: {complete_output_path}")
+  
+    print("\n=== 测试完成 ===")
+    print("完整的DNA纯化流程已成功转换为Biomek格式！")
