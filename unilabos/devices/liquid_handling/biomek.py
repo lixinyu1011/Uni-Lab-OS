@@ -450,9 +450,9 @@ class LiquidHandlerBiomek:
 
         """
         items = []
-
-        asp_params = self.aspirate_techniques.get(aspirate_techniques, {})
-        dis_params = self.dispense_techniques.get(dispense_techniques, {})
+        
+        asp_params = copy.deepcopy(self.aspirate_techniques[aspirate_techniques])
+        dis_params = copy.deepcopy(self.dispense_techniques[dispense_techniques])
 
         asp_params['Position'] = source
         dis_params['Position'] = target
