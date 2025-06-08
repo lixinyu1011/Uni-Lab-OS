@@ -293,7 +293,7 @@ liquid_handler.biomek:
   description: Biomek液体处理器设备，基于pylabrobot控制
   icon: icon_yiyezhan.webp
   class:
-    module: unilabos.devices.liquid_handling.biomek_test:LiquidHandlerBiomek
+    module: unilabos.devices.liquid_handling.biomek:LiquidHandlerBiomek
     type: python
     status_types: {}
     action_value_mappings:

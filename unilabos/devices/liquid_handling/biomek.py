@@ -1,22 +1,20 @@
+import json
+import pathlib
+from typing import Sequence, Optional, List, Union, Literal
+
 import requests
-from typing import List, Sequence, Optional, Union, Literal
 from geometry_msgs.msg import Point
 from pylabrobot.liquid_handling import LiquidHandler
-from unilabos_msgs.msg import Resource
-
 from pylabrobot.resources import (
     TipRack,
     Container,
     Coordinate,
 )
+from unilabos_msgs.msg import Resource
 
 from unilabos.ros.nodes.resource_tracker import DeviceNodeResourceTracker  # type: ignore
-from .liquid_handler_abstract import LiquidHandlerAbstract
 
-import json
-from typing import Sequence, Optional, List, Union, Literal
 
-#class LiquidHandlerBiomek(LiquidHandlerAbstract):
 class LiquidHandlerBiomek:
     """
     Biomek液体处理器的实现类，继承自LiquidHandlerAbstract。
@@ -214,7 +212,6 @@ class LiquidHandlerBiomek:
         liquid_type: list[str],
         liquid_volume: list[int],
         slot_on_deck: int,
-
     ):
         """
         创建一个新的资源。
@@ -236,26 +233,25 @@ class LiquidHandlerBiomek:
         # TODO：需要对好接口，下面这个是临时的
         for resource in resources:
             res_id = resource.id
-            class_name = resource.class_name
+            class_name = resource.name
             parent = bind_parent_id
-            bind_locations = Coordinate.from_point(resource.bind_location)
             liquid_input_slot = liquid_input_slot
             liquid_type = liquid_type
             liquid_volume = liquid_volume
             slot_on_deck = slot_on_deck
 
-        resource = {
-            "id": res_id,
-            "class": class_name,
-            "parent": parent,
-            "bind_locations": bind_locations.to_dict(),
-            "liquid_input_slot": liquid_input_slot,
-            "liquid_type": liquid_type,
-            "liquid_volume": liquid_volume,
-            "slot_on_deck": slot_on_deck,
-        }
-        self.temp_protocol["labwares"].append(resource)
-        return resource
+            resource = {
+                "id": res_id,
+                "class": class_name,
+                "parent": parent,
+                "bind_locations": bind_location,
+                "liquid_input_slot": liquid_input_slot,
+                "liquid_type": liquid_type,
+                "liquid_volume": liquid_volume,
+                "slot_on_deck": slot_on_deck,
+            }
+            self.temp_protocol["labwares"].append(resource)
+        return resources
 
     def transfer_liquid(
         self,
@@ -439,16 +435,14 @@ class LiquidHandlerBiomek:
         
         return
 
-
-
     def transfer_biomek(
-            self,
-            source: str,
-            target: str,
-            tip_rack: str,
-            volume: float,
-            aspirate_techniques: str,
-            dispense_techniques: str,
+        self,
+        source: str,
+        target: str,
+        tip_rack: str,
+        volume: float,
+        aspirate_techniques: str,
+        dispense_techniques: str,
     ):
         """
         处理Biomek的液体转移操作。

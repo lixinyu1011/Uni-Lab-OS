@@ -10,6 +10,8 @@ from copy import deepcopy
 
 import yaml
 
+from unilabos.resources.graphio import tree_to_list
+
 # 首先添加项目根目录到路径
 current_dir = os.path.dirname(os.path.abspath(__file__))
 unilabos_dir = os.path.dirname(os.path.dirname(current_dir))
@@ -145,9 +147,8 @@ def main():
         )
         devices_and_resources = dict_from_graph(graph_res.physical_setup_graph)
         args_dict["resources_config"] = initialize_resources(list(deepcopy(devices_and_resources).values()))
+        args_dict["resources_config"] = list(devices_and_resources.values())
         args_dict["devices_config"] = dict_to_nested_dict(deepcopy(devices_and_resources), devices_only=False)
-        # args_dict["resources_config"] = dict_to_tree(devices_and_resources, devices_only=False)
-
         args_dict["graph"] = graph_res.physical_setup_graph
     else:
         if args_dict["devices"] is None or args_dict["resources"] is None:
