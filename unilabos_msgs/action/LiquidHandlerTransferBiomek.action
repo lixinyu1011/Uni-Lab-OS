@@ -6,5 +6,6 @@ string aspirate_technique
 string dispense_technique
 
 ---
+string return_info
 bool success
 ---

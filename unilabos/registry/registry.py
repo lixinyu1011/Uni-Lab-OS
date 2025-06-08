@@ -85,7 +85,15 @@ class Registry:
                                 "goal_default": yaml.safe_load(
                                     io.StringIO(get_yaml_from_goal_type(self.ResourceCreateFromOuterEasy.Goal))
                                 ),
-                                "handles": {},
+                                "handles": {
+                                    "output": [{
+                                        "handler_key": "Labware",
+                                        "label": "Labware",
+                                        "data_type": "resource",
+                                        "data_source": "handle",
+                                        "data_key": "liquid"
+                                    }]
+                                },
                             },
                             "test_latency": {
                                 "type": self.EmptyIn,

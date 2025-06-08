@@ -6,4 +6,5 @@ string protocol_date
 string protocol_type
 string[] none_keys
 ---
+string return_info
 ---
