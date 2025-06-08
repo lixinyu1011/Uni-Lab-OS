@@ -612,17 +612,23 @@ class HostNode(BaseROS2DeviceNode):
 
     def get_result_callback(self, action_id: str, uuid_str: Optional[str], future) -> None:
         """获取结果回调"""
-        import json
-
         result_msg = future.result().result
         result_data = convert_from_ros_msg(result_msg)
+        status = "success"
+        try:
+            ret = json.loads(result_data.get("return_info", "{}"))  # 确保返回信息是有效的JSON
+            suc = ret.get("suc", False)
+            if not suc:
+                status = "failed"
+        except json.JSONDecodeError:
+            status = "failed"
         self.lab_logger().info(f"[Host Node] Result for {action_id} ({uuid_str}): success")
         self.lab_logger().debug(f"[Host Node] Result data: {result_data}")
 
         if uuid_str:
             for bridge in self.bridges:
                 if hasattr(bridge, "publish_job_status"):
-                    bridge.publish_job_status(result_data, uuid_str, "success", result_data.get("return_info", "{}"))
+                    bridge.publish_job_status(result_data, uuid_str, status, result_data.get("return_info", "{}"))
 
     def cancel_goal(self, goal_uuid: str) -> None:
         """取消目标"""
@@ -862,6 +868,7 @@ class HostNode(BaseROS2DeviceNode):
         测试网络延迟的action实现
         通过5次ping-pong机制校对时间误差并计算实际延迟
         """
+        raise ValueError("test")
         import time
         import uuid as uuid_module
 

@@ -660,8 +660,10 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                     future = ROS2DeviceNode.run_async_func(ACTION, trace_error=False, **action_kwargs)
 
                     def _handle_future_exception(fut):
+                        nonlocal execution_error, execution_success, action_return_value
                         try:
-                            fut.result()
+                            action_return_value = fut.result()
+                            execution_success = True
                         except Exception as e:
                             execution_error = traceback.format_exc()
                             error(f"异步任务 {ACTION.__name__} 报错了")
@@ -676,8 +678,10 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                 future = self._executor.submit(ACTION, **action_kwargs)
 
                 def _handle_future_exception(fut):
+                    nonlocal execution_error, execution_success, action_return_value
                     try:
-                        fut.result()
+                        action_return_value = fut.result()
+                        execution_success = True
                     except Exception as e:
                         execution_error = traceback.format_exc()
                         error(f"同步任务 {ACTION.__name__} 报错了")
