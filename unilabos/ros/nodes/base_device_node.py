@@ -368,16 +368,21 @@ class BaseROS2DeviceNode(Node, Generic[T]):
             # 如果driver自己就有assign的方法，那就使用driver自己的assign方法
             if hasattr(self.driver_instance, "create_resource"):
                 create_resource_func = getattr(self.driver_instance, "create_resource")
-                create_resource_func(
-                    resource_tracker=self.resource_tracker,
-                    resources=request.resources,
-                    bind_parent_id=bind_parent_id,
-                    bind_location=location,
-                    liquid_input_slot=LIQUID_INPUT_SLOT,
-                    liquid_type=ADD_LIQUID_TYPE,
-                    liquid_volume=LIQUID_VOLUME,
-                    slot_on_deck=slot,
-                )
+                try:
+                    ret = create_resource_func(
+                        resource_tracker=self.resource_tracker,
+                        resources=request.resources,
+                        bind_parent_id=bind_parent_id,
+                        bind_location=location,
+                        liquid_input_slot=LIQUID_INPUT_SLOT,
+                        liquid_type=ADD_LIQUID_TYPE,
+                        liquid_volume=LIQUID_VOLUME,
+                        slot_on_deck=slot,
+                    )
+                    res.response = serialize_result_info("", True, ret)
+                except Exception as e:
+                    traceback.print_exc()
+                    res.response = serialize_result_info(traceback.format_exc(), False, {})
                 return res
             # 接下来该根据bind_parent_id进行assign了，目前只有plr可以进行assign，不然没有办法输入到物料系统中
             resource = self.resource_tracker.figure_resource({"name": bind_parent_id})
