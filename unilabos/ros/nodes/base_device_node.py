@@ -343,8 +343,8 @@ class BaseROS2DeviceNode(Node, Generic[T]):
             ADD_LIQUID_TYPE = other_calling_param.pop("ADD_LIQUID_TYPE", [])
             LIQUID_VOLUME = other_calling_param.pop("LIQUID_VOLUME", [])
             LIQUID_INPUT_SLOT = other_calling_param.pop("LIQUID_INPUT_SLOT", [])
-            slot = other_calling_param.pop("slot", -1)
-            if slot >= 0:  # slot为负数的时候采用assign方法
+            slot = other_calling_param.pop("slot", "-1")
+            if slot != "-1":  # slot为负数的时候采用assign方法
                 other_calling_param["slot"] = slot
             # 本地拿到这个物料，可能需要先做初始化?
             if isinstance(resources, list):
@@ -408,9 +408,10 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                             empty_liquid_info_in[liquid_input_slot] = (liquid_type, liquid_volume)
                         plr_instance.set_well_liquids(empty_liquid_info_in)
                     if isinstance(resource, OTDeck) and "slot" in other_calling_param:
+                        other_calling_param["slot"] = int(other_calling_param["slot"])
                         resource.assign_child_at_slot(plr_instance, **other_calling_param)
                     else:
-                        _discard_slot = other_calling_param.pop("slot", -1)
+                        _discard_slot = other_calling_param.pop("slot", "-1")
                         resource.assign_child_resource(
                             plr_instance,
                             Coordinate(location["x"], location["y"], location["z"]),

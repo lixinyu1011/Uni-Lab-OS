@@ -381,7 +381,7 @@ class HostNode(BaseROS2DeviceNode):
         liquid_input_slot: list[int],
         liquid_type: list[str],
         liquid_volume: list[int],
-        slot_on_deck: int,
+        slot_on_deck: str,
     ):
         init_new_res = initialize_resource(
             {
