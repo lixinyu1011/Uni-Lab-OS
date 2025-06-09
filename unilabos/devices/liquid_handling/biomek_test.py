@@ -404,8 +404,8 @@ class LiquidHandlerBiomek:
         transfer_params["items"] = items
         transfer_params["Solvent"] = 'Water'
         transfer_params["TipLocation"] = tip_rack
+        
         tmp={'transfer': transfer_params}
-       
         self.temp_protocol["steps"].append(tmp)
         
 

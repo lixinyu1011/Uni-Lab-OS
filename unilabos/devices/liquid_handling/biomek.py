@@ -502,6 +502,7 @@ class LiquidHandlerBiomek:
         transfer_params["items"] = items
         transfer_params["Solvent"] = 'Water'
         transfer_params["TipLocation"] = tip_rack
+
         tmp={'transfer': transfer_params}
         self.temp_protocol["steps"].append(tmp)
 
@@ -525,7 +526,9 @@ class LiquidHandlerBiomek:
             "Target": target,
             "LeaveBottomLabware": False,
         }
-        self.temp_protocol["steps"].append(move_params)
+
+        tmp={'move': move_params}
+        self.temp_protocol["steps"].append(tmp)
 
         return
     
@@ -542,7 +545,8 @@ class LiquidHandlerBiomek:
             "Time": time,
             "Mode": "TimedResource"
         }
-        self.temp_protocol["steps"].append(incubation_params)
+        tmp={'incubation': incubation_params}
+        self.temp_protocol["steps"].append(tmp)   
 
         return
     
@@ -559,7 +563,8 @@ class LiquidHandlerBiomek:
             'Parameters': (str(rpm), '2', str(time), 'CounterClockwise'), 
             'Command': 'Timed Shake'
         }
-        self.temp_protocol["steps"].append(oscillation_params)
+        tmp={'oscillation': oscillation_params}
+        self.temp_protocol["steps"].append(tmp)
 
         return
 
