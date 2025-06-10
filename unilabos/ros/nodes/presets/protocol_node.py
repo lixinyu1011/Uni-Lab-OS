@@ -1,6 +1,7 @@
 import time
 import asyncio
 import traceback
+from types import MethodType
 from typing import Union
 
 import rclpy
@@ -252,9 +253,12 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
             return write_func(*args, **kwargs)
 
         if read_method:
-            setattr(device.driver_instance, read_method, _read)
+            bound_read = MethodType(_read, device.driver_instance)
+            setattr(device.driver_instance, read_method, bound_read)
+
         if write_method:
-            setattr(device.driver_instance, write_method, _write)
+            bound_write = MethodType(_write, device.driver_instance)
+            setattr(device.driver_instance, write_method, bound_write)
 
 
     async def _update_resources(self, goal, protocol_kwargs):
