@@ -241,15 +241,15 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
 
     def _setup_hardware_proxy(self, device: ROS2DeviceNode, communication_device: ROS2DeviceNode, read_method, write_method):
         """为设备设置硬件接口代理"""
-        extra_info = [getattr(device.driver_instance, info) for info in communication_device.ros_node_instance._hardware_interface.get("extra_info", [])]
-        write_func = getattr(communication_device.ros_node_instance, communication_device.ros_node_instance._hardware_interface["write"])
-        read_func = getattr(communication_device.ros_node_instance, communication_device.ros_node_instance._hardware_interface["read"])
+        # extra_info = [getattr(device.driver_instance, info) for info in communication_device.ros_node_instance._hardware_interface.get("extra_info", [])]
+        write_func = getattr(communication_device.driver_instance, communication_device.ros_node_instance._hardware_interface["write"])
+        read_func = getattr(communication_device.driver_instance, communication_device.ros_node_instance._hardware_interface["read"])
 
-        def _read():
-            return read_func(*extra_info)
+        def _read(*args, **kwargs):
+            return read_func(*args, **kwargs)
 
-        def _write(command):
-            return write_func(*extra_info, command)
+        def _write(*args, **kwargs):
+            return write_func(*args, **kwargs)
 
         if read_method:
             setattr(device.driver_instance, read_method, _read)
