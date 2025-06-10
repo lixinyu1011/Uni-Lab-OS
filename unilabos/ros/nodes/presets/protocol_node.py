@@ -88,7 +88,10 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
 
                     # 如果硬件接口是字符串，通过通信设备提供
                     if isinstance(name, str) and name in self.sub_devices:
+                        communicate_device = self.sub_devices[name]
+                        communicate_hardware_info = communicate_device.ros_node_instance._hardware_interface
                         self._setup_hardware_proxy(d, self.sub_devices[name], read, write)
+                        self.lab_logger().info(f"\n通信代理：为子设备{device_id}\n    添加了{read}方法(来源：{name} {communicate_hardware_info['write']}) \n    添加了{write}方法(来源：{name} {communicate_hardware_info['read']})")
 
     def _setup_protocol_names(self, protocol_type):
         # 处理协议类型
