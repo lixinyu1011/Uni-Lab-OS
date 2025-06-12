@@ -601,10 +601,10 @@ class BaseROS2DeviceNode(Node, Generic[T]):
             goal = goal_handle.request
 
             # 从目标消息中提取参数, 并调用对应的方法
-            if "sequence" in self._action_value_mappings:
+            if "sequence" in action_value_mapping:
                 # 如果一个指令对应函数的连续调用，如启动和等待结果，默认参数应该属于第一个函数调用
                 def ACTION(**kwargs):
-                    for i, action in enumerate(self._action_value_mappings["sequence"]):
+                    for i, action in enumerate(action_value_mapping["sequence"]):
                         if i == 0:
                             self.lab_logger().info(f"执行序列动作第一步: {action}")
                             self.get_real_function(self.driver_instance, action)[0](**kwargs)
@@ -612,9 +612,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                             self.lab_logger().info(f"执行序列动作后续步骤: {action}")
                             self.get_real_function(self.driver_instance, action)[0]()
 
-                action_paramtypes = get_type_hints(
-                    self.get_real_function(self.driver_instance, self._action_value_mappings["sequence"][0])
-                )[1]
+                action_paramtypes = self.get_real_function(self.driver_instance, action_value_mapping["sequence"][0])[1]
             else:
                 ACTION, action_paramtypes = self.get_real_function(self.driver_instance, action_name)
 
