@@ -1,0 +1,63 @@
+name: Conda Package Build
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+  workflow_dispatch:
+    # 允许手动触发
+
+jobs:
+  build-macos-arm64:
+    runs-on: macos-latest # 使用最新的macOS runner
+
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup Miniconda
+      uses: conda-incubator/setup-miniconda@v3
+      with:
+        miniconda-version: "latest"
+        channels: conda-forge,robostack-staging,defaults
+        channel-priority: strict
+        activate-environment: build-env
+        environment-file: unilabos-osx-arm64.yaml
+        auto-activate-base: false
+        auto-update-conda: false
+        show-channel-urls: true
+
+    - name: Install boa
+      run: |
+        conda install -c conda-forge boa
+
+    - name: Show conda info
+      run: |
+        conda info
+        conda list
+        which conda-build
+        which boa
+
+    - name: Build conda package
+      run: |
+        boa build -m ./recipes/conda_build_config.yaml -m ./recipes/macos_sdk_config.yaml ./recipes/ros-humble-unilabos-msgs
+
+    - name: List built packages
+      run: |
+        echo "Built packages in conda-bld:"
+        find $CONDA_PREFIX/conda-bld -name "*.tar.bz2" | head -20
+        ls -la $CONDA_PREFIX/conda-bld/osx-arm64/ || echo "osx-arm64 directory not found"
+
+    - name: Upload conda package artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: conda-package-osx-arm64
+        path: ${{ env.CONDA_PREFIX }}/conda-bld/**/*.tar.bz2
+        if-no-files-found: warn
+        retention-days: 30
