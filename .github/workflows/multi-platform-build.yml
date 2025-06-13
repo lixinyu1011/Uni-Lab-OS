@@ -81,15 +81,14 @@ jobs:
         echo "Platform: ${{ matrix.platform }}"
         echo "OS: ${{ matrix.os }}"
 
-    - name: Build conda package (macOS ARM64)
-      if: steps.should_build.outputs.should_build == 'true' && matrix.platform == 'osx-arm64'
+    - name: Build conda package
+      if: steps.should_build.outputs.should_build == 'true'
       run: |
-        boa build -m ./recipes/conda_build_config.yaml -m ./recipes/macos_sdk_config.yaml ./recipes/ros-humble-unilabos-msgs
-
-    - name: Build conda package (Other platforms)
-      if: steps.should_build.outputs.should_build == 'true' && matrix.platform != 'osx-arm64'
-      run: |
-        boa build -m ./recipes/conda_build_config.yaml ./recipes/ros-humble-unilabos-msgs
+        if [[ "${{ matrix.platform }}" == "osx-arm64" ]]; then
+          boa build -m ./recipes/conda_build_config.yaml -m ./recipes/macos_sdk_config.yaml ./recipes/ros-humble-unilabos-msgs
+        else
+          boa build -m ./recipes/conda_build_config.yaml ./recipes/ros-humble-unilabos-msgs
+        fi
 
     - name: List built packages
       if: steps.should_build.outputs.should_build == 'true'
