@@ -28,14 +28,13 @@ jobs:
         channels: conda-forge,robostack-staging,defaults
         channel-priority: strict
         activate-environment: build-env
-        environment-file: unilabos-osx-arm64.yaml
         auto-activate-base: false
         auto-update-conda: false
         show-channel-urls: true
 
     - name: Install boa
       run: |
-        conda install -c conda-forge boa
+        conda install -c conda-forge boa python=3.11.11
 
     - name: Show conda info
       run: |

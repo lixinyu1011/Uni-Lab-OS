@@ -34,12 +34,6 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    # 如果手动触发且指定了平台，则只构建指定平台
-    if: |
-      github.event_name != 'workflow_dispatch' || 
-      contains(github.event.inputs.platforms, matrix.platform) ||
-      github.event.inputs.platforms == ''
-
     defaults:
       run:
         shell: bash -l {0}
@@ -49,23 +43,38 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Check if platform should be built
+      id: should_build
+      run: |
+        if [[ "${{ github.event_name }}" != "workflow_dispatch" ]]; then
+          echo "should_build=true" >> $GITHUB_OUTPUT
+        elif [[ -z "${{ github.event.inputs.platforms }}" ]]; then
+          echo "should_build=true" >> $GITHUB_OUTPUT
+        elif [[ "${{ github.event.inputs.platforms }}" == *"${{ matrix.platform }}"* ]]; then
+          echo "should_build=true" >> $GITHUB_OUTPUT
+        else
+          echo "should_build=false" >> $GITHUB_OUTPUT
+        fi
+
     - name: Setup Miniconda
+      if: steps.should_build.outputs.should_build == 'true'
       uses: conda-incubator/setup-miniconda@v3
       with:
         miniconda-version: "latest"
         channels: conda-forge,robostack-staging,defaults
         channel-priority: strict
         activate-environment: build-env
-        environment-file: ${{ matrix.env_file }}
         auto-activate-base: false
         auto-update-conda: false
         show-channel-urls: true
 
     - name: Install boa and build tools
+      if: steps.should_build.outputs.should_build == 'true'
       run: |
         conda install -c conda-forge boa conda-build
 
     - name: Show environment info
+      if: steps.should_build.outputs.should_build == 'true'
       run: |
         conda info
         conda list | grep -E "(boa|conda-build)"
@@ -73,16 +82,17 @@ jobs:
         echo "OS: ${{ matrix.os }}"
 
     - name: Build conda package (macOS ARM64)
-      if: matrix.platform == 'osx-arm64'
+      if: steps.should_build.outputs.should_build == 'true' && matrix.platform == 'osx-arm64'
       run: |
         boa build -m ./recipes/conda_build_config.yaml -m ./recipes/macos_sdk_config.yaml ./recipes/ros-humble-unilabos-msgs
 
     - name: Build conda package (Other platforms)
-      if: matrix.platform != 'osx-arm64'
+      if: steps.should_build.outputs.should_build == 'true' && matrix.platform != 'osx-arm64'
       run: |
         boa build -m ./recipes/conda_build_config.yaml ./recipes/ros-humble-unilabos-msgs
 
     - name: List built packages
+      if: steps.should_build.outputs.should_build == 'true'
       run: |
         echo "Built packages in conda-bld:"
         find $CONDA_PREFIX/conda-bld -name "*.tar.bz2" | head -10
@@ -90,6 +100,7 @@ jobs:
         ls -la $CONDA_PREFIX/conda-bld/noarch/ || echo "noarch directory not found"
 
     - name: Upload conda package artifacts
+      if: steps.should_build.outputs.should_build == 'true'
       uses: actions/upload-artifact@v4
       with:
         name: conda-package-${{ matrix.platform }}
@@ -98,13 +109,13 @@ jobs:
         retention-days: 30
 
     - name: Create release assets (on tags)
-      if: startsWith(github.ref, 'refs/tags/')
+      if: steps.should_build.outputs.should_build == 'true' && startsWith(github.ref, 'refs/tags/')
       run: |
         mkdir -p release-assets
         find $CONDA_PREFIX/conda-bld -name "*.tar.bz2" -exec cp {} release-assets/ \;
 
     - name: Upload to release
-      if: startsWith(github.ref, 'refs/tags/')
+      if: steps.should_build.outputs.should_build == 'true' && startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
         files: release-assets/*
