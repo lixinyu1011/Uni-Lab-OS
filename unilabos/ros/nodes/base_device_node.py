@@ -351,8 +351,6 @@ class BaseROS2DeviceNode(Node, Generic[T]):
             ADD_LIQUID_TYPE = other_calling_param.pop("ADD_LIQUID_TYPE", [])
             LIQUID_VOLUME = other_calling_param.pop("LIQUID_VOLUME", [])
             LIQUID_INPUT_SLOT = other_calling_param.pop("LIQUID_INPUT_SLOT", [])
-            if len(LIQUID_INPUT_SLOT) and LIQUID_INPUT_SLOT[0] == -1:
-                print("create container")
             slot = other_calling_param.pop("slot", "-1")
             resource = None
             if slot != "-1":  # slot为负数的时候采用assign方法
