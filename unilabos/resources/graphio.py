@@ -5,6 +5,8 @@ from typing import Union
 import numpy as np
 import networkx as nx
 
+from unilabos.resources.container import RegularContainer
+
 try:
     from pylabrobot.resources.resource import Resource as ResourcePLR
 except ImportError:
@@ -466,6 +468,9 @@ def initialize_resource(resource_config: dict) -> list[dict]:
             if resource_config.get("position") is not None:
                 r["position"] = resource_config["position"]
             r = tree_to_list([r])
+        elif resource_class_config["type"] == "unilabos":
+            res_instance: RegularContainer = RESOURCE(id=resource_config["name"], data=resource_config.get("data", {}))
+            r = [res_instance.get_ulr_resource_as_dict()]
         elif isinstance(RESOURCE, dict):
             r = [RESOURCE.copy()]
 
