@@ -4,7 +4,7 @@
             "id": "MockChiller1",  
             "name": "模拟冷却器",  
             "children": [
-
+                "MockContainerForChiller1"
             ],
             "parent": null,  
             "type": "device",  

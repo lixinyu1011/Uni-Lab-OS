@@ -8,18 +8,21 @@ from unilabos.ros.msgs.message_converter import convert_from_ros_msg
 class RegularContainer(object):
     # 第一个参数必须是id传入
     # noinspection PyShadowingBuiltins
-    def __init__(self, id: str, data: dict = None):
+    def __init__(self, id: str):
         self.id = id
         self.ulr_resource = Resource()
-        self.ulr_resource_data = data
+        self._data = None
 
     @property
     def ulr_resource_data(self):
-        return json.loads(self.ulr_resource.data) if self.ulr_resource.data else {}
+        if self._data is None:
+            self._data = json.loads(self.ulr_resource.data) if self.ulr_resource.data else {}
+        return self._data
 
     @ulr_resource_data.setter
     def ulr_resource_data(self, value: dict):
-        self.ulr_resource.data = json.dumps(value)
+        self._data = value
+        self.ulr_resource.data = json.dumps(self._data)
 
     @property
     def liquid_type(self):
@@ -48,6 +51,7 @@ class RegularContainer(object):
         获取UlrResource对象
         :return: UlrResource对象
         """
+        self.ulr_resource_data = self.ulr_resource_data  # 确保数据被更新
         return self.ulr_resource
 
     def get_ulr_resource_as_dict(self) -> Resource:
@@ -55,7 +59,9 @@ class RegularContainer(object):
         获取UlrResource对象
         :return: UlrResource对象
         """
-        return convert_from_ros_msg(self.ulr_resource)
+        to_dict = convert_from_ros_msg(self.get_ulr_resource())
+        to_dict["type"] = "container"
+        return to_dict
 
     def __str__(self):
         return f"{self.id}"
