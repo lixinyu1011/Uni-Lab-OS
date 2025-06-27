@@ -169,6 +169,7 @@ solenoid_valve:
         type: StrSingleInput
     module: unilabos.devices.pump_and_valve.solenoid_valve:SolenoidValve
     status_types:
+      get_valve_position: str
       status: str
       valve_position: str
     type: python
@@ -330,6 +331,7 @@ solenoid_valve.mock:
         type: EmptyIn
     module: unilabos.devices.pump_and_valve.solenoid_valve_mock:SolenoidValveMock
     status_types:
+      get_valve_position: str
       status: str
       valve_position: str
     type: python
@@ -752,6 +754,14 @@ syringe_pump_with_valve.runze:
       write: send_command
     module: unilabos.devices.pump_and_valve.runze_backbone:RunzeSyringePump
     status_types:
+      get_max_velocity: String
+      get_plunger_position: String
+      get_position: String
+      get_status: String
+      get_valve_position: str
+      get_velocity_end: String
+      get_velocity_grade: String
+      get_velocity_init: String
       max_velocity: float
       mode: int
       plunger_position: String

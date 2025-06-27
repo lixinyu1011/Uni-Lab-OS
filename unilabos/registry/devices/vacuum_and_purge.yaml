@@ -149,6 +149,7 @@ gas_source.mock:
         type: StrSingleInput
     module: unilabos.devices.pump_and_valve.vacuum_pump_mock:VacuumPumpMock
     status_types:
+      get_status: str
       status: str
     type: python
   config_info: []
@@ -328,6 +329,7 @@ vacuum_pump.mock:
         type: StrSingleInput
     module: unilabos.devices.pump_and_valve.vacuum_pump_mock:VacuumPumpMock
     status_types:
+      get_status: str
       status: str
     type: python
   config_info: []
