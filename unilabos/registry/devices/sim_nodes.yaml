@@ -182,7 +182,7 @@ lh_joint_publisher:
                 speed:
                   default: 0.1
                   description: '参数: speed'
-                  type: number
+                  type: string
                 x:
                   description: '参数: x'
                   type: string
@@ -268,7 +268,7 @@ lh_joint_publisher:
               properties:
                 channels:
                   description: '参数: channels'
-                  type: string
+                  type: array
                 link_name:
                   description: '参数: link_name'
                   type: string
@@ -306,7 +306,7 @@ lh_joint_publisher:
                   type: string
                 resource_id_list:
                   description: '参数: resource_id_list'
-                  type: string
+                  type: array
               required:
               - resource_id_list
               - link_name

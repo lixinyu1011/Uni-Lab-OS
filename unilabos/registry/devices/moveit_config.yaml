@@ -1,6 +1,294 @@
 moveit.arm_slider:
   class:
     action_value_mappings:
+      auto-check_tf_update_actions:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand check_tf_update_actions 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand check_tf_update_actions 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: check_tf_update_actions 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-moveit_joint_task:
+        feedback: {}
+        goal: {}
+        goal_default:
+          joint_names: null
+          joint_positions: null
+          move_group: null
+          retry: 10
+          speed: 1
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand moveit_joint_task 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand moveit_joint_task 的参数schema
+              properties:
+                joint_names:
+                  description: '参数: joint_names'
+                  type: string
+                joint_positions:
+                  description: '参数: joint_positions'
+                  type: string
+                move_group:
+                  description: '参数: move_group'
+                  type: string
+                retry:
+                  default: 10
+                  description: '参数: retry'
+                  type: string
+                speed:
+                  default: 1
+                  description: '参数: speed'
+                  type: string
+              required:
+              - move_group
+              - joint_positions
+              type: object
+            result: {}
+          required:
+          - goal
+          title: moveit_joint_task 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-moveit_task:
+        feedback: {}
+        goal: {}
+        goal_default:
+          cartesian: false
+          move_group: null
+          offsets:
+          - 0
+          - 0
+          - 0
+          position: null
+          quaternion: null
+          retry: 10
+          speed: 1
+          target_link: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand moveit_task 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand moveit_task 的参数schema
+              properties:
+                cartesian:
+                  default: false
+                  description: '参数: cartesian'
+                  type: string
+                move_group:
+                  description: '参数: move_group'
+                  type: string
+                offsets:
+                  default:
+                  - 0
+                  - 0
+                  - 0
+                  description: '参数: offsets'
+                  type: string
+                position:
+                  description: '参数: position'
+                  type: string
+                quaternion:
+                  description: '参数: quaternion'
+                  type: string
+                retry:
+                  default: 10
+                  description: '参数: retry'
+                  type: string
+                speed:
+                  default: 1
+                  description: '参数: speed'
+                  type: string
+                target_link:
+                  description: '参数: target_link'
+                  type: string
+              required:
+              - move_group
+              - position
+              - quaternion
+              type: object
+            result: {}
+          required:
+          - goal
+          title: moveit_task 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-pick_and_place:
+        feedback: {}
+        goal: {}
+        goal_default:
+          command: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand pick_and_place 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand pick_and_place 的参数schema
+              properties:
+                command:
+                  description: '参数: command'
+                  type: string
+              required:
+              - command
+              type: object
+            result: {}
+          required:
+          - goal
+          title: pick_and_place 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-post_init:
+        feedback: {}
+        goal: {}
+        goal_default:
+          ros_node: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand post_init 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand post_init 的参数schema
+              properties:
+                ros_node:
+                  description: '参数: ros_node'
+                  type: string
+              required:
+              - ros_node
+              type: object
+            result: {}
+          required:
+          - goal
+          title: post_init 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-resource_manager:
+        feedback: {}
+        goal: {}
+        goal_default:
+          parent_link: null
+          resource: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand resource_manager 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand resource_manager 的参数schema
+              properties:
+                parent_link:
+                  description: '参数: parent_link'
+                  type: string
+                resource:
+                  description: '参数: resource'
+                  type: string
+              required:
+              - resource
+              - parent_link
+              type: object
+            result: {}
+          required:
+          - goal
+          title: resource_manager 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_position:
+        feedback: {}
+        goal: {}
+        goal_default:
+          command: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_position 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_position 的参数schema
+              properties:
+                command:
+                  description: '参数: command'
+                  type: string
+              required:
+              - command
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_position 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_status:
+        feedback: {}
+        goal: {}
+        goal_default:
+          command: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_status 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_status 的参数schema
+              properties:
+                command:
+                  description: '参数: command'
+                  type: string
+              required:
+              - command
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_status 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-wait_for_resource_action:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand wait_for_resource_action 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand wait_for_resource_action 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: wait_for_resource_action 命令参数
+          type: object
+        type: UniLabJsonCommand
       pick_and_place:
         feedback: {}
         goal:
@@ -151,8 +439,22 @@ moveit.arm_slider:
       feedback: {}
       goal:
         description: UniLabJsonCommand __init__ 的参数schema
-        properties: {}
-        required: []
+        properties:
+          device_config:
+            description: '参数: device_config'
+            type: string
+          joint_poses:
+            description: '参数: joint_poses'
+            type: string
+          moveit_type:
+            description: '参数: moveit_type'
+            type: string
+          rotation:
+            description: '参数: rotation'
+            type: string
+        required:
+        - moveit_type
+        - joint_poses
         type: object
       result: {}
     required:
@@ -165,6 +467,294 @@ moveit.arm_slider:
 moveit.toyo_xyz:
   class:
     action_value_mappings:
+      auto-check_tf_update_actions:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand check_tf_update_actions 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand check_tf_update_actions 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: check_tf_update_actions 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-moveit_joint_task:
+        feedback: {}
+        goal: {}
+        goal_default:
+          joint_names: null
+          joint_positions: null
+          move_group: null
+          retry: 10
+          speed: 1
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand moveit_joint_task 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand moveit_joint_task 的参数schema
+              properties:
+                joint_names:
+                  description: '参数: joint_names'
+                  type: string
+                joint_positions:
+                  description: '参数: joint_positions'
+                  type: string
+                move_group:
+                  description: '参数: move_group'
+                  type: string
+                retry:
+                  default: 10
+                  description: '参数: retry'
+                  type: string
+                speed:
+                  default: 1
+                  description: '参数: speed'
+                  type: string
+              required:
+              - move_group
+              - joint_positions
+              type: object
+            result: {}
+          required:
+          - goal
+          title: moveit_joint_task 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-moveit_task:
+        feedback: {}
+        goal: {}
+        goal_default:
+          cartesian: false
+          move_group: null
+          offsets:
+          - 0
+          - 0
+          - 0
+          position: null
+          quaternion: null
+          retry: 10
+          speed: 1
+          target_link: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand moveit_task 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand moveit_task 的参数schema
+              properties:
+                cartesian:
+                  default: false
+                  description: '参数: cartesian'
+                  type: string
+                move_group:
+                  description: '参数: move_group'
+                  type: string
+                offsets:
+                  default:
+                  - 0
+                  - 0
+                  - 0
+                  description: '参数: offsets'
+                  type: string
+                position:
+                  description: '参数: position'
+                  type: string
+                quaternion:
+                  description: '参数: quaternion'
+                  type: string
+                retry:
+                  default: 10
+                  description: '参数: retry'
+                  type: string
+                speed:
+                  default: 1
+                  description: '参数: speed'
+                  type: string
+                target_link:
+                  description: '参数: target_link'
+                  type: string
+              required:
+              - move_group
+              - position
+              - quaternion
+              type: object
+            result: {}
+          required:
+          - goal
+          title: moveit_task 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-pick_and_place:
+        feedback: {}
+        goal: {}
+        goal_default:
+          command: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand pick_and_place 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand pick_and_place 的参数schema
+              properties:
+                command:
+                  description: '参数: command'
+                  type: string
+              required:
+              - command
+              type: object
+            result: {}
+          required:
+          - goal
+          title: pick_and_place 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-post_init:
+        feedback: {}
+        goal: {}
+        goal_default:
+          ros_node: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand post_init 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand post_init 的参数schema
+              properties:
+                ros_node:
+                  description: '参数: ros_node'
+                  type: string
+              required:
+              - ros_node
+              type: object
+            result: {}
+          required:
+          - goal
+          title: post_init 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-resource_manager:
+        feedback: {}
+        goal: {}
+        goal_default:
+          parent_link: null
+          resource: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand resource_manager 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand resource_manager 的参数schema
+              properties:
+                parent_link:
+                  description: '参数: parent_link'
+                  type: string
+                resource:
+                  description: '参数: resource'
+                  type: string
+              required:
+              - resource
+              - parent_link
+              type: object
+            result: {}
+          required:
+          - goal
+          title: resource_manager 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_position:
+        feedback: {}
+        goal: {}
+        goal_default:
+          command: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_position 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_position 的参数schema
+              properties:
+                command:
+                  description: '参数: command'
+                  type: string
+              required:
+              - command
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_position 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_status:
+        feedback: {}
+        goal: {}
+        goal_default:
+          command: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_status 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_status 的参数schema
+              properties:
+                command:
+                  description: '参数: command'
+                  type: string
+              required:
+              - command
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_status 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-wait_for_resource_action:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand wait_for_resource_action 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand wait_for_resource_action 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: wait_for_resource_action 命令参数
+          type: object
+        type: UniLabJsonCommand
       pick_and_place:
         feedback: {}
         goal:
@@ -315,8 +905,22 @@ moveit.toyo_xyz:
       feedback: {}
       goal:
         description: UniLabJsonCommand __init__ 的参数schema
-        properties: {}
-        required: []
+        properties:
+          device_config:
+            description: '参数: device_config'
+            type: string
+          joint_poses:
+            description: '参数: joint_poses'
+            type: string
+          moveit_type:
+            description: '参数: moveit_type'
+            type: string
+          rotation:
+            description: '参数: rotation'
+            type: string
+        required:
+        - moveit_type
+        - joint_poses
         type: object
       result: {}
     required:

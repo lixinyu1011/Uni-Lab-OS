@@ -23,7 +23,8 @@ hotel.thermo_orbitor_rs2_hotel:
           type: object
         type: UniLabJsonCommand
     module: unilabos.devices.resource_container.container:HotelContainer
-    status_types: {}
+    status_types:
+      get_rotation: String
     type: python
   description: Thermo Orbitor RS2 Hotel
   handles: []

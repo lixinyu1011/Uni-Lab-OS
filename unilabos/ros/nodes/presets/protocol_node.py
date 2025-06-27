@@ -168,10 +168,9 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
             execution_error = ""
             execution_success = False
             protocol_return_value = None
-
+            self.get_logger().info(f"Executing {protocol_name} action...")
+            action_value_mapping = self._action_value_mappings[protocol_name]
             try:
-                self.get_logger().info(f"Executing {protocol_name} action...")
-                action_value_mapping = self._action_value_mappings[protocol_name]
                 print("+" * 30)
                 print(protocol_steps_generator)
                 # 从目标消息中提取参数, 并调用Protocol生成器(根据设备连接图)生成action步骤

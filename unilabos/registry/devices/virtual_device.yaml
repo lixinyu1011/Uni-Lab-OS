@@ -1,6 +1,89 @@
 virtual_centrifuge:
   class:
     action_value_mappings:
+      auto-centrifuge:
+        feedback: {}
+        goal: {}
+        goal_default:
+          speed: null
+          temp: 25.0
+          time: null
+          vessel: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand centrifuge 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand centrifuge 的参数schema
+              properties:
+                speed:
+                  description: '参数: speed'
+                  type: number
+                temp:
+                  default: 25.0
+                  description: '参数: temp'
+                  type: number
+                time:
+                  description: '参数: time'
+                  type: number
+                vessel:
+                  description: '参数: vessel'
+                  type: string
+              required:
+              - vessel
+              - speed
+              - time
+              type: object
+            result: {}
+          required:
+          - goal
+          title: centrifuge 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-cleanup:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand cleanup 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand cleanup 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: cleanup 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-initialize:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand initialize 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand initialize 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: initialize 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
       centrifuge:
         feedback:
           current_speed: current_speed
@@ -119,7 +202,11 @@ virtual_centrifuge:
           device_id:
             description: '参数: device_id'
             type: string
-        required: []
+          kwargs:
+            description: '参数: kwargs'
+            type: string
+        required:
+        - kwargs
         type: object
       result: {}
     required:
@@ -129,6 +216,84 @@ virtual_centrifuge:
 virtual_column:
   class:
     action_value_mappings:
+      auto-cleanup:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand cleanup 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand cleanup 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: cleanup 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-initialize:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand initialize 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand initialize 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: initialize 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-run_column:
+        feedback: {}
+        goal: {}
+        goal_default:
+          column: null
+          from_vessel: null
+          to_vessel: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand run_column 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand run_column 的参数schema
+              properties:
+                column:
+                  description: '参数: column'
+                  type: string
+                from_vessel:
+                  description: '参数: from_vessel'
+                  type: string
+                to_vessel:
+                  description: '参数: to_vessel'
+                  type: string
+              required:
+              - from_vessel
+              - to_vessel
+              - column
+              type: object
+            result: {}
+          required:
+          - goal
+          title: run_column 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
       run_column:
         feedback:
           current_status: current_status
@@ -241,7 +406,11 @@ virtual_column:
           device_id:
             description: '参数: device_id'
             type: string
-        required: []
+          kwargs:
+            description: '参数: kwargs'
+            type: string
+        required:
+        - kwargs
         type: object
       result: {}
     required:
@@ -251,6 +420,104 @@ virtual_column:
 virtual_filter:
   class:
     action_value_mappings:
+      auto-cleanup:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand cleanup 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand cleanup 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: cleanup 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-filter:
+        feedback: {}
+        goal: {}
+        goal_default:
+          continue_heatchill: false
+          filtrate_vessel: ''
+          stir: false
+          stir_speed: 300.0
+          temp: 25.0
+          vessel: null
+          volume: 0.0
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand filter 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand filter 的参数schema
+              properties:
+                continue_heatchill:
+                  default: false
+                  description: '参数: continue_heatchill'
+                  type: boolean
+                filtrate_vessel:
+                  default: ''
+                  description: '参数: filtrate_vessel'
+                  type: string
+                stir:
+                  default: false
+                  description: '参数: stir'
+                  type: boolean
+                stir_speed:
+                  default: 300.0
+                  description: '参数: stir_speed'
+                  type: number
+                temp:
+                  default: 25.0
+                  description: '参数: temp'
+                  type: number
+                vessel:
+                  description: '参数: vessel'
+                  type: string
+                volume:
+                  default: 0.0
+                  description: '参数: volume'
+                  type: number
+              required:
+              - vessel
+              type: object
+            result: {}
+          required:
+          - goal
+          title: filter 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-initialize:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand initialize 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand initialize 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: initialize 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
       filter:
         feedback:
           current_status: current_status
@@ -398,7 +665,11 @@ virtual_filter:
           device_id:
             description: '参数: device_id'
             type: string
-        required: []
+          kwargs:
+            description: '参数: kwargs'
+            type: string
+        required:
+        - kwargs
         type: object
       result: {}
     required:
@@ -408,6 +679,27 @@ virtual_filter:
 virtual_gas_source:
   class:
     action_value_mappings:
+      auto-cleanup:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand cleanup 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand cleanup 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: cleanup 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
       auto-close:
         feedback: {}
         goal: {}
@@ -450,6 +742,27 @@ virtual_gas_source:
           title: get_status 命令参数
           type: object
         type: UniLabJsonCommand
+      auto-initialize:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand initialize 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand initialize 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: initialize 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
       auto-is_closed:
         feedback: {}
         goal: {}
@@ -654,6 +967,7 @@ virtual_gas_source:
         type: StrSingleInput
     module: unilabos.devices.virtual.virtual_gas_source:VirtualGasSource
     status_types:
+      get_status: str
       status: str
     type: python
   description: Virtual gas source
@@ -680,7 +994,11 @@ virtual_gas_source:
           device_id:
             description: '参数: device_id'
             type: string
-        required: []
+          kwargs:
+            description: '参数: kwargs'
+            type: string
+        required:
+        - kwargs
         type: object
       result: {}
     required:
@@ -690,6 +1008,161 @@ virtual_gas_source:
 virtual_heatchill:
   class:
     action_value_mappings:
+      auto-cleanup:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand cleanup 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand cleanup 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: cleanup 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-heat_chill:
+        feedback: {}
+        goal: {}
+        goal_default:
+          purpose: null
+          stir: null
+          stir_speed: null
+          temp: null
+          time: null
+          vessel: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand heat_chill 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand heat_chill 的参数schema
+              properties:
+                purpose:
+                  description: '参数: purpose'
+                  type: string
+                stir:
+                  description: '参数: stir'
+                  type: boolean
+                stir_speed:
+                  description: '参数: stir_speed'
+                  type: number
+                temp:
+                  description: '参数: temp'
+                  type: number
+                time:
+                  description: '参数: time'
+                  type: number
+                vessel:
+                  description: '参数: vessel'
+                  type: string
+              required:
+              - vessel
+              - temp
+              - time
+              - stir
+              - stir_speed
+              - purpose
+              type: object
+            result: {}
+          required:
+          - goal
+          title: heat_chill 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-heat_chill_start:
+        feedback: {}
+        goal: {}
+        goal_default:
+          purpose: null
+          temp: null
+          vessel: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand heat_chill_start 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand heat_chill_start 的参数schema
+              properties:
+                purpose:
+                  description: '参数: purpose'
+                  type: string
+                temp:
+                  description: '参数: temp'
+                  type: number
+                vessel:
+                  description: '参数: vessel'
+                  type: string
+              required:
+              - vessel
+              - temp
+              - purpose
+              type: object
+            result: {}
+          required:
+          - goal
+          title: heat_chill_start 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-heat_chill_stop:
+        feedback: {}
+        goal: {}
+        goal_default:
+          vessel: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand heat_chill_stop 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand heat_chill_stop 的参数schema
+              properties:
+                vessel:
+                  description: '参数: vessel'
+                  type: string
+              required:
+              - vessel
+              type: object
+            result: {}
+          required:
+          - goal
+          title: heat_chill_stop 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-initialize:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand initialize 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand initialize 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: initialize 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
       heat_chill:
         feedback:
           status: status
@@ -901,7 +1374,11 @@ virtual_heatchill:
           device_id:
             description: '参数: device_id'
             type: string
-        required: []
+          kwargs:
+            description: '参数: kwargs'
+            type: string
+        required:
+        - kwargs
         type: object
       result: {}
     required:
@@ -1416,6 +1893,13 @@ virtual_multiway_valve:
     module: unilabos.devices.virtual.virtual_multiway_valve:VirtualMultiwayValve
     status_types:
       current_position: int
+      get_available_ports: typing:Dict
+      get_available_positions: list
+      get_current_port: str
+      get_current_position: int
+      get_flow_path: str
+      get_info: dict
+      get_valve_position: int
       max_positions: Int32
       status: str
       target_position: int
@@ -1521,6 +2005,165 @@ virtual_multiway_valve:
 virtual_pump:
   class:
     action_value_mappings:
+      auto-clean_vessel:
+        feedback: {}
+        goal: {}
+        goal_default:
+          repeats: 1
+          solvent: null
+          temp: null
+          vessel: null
+          volume: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand clean_vessel 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand clean_vessel 的参数schema
+              properties:
+                repeats:
+                  default: 1
+                  description: '参数: repeats'
+                  type: integer
+                solvent:
+                  description: '参数: solvent'
+                  type: string
+                temp:
+                  description: '参数: temp'
+                  type: number
+                vessel:
+                  description: '参数: vessel'
+                  type: string
+                volume:
+                  description: '参数: volume'
+                  type: number
+              required:
+              - vessel
+              - solvent
+              - volume
+              - temp
+              type: object
+            result: {}
+          required:
+          - goal
+          title: clean_vessel 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-cleanup:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand cleanup 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand cleanup 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: cleanup 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-initialize:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand initialize 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand initialize 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: initialize 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-transfer:
+        feedback: {}
+        goal: {}
+        goal_default:
+          amount: ''
+          from_vessel: null
+          rinsing_repeats: 0
+          rinsing_solvent: ''
+          rinsing_volume: 0.0
+          solid: false
+          time: 0.0
+          to_vessel: null
+          viscous: false
+          volume: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand transfer 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand transfer 的参数schema
+              properties:
+                amount:
+                  default: ''
+                  description: '参数: amount'
+                  type: string
+                from_vessel:
+                  description: '参数: from_vessel'
+                  type: string
+                rinsing_repeats:
+                  default: 0
+                  description: '参数: rinsing_repeats'
+                  type: integer
+                rinsing_solvent:
+                  default: ''
+                  description: '参数: rinsing_solvent'
+                  type: string
+                rinsing_volume:
+                  default: 0.0
+                  description: '参数: rinsing_volume'
+                  type: number
+                solid:
+                  default: false
+                  description: '参数: solid'
+                  type: boolean
+                time:
+                  default: 0.0
+                  description: '参数: time'
+                  type: number
+                to_vessel:
+                  description: '参数: to_vessel'
+                  type: string
+                viscous:
+                  default: false
+                  description: '参数: viscous'
+                  type: boolean
+                volume:
+                  description: '参数: volume'
+                  type: number
+              required:
+              - from_vessel
+              - to_vessel
+              - volume
+              type: object
+            result: {}
+          required:
+          - goal
+          title: transfer 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
       set_valve_position:
         feedback:
           status: status
@@ -1733,7 +2376,11 @@ virtual_pump:
           device_id:
             description: '参数: device_id'
             type: string
-        required: []
+          kwargs:
+            description: '参数: kwargs'
+            type: string
+        required:
+        - kwargs
         type: object
       result: {}
     required:
@@ -1743,6 +2390,94 @@ virtual_pump:
 virtual_rotavap:
   class:
     action_value_mappings:
+      auto-cleanup:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand cleanup 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand cleanup 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: cleanup 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-evaporate:
+        feedback: {}
+        goal: {}
+        goal_default:
+          pressure: 0.1
+          stir_speed: 100.0
+          temp: 60.0
+          time: 1800.0
+          vessel: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand evaporate 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand evaporate 的参数schema
+              properties:
+                pressure:
+                  default: 0.1
+                  description: '参数: pressure'
+                  type: number
+                stir_speed:
+                  default: 100.0
+                  description: '参数: stir_speed'
+                  type: number
+                temp:
+                  default: 60.0
+                  description: '参数: temp'
+                  type: number
+                time:
+                  default: 1800.0
+                  description: '参数: time'
+                  type: number
+                vessel:
+                  description: '参数: vessel'
+                  type: string
+              required:
+              - vessel
+              type: object
+            result: {}
+          required:
+          - goal
+          title: evaporate 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-initialize:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand initialize 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand initialize 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: initialize 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
       evaporate:
         feedback:
           current_temp: current_temp
@@ -1904,7 +2639,11 @@ virtual_rotavap:
           device_id:
             description: '参数: device_id'
             type: string
-        required: []
+          kwargs:
+            description: '参数: kwargs'
+            type: string
+        required:
+        - kwargs
         type: object
       result: {}
     required:
@@ -1914,6 +2653,134 @@ virtual_rotavap:
 virtual_separator:
   class:
     action_value_mappings:
+      auto-cleanup:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand cleanup 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand cleanup 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: cleanup 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-initialize:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand initialize 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand initialize 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: initialize 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-separate:
+        feedback: {}
+        goal: {}
+        goal_default:
+          from_vessel: null
+          product_phase: null
+          purpose: null
+          repeats: 1
+          separation_vessel: null
+          settling_time: 300.0
+          solvent: ''
+          solvent_volume: 50.0
+          stir_speed: 300.0
+          stir_time: 30.0
+          through: ''
+          to_vessel: null
+          waste_phase_to_vessel: ''
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand separate 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand separate 的参数schema
+              properties:
+                from_vessel:
+                  description: '参数: from_vessel'
+                  type: string
+                product_phase:
+                  description: '参数: product_phase'
+                  type: string
+                purpose:
+                  description: '参数: purpose'
+                  type: string
+                repeats:
+                  default: 1
+                  description: '参数: repeats'
+                  type: integer
+                separation_vessel:
+                  description: '参数: separation_vessel'
+                  type: string
+                settling_time:
+                  default: 300.0
+                  description: '参数: settling_time'
+                  type: number
+                solvent:
+                  default: ''
+                  description: '参数: solvent'
+                  type: string
+                solvent_volume:
+                  default: 50.0
+                  description: '参数: solvent_volume'
+                  type: number
+                stir_speed:
+                  default: 300.0
+                  description: '参数: stir_speed'
+                  type: number
+                stir_time:
+                  default: 30.0
+                  description: '参数: stir_time'
+                  type: number
+                through:
+                  default: ''
+                  description: '参数: through'
+                  type: string
+                to_vessel:
+                  description: '参数: to_vessel'
+                  type: string
+                waste_phase_to_vessel:
+                  default: ''
+                  description: '参数: waste_phase_to_vessel'
+                  type: string
+              required:
+              - purpose
+              - product_phase
+              - from_vessel
+              - separation_vessel
+              - to_vessel
+              type: object
+            result: {}
+          required:
+          - goal
+          title: separate 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
       separate:
         feedback:
           current_status: status
@@ -2121,7 +2988,11 @@ virtual_separator:
           device_id:
             description: '参数: device_id'
             type: string
-        required: []
+          kwargs:
+            description: '参数: kwargs'
+            type: string
+        required:
+        - kwargs
         type: object
       result: {}
     required:
@@ -2131,6 +3002,53 @@ virtual_separator:
 virtual_solenoid_valve:
   class:
     action_value_mappings:
+      auto-cleanup:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand cleanup 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand cleanup 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: cleanup 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-close:
+        feedback: {}
+        goal: {}
+        goal_default:
+          kwargs: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand close 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand close 的参数schema
+              properties:
+                kwargs:
+                  description: '参数: kwargs'
+                  type: string
+              required:
+              - kwargs
+              type: object
+            result: {}
+          required:
+          - goal
+          title: close 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
       auto-get_state:
         feedback: {}
         goal: {}
@@ -2173,6 +3091,27 @@ virtual_solenoid_valve:
           title: get_valve_position 命令参数
           type: object
         type: UniLabJsonCommand
+      auto-initialize:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand initialize 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand initialize 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: initialize 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
       auto-is_closed:
         feedback: {}
         goal: {}
@@ -2194,6 +3133,114 @@ virtual_solenoid_valve:
           title: is_closed 命令参数
           type: object
         type: UniLabJsonCommand
+      auto-open:
+        feedback: {}
+        goal: {}
+        goal_default:
+          kwargs: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand open 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand open 的参数schema
+              properties:
+                kwargs:
+                  description: '参数: kwargs'
+                  type: string
+              required:
+              - kwargs
+              type: object
+            result: {}
+          required:
+          - goal
+          title: open 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-reset:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand reset 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand reset 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: reset 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-set_state:
+        feedback: {}
+        goal: {}
+        goal_default:
+          command: null
+          kwargs: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_state 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_state 的参数schema
+              properties:
+                command:
+                  description: '参数: command'
+                  type: string
+                kwargs:
+                  description: '参数: kwargs'
+                  type: string
+              required:
+              - command
+              - kwargs
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_state 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-set_valve_position:
+        feedback: {}
+        goal: {}
+        goal_default:
+          command: null
+          kwargs: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_valve_position 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_valve_position 的参数schema
+              properties:
+                command:
+                  description: '参数: command'
+                  type: string
+                kwargs:
+                  description: '参数: kwargs'
+                  type: string
+              required:
+              - kwargs
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_valve_position 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
       auto-toggle:
         feedback: {}
         goal: {}
@@ -2405,6 +3452,8 @@ virtual_solenoid_valve:
         type: SendCmd
     module: unilabos.devices.virtual.virtual_solenoid_valve:VirtualSolenoidValve
     status_types:
+      get_state: dict
+      get_valve_position: str
       is_open: bool
       status: str
       valve_state: str
@@ -2441,7 +3490,11 @@ virtual_solenoid_valve:
           device_id:
             description: '参数: device_id'
             type: string
-        required: []
+          kwargs:
+            description: '参数: kwargs'
+            type: string
+        required:
+        - kwargs
         type: object
       result: {}
     required:
@@ -2451,6 +3504,146 @@ virtual_solenoid_valve:
 virtual_stirrer:
   class:
     action_value_mappings:
+      auto-cleanup:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand cleanup 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand cleanup 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: cleanup 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-initialize:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand initialize 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand initialize 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: initialize 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-start_stir:
+        feedback: {}
+        goal: {}
+        goal_default:
+          purpose: null
+          stir_speed: null
+          vessel: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand start_stir 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand start_stir 的参数schema
+              properties:
+                purpose:
+                  description: '参数: purpose'
+                  type: string
+                stir_speed:
+                  description: '参数: stir_speed'
+                  type: number
+                vessel:
+                  description: '参数: vessel'
+                  type: string
+              required:
+              - vessel
+              - stir_speed
+              - purpose
+              type: object
+            result: {}
+          required:
+          - goal
+          title: start_stir 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-stir:
+        feedback: {}
+        goal: {}
+        goal_default:
+          settling_time: null
+          stir_speed: null
+          stir_time: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand stir 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand stir 的参数schema
+              properties:
+                settling_time:
+                  description: '参数: settling_time'
+                  type: number
+                stir_speed:
+                  description: '参数: stir_speed'
+                  type: number
+                stir_time:
+                  description: '参数: stir_time'
+                  type: number
+              required:
+              - stir_time
+              - stir_speed
+              - settling_time
+              type: object
+            result: {}
+          required:
+          - goal
+          title: stir 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-stop_stir:
+        feedback: {}
+        goal: {}
+        goal_default:
+          vessel: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand stop_stir 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand stop_stir 的参数schema
+              properties:
+                vessel:
+                  description: '参数: vessel'
+                  type: string
+              required:
+              - vessel
+              type: object
+            result: {}
+          required:
+          - goal
+          title: stop_stir 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
       start_stir:
         feedback:
           status: status
@@ -2663,7 +3856,11 @@ virtual_stirrer:
           device_id:
             description: '参数: device_id'
             type: string
-        required: []
+          kwargs:
+            description: '参数: kwargs'
+            type: string
+        required:
+        - kwargs
         type: object
       result: {}
     required:
@@ -2673,6 +3870,137 @@ virtual_stirrer:
 virtual_transfer_pump:
   class:
     action_value_mappings:
+      auto-aspirate:
+        feedback: {}
+        goal: {}
+        goal_default:
+          velocity: null
+          volume: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand aspirate 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand aspirate 的参数schema
+              properties:
+                velocity:
+                  description: '参数: velocity'
+                  type: number
+                volume:
+                  description: '参数: volume'
+                  type: number
+              required:
+              - volume
+              type: object
+            result: {}
+          required:
+          - goal
+          title: aspirate 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-cleanup:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand cleanup 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand cleanup 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: cleanup 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-dispense:
+        feedback: {}
+        goal: {}
+        goal_default:
+          velocity: null
+          volume: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand dispense 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand dispense 的参数schema
+              properties:
+                velocity:
+                  description: '参数: velocity'
+                  type: number
+                volume:
+                  description: '参数: volume'
+                  type: number
+              required:
+              - volume
+              type: object
+            result: {}
+          required:
+          - goal
+          title: dispense 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-empty_syringe:
+        feedback: {}
+        goal: {}
+        goal_default:
+          velocity: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand empty_syringe 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand empty_syringe 的参数schema
+              properties:
+                velocity:
+                  description: '参数: velocity'
+                  type: number
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: empty_syringe 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-fill_syringe:
+        feedback: {}
+        goal: {}
+        goal_default:
+          velocity: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand fill_syringe 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand fill_syringe 的参数schema
+              properties:
+                velocity:
+                  description: '参数: velocity'
+                  type: number
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: fill_syringe 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
       auto-get_current_volume:
         feedback: {}
         goal: {}
@@ -2778,6 +4106,27 @@ virtual_transfer_pump:
           title: get_status 命令参数
           type: object
         type: UniLabJsonCommand
+      auto-initialize:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand initialize 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand initialize 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: initialize 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
       auto-is_empty:
         feedback: {}
         goal: {}
@@ -2820,6 +4169,66 @@ virtual_transfer_pump:
           title: is_full 命令参数
           type: object
         type: UniLabJsonCommand
+      auto-pull_plunger:
+        feedback: {}
+        goal: {}
+        goal_default:
+          velocity: null
+          volume: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand pull_plunger 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand pull_plunger 的参数schema
+              properties:
+                velocity:
+                  description: '参数: velocity'
+                  type: number
+                volume:
+                  description: '参数: volume'
+                  type: number
+              required:
+              - volume
+              type: object
+            result: {}
+          required:
+          - goal
+          title: pull_plunger 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-push_plunger:
+        feedback: {}
+        goal: {}
+        goal_default:
+          velocity: null
+          volume: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand push_plunger 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand push_plunger 的参数schema
+              properties:
+                velocity:
+                  description: '参数: velocity'
+                  type: number
+                volume:
+                  description: '参数: volume'
+                  type: number
+              required:
+              - volume
+              type: object
+            result: {}
+          required:
+          - goal
+          title: push_plunger 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
       auto-set_max_velocity:
         feedback: {}
         goal: {}
@@ -2846,6 +4255,91 @@ virtual_transfer_pump:
           title: set_max_velocity 命令参数
           type: object
         type: UniLabJsonCommand
+      auto-set_position:
+        feedback: {}
+        goal: {}
+        goal_default:
+          max_velocity: null
+          position: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_position 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_position 的参数schema
+              properties:
+                max_velocity:
+                  description: '参数: max_velocity'
+                  type: number
+                position:
+                  description: '参数: position'
+                  type: number
+              required:
+              - position
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_position 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-stop_operation:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand stop_operation 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand stop_operation 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: stop_operation 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-transfer:
+        feedback: {}
+        goal: {}
+        goal_default:
+          aspirate_velocity: null
+          dispense_velocity: null
+          volume: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand transfer 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand transfer 的参数schema
+              properties:
+                aspirate_velocity:
+                  description: '参数: aspirate_velocity'
+                  type: number
+                dispense_velocity:
+                  description: '参数: dispense_velocity'
+                  type: number
+                volume:
+                  description: '参数: volume'
+                  type: number
+              required:
+              - volume
+              type: object
+            result: {}
+          required:
+          - goal
+          title: transfer 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
       set_position:
         feedback:
           current_position: current_position
@@ -3021,6 +4515,11 @@ virtual_transfer_pump:
     module: unilabos.devices.virtual.virtual_transferpump:VirtualTransferPump
     status_types:
       current_volume: float
+      get_current_volume: float
+      get_position: float
+      get_pump_info: dict
+      get_remaining_capacity: float
+      get_status: str
       max_velocity: float
       max_volume: Float64
       position: float
@@ -3051,7 +4550,11 @@ virtual_transfer_pump:
           device_id:
             description: '参数: device_id'
             type: string
-        required: []
+          kwargs:
+            description: '参数: kwargs'
+            type: string
+        required:
+        - kwargs
         type: object
       result: {}
     required:
@@ -3061,6 +4564,27 @@ virtual_transfer_pump:
 virtual_vacuum_pump:
   class:
     action_value_mappings:
+      auto-cleanup:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand cleanup 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand cleanup 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: cleanup 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
       auto-close:
         feedback: {}
         goal: {}
@@ -3103,6 +4627,27 @@ virtual_vacuum_pump:
           title: get_status 命令参数
           type: object
         type: UniLabJsonCommand
+      auto-initialize:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand initialize 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand initialize 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: initialize 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
       auto-is_closed:
         feedback: {}
         goal: {}
@@ -3307,6 +4852,7 @@ virtual_vacuum_pump:
         type: StrSingleInput
     module: unilabos.devices.virtual.virtual_vacuum_pump:VirtualVacuumPump
     status_types:
+      get_status: str
       status: str
     type: python
   description: Virtual vacuum pump
@@ -3333,7 +4879,11 @@ virtual_vacuum_pump:
           device_id:
             description: '参数: device_id'
             type: string
-        required: []
+          kwargs:
+            description: '参数: kwargs'
+            type: string
+        required:
+        - kwargs
         type: object
       result: {}
     required:

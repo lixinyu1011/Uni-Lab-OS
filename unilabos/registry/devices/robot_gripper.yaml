@@ -1,6 +1,410 @@
 gripper.misumi_rz:
   class:
     action_value_mappings:
+      auto-data_loop:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand data_loop 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand data_loop 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: data_loop 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-data_reader:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand data_reader 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand data_reader 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: data_reader 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-gripper_move:
+        feedback: {}
+        goal: {}
+        goal_default:
+          force: null
+          pos: null
+          speed: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand gripper_move 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand gripper_move 的参数schema
+              properties:
+                force:
+                  description: '参数: force'
+                  type: string
+                pos:
+                  description: '参数: pos'
+                  type: string
+                speed:
+                  description: '参数: speed'
+                  type: string
+              required:
+              - pos
+              - speed
+              - force
+              type: object
+            result: {}
+          required:
+          - goal
+          title: gripper_move 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-init_gripper:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand init_gripper 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand init_gripper 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: init_gripper 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-modbus_crc:
+        feedback: {}
+        goal: {}
+        goal_default:
+          data: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand modbus_crc 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand modbus_crc 的参数schema
+              properties:
+                data:
+                  description: '参数: data'
+                  type: string
+              required:
+              - data
+              type: object
+            result: {}
+          required:
+          - goal
+          title: modbus_crc 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-move_and_rotate:
+        feedback: {}
+        goal: {}
+        goal_default:
+          grasp_F: null
+          grasp_pos: null
+          grasp_v: null
+          spin_F: null
+          spin_pos: null
+          spin_v: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand move_and_rotate 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand move_and_rotate 的参数schema
+              properties:
+                grasp_F:
+                  description: '参数: grasp_F'
+                  type: string
+                grasp_pos:
+                  description: '参数: grasp_pos'
+                  type: string
+                grasp_v:
+                  description: '参数: grasp_v'
+                  type: string
+                spin_F:
+                  description: '参数: spin_F'
+                  type: string
+                spin_pos:
+                  description: '参数: spin_pos'
+                  type: string
+                spin_v:
+                  description: '参数: spin_v'
+                  type: string
+              required:
+              - spin_pos
+              - grasp_pos
+              - spin_v
+              - grasp_v
+              - spin_F
+              - grasp_F
+              type: object
+            result: {}
+          required:
+          - goal
+          title: move_and_rotate 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-node_gripper_move:
+        feedback: {}
+        goal: {}
+        goal_default:
+          cmd: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand node_gripper_move 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand node_gripper_move 的参数schema
+              properties:
+                cmd:
+                  description: '参数: cmd'
+                  type: string
+              required:
+              - cmd
+              type: object
+            result: {}
+          required:
+          - goal
+          title: node_gripper_move 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-node_rotate_move:
+        feedback: {}
+        goal: {}
+        goal_default:
+          cmd: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand node_rotate_move 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand node_rotate_move 的参数schema
+              properties:
+                cmd:
+                  description: '参数: cmd'
+                  type: string
+              required:
+              - cmd
+              type: object
+            result: {}
+          required:
+          - goal
+          title: node_rotate_move 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-read_address:
+        feedback: {}
+        goal: {}
+        goal_default:
+          address: null
+          data_len: null
+          id: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand read_address 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand read_address 的参数schema
+              properties:
+                address:
+                  description: '参数: address'
+                  type: string
+                data_len:
+                  description: '参数: data_len'
+                  type: string
+                id:
+                  description: '参数: id'
+                  type: string
+              required:
+              - id
+              - address
+              - data_len
+              type: object
+            result: {}
+          required:
+          - goal
+          title: read_address 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-rotate_move_abs:
+        feedback: {}
+        goal: {}
+        goal_default:
+          force: null
+          pos: null
+          speed: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand rotate_move_abs 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand rotate_move_abs 的参数schema
+              properties:
+                force:
+                  description: '参数: force'
+                  type: string
+                pos:
+                  description: '参数: pos'
+                  type: string
+                speed:
+                  description: '参数: speed'
+                  type: string
+              required:
+              - pos
+              - speed
+              - force
+              type: object
+            result: {}
+          required:
+          - goal
+          title: rotate_move_abs 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-send_cmd:
+        feedback: {}
+        goal: {}
+        goal_default:
+          address: null
+          data: null
+          fun: null
+          id: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand send_cmd 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand send_cmd 的参数schema
+              properties:
+                address:
+                  description: '参数: address'
+                  type: string
+                data:
+                  description: '参数: data'
+                  type: string
+                fun:
+                  description: '参数: fun'
+                  type: string
+                id:
+                  description: '参数: id'
+                  type: string
+              required:
+              - id
+              - fun
+              - address
+              - data
+              type: object
+            result: {}
+          required:
+          - goal
+          title: send_cmd 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-wait_for_gripper:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand wait_for_gripper 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand wait_for_gripper 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: wait_for_gripper 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-wait_for_gripper_init:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand wait_for_gripper_init 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand wait_for_gripper_init 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: wait_for_gripper_init 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-wait_for_rotate:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand wait_for_rotate 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand wait_for_rotate 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: wait_for_rotate 命令参数
+          type: object
+        type: UniLabJsonCommand
       execute_command_from_outer:
         feedback: {}
         goal:
@@ -50,7 +454,7 @@ gripper.misumi_rz:
         type: SendCmd
     module: unilabos.devices.motor.Grasp:EleGripper
     status_types:
-      status: String
+      status: str
     type: python
   description: Misumi RZ gripper
   handles: []
@@ -61,8 +465,24 @@ gripper.misumi_rz:
       feedback: {}
       goal:
         description: UniLabJsonCommand __init__ 的参数schema
-        properties: {}
-        required: []
+        properties:
+          baudrate:
+            default: 115200
+            description: '参数: baudrate'
+            type: integer
+          id:
+            default: 9
+            description: '参数: id'
+            type: integer
+          port:
+            description: '参数: port'
+            type: string
+          pos_error:
+            default: -11
+            description: '参数: pos_error'
+            type: integer
+        required:
+        - port
         type: object
       result: {}
     required:
@@ -72,6 +492,80 @@ gripper.misumi_rz:
 gripper.mock:
   class:
     action_value_mappings:
+      auto-edit_id:
+        feedback: {}
+        goal: {}
+        goal_default:
+          params: '{}'
+          resource:
+            Gripper1: {}
+          wf_name: gripper_run
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand edit_id 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand edit_id 的参数schema
+              properties:
+                params:
+                  default: '{}'
+                  description: '参数: params'
+                  type: string
+                resource:
+                  default:
+                    Gripper1: {}
+                  description: '参数: resource'
+                  type: object
+                wf_name:
+                  default: gripper_run
+                  description: '参数: wf_name'
+                  type: string
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: edit_id 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-push_to:
+        feedback: {}
+        goal: {}
+        goal_default:
+          position: null
+          torque: null
+          velocity: 0.0
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand push_to 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand push_to 的参数schema
+              properties:
+                position:
+                  description: '参数: position'
+                  type: number
+                torque:
+                  description: '参数: torque'
+                  type: number
+                velocity:
+                  default: 0.0
+                  description: '参数: velocity'
+                  type: number
+              required:
+              - position
+              - torque
+              type: object
+            result: {}
+          required:
+          - goal
+          title: push_to 命令参数
+          type: object
+        type: UniLabJsonCommand
       push_to:
         feedback:
           effort: torque
@@ -151,9 +645,10 @@ gripper.mock:
         type: GripperCommand
     module: unilabos.devices.gripper.mock:MockGripper
     status_types:
-      position: Float64
-      status: String
-      torque: Float64
+      position: float
+      status: str
+      torque: float
+      velocity: float
     type: python
   description: Mock gripper
   handles: []

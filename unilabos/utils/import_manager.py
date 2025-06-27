@@ -207,7 +207,6 @@ class ImportManager:
         dynamic_info = None
         if use_dynamic:
             try:
-                raise ValueError("强制使用动态导入")  # 强制使用动态导入以测试功能
                 dynamic_info = self._get_dynamic_class_info(module_path)
                 result["dynamic_import_success"] = True
                 logger.debug(f"[ImportManager] 动态导入类 {module_path} 成功")
@@ -242,7 +241,7 @@ class ImportManager:
 
         result = {
             "class_name": class_name,
-            "init_params": {},
+            "init_params": [],
             "status_methods": {},
             "action_methods": {},
         }
@@ -268,10 +267,10 @@ class ImportManager:
                 "required": param.default == inspect.Parameter.empty,
                 "default": param_default,
             }
-            result["init_params"][param_name] = param_info
+            result["init_params"].append(param_info)
 
         # 分析类的所有成员
-        for name, method in inspect.getmembers(cls):
+        for name, method in cls.__dict__.items():
             if name.startswith("_"):
                 continue
 
@@ -551,7 +550,7 @@ class ImportManager:
             if i >= num_required:
                 default_index = i - num_required
                 if default_index < len(defaults):
-                    default_value: Constant = defaults[default_index]
+                    default_value: Constant = defaults[default_index]  # type: ignore
                     assert isinstance(default_value, Constant), "暂不支持对非常量类型进行推断，可反馈开源仓库"
                     arg_info["default"] = default_value.value
                     # 如果没有类型注解，尝试从默认值推断类型
@@ -564,7 +563,6 @@ class ImportManager:
             method_info["return_type"] = ast.unparse(node.returns) if hasattr(ast, "unparse") else str(node.returns)
 
         return method_info
-
 
     def _infer_type_from_default(self, node: ast.AST) -> Optional[str]:
         """从默认值推断参数类型"""
@@ -594,11 +592,6 @@ class ImportManager:
                 return "Optional[Any]"
             elif node.id in ["True", "False"]:
                 return "bool"
-        elif isinstance(node, ast.Attribute):
-            # 处理类似 os.path.join 的情况
-            attr_str = self._extract_default_value(node)
-            if "path" in attr_str.lower():
-                return "str"
 
         return None
 

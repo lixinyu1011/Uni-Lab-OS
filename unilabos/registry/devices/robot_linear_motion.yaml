@@ -1,6 +1,152 @@
 linear_motion.grbl:
   class:
     action_value_mappings:
+      auto-initialize:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand initialize 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand initialize 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: initialize 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-move_through_points:
+        feedback: {}
+        goal: {}
+        goal_default:
+          positions: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand move_through_points 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand move_through_points 的参数schema
+              properties:
+                positions:
+                  description: '参数: positions'
+                  type: array
+              required:
+              - positions
+              type: object
+            result: {}
+          required:
+          - goal
+          title: move_through_points 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_position:
+        feedback: {}
+        goal: {}
+        goal_default:
+          position: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_position 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_position 的参数schema
+              properties:
+                position:
+                  description: '参数: position'
+                  type: string
+              required:
+              - position
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_position 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_spindle_speed:
+        feedback: {}
+        goal: {}
+        goal_default:
+          max_velocity: 500
+          spindle_speed: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_spindle_speed 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_spindle_speed 的参数schema
+              properties:
+                max_velocity:
+                  default: 500
+                  description: '参数: max_velocity'
+                  type: number
+                spindle_speed:
+                  description: '参数: spindle_speed'
+                  type: number
+              required:
+              - spindle_speed
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_spindle_speed 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-stop_operation:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand stop_operation 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand stop_operation 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: stop_operation 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-wait_error:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand wait_error 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand wait_error 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: wait_error 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
       move_through_points:
         feedback:
           current_pose.pose.position: position
@@ -347,7 +493,12 @@ linear_motion.grbl:
           type: object
         type: SingleJointPosition
     module: unilabos.devices.cnc.grbl_sync:GrblCNC
-    status_types: {}
+    status_types:
+      get_position: String
+      get_status: String
+      position: unilabos.messages:Point3D
+      spindle_speed: float
+      status: str
     type: python
   description: Grbl CNC
   handles: []
@@ -358,8 +509,26 @@ linear_motion.grbl:
       feedback: {}
       goal:
         description: UniLabJsonCommand __init__ 的参数schema
-        properties: {}
-        required: []
+        properties:
+          address:
+            default: '1'
+            description: '参数: address'
+            type: string
+          limits:
+            default:
+            - -150
+            - 150
+            - -200
+            - 0
+            - -80
+            - 0
+            description: '参数: limits'
+            type: string
+          port:
+            description: '参数: port'
+            type: string
+        required:
+        - port
         type: object
       result: {}
     required:

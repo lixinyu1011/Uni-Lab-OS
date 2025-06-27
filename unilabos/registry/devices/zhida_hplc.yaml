@@ -226,6 +226,7 @@ zhida_hplc:
         type: StrSingleInput
     module: unilabos.devices.zhida_hplc.zhida:ZhidaClient
     status_types:
+      get_methods: dict
       status: dict
     type: python
   description: Zhida HPLC

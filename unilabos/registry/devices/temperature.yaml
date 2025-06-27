@@ -614,6 +614,8 @@ heaterstirrer.dalong:
         type: SendCmd
     module: unilabos.devices.heaterstirrer.dalong:HeaterStirrer_DaLong
     status_types:
+      get_status: str
+      get_temp: String
       status: str
       stir_speed: float
       temp: float
