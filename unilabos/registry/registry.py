@@ -298,9 +298,9 @@ class Registry:
                         enhanced_info = {}
                         if complete_registry:
                             enhanced_info = get_enhanced_class_info(device_config["class"]["module"], use_dynamic=True)
-                        device_config["class"]["status_types"].update(
-                            {k: v["return_type"] for k, v in enhanced_info["status_methods"].items()}
-                        )
+                            device_config["class"]["status_types"].update(
+                                {k: v["return_type"] for k, v in enhanced_info["status_methods"].items()}
+                            )
                         for status_name, status_type in device_config["class"]["status_types"].items():
                             if status_type in ["Any", "None"]:
                                 status_type = "String"  # 替换成ROS的String，便于显示
@@ -310,24 +310,25 @@ class Registry:
                         device_config["class"]["status_types"] = dict(
                             sorted(device_config["class"]["status_types"].items())
                         )
-                        # 处理动作值映射
-                        device_config["class"]["action_value_mappings"].update(
-                            {
-                                f"auto-{k}": {
-                                    "type": "UniLabJsonCommandAsync" if v["is_async"] else "UniLabJsonCommand",
-                                    "goal": {},
-                                    "feedback": {},
-                                    "result": {},
-                                    "schema": self._generate_unilab_json_command_schema(v["args"], k),
-                                    "goal_default": {i["name"]: i["default"] for i in v["args"]},
-                                    "handles": [],
+                        if complete_registry:
+                            # 处理动作值映射
+                            device_config["class"]["action_value_mappings"].update(
+                                {
+                                    f"auto-{k}": {
+                                        "type": "UniLabJsonCommandAsync" if v["is_async"] else "UniLabJsonCommand",
+                                        "goal": {},
+                                        "feedback": {},
+                                        "result": {},
+                                        "schema": self._generate_unilab_json_command_schema(v["args"], k),
+                                        "goal_default": {i["name"]: i["default"] for i in v["args"]},
+                                        "handles": [],
+                                    }
+                                    for k, v in enhanced_info["action_methods"].items()
                                 }
-                                for k, v in enhanced_info["action_methods"].items()
-                            }
-                        )
-                        device_config["init_param_schema"] = self._generate_unilab_json_command_schema(
-                            enhanced_info["init_params"], "__init__"
-                        )
+                            )
+                            device_config["init_param_schema"] = self._generate_unilab_json_command_schema(
+                                enhanced_info["init_params"], "__init__"
+                            )
                         device_config.pop("schema", None)
                         device_config["class"]["action_value_mappings"] = dict(
                             sorted(device_config["class"]["action_value_mappings"].items())
