@@ -2,6 +2,8 @@ import collections.abc
 import json
 from typing import get_origin, get_args
 
+import yaml
+
 
 def get_type_class(type_hint):
     origin = get_origin(type_hint)
@@ -20,6 +22,12 @@ class TypeEncoder(json.JSONEncoder):
         if isinstance(obj, type):
             return str(obj)[8:-2]
         return super().default(obj)
+
+
+class NoAliasDumper(yaml.SafeDumper):
+    def ignore_aliases(self, data):
+        return True
+
 
 
 class ResultInfoEncoder(json.JSONEncoder):

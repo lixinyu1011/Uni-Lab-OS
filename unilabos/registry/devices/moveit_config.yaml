@@ -1,56 +1,328 @@
-moveit.toyo_xyz:
-  description: Toyo XYZ
-  class:
-    module: unilabos.devices.ros_dev.moveit_interface:MoveitInterface
-    type: python
-    action_value_mappings:
-      set_position:
-        type: SendCmd
-        goal:
-          command: command
-        feedback: { }
-        result: { }
-      pick_and_place:
-        type: SendCmd
-        goal:
-          command: command
-        feedback: { }
-        result: { }
-      set_status:
-        type: SendCmd
-        goal:
-          command: command
-        feedback: { }
-        result: { }
-
-  model:
-    type: device
-    mesh: toyo_xyz
-
 moveit.arm_slider:
-  description: Arm with Slider
-  model:
-    type: device
-    mesh: arm_slider
   class:
-    module: unilabos.devices.ros_dev.moveit_interface:MoveitInterface
-    type: python
     action_value_mappings:
-      set_position:
-        type: SendCmd
-        goal:
-          command: command
-        feedback: {}
-        result: {}
       pick_and_place:
-        type: SendCmd
+        feedback: {}
         goal:
           command: command
-        feedback: {}
+        goal_default:
+          command: ''
+        handles: []
         result: {}
+        schema:
+          description: ROS Action SendCmd 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties:
+                status:
+                  type: string
+              required:
+              - status
+              title: SendCmd_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                command:
+                  type: string
+              required:
+              - command
+              title: SendCmd_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: SendCmd_Result
+              type: object
+          required:
+          - goal
+          title: SendCmd
+          type: object
+        type: SendCmd
+      set_position:
+        feedback: {}
+        goal:
+          command: command
+        goal_default:
+          command: ''
+        handles: []
+        result: {}
+        schema:
+          description: ROS Action SendCmd 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties:
+                status:
+                  type: string
+              required:
+              - status
+              title: SendCmd_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                command:
+                  type: string
+              required:
+              - command
+              title: SendCmd_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: SendCmd_Result
+              type: object
+          required:
+          - goal
+          title: SendCmd
+          type: object
+        type: SendCmd
       set_status:
-        type: SendCmd
+        feedback: {}
         goal:
           command: command
-        feedback: {}
+        goal_default:
+          command: ''
+        handles: []
         result: {}
+        schema:
+          description: ROS Action SendCmd 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties:
+                status:
+                  type: string
+              required:
+              - status
+              title: SendCmd_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                command:
+                  type: string
+              required:
+              - command
+              title: SendCmd_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: SendCmd_Result
+              type: object
+          required:
+          - goal
+          title: SendCmd
+          type: object
+        type: SendCmd
+    module: unilabos.devices.ros_dev.moveit_interface:MoveitInterface
+    status_types: {}
+    type: python
+  description: Arm with Slider
+  handles: []
+  icon: ''
+  init_param_schema:
+    description: UniLabJsonCommand __init__ 的参数schema
+    properties:
+      feedback: {}
+      goal:
+        description: UniLabJsonCommand __init__ 的参数schema
+        properties: {}
+        required: []
+        type: object
+      result: {}
+    required:
+    - goal
+    title: __init__ 命令参数
+    type: object
+  model:
+    mesh: arm_slider
+    type: device
+moveit.toyo_xyz:
+  class:
+    action_value_mappings:
+      pick_and_place:
+        feedback: {}
+        goal:
+          command: command
+        goal_default:
+          command: ''
+        handles: []
+        result: {}
+        schema:
+          description: ROS Action SendCmd 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties:
+                status:
+                  type: string
+              required:
+              - status
+              title: SendCmd_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                command:
+                  type: string
+              required:
+              - command
+              title: SendCmd_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: SendCmd_Result
+              type: object
+          required:
+          - goal
+          title: SendCmd
+          type: object
+        type: SendCmd
+      set_position:
+        feedback: {}
+        goal:
+          command: command
+        goal_default:
+          command: ''
+        handles: []
+        result: {}
+        schema:
+          description: ROS Action SendCmd 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties:
+                status:
+                  type: string
+              required:
+              - status
+              title: SendCmd_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                command:
+                  type: string
+              required:
+              - command
+              title: SendCmd_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: SendCmd_Result
+              type: object
+          required:
+          - goal
+          title: SendCmd
+          type: object
+        type: SendCmd
+      set_status:
+        feedback: {}
+        goal:
+          command: command
+        goal_default:
+          command: ''
+        handles: []
+        result: {}
+        schema:
+          description: ROS Action SendCmd 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties:
+                status:
+                  type: string
+              required:
+              - status
+              title: SendCmd_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                command:
+                  type: string
+              required:
+              - command
+              title: SendCmd_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: SendCmd_Result
+              type: object
+          required:
+          - goal
+          title: SendCmd
+          type: object
+        type: SendCmd
+    module: unilabos.devices.ros_dev.moveit_interface:MoveitInterface
+    status_types: {}
+    type: python
+  description: Toyo XYZ
+  handles: []
+  icon: ''
+  init_param_schema:
+    description: UniLabJsonCommand __init__ 的参数schema
+    properties:
+      feedback: {}
+      goal:
+        description: UniLabJsonCommand __init__ 的参数schema
+        properties: {}
+        required: []
+        type: object
+      result: {}
+    required:
+    - goal
+    title: __init__ 命令参数
+    type: object
+  model:
+    mesh: toyo_xyz
+    type: device

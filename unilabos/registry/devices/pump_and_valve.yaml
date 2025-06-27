@@ -1,85 +1,1127 @@
-syringe_pump_with_valve.runze:
-  description: Runze Syringe pump with valve
+solenoid_valve:
   class:
-    module: unilabos.devices.pump_and_valve.runze_backbone:RunzeSyringePump
+    action_value_mappings:
+      auto-close:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand close 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand close 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: close 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-get_valve_position:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand get_valve_position 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand get_valve_position 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: get_valve_position 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-is_closed:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand is_closed 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand is_closed 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: is_closed 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-is_open:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand is_open 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand is_open 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: is_open 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-open:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand open 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand open 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: open 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-read_data:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand read_data 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand read_data 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: read_data 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-send_command:
+        feedback: {}
+        goal: {}
+        goal_default:
+          command: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand send_command 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand send_command 的参数schema
+              properties:
+                command:
+                  description: '参数: command'
+                  type: string
+              required:
+              - command
+              type: object
+            result: {}
+          required:
+          - goal
+          title: send_command 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_valve_position:
+        feedback: {}
+        goal: {}
+        goal_default:
+          position: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_valve_position 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_valve_position 的参数schema
+              properties:
+                position:
+                  description: '参数: position'
+                  type: string
+              required:
+              - position
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_valve_position 命令参数
+          type: object
+        type: UniLabJsonCommand
+      set_valve_position:
+        feedback: {}
+        goal:
+          string: position
+        goal_default:
+          string: ''
+        handles: []
+        result: {}
+        schema:
+          description: ROS Action StrSingleInput 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: StrSingleInput_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                string:
+                  type: string
+              required:
+              - string
+              title: StrSingleInput_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: StrSingleInput_Result
+              type: object
+          required:
+          - goal
+          title: StrSingleInput
+          type: object
+        type: StrSingleInput
+    module: unilabos.devices.pump_and_valve.solenoid_valve:SolenoidValve
+    status_types:
+      status: str
+      valve_position: str
     type: python
+  description: Solenoid valve
+  handles: []
+  icon: ''
+  init_param_schema:
+    description: UniLabJsonCommand __init__ 的参数schema
+    properties:
+      feedback: {}
+      goal:
+        description: UniLabJsonCommand __init__ 的参数schema
+        properties:
+          io_device_port:
+            description: '参数: io_device_port'
+            type: string
+        required:
+        - io_device_port
+        type: object
+      result: {}
+    required:
+    - goal
+    title: __init__ 命令参数
+    type: object
+solenoid_valve.mock:
+  class:
+    action_value_mappings:
+      auto-close:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand close 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand close 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: close 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-get_valve_position:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand get_valve_position 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand get_valve_position 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: get_valve_position 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-is_closed:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand is_closed 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand is_closed 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: is_closed 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-is_open:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand is_open 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand is_open 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: is_open 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-open:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand open 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand open 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: open 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_valve_position:
+        feedback: {}
+        goal: {}
+        goal_default:
+          position: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_valve_position 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_valve_position 的参数schema
+              properties:
+                position:
+                  description: '参数: position'
+                  type: string
+              required:
+              - position
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_valve_position 命令参数
+          type: object
+        type: UniLabJsonCommand
+      close:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: ROS Action EmptyIn 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: EmptyIn_Result
+              type: object
+          required:
+          - goal
+          title: EmptyIn
+          type: object
+        type: EmptyIn
+      open:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: ROS Action EmptyIn 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: EmptyIn_Result
+              type: object
+          required:
+          - goal
+          title: EmptyIn
+          type: object
+        type: EmptyIn
+    module: unilabos.devices.pump_and_valve.solenoid_valve_mock:SolenoidValveMock
+    status_types:
+      status: str
+      valve_position: str
+    type: python
+  description: Mock solenoid valve
+  handles:
+  - data_type: fluid
+    handler_key: in
+    io_type: target
+    label: in
+    side: NORTH
+  - data_type: fluid
+    handler_key: out
+    io_type: source
+    label: out
+    side: SOUTH
+  icon: ''
+  init_param_schema:
+    description: UniLabJsonCommand __init__ 的参数schema
+    properties:
+      feedback: {}
+      goal:
+        description: UniLabJsonCommand __init__ 的参数schema
+        properties:
+          port:
+            default: COM6
+            description: '参数: port'
+            type: string
+        required: []
+        type: object
+      result: {}
+    required:
+    - goal
+    title: __init__ 命令参数
+    type: object
+syringe_pump_with_valve.runze:
+  class:
+    action_value_mappings:
+      auto-close:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand close 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand close 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: close 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-get_max_velocity:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand get_max_velocity 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand get_max_velocity 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: get_max_velocity 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-get_plunger_position:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand get_plunger_position 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand get_plunger_position 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: get_plunger_position 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-get_position:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand get_position 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand get_position 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: get_position 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-get_status:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand get_status 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand get_status 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: get_status 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-get_valve_position:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand get_valve_position 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand get_valve_position 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: get_valve_position 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-get_velocity_end:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand get_velocity_end 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand get_velocity_end 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: get_velocity_end 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-get_velocity_grade:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand get_velocity_grade 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand get_velocity_grade 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: get_velocity_grade 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-get_velocity_init:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand get_velocity_init 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand get_velocity_init 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: get_velocity_init 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-initialize:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand initialize 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand initialize 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: initialize 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-list:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand list 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand list 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: list 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-pull_plunger:
+        feedback: {}
+        goal: {}
+        goal_default:
+          volume: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand pull_plunger 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand pull_plunger 的参数schema
+              properties:
+                volume:
+                  description: '参数: volume'
+                  type: number
+              required:
+              - volume
+              type: object
+            result: {}
+          required:
+          - goal
+          title: pull_plunger 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-push_plunger:
+        feedback: {}
+        goal: {}
+        goal_default:
+          volume: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand push_plunger 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand push_plunger 的参数schema
+              properties:
+                volume:
+                  description: '参数: volume'
+                  type: number
+              required:
+              - volume
+              type: object
+            result: {}
+          required:
+          - goal
+          title: push_plunger 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-query_aux_input_status_1:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand query_aux_input_status_1 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand query_aux_input_status_1 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: query_aux_input_status_1 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-query_aux_input_status_2:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand query_aux_input_status_2 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand query_aux_input_status_2 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: query_aux_input_status_2 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-query_backlash_position:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand query_backlash_position 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand query_backlash_position 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: query_backlash_position 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-query_command_buffer_status:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand query_command_buffer_status 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand query_command_buffer_status 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: query_command_buffer_status 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-query_software_version:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand query_software_version 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand query_software_version 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: query_software_version 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-send_command:
+        feedback: {}
+        goal: {}
+        goal_default:
+          full_command: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand send_command 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand send_command 的参数schema
+              properties:
+                full_command:
+                  description: '参数: full_command'
+                  type: string
+              required:
+              - full_command
+              type: object
+            result: {}
+          required:
+          - goal
+          title: send_command 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_baudrate:
+        feedback: {}
+        goal: {}
+        goal_default:
+          baudrate: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_baudrate 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_baudrate 的参数schema
+              properties:
+                baudrate:
+                  description: '参数: baudrate'
+                  type: string
+              required:
+              - baudrate
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_baudrate 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_max_velocity:
+        feedback: {}
+        goal: {}
+        goal_default:
+          velocity: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_max_velocity 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_max_velocity 的参数schema
+              properties:
+                velocity:
+                  description: '参数: velocity'
+                  type: number
+              required:
+              - velocity
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_max_velocity 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_position:
+        feedback: {}
+        goal: {}
+        goal_default:
+          max_velocity: null
+          position: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_position 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_position 的参数schema
+              properties:
+                max_velocity:
+                  description: '参数: max_velocity'
+                  type: number
+                position:
+                  description: '参数: position'
+                  type: number
+              required:
+              - position
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_position 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_valve_position:
+        feedback: {}
+        goal: {}
+        goal_default:
+          position: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_valve_position 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_valve_position 的参数schema
+              properties:
+                position:
+                  description: '参数: position'
+                  type: string
+              required:
+              - position
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_valve_position 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_velocity_grade:
+        feedback: {}
+        goal: {}
+        goal_default:
+          velocity: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_velocity_grade 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_velocity_grade 的参数schema
+              properties:
+                velocity:
+                  description: '参数: velocity'
+                  type: string
+              required:
+              - velocity
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_velocity_grade 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-stop_operation:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand stop_operation 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand stop_operation 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: stop_operation 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-wait_error:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand wait_error 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand wait_error 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: wait_error 命令参数
+          type: object
+        type: UniLabJsonCommand
     hardware_interface:
       name: hardware_interface
       read: send_command
       write: send_command
-  schema:
-    type: object
-    properties:
-      status:
-        type: string
-        description: The status of the device
-      position:
-        type: number
-        description: The volume of the syringe
-      speed_max:
-        type: number
-        description: The speed of the syringe
-      valve_position:
-        type: string
-        description: The position of the valve
-    required:
-    - status
-    - position
-    - valve_position
-    additionalProperties: false
-
-solenoid_valve.mock:
-  description: Mock solenoid valve
-  class:
-    module: unilabos.devices.pump_and_valve.solenoid_valve_mock:SolenoidValveMock
-    type: python
+    module: unilabos.devices.pump_and_valve.runze_backbone:RunzeSyringePump
     status_types:
-      status: String
-      valve_position: String
-    action_value_mappings:
-      open:
-        type: EmptyIn
-        goal: {}
-        feedback: {}
-        result: {}
-      close:
-        type: EmptyIn
-        goal: {}
-        feedback: {}
-        result: {}
-  handles:
-    - handler_key: in
-      label: in
-      io_type: target
-      data_type: fluid
-      side: NORTH
-    - handler_key: out
-      label: out
-      io_type: source
-      data_type: fluid
-      side: SOUTH
+      max_velocity: float
+      mode: int
+      position: float
+      status: str
+      valve_position: str
+    type: python
+  description: Runze Syringe pump with valve
+  handles: []
+  icon: ''
   init_param_schema:
-    type: object
+    description: UniLabJsonCommand __init__ 的参数schema
     properties:
-      port:
-        type: string
-        description: "通信端口"
-        default: "COM6"
+      feedback: {}
+      goal:
+        description: UniLabJsonCommand __init__ 的参数schema
+        properties:
+          address:
+            default: '1'
+            description: '参数: address'
+            type: string
+          max_volume:
+            default: 25.0
+            description: '参数: max_volume'
+            type: number
+          mode:
+            description: '参数: mode'
+            type: string
+          port:
+            description: '参数: port'
+            type: string
+        required:
+        - port
+        type: object
+      result: {}
     required:
-    - port
-
-solenoid_valve:
-  description: Solenoid valve
-  class:
-    module: unilabos.devices.pump_and_valve.solenoid_valve:SolenoidValve
-    type: python
-    status_types:
-      status: String
-      valve_position: String
-    action_value_mappings:
-      set_valve_position:
-        type: StrSingleInput
-        goal:
-          string: position
-        feedback: {}
-        result: {}
+    - goal
+    title: __init__ 命令参数
+    type: object

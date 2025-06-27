@@ -1,892 +1,4157 @@
 mock_chiller:
-  description: Mock Chiller Device
   class:
-    module: unilabos.devices.mock.mock_chiller:MockChiller
-    type: python
-    status_types:
-      current_temperature: Float64
-      target_temperature: Float64
-      status: String
-      is_cooling: Bool
-      is_heating: Bool
-      vessel: String         # 新增
-      purpose: String        # 新增
     action_value_mappings:
-      emergency_stop:
-        type: EmptyIn
+      auto-emergency_stop:
+        feedback: {}
         goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand emergency_stop 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand emergency_stop 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: emergency_stop 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-get_status_info:
         feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand get_status_info 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand get_status_info 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: get_status_info 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-heat_chill_start:
+        feedback: {}
+        goal: {}
+        goal_default:
+          purpose: null
+          temp: null
+          vessel: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand heat_chill_start 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand heat_chill_start 的参数schema
+              properties:
+                purpose:
+                  description: '参数: purpose'
+                  type: string
+                temp:
+                  description: '参数: temp'
+                  type: number
+                vessel:
+                  description: '参数: vessel'
+                  type: string
+              required:
+              - vessel
+              - temp
+              - purpose
+              type: object
+            result: {}
+          required:
+          - goal
+          title: heat_chill_start 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-heat_chill_stop:
+        feedback: {}
+        goal: {}
+        goal_default:
+          vessel: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand heat_chill_stop 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand heat_chill_stop 的参数schema
+              properties:
+                vessel:
+                  description: '参数: vessel'
+                  type: string
+              required:
+              - vessel
+              type: object
+            result: {}
+          required:
+          - goal
+          title: heat_chill_stop 命令参数
+          type: object
+        type: UniLabJsonCommand
+      emergency_stop:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
         result:
           success: success
+        schema:
+          description: ROS Action EmptyIn 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: EmptyIn_Result
+              type: object
+          required:
+          - goal
+          title: EmptyIn
+          type: object
+        type: EmptyIn
       heat_chill_start:
-        type: HeatChillStart
+        feedback: {}
         goal:
-          vessel: vessel
-          temp: temp
           purpose: purpose
-        feedback: {}
+          temp: temp
+          vessel: vessel
+        goal_default:
+          purpose: ''
+          temp: 0.0
+          vessel: ''
+        handles: []
         result:
-          success: success
           status: status
+          success: success
+        schema:
+          description: ROS Action HeatChillStart 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties:
+                status:
+                  type: string
+              required:
+              - status
+              title: HeatChillStart_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                purpose:
+                  type: string
+                temp:
+                  type: number
+                vessel:
+                  type: string
+              required:
+              - vessel
+              - temp
+              - purpose
+              title: HeatChillStart_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: HeatChillStart_Result
+              type: object
+          required:
+          - goal
+          title: HeatChillStart
+          type: object
+        type: HeatChillStart
       heat_chill_stop:
-        type: HeatChillStop
-        goal:
-          vessel: vessel
         feedback: {}
-        result:
-          success: success
-          status: status
-  schema:
-    type: object
-    properties:
-      current_temperature:
-        type: number
-        description: Current temperature of the chiller in °C
-      target_temperature:
-        type: number
-        description: Target temperature setting in °C
-      status:
-        type: string
-        description: Current status of the device
-      is_cooling:
-        type: boolean
-        description: Whether the device is actively cooling
-      is_heating:
-        type: boolean
-        description: Whether the device is actively heating
-      vessel:                # 新增
-        type: string
-        description: Current vessel being processed
-      purpose:               # 新增
-        type: string
-        description: Purpose of the current operation
-    required:
-    - current_temperature
-    - target_temperature
-    - status
-    - vessel
-    - purpose
-    additionalProperties: false
-mock_filter:
-  description: Mock Filter Device
-  class:
-    module: unilabos.devices.mock.mock_filter:MockFilter
-    type: python
-    status_types:
-      status: String
-      is_filtering: Bool
-      flow_rate: Float64
-      pressure_drop: Float64
-      filter_life: Float64
-      vessel: String
-      filtrate_vessel: String
-      filtered_volume: Float64
-      progress: Float64
-      stir: Bool
-      stir_speed: Float64
-      temperature: Float64
-      continue_heatchill: Bool
-      target_volume: Float64
-    action_value_mappings:
-      filter:
-        type: Filter
         goal:
           vessel: vessel
+        goal_default:
+          vessel: ''
+        handles: []
+        result:
+          status: status
+          success: success
+        schema:
+          description: ROS Action HeatChillStop 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties:
+                status:
+                  type: string
+              required:
+              - status
+              title: HeatChillStop_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                vessel:
+                  type: string
+              required:
+              - vessel
+              title: HeatChillStop_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: HeatChillStop_Result
+              type: object
+          required:
+          - goal
+          title: HeatChillStop
+          type: object
+        type: HeatChillStop
+    module: unilabos.devices.mock.mock_chiller:MockChiller
+    status_types:
+      current_temperature: float
+      is_cooling: bool
+      is_heating: bool
+      purpose: str
+      status: str
+      target_temperature: float
+      vessel: str
+    type: python
+  description: Mock Chiller Device
+  handles: []
+  icon: ''
+  init_param_schema:
+    description: UniLabJsonCommand __init__ 的参数schema
+    properties:
+      feedback: {}
+      goal:
+        description: UniLabJsonCommand __init__ 的参数schema
+        properties:
+          port:
+            default: MOCK
+            description: '参数: port'
+            type: string
+        required: []
+        type: object
+      result: {}
+    required:
+    - goal
+    title: __init__ 命令参数
+    type: object
+mock_filter:
+  class:
+    action_value_mappings:
+      auto-emergency_stop:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand emergency_stop 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand emergency_stop 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: emergency_stop 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-filter:
+        feedback: {}
+        goal: {}
+        goal_default:
+          continue_heatchill: false
+          filtrate_vessel: null
+          stir: false
+          stir_speed: 0.0
+          temp: 25.0
+          vessel: null
+          volume: 0.0
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand filter 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand filter 的参数schema
+              properties:
+                continue_heatchill:
+                  default: false
+                  description: '参数: continue_heatchill'
+                  type: boolean
+                filtrate_vessel:
+                  description: '参数: filtrate_vessel'
+                  type: string
+                stir:
+                  default: false
+                  description: '参数: stir'
+                  type: boolean
+                stir_speed:
+                  default: 0.0
+                  description: '参数: stir_speed'
+                  type: number
+                temp:
+                  default: 25.0
+                  description: '参数: temp'
+                  type: number
+                vessel:
+                  description: '参数: vessel'
+                  type: string
+                volume:
+                  default: 0.0
+                  description: '参数: volume'
+                  type: number
+              required:
+              - vessel
+              - filtrate_vessel
+              type: object
+            result: {}
+          required:
+          - goal
+          title: filter 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-get_status_info:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand get_status_info 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand get_status_info 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: get_status_info 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-replace_filter:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand replace_filter 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand replace_filter 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: replace_filter 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-stop_filtering:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand stop_filtering 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand stop_filtering 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: stop_filtering 命令参数
+          type: object
+        type: UniLabJsonCommand
+      filter:
+        feedback:
+          current_status: current_status
+          current_temp: current_temp
+          filtered_volume: filtered_volume
+          progress: progress
+        goal:
+          continue_heatchill: continue_heatchill
           filtrate_vessel: filtrate_vessel
           stir: stir
           stir_speed: stir_speed
           temp: temp
-          continue_heatchill: continue_heatchill
+          vessel: vessel
           volume: volume
-        feedback:
-          progress: progress
-          current_temp: current_temp
-          filtered_volume: filtered_volume
-          current_status: current_status
+        goal_default:
+          continue_heatchill: false
+          filtrate_vessel: ''
+          stir: false
+          stir_speed: 0.0
+          temp: 0.0
+          vessel: ''
+          volume: 0.0
+        handles: []
         result:
-          success: success
           message: message
-      stop_filtering:
-        type: EmptyIn
-        goal: {}
-        feedback: {}
-        result:
           success: success
+        schema:
+          description: ROS Action Filter 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties:
+                current_status:
+                  type: string
+                current_temp:
+                  type: number
+                filtered_volume:
+                  type: number
+                progress:
+                  type: number
+              required:
+              - progress
+              - current_temp
+              - filtered_volume
+              - current_status
+              title: Filter_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                continue_heatchill:
+                  type: boolean
+                filtrate_vessel:
+                  type: string
+                stir:
+                  type: boolean
+                stir_speed:
+                  type: number
+                temp:
+                  type: number
+                vessel:
+                  type: string
+                volume:
+                  type: number
+              required:
+              - vessel
+              - filtrate_vessel
+              - stir
+              - stir_speed
+              - temp
+              - continue_heatchill
+              - volume
+              title: Filter_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                message:
+                  type: string
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - success
+              - message
+              - return_info
+              title: Filter_Result
+              type: object
+          required:
+          - goal
+          title: Filter
+          type: object
+        type: Filter
       replace_filter:
-        type: EmptyIn
-        goal: {}
         feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
         result:
           success: success
-  schema:
-    type: object
-    properties:
-      status:
-        type: string
-        description: Current status of the filter
-      is_filtering:
-        type: boolean
-        description: Whether the filter is actively filtering
-      flow_rate:
-        type: number
-        description: Current flow rate in L/min
-      pressure_drop:
-        type: number
-        description: Pressure drop across the filter in Pa
-      filter_life:
-        type: number
-        description: Remaining filter life percentage
-      power_on:
-        type: boolean
-        description: Power state of the device
-    required:
-    - status
-    - is_filtering
-    - flow_rate
-    - filter_life
-    - vessel
-    - filtrate_vessel
-    - filtered_volume
-    - progress
-    additionalProperties: false
-mock_heater:
-  description: Mock Heater Device
-  class:
-    module: unilabos.devices.mock.mock_heater:MockHeater
-    type: python
+        schema:
+          description: ROS Action EmptyIn 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: EmptyIn_Result
+              type: object
+          required:
+          - goal
+          title: EmptyIn
+          type: object
+        type: EmptyIn
+      stop_filtering:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result:
+          success: success
+        schema:
+          description: ROS Action EmptyIn 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: EmptyIn_Result
+              type: object
+          required:
+          - goal
+          title: EmptyIn
+          type: object
+        type: EmptyIn
+    module: unilabos.devices.mock.mock_filter:MockFilter
     status_types:
-      current_temperature: Float64
-      target_temperature: Float64
-      status: String
-      is_heating: Bool
-      heating_power: Float64
-      max_temperature: Float64
-      vessel: String
-      purpose: String
-      stir: Bool
-      stir_speed: Float64
+      continue_heatchill: bool
+      filter_life: float
+      filtered_volume: float
+      filtrate_vessel: str
+      flow_rate: float
+      is_filtering: bool
+      pressure_drop: float
+      progress: float
+      status: str
+      stir: bool
+      stir_speed: float
+      target_volume: float
+      temperature: float
+      vessel: str
+    type: python
+  description: Mock Filter Device
+  handles: []
+  icon: ''
+  init_param_schema:
+    description: UniLabJsonCommand __init__ 的参数schema
+    properties:
+      feedback: {}
+      goal:
+        description: UniLabJsonCommand __init__ 的参数schema
+        properties:
+          port:
+            default: MOCK
+            description: '参数: port'
+            type: string
+        required: []
+        type: object
+      result: {}
+    required:
+    - goal
+    title: __init__ 命令参数
+    type: object
+mock_heater:
+  class:
     action_value_mappings:
-      heat_chill_start:
-        type: HeatChillStart
-        goal:
-          vessel: vessel
-          temp: temp
-          purpose: purpose
-        feedback:
-          status: status
+      auto-emergency_stop:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand emergency_stop 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand emergency_stop 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: emergency_stop 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-get_status_info:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand get_status_info 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand get_status_info 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: get_status_info 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-heat_chill:
+        feedback: {}
+        goal: {}
+        goal_default:
+          purpose: Unknown
+          stir: false
+          stir_speed: 0.0
+          temp: null
+          time: null
+          vessel: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand heat_chill 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand heat_chill 的参数schema
+              properties:
+                purpose:
+                  default: Unknown
+                  description: '参数: purpose'
+                  type: string
+                stir:
+                  default: false
+                  description: '参数: stir'
+                  type: boolean
+                stir_speed:
+                  default: 0.0
+                  description: '参数: stir_speed'
+                  type: number
+                temp:
+                  description: '参数: temp'
+                  type: number
+                time:
+                  description: '参数: time'
+                  type: number
+                vessel:
+                  description: '参数: vessel'
+                  type: string
+              required:
+              - vessel
+              - temp
+              - time
+              type: object
+            result: {}
+          required:
+          - goal
+          title: heat_chill 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-heat_chill_start:
+        feedback: {}
+        goal: {}
+        goal_default:
+          purpose: null
+          temp: null
+          vessel: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand heat_chill_start 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand heat_chill_start 的参数schema
+              properties:
+                purpose:
+                  description: '参数: purpose'
+                  type: string
+                temp:
+                  description: '参数: temp'
+                  type: number
+                vessel:
+                  description: '参数: vessel'
+                  type: string
+              required:
+              - vessel
+              - temp
+              - purpose
+              type: object
+            result: {}
+          required:
+          - goal
+          title: heat_chill_start 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-heat_chill_stop:
+        feedback: {}
+        goal: {}
+        goal_default:
+          vessel: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand heat_chill_stop 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand heat_chill_stop 的参数schema
+              properties:
+                vessel:
+                  description: '参数: vessel'
+                  type: string
+              required:
+              - vessel
+              type: object
+            result: {}
+          required:
+          - goal
+          title: heat_chill_stop 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_heating_power:
+        feedback: {}
+        goal: {}
+        goal_default:
+          power: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_heating_power 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_heating_power 的参数schema
+              properties:
+                power:
+                  description: '参数: power'
+                  type: number
+              required:
+              - power
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_heating_power 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_temperature:
+        feedback: {}
+        goal: {}
+        goal_default:
+          temperature: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_temperature 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_temperature 的参数schema
+              properties:
+                temperature:
+                  description: '参数: temperature'
+                  type: number
+              required:
+              - temperature
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_temperature 命令参数
+          type: object
+        type: UniLabJsonCommand
+      emergency_stop:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
         result:
           success: success
-      heat_chill_stop:
-        type: HeatChillStop
-        goal:
-          vessel: vessel
-        feedback:
-          status: status
-        result:
-          success: success
+        schema:
+          description: ROS Action EmptyIn 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: EmptyIn_Result
+              type: object
+          required:
+          - goal
+          title: EmptyIn
+          type: object
+        type: EmptyIn
       heat_chill:
-        type: HeatChill
+        feedback:
+          status: status
         goal:
-          vessel: vessel
-          temp: temp
-          time: time
+          purpose: purpose
           stir: stir
           stir_speed: stir_speed
-          purpose: purpose
+          temp: temp
+          time: time
+          vessel: vessel
+        goal_default:
+          purpose: ''
+          stir: false
+          stir_speed: 0.0
+          temp: 0.0
+          time: 0.0
+          vessel: ''
+        handles: []
+        result:
+          success: success
+        schema:
+          description: ROS Action HeatChill 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties:
+                status:
+                  type: string
+              required:
+              - status
+              title: HeatChill_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                purpose:
+                  type: string
+                stir:
+                  type: boolean
+                stir_speed:
+                  type: number
+                temp:
+                  type: number
+                time:
+                  type: number
+                vessel:
+                  type: string
+              required:
+              - vessel
+              - temp
+              - time
+              - stir
+              - stir_speed
+              - purpose
+              title: HeatChill_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: HeatChill_Result
+              type: object
+          required:
+          - goal
+          title: HeatChill
+          type: object
+        type: HeatChill
+      heat_chill_start:
         feedback:
           status: status
-        result:
-          success: success
-      emergency_stop:
-        type: EmptyIn
-        goal: {}
-        feedback: {}
-        result:
-          success: success
-  schema:
-    type: object
-    properties:
-      current_temperature:
-        type: number
-        description: Current temperature of the heater in °C
-      target_temperature:
-        type: number
-        description: Target temperature setting in °C
-      status:
-        type: string
-        description: Current status of the device
-      is_heating:
-        type: boolean
-        description: Whether the device is actively heating
-      heating_power:
-        type: number
-        description: Current heating power percentage
-      max_temperature:
-        type: number
-        description: Maximum temperature limit
-      vessel:
-        type: string
-        description: Current vessel being heated
-      purpose:
-        type: string
-        description: Purpose of the heating operation
-      stir:
-        type: boolean
-        description: Whether stirring is enabled
-      stir_speed:
-        type: number
-        description: Current stirring speed
-    required:
-    - current_temperature
-    - target_temperature
-    - status
-    - vessel
-    - purpose
-    additionalProperties: false
-mock_pump:
-  description: Mock Pump Device
-  class:
-    module: unilabos.devices.mock.mock_pump:MockPump
-    type: python
-    status_types:
-      status: String
-      pump_state: String
-      flow_rate: Float64
-      target_flow_rate: Float64
-      pressure: Float64
-      total_volume: Float64
-      max_flow_rate: Float64
-      max_pressure: Float64
-      from_vessel: String
-      to_vessel: String
-      transfer_volume: Float64
-      amount: String
-      transfer_time: Float64
-      is_viscous: Bool
-      rinsing_solvent: String
-      rinsing_volume: Float64
-      rinsing_repeats: Int32
-      is_solid: Bool
-      time_spent: Float64
-      time_remaining: Float64
-      current_device: String
-    action_value_mappings:
-      pump_transfer:
-          type: PumpTransfer
-          goal:
-            from_vessel: from_vessel
-            to_vessel: to_vessel
-            volume: volume
-            amount: amount
-            time: time
-            viscous: viscous
-            rinsing_solvent: rinsing_solvent
-            rinsing_volume: rinsing_volume
-            rinsing_repeats: rinsing_repeats
-            solid: solid
-          feedback:
-            status: status
-            current_device: current_device
-            time_spent: time_spent
-            time_remaining: time_remaining
-          result:
-            success: success
-      pause_pump:
-        type: EmptyIn
-        goal: {}
-        feedback: {}
-        result:
-          success: success
-      resume_pump:
-        type: EmptyIn
-        goal: {}
-        feedback: {}
-        result:
-          success: success
-      reset_volume_counter:
-        type: EmptyIn
-        goal: {}
-        feedback: {}
-        result:
-          success: success
-  schema:
-    type: object
-    properties:
-      status:
-        type: string
-        description: Current status of the pump
-      pump_state:
-        type: string
-        description: Pump operation state (Running/Stopped/Paused)
-      flow_rate:
-        type: number
-        description: Current flow rate in mL/min
-      target_flow_rate:
-        type: number
-        description: Target flow rate in mL/min
-      pressure:
-        type: number
-        description: Current pressure in bar
-      total_volume:
-        type: number
-        description: Total accumulated volume in mL
-      max_flow_rate:
-        type: number
-        description: Maximum flow rate in mL/min
-      max_pressure:
-        type: number
-        description: Maximum pressure in bar
-      from_vessel:
-        type: string
-        description: Source vessel for transfer
-      to_vessel:
-        type: string
-        description: Target vessel for transfer
-      transfer_volume:
-        type: number
-        description: Volume to transfer in mL
-      amount:
-        type: string
-        description: Amount description
-      transfer_time:
-        type: number
-        description: Transfer time in seconds
-      is_viscous:
-        type: boolean
-        description: Whether the liquid is viscous
-      rinsing_solvent:
-        type: string
-        description: Solvent used for rinsing
-      rinsing_volume:
-        type: number
-        description: Volume used for rinsing
-      rinsing_repeats:
-        type: integer
-        description: Number of rinsing cycles
-      is_solid:
-        type: boolean
-        description: Whether transferring solid material
-      current_device:
-        type: string
-        description: Current device identifier
-    required:
-    - status
-    - pump_state
-    - flow_rate
-    - from_vessel
-    - to_vessel
-    additionalProperties: false
-mock_rotavap:
-  description: Mock Rotavap Device
-  class:
-    module: unilabos.devices.mock.mock_rotavap:MockRotavap
-    type: python
-    status_types:
-      status: String
-      rotate_state: String
-      rotate_time: Float64
-      rotate_speed: Float64
-      pump_state: String
-      pump_time: Float64
-      vacuum_level: Float64
-      temperature: Float64
-      target_temperature: Float64
-      success: String
-    action_value_mappings:
-      set_timer:
-        type: StrSingleInput
-        goal:
-          string: command
-        feedback: {}
-        result:
-          success: success
-      set_rotate_time:
-        type: FloatSingleInput
-        goal:
-          float_in: time_seconds
-        feedback: {}
-        result:
-          success: success
-      set_pump_time:
-        type: FloatSingleInput
-        goal:
-          float_in: time_seconds
-        feedback: {}
-        result:
-          success: success
-      set_rotate_speed:
-        type: FloatSingleInput
-        goal:
-          float_in: speed
-        feedback: {}
-        result:
-          success: success
-      set_temperature:
-        type: FloatSingleInput
-        goal:
-          float_in: temperature
-        feedback: {}
-        result:
-          success: success
-      start_rotation:
-        type: EmptyIn
-        goal: {}
-        feedback: {}
-        result:
-          success: success
-      start_pump:
-        type: EmptyIn
-        goal: {}
-        feedback: {}
-        result:
-          success: success
-  schema:
-    type: object
-    properties:
-      status:
-        type: string
-        description: Current status of the rotavap
-      rotate_state:
-        type: string
-        description: Rotation state (Running/Stopped)
-      rotate_time:
-        type: number
-        description: Remaining rotation time in seconds
-      rotate_speed:
-        type: number
-        description: Rotation speed in rpm
-      pump_state:
-        type: string
-        description: Pump state (Running/Stopped)
-      pump_time:
-        type: number
-        description: Remaining pump time in seconds
-      vacuum_level:
-        type: number
-        description: Current vacuum level in mbar
-      temperature:
-        type: number
-        description: Current water bath temperature
-      target_temperature:
-        type: number
-        description: Target water bath temperature
-      success:
-        type: string
-        description: Operation success status
-    required:
-    - status
-    - rotate_time
-    - pump_time
-    - temperature
-    additionalProperties: false
-mock_separator:
-  description: Simplified Mock Separator Device
-  class:
-    module: unilabos.devices.mock.mock_separator:MockSeparator
-    type: python
-    status_types:
-      status: String
-      settling_time: Float64
-      valve_state: String
-      shake_time: Float64
-      shake_status: String
-      current_device: String
-      purpose: String
-      product_phase: String
-      from_vessel: String
-      separation_vessel: String
-      to_vessel: String
-      waste_phase_to_vessel: String
-      solvent: String
-      solvent_volume: Float64
-      through: String
-      repeats: Int32
-      stir_time: Float64
-      stir_speed: Float64
-      time_spent: Float64
-      time_remaining: Float64
-    action_value_mappings:
-      separate:
-        type: Separate
         goal:
           purpose: purpose
-          product_phase: product_phase
+          temp: temp
+          vessel: vessel
+        goal_default:
+          purpose: ''
+          temp: 0.0
+          vessel: ''
+        handles: []
+        result:
+          success: success
+        schema:
+          description: ROS Action HeatChillStart 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties:
+                status:
+                  type: string
+              required:
+              - status
+              title: HeatChillStart_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                purpose:
+                  type: string
+                temp:
+                  type: number
+                vessel:
+                  type: string
+              required:
+              - vessel
+              - temp
+              - purpose
+              title: HeatChillStart_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: HeatChillStart_Result
+              type: object
+          required:
+          - goal
+          title: HeatChillStart
+          type: object
+        type: HeatChillStart
+      heat_chill_stop:
+        feedback:
+          status: status
+        goal:
+          vessel: vessel
+        goal_default:
+          vessel: ''
+        handles: []
+        result:
+          success: success
+        schema:
+          description: ROS Action HeatChillStop 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties:
+                status:
+                  type: string
+              required:
+              - status
+              title: HeatChillStop_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                vessel:
+                  type: string
+              required:
+              - vessel
+              title: HeatChillStop_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: HeatChillStop_Result
+              type: object
+          required:
+          - goal
+          title: HeatChillStop
+          type: object
+        type: HeatChillStop
+    module: unilabos.devices.mock.mock_heater:MockHeater
+    status_types:
+      current_temperature: float
+      heating_power: float
+      is_heating: bool
+      max_temperature: float
+      purpose: str
+      status: str
+      stir: bool
+      stir_speed: float
+      target_temperature: float
+      vessel: str
+    type: python
+  description: Mock Heater Device
+  handles: []
+  icon: ''
+  init_param_schema:
+    description: UniLabJsonCommand __init__ 的参数schema
+    properties:
+      feedback: {}
+      goal:
+        description: UniLabJsonCommand __init__ 的参数schema
+        properties:
+          port:
+            default: MOCK
+            description: '参数: port'
+            type: string
+        required: []
+        type: object
+      result: {}
+    required:
+    - goal
+    title: __init__ 命令参数
+    type: object
+mock_pump:
+  class:
+    action_value_mappings:
+      auto-emergency_stop:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand emergency_stop 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand emergency_stop 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: emergency_stop 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-get_status_info:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand get_status_info 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand get_status_info 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: get_status_info 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-pause_pump:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand pause_pump 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand pause_pump 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: pause_pump 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-pump_transfer:
+        feedback: {}
+        goal: {}
+        goal_default:
+          amount: ''
+          from_vessel: null
+          rinsing_repeats: 0
+          rinsing_solvent: ''
+          rinsing_volume: 0.0
+          solid: false
+          time: 0.0
+          to_vessel: null
+          viscous: false
+          volume: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand pump_transfer 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand pump_transfer 的参数schema
+              properties:
+                amount:
+                  default: ''
+                  description: '参数: amount'
+                  type: string
+                from_vessel:
+                  description: '参数: from_vessel'
+                  type: string
+                rinsing_repeats:
+                  default: 0
+                  description: '参数: rinsing_repeats'
+                  type: integer
+                rinsing_solvent:
+                  default: ''
+                  description: '参数: rinsing_solvent'
+                  type: string
+                rinsing_volume:
+                  default: 0.0
+                  description: '参数: rinsing_volume'
+                  type: number
+                solid:
+                  default: false
+                  description: '参数: solid'
+                  type: boolean
+                time:
+                  default: 0.0
+                  description: '参数: time'
+                  type: number
+                to_vessel:
+                  description: '参数: to_vessel'
+                  type: string
+                viscous:
+                  default: false
+                  description: '参数: viscous'
+                  type: boolean
+                volume:
+                  description: '参数: volume'
+                  type: number
+              required:
+              - from_vessel
+              - to_vessel
+              - volume
+              type: object
+            result: {}
+          required:
+          - goal
+          title: pump_transfer 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-reset_volume_counter:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand reset_volume_counter 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand reset_volume_counter 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: reset_volume_counter 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-resume_pump:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand resume_pump 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand resume_pump 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: resume_pump 命令参数
+          type: object
+        type: UniLabJsonCommand
+      pause_pump:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result:
+          success: success
+        schema:
+          description: ROS Action EmptyIn 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: EmptyIn_Result
+              type: object
+          required:
+          - goal
+          title: EmptyIn
+          type: object
+        type: EmptyIn
+      pump_transfer:
+        feedback:
+          current_device: current_device
+          status: status
+          time_remaining: time_remaining
+          time_spent: time_spent
+        goal:
+          amount: amount
           from_vessel: from_vessel
-          separation_vessel: separation_vessel
+          rinsing_repeats: rinsing_repeats
+          rinsing_solvent: rinsing_solvent
+          rinsing_volume: rinsing_volume
+          solid: solid
+          time: time
           to_vessel: to_vessel
-          waste_phase_to_vessel: waste_phase_to_vessel
+          viscous: viscous
+          volume: volume
+        goal_default:
+          amount: ''
+          from_vessel: ''
+          rinsing_repeats: 0
+          rinsing_solvent: ''
+          rinsing_volume: 0.0
+          solid: false
+          time: 0.0
+          to_vessel: ''
+          viscous: false
+          volume: 0.0
+        handles: []
+        result:
+          success: success
+        schema:
+          description: ROS Action PumpTransfer 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties:
+                current_device:
+                  type: string
+                status:
+                  type: string
+                time_remaining:
+                  properties:
+                    nanosec:
+                      maximum: 4294967295
+                      minimum: 0
+                      type: integer
+                    sec:
+                      maximum: 2147483647
+                      minimum: -2147483648
+                      type: integer
+                  required:
+                  - sec
+                  - nanosec
+                  title: Duration
+                  type: object
+                time_spent:
+                  properties:
+                    nanosec:
+                      maximum: 4294967295
+                      minimum: 0
+                      type: integer
+                    sec:
+                      maximum: 2147483647
+                      minimum: -2147483648
+                      type: integer
+                  required:
+                  - sec
+                  - nanosec
+                  title: Duration
+                  type: object
+              required:
+              - status
+              - current_device
+              - time_spent
+              - time_remaining
+              title: PumpTransfer_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                amount:
+                  type: string
+                from_vessel:
+                  type: string
+                rinsing_repeats:
+                  maximum: 2147483647
+                  minimum: -2147483648
+                  type: integer
+                rinsing_solvent:
+                  type: string
+                rinsing_volume:
+                  type: number
+                solid:
+                  type: boolean
+                time:
+                  type: number
+                to_vessel:
+                  type: string
+                viscous:
+                  type: boolean
+                volume:
+                  type: number
+              required:
+              - from_vessel
+              - to_vessel
+              - volume
+              - amount
+              - time
+              - viscous
+              - rinsing_solvent
+              - rinsing_volume
+              - rinsing_repeats
+              - solid
+              title: PumpTransfer_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: PumpTransfer_Result
+              type: object
+          required:
+          - goal
+          title: PumpTransfer
+          type: object
+        type: PumpTransfer
+      reset_volume_counter:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result:
+          success: success
+        schema:
+          description: ROS Action EmptyIn 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: EmptyIn_Result
+              type: object
+          required:
+          - goal
+          title: EmptyIn
+          type: object
+        type: EmptyIn
+      resume_pump:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result:
+          success: success
+        schema:
+          description: ROS Action EmptyIn 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: EmptyIn_Result
+              type: object
+          required:
+          - goal
+          title: EmptyIn
+          type: object
+        type: EmptyIn
+    module: unilabos.devices.mock.mock_pump:MockPump
+    status_types:
+      amount: str
+      current_device: str
+      flow_rate: float
+      from_vessel: str
+      is_solid: bool
+      is_viscous: bool
+      max_flow_rate: float
+      max_pressure: float
+      pressure: float
+      pump_state: str
+      rinsing_repeats: int
+      rinsing_solvent: str
+      rinsing_volume: float
+      status: str
+      target_flow_rate: float
+      time_remaining: float
+      time_spent: float
+      to_vessel: str
+      total_volume: float
+      transfer_time: float
+      transfer_volume: float
+    type: python
+  description: Mock Pump Device
+  handles: []
+  icon: ''
+  init_param_schema:
+    description: UniLabJsonCommand __init__ 的参数schema
+    properties:
+      feedback: {}
+      goal:
+        description: UniLabJsonCommand __init__ 的参数schema
+        properties:
+          port:
+            default: MOCK
+            description: '参数: port'
+            type: string
+        required: []
+        type: object
+      result: {}
+    required:
+    - goal
+    title: __init__ 命令参数
+    type: object
+mock_rotavap:
+  class:
+    action_value_mappings:
+      auto-emergency_stop:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand emergency_stop 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand emergency_stop 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: emergency_stop 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-get_status_info:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand get_status_info 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand get_status_info 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: get_status_info 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_pump_time:
+        feedback: {}
+        goal: {}
+        goal_default:
+          time_seconds: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_pump_time 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_pump_time 的参数schema
+              properties:
+                time_seconds:
+                  description: '参数: time_seconds'
+                  type: number
+              required:
+              - time_seconds
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_pump_time 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_rotate_speed:
+        feedback: {}
+        goal: {}
+        goal_default:
+          speed: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_rotate_speed 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_rotate_speed 的参数schema
+              properties:
+                speed:
+                  description: '参数: speed'
+                  type: number
+              required:
+              - speed
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_rotate_speed 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_rotate_time:
+        feedback: {}
+        goal: {}
+        goal_default:
+          time_seconds: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_rotate_time 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_rotate_time 的参数schema
+              properties:
+                time_seconds:
+                  description: '参数: time_seconds'
+                  type: number
+              required:
+              - time_seconds
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_rotate_time 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_temperature:
+        feedback: {}
+        goal: {}
+        goal_default:
+          temperature: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_temperature 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_temperature 的参数schema
+              properties:
+                temperature:
+                  description: '参数: temperature'
+                  type: number
+              required:
+              - temperature
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_temperature 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_timer:
+        feedback: {}
+        goal: {}
+        goal_default:
+          command: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_timer 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_timer 的参数schema
+              properties:
+                command:
+                  description: '参数: command'
+                  type: string
+              required:
+              - command
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_timer 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-start_pump:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand start_pump 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand start_pump 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: start_pump 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-start_rotation:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand start_rotation 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand start_rotation 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: start_rotation 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-stop_all_operations:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand stop_all_operations 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand stop_all_operations 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: stop_all_operations 命令参数
+          type: object
+        type: UniLabJsonCommand
+      set_pump_time:
+        feedback: {}
+        goal:
+          float_in: time_seconds
+        goal_default:
+          float_in: 0.0
+        handles: []
+        result:
+          success: success
+        schema:
+          description: ROS Action FloatSingleInput 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: FloatSingleInput_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                float_in:
+                  type: number
+              required:
+              - float_in
+              title: FloatSingleInput_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: FloatSingleInput_Result
+              type: object
+          required:
+          - goal
+          title: FloatSingleInput
+          type: object
+        type: FloatSingleInput
+      set_rotate_speed:
+        feedback: {}
+        goal:
+          float_in: speed
+        goal_default:
+          float_in: 0.0
+        handles: []
+        result:
+          success: success
+        schema:
+          description: ROS Action FloatSingleInput 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: FloatSingleInput_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                float_in:
+                  type: number
+              required:
+              - float_in
+              title: FloatSingleInput_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: FloatSingleInput_Result
+              type: object
+          required:
+          - goal
+          title: FloatSingleInput
+          type: object
+        type: FloatSingleInput
+      set_rotate_time:
+        feedback: {}
+        goal:
+          float_in: time_seconds
+        goal_default:
+          float_in: 0.0
+        handles: []
+        result:
+          success: success
+        schema:
+          description: ROS Action FloatSingleInput 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: FloatSingleInput_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                float_in:
+                  type: number
+              required:
+              - float_in
+              title: FloatSingleInput_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: FloatSingleInput_Result
+              type: object
+          required:
+          - goal
+          title: FloatSingleInput
+          type: object
+        type: FloatSingleInput
+      set_temperature:
+        feedback: {}
+        goal:
+          float_in: temperature
+        goal_default:
+          float_in: 0.0
+        handles: []
+        result:
+          success: success
+        schema:
+          description: ROS Action FloatSingleInput 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: FloatSingleInput_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                float_in:
+                  type: number
+              required:
+              - float_in
+              title: FloatSingleInput_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: FloatSingleInput_Result
+              type: object
+          required:
+          - goal
+          title: FloatSingleInput
+          type: object
+        type: FloatSingleInput
+      set_timer:
+        feedback: {}
+        goal:
+          string: command
+        goal_default:
+          string: ''
+        handles: []
+        result:
+          success: success
+        schema:
+          description: ROS Action StrSingleInput 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: StrSingleInput_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                string:
+                  type: string
+              required:
+              - string
+              title: StrSingleInput_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: StrSingleInput_Result
+              type: object
+          required:
+          - goal
+          title: StrSingleInput
+          type: object
+        type: StrSingleInput
+      start_pump:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result:
+          success: success
+        schema:
+          description: ROS Action EmptyIn 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: EmptyIn_Result
+              type: object
+          required:
+          - goal
+          title: EmptyIn
+          type: object
+        type: EmptyIn
+      start_rotation:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result:
+          success: success
+        schema:
+          description: ROS Action EmptyIn 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: EmptyIn_Result
+              type: object
+          required:
+          - goal
+          title: EmptyIn
+          type: object
+        type: EmptyIn
+    module: unilabos.devices.mock.mock_rotavap:MockRotavap
+    status_types:
+      pump_state: str
+      pump_time: float
+      rotate_speed: float
+      rotate_state: str
+      rotate_time: float
+      status: str
+      success: String
+      target_temperature: float
+      temperature: float
+      vacuum_level: float
+    type: python
+  description: Mock Rotavap Device
+  handles: []
+  icon: ''
+  init_param_schema:
+    description: UniLabJsonCommand __init__ 的参数schema
+    properties:
+      feedback: {}
+      goal:
+        description: UniLabJsonCommand __init__ 的参数schema
+        properties:
+          port:
+            default: MOCK
+            description: '参数: port'
+            type: string
+        required: []
+        type: object
+      result: {}
+    required:
+    - goal
+    title: __init__ 命令参数
+    type: object
+mock_separator:
+  class:
+    action_value_mappings:
+      auto-get_status_info:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand get_status_info 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand get_status_info 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: get_status_info 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-separate:
+        feedback: {}
+        goal: {}
+        goal_default:
+          from_vessel: null
+          product_phase: null
+          purpose: null
+          repeats: 1
+          separation_vessel: null
+          settling_time: 60.0
+          solvent: ''
+          solvent_volume: 0.0
+          stir_speed: 0.0
+          stir_time: 0.0
+          through: ''
+          to_vessel: null
+          waste_phase_to_vessel: ''
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand separate 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand separate 的参数schema
+              properties:
+                from_vessel:
+                  description: '参数: from_vessel'
+                  type: string
+                product_phase:
+                  description: '参数: product_phase'
+                  type: string
+                purpose:
+                  description: '参数: purpose'
+                  type: string
+                repeats:
+                  default: 1
+                  description: '参数: repeats'
+                  type: integer
+                separation_vessel:
+                  description: '参数: separation_vessel'
+                  type: string
+                settling_time:
+                  default: 60.0
+                  description: '参数: settling_time'
+                  type: number
+                solvent:
+                  default: ''
+                  description: '参数: solvent'
+                  type: string
+                solvent_volume:
+                  default: 0.0
+                  description: '参数: solvent_volume'
+                  type: number
+                stir_speed:
+                  default: 0.0
+                  description: '参数: stir_speed'
+                  type: number
+                stir_time:
+                  default: 0.0
+                  description: '参数: stir_time'
+                  type: number
+                through:
+                  default: ''
+                  description: '参数: through'
+                  type: string
+                to_vessel:
+                  description: '参数: to_vessel'
+                  type: string
+                waste_phase_to_vessel:
+                  default: ''
+                  description: '参数: waste_phase_to_vessel'
+                  type: string
+              required:
+              - purpose
+              - product_phase
+              - from_vessel
+              - separation_vessel
+              - to_vessel
+              type: object
+            result: {}
+          required:
+          - goal
+          title: separate 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_valve:
+        feedback: {}
+        goal: {}
+        goal_default:
+          command: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_valve 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_valve 的参数schema
+              properties:
+                command:
+                  description: '参数: command'
+                  type: string
+              required:
+              - command
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_valve 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-shake:
+        feedback: {}
+        goal: {}
+        goal_default:
+          shake_time: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand shake 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand shake 的参数schema
+              properties:
+                shake_time:
+                  description: '参数: shake_time'
+                  type: number
+              required:
+              - shake_time
+              type: object
+            result: {}
+          required:
+          - goal
+          title: shake 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-stop_operations:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand stop_operations 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand stop_operations 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: stop_operations 命令参数
+          type: object
+        type: UniLabJsonCommand
+      separate:
+        feedback:
+          current_device: current_device
+          status: status
+          time_remaining: time_remaining
+          time_spent: time_spent
+        goal:
+          from_vessel: from_vessel
+          product_phase: product_phase
+          purpose: purpose
+          repeats: repeats
+          separation_vessel: separation_vessel
+          settling_time: settling_time
           solvent: solvent
           solvent_volume: solvent_volume
-          through: through
-          repeats: repeats
-          stir_time: stir_time
           stir_speed: stir_speed
-          settling_time: settling_time
-        feedback:
-          status: status
-          current_device: current_device
-          time_spent: time_spent
-          time_remaining: time_remaining
+          stir_time: stir_time
+          through: through
+          to_vessel: to_vessel
+          waste_phase_to_vessel: waste_phase_to_vessel
+        goal_default:
+          from_vessel: ''
+          product_phase: ''
+          purpose: ''
+          repeats: 0
+          separation_vessel: ''
+          settling_time: 0.0
+          solvent: ''
+          solvent_volume: 0.0
+          stir_speed: 0.0
+          stir_time: 0.0
+          through: ''
+          to_vessel: ''
+          waste_phase_to_vessel: ''
+        handles: []
         result:
           success: success
-      shake:
-        type: FloatSingleInput
-        goal:
-          float_in: shake_time
-        feedback:
-          status: status
-        result:
-          success: success
-      stop_operations:
-        type: EmptyIn
-        goal: {}
-        feedback: {}
-        result:
-          success: success
+        schema:
+          description: ROS Action Separate 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties:
+                current_device:
+                  type: string
+                status:
+                  type: string
+                time_remaining:
+                  properties:
+                    nanosec:
+                      maximum: 4294967295
+                      minimum: 0
+                      type: integer
+                    sec:
+                      maximum: 2147483647
+                      minimum: -2147483648
+                      type: integer
+                  required:
+                  - sec
+                  - nanosec
+                  title: Duration
+                  type: object
+                time_spent:
+                  properties:
+                    nanosec:
+                      maximum: 4294967295
+                      minimum: 0
+                      type: integer
+                    sec:
+                      maximum: 2147483647
+                      minimum: -2147483648
+                      type: integer
+                  required:
+                  - sec
+                  - nanosec
+                  title: Duration
+                  type: object
+              required:
+              - status
+              - current_device
+              - time_spent
+              - time_remaining
+              title: Separate_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                from_vessel:
+                  type: string
+                product_phase:
+                  type: string
+                purpose:
+                  type: string
+                repeats:
+                  maximum: 2147483647
+                  minimum: -2147483648
+                  type: integer
+                separation_vessel:
+                  type: string
+                settling_time:
+                  type: number
+                solvent:
+                  type: string
+                solvent_volume:
+                  type: number
+                stir_speed:
+                  type: number
+                stir_time:
+                  type: number
+                through:
+                  type: string
+                to_vessel:
+                  type: string
+                waste_phase_to_vessel:
+                  type: string
+              required:
+              - purpose
+              - product_phase
+              - from_vessel
+              - separation_vessel
+              - to_vessel
+              - waste_phase_to_vessel
+              - solvent
+              - solvent_volume
+              - through
+              - repeats
+              - stir_time
+              - stir_speed
+              - settling_time
+              title: Separate_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: Separate_Result
+              type: object
+          required:
+          - goal
+          title: Separate
+          type: object
+        type: Separate
       set_valve:
-        type: StrSingleInput
+        feedback: {}
         goal:
           string: command
-        feedback: {}
+        goal_default:
+          string: ''
+        handles: []
         result:
           success: success
-  schema:
-    type: object
-    properties:
-      status:
-        type: string
-        description: Current status of the separator
-      settling_time:
-        type: number
-        description: Settling time in seconds
-      valve_state:
-        type: string
-        description: Valve state (Open/Closed)
-      shake_time:
-        type: number
-        description: Remaining shake time in seconds
-      shake_status:
-        type: string
-        description: Current shake state
-      purpose:
-        type: string
-        description: Separation purpose (wash/extract)
-      product_phase:
-        type: string
-        description: Product phase (top/bottom)
-      from_vessel:
-        type: string
-        description: Source vessel
-      separation_vessel:
-        type: string
-        description: Vessel for separation
-      to_vessel:
-        type: string
-        description: Target vessel
-    required:
-    - status
-    - valve_state
-    - shake_status
-    - current_device
-    additionalProperties: false
-mock_solenoid_valve:
-  description: Mock Solenoid Valve Device
-  class:
-    module: unilabos.devices.mock.mock_solenoid_valve:MockSolenoidValve
-    type: python
-    status_types:
-      status: String
-      valve_status: String
-    action_value_mappings:
-      set_valve_status:
+        schema:
+          description: ROS Action StrSingleInput 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: StrSingleInput_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                string:
+                  type: string
+              required:
+              - string
+              title: StrSingleInput_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: StrSingleInput_Result
+              type: object
+          required:
+          - goal
+          title: StrSingleInput
+          type: object
         type: StrSingleInput
-        goal:
-          string: status
-        feedback: {}
-        result:
-          success: success
-      open_valve:
-        type: EmptyIn
-        goal: {}
-        feedback: {}
-        result:
-          success: success
-      close_valve:
-        type: EmptyIn
-        goal: {}
-        feedback: {}
-        result:
-          success: success
-  schema:
-    type: object
-    properties:
-      status:
-        type: string
-        description: Current status of the valve
-      valve_status:
-        type: string
-        description: Valve status (Open/Closed)
-    required:
-    - status
-    - valve_status
-    additionalProperties: false
-mock_stirrer:
-  description: Mock Stirrer Device
-  class:
-    module: unilabos.devices.mock.mock_stirrer:MockStirrer
-    type: python
-    status_types:
-      status: String
-      stir_speed: Float64
-      target_stir_speed: Float64
-      stir_state: String
-      temperature: Float64
-      target_temperature: Float64
-      heating_state: String
-      heating_power: Float64
-      max_stir_speed: Float64
-      max_temperature: Float64
-    action_value_mappings:
-      set_stir_speed:
-        type: FloatSingleInput
-        goal:
-          float_in: speed
-        feedback: {}
-        result:
-          success: success
-      set_temperature:
-        type: FloatSingleInput
-        goal:
-          float_in: temperature
-        feedback: {}
-        result:
-          success: success
-      start_stirring:
-        type: EmptyIn
-        goal: {}
-        feedback: {}
-        result:
-          success: success
-      stop_stirring:
-        type: EmptyIn
-        goal: {}
-        feedback: {}
-        result:
-          success: success
-      heating_control:
-        type: StrSingleInput
-        goal:
-          string: heating_state
-        feedback: {}
-        result:
-          success: success
-  schema:
-    type: object
-    properties:
-      status:
-        type: string
-        description: Current status of the stirrer
-      stir_speed:
-        type: number
-        description: Current stirring speed in rpm
-      target_stir_speed:
-        type: number
-        description: Target stirring speed in rpm
-      stir_state:
-        type: string
-        description: Stirring state (Running/Stopped)
-      temperature:
-        type: number
-        description: Current temperature in °C
-      target_temperature:
-        type: number
-        description: Target temperature in °C
-      heating_state:
-        type: string
-        description: Heating state (On/Off)
-      heating_power:
-        type: number
-        description: Current heating power percentage
-      max_stir_speed:
-        type: number
-        description: Maximum stirring speed in rpm
-      max_temperature:
-        type: number
-        description: Maximum temperature in °C
-    required:
-    - status
-    - stir_speed
-    - temperature
-    - power_state
-    additionalProperties: false
-mock_stirrer_new:
-  description: Mock Stirrer Device (Copy Version)
-  class:
-    module: unilabos.devices.mock.mock_stirrer_new:MockStirrer_new
-    type: python
-    status_types:
-      status: String
-      vessel: String
-      purpose: String
-      stir_speed: Float64
-      target_stir_speed: Float64
-      stir_state: String
-      stir_time: Float64
-      settling_time: Float64
-      progress: Float64
-      max_stir_speed: Float64
-    action_value_mappings:
-      start_stir:
-        type: StartStir
-        goal:
-          vessel: vessel
-          stir_speed: stir_speed
-          purpose: purpose
-        feedback:
-          progress: progress
-          current_speed: stir_speed
-          current_status: status
-        result:
-          success: success
-          message: message
-      stir:
-        type: Stir
-        goal:
-          stir_time: stir_time
-          stir_speed: stir_speed
-          settling_time: settling_time
+      shake:
         feedback:
           status: status
+        goal:
+          float_in: shake_time
+        goal_default:
+          float_in: 0.0
+        handles: []
         result:
           success: success
+        schema:
+          description: ROS Action FloatSingleInput 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: FloatSingleInput_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                float_in:
+                  type: number
+              required:
+              - float_in
+              title: FloatSingleInput_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: FloatSingleInput_Result
+              type: object
+          required:
+          - goal
+          title: FloatSingleInput
+          type: object
+        type: FloatSingleInput
+      stop_operations:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result:
+          success: success
+        schema:
+          description: ROS Action EmptyIn 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: EmptyIn_Result
+              type: object
+          required:
+          - goal
+          title: EmptyIn
+          type: object
+        type: EmptyIn
+    module: unilabos.devices.mock.mock_separator:MockSeparator
+    status_types:
+      current_device: str
+      from_vessel: str
+      product_phase: str
+      purpose: str
+      repeats: int
+      separation_vessel: str
+      settling_time: float
+      shake_status: str
+      shake_time: float
+      solvent: str
+      solvent_volume: float
+      status: str
+      stir_speed: float
+      stir_time: float
+      through: str
+      time_remaining: float
+      time_spent: float
+      to_vessel: str
+      valve_state: str
+      waste_phase_to_vessel: str
+    type: python
+  description: Simplified Mock Separator Device
+  handles: []
+  icon: ''
+  init_param_schema:
+    description: UniLabJsonCommand __init__ 的参数schema
+    properties:
+      feedback: {}
+      goal:
+        description: UniLabJsonCommand __init__ 的参数schema
+        properties:
+          port:
+            default: MOCK
+            description: '参数: port'
+            type: string
+        required: []
+        type: object
+      result: {}
+    required:
+    - goal
+    title: __init__ 命令参数
+    type: object
+mock_solenoid_valve:
+  class:
+    action_value_mappings:
+      auto-close_valve:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand close_valve 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand close_valve 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: close_valve 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-get_valve_status:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand get_valve_status 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand get_valve_status 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: get_valve_status 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-is_closed:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand is_closed 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand is_closed 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: is_closed 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-is_open:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand is_open 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand is_open 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: is_open 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-open_valve:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand open_valve 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand open_valve 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: open_valve 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_valve_status:
+        feedback: {}
+        goal: {}
+        goal_default:
+          status: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_valve_status 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_valve_status 的参数schema
+              properties:
+                status:
+                  description: '参数: status'
+                  type: string
+              required:
+              - status
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_valve_status 命令参数
+          type: object
+        type: UniLabJsonCommand
+      close_valve:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result:
+          success: success
+        schema:
+          description: ROS Action EmptyIn 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: EmptyIn_Result
+              type: object
+          required:
+          - goal
+          title: EmptyIn
+          type: object
+        type: EmptyIn
+      open_valve:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result:
+          success: success
+        schema:
+          description: ROS Action EmptyIn 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: EmptyIn_Result
+              type: object
+          required:
+          - goal
+          title: EmptyIn
+          type: object
+        type: EmptyIn
+      set_valve_status:
+        feedback: {}
+        goal:
+          string: status
+        goal_default:
+          string: ''
+        handles: []
+        result:
+          success: success
+        schema:
+          description: ROS Action StrSingleInput 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: StrSingleInput_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                string:
+                  type: string
+              required:
+              - string
+              title: StrSingleInput_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: StrSingleInput_Result
+              type: object
+          required:
+          - goal
+          title: StrSingleInput
+          type: object
+        type: StrSingleInput
+    module: unilabos.devices.mock.mock_solenoid_valve:MockSolenoidValve
+    status_types:
+      status: str
+      valve_status: str
+    type: python
+  description: Mock Solenoid Valve Device
+  handles: []
+  icon: ''
+  init_param_schema:
+    description: UniLabJsonCommand __init__ 的参数schema
+    properties:
+      feedback: {}
+      goal:
+        description: UniLabJsonCommand __init__ 的参数schema
+        properties:
+          port:
+            default: MOCK
+            description: '参数: port'
+            type: string
+        required: []
+        type: object
+      result: {}
+    required:
+    - goal
+    title: __init__ 命令参数
+    type: object
+mock_stirrer:
+  class:
+    action_value_mappings:
+      auto-emergency_stop:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand emergency_stop 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand emergency_stop 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: emergency_stop 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-get_status_info:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand get_status_info 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand get_status_info 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: get_status_info 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-heating_control:
+        feedback: {}
+        goal: {}
+        goal_default:
+          heating_state: 'On'
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand heating_control 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand heating_control 的参数schema
+              properties:
+                heating_state:
+                  default: 'On'
+                  description: '参数: heating_state'
+                  type: string
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: heating_control 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_stir_speed:
+        feedback: {}
+        goal: {}
+        goal_default:
+          speed: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_stir_speed 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_stir_speed 的参数schema
+              properties:
+                speed:
+                  description: '参数: speed'
+                  type: number
+              required:
+              - speed
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_stir_speed 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_temperature:
+        feedback: {}
+        goal: {}
+        goal_default:
+          temperature: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_temperature 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_temperature 的参数schema
+              properties:
+                temperature:
+                  description: '参数: temperature'
+                  type: number
+              required:
+              - temperature
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_temperature 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-start_stirring:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand start_stirring 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand start_stirring 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: start_stirring 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-stop_all_operations:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand stop_all_operations 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand stop_all_operations 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: stop_all_operations 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-stop_stirring:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand stop_stirring 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand stop_stirring 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: stop_stirring 命令参数
+          type: object
+        type: UniLabJsonCommand
+      heating_control:
+        feedback: {}
+        goal:
+          string: heating_state
+        goal_default:
+          string: ''
+        handles: []
+        result:
+          success: success
+        schema:
+          description: ROS Action StrSingleInput 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: StrSingleInput_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                string:
+                  type: string
+              required:
+              - string
+              title: StrSingleInput_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: StrSingleInput_Result
+              type: object
+          required:
+          - goal
+          title: StrSingleInput
+          type: object
+        type: StrSingleInput
+      set_stir_speed:
+        feedback: {}
+        goal:
+          float_in: speed
+        goal_default:
+          float_in: 0.0
+        handles: []
+        result:
+          success: success
+        schema:
+          description: ROS Action FloatSingleInput 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: FloatSingleInput_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                float_in:
+                  type: number
+              required:
+              - float_in
+              title: FloatSingleInput_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: FloatSingleInput_Result
+              type: object
+          required:
+          - goal
+          title: FloatSingleInput
+          type: object
+        type: FloatSingleInput
+      set_temperature:
+        feedback: {}
+        goal:
+          float_in: temperature
+        goal_default:
+          float_in: 0.0
+        handles: []
+        result:
+          success: success
+        schema:
+          description: ROS Action FloatSingleInput 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: FloatSingleInput_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                float_in:
+                  type: number
+              required:
+              - float_in
+              title: FloatSingleInput_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: FloatSingleInput_Result
+              type: object
+          required:
+          - goal
+          title: FloatSingleInput
+          type: object
+        type: FloatSingleInput
+      start_stirring:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result:
+          success: success
+        schema:
+          description: ROS Action EmptyIn 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: EmptyIn_Result
+              type: object
+          required:
+          - goal
+          title: EmptyIn
+          type: object
+        type: EmptyIn
+      stop_stirring:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result:
+          success: success
+        schema:
+          description: ROS Action EmptyIn 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: EmptyIn_Result
+              type: object
+          required:
+          - goal
+          title: EmptyIn
+          type: object
+        type: EmptyIn
+    module: unilabos.devices.mock.mock_stirrer:MockStirrer
+    status_types:
+      heating_power: float
+      heating_state: str
+      max_stir_speed: float
+      max_temperature: float
+      status: str
+      stir_speed: float
+      stir_state: str
+      target_stir_speed: float
+      target_temperature: float
+      temperature: float
+    type: python
+  description: Mock Stirrer Device
+  handles: []
+  icon: ''
+  init_param_schema:
+    description: UniLabJsonCommand __init__ 的参数schema
+    properties:
+      feedback: {}
+      goal:
+        description: UniLabJsonCommand __init__ 的参数schema
+        properties:
+          port:
+            default: MOCK
+            description: '参数: port'
+            type: string
+        required: []
+        type: object
+      result: {}
+    required:
+    - goal
+    title: __init__ 命令参数
+    type: object
+mock_stirrer_new:
+  class:
+    action_value_mappings:
+      auto-get_status_info:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand get_status_info 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand get_status_info 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: get_status_info 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-start_stir:
+        feedback: {}
+        goal: {}
+        goal_default:
+          purpose: ''
+          stir_speed: 0.0
+          vessel: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand start_stir 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand start_stir 的参数schema
+              properties:
+                purpose:
+                  default: ''
+                  description: '参数: purpose'
+                  type: string
+                stir_speed:
+                  default: 0.0
+                  description: '参数: stir_speed'
+                  type: number
+                vessel:
+                  description: '参数: vessel'
+                  type: string
+              required:
+              - vessel
+              type: object
+            result: {}
+          required:
+          - goal
+          title: start_stir 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-stir:
+        feedback: {}
+        goal: {}
+        goal_default:
+          settling_time: null
+          stir_speed: null
+          stir_time: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand stir 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand stir 的参数schema
+              properties:
+                settling_time:
+                  description: '参数: settling_time'
+                  type: number
+                stir_speed:
+                  description: '参数: stir_speed'
+                  type: number
+                stir_time:
+                  description: '参数: stir_time'
+                  type: number
+              required:
+              - stir_time
+              - stir_speed
+              - settling_time
+              type: object
+            result: {}
+          required:
+          - goal
+          title: stir 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-stop_stir:
+        feedback: {}
+        goal: {}
+        goal_default:
+          vessel: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand stop_stir 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand stop_stir 的参数schema
+              properties:
+                vessel:
+                  description: '参数: vessel'
+                  type: string
+              required:
+              - vessel
+              type: object
+            result: {}
+          required:
+          - goal
+          title: stop_stir 命令参数
+          type: object
+        type: UniLabJsonCommand
+      start_stir:
+        feedback:
+          current_speed: stir_speed
+          current_status: status
+          progress: progress
+        goal:
+          purpose: purpose
+          stir_speed: stir_speed
+          vessel: vessel
+        goal_default:
+          purpose: ''
+          stir_speed: 0.0
+          vessel: ''
+        handles: []
+        result:
+          message: message
+          success: success
+        schema:
+          description: ROS Action StartStir 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties:
+                current_speed:
+                  type: number
+                current_status:
+                  type: string
+                progress:
+                  type: number
+              required:
+              - progress
+              - current_speed
+              - current_status
+              title: StartStir_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                purpose:
+                  type: string
+                stir_speed:
+                  type: number
+                vessel:
+                  type: string
+              required:
+              - vessel
+              - stir_speed
+              - purpose
+              title: StartStir_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                message:
+                  type: string
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - success
+              - message
+              - return_info
+              title: StartStir_Result
+              type: object
+          required:
+          - goal
+          title: StartStir
+          type: object
+        type: StartStir
+      stir:
+        feedback:
+          status: status
+        goal:
+          settling_time: settling_time
+          stir_speed: stir_speed
+          stir_time: stir_time
+        goal_default:
+          settling_time: 0.0
+          stir_speed: 0.0
+          stir_time: 0.0
+        handles: []
+        result:
+          success: success
+        schema:
+          description: ROS Action Stir 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties:
+                status:
+                  type: string
+              required:
+              - status
+              title: Stir_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                settling_time:
+                  type: number
+                stir_speed:
+                  type: number
+                stir_time:
+                  type: number
+              required:
+              - stir_time
+              - stir_speed
+              - settling_time
+              title: Stir_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: Stir_Result
+              type: object
+          required:
+          - goal
+          title: Stir
+          type: object
+        type: Stir
       stop_stir:
-        type: StopStir
+        feedback:
+          current_status: status
+          progress: progress
         goal:
           vessel: vessel
-        feedback:
-          progress: progress
-          current_status: status
+        goal_default:
+          vessel: ''
+        handles: []
+        result:
+          message: message
+          success: success
+        schema:
+          description: ROS Action StopStir 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties:
+                current_status:
+                  type: string
+                progress:
+                  type: number
+              required:
+              - progress
+              - current_status
+              title: StopStir_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                vessel:
+                  type: string
+              required:
+              - vessel
+              title: StopStir_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                message:
+                  type: string
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - success
+              - message
+              - return_info
+              title: StopStir_Result
+              type: object
+          required:
+          - goal
+          title: StopStir
+          type: object
+        type: StopStir
+    module: unilabos.devices.mock.mock_stirrer_new:MockStirrer_new
+    status_types:
+      max_stir_speed: float
+      progress: float
+      purpose: str
+      settling_time: float
+      status: str
+      stir_speed: float
+      stir_state: str
+      stir_time: float
+      target_stir_speed: float
+      vessel: str
+    type: python
+  description: Mock Stirrer Device (Copy Version)
+  handles: []
+  icon: ''
+  init_param_schema:
+    description: UniLabJsonCommand __init__ 的参数schema
+    properties:
+      feedback: {}
+      goal:
+        description: UniLabJsonCommand __init__ 的参数schema
+        properties:
+          port:
+            default: MOCK
+            description: '参数: port'
+            type: string
+        required: []
+        type: object
+      result: {}
+    required:
+    - goal
+    title: __init__ 命令参数
+    type: object
+mock_vacuum:
+  class:
+    action_value_mappings:
+      auto-emergency_stop:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand emergency_stop 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand emergency_stop 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: emergency_stop 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-get_status_info:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand get_status_info 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand get_status_info 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: get_status_info 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-pause_vacuum:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand pause_vacuum 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand pause_vacuum 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: pause_vacuum 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-power_control:
+        feedback: {}
+        goal: {}
+        goal_default:
+          power_state: 'On'
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand power_control 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand power_control 的参数schema
+              properties:
+                power_state:
+                  default: 'On'
+                  description: '参数: power_state'
+                  type: string
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: power_control 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-resume_vacuum:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand resume_vacuum 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand resume_vacuum 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: resume_vacuum 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_vacuum_level:
+        feedback: {}
+        goal: {}
+        goal_default:
+          vacuum_level: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_vacuum_level 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_vacuum_level 的参数schema
+              properties:
+                vacuum_level:
+                  description: '参数: vacuum_level'
+                  type: number
+              required:
+              - vacuum_level
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_vacuum_level 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-start_vacuum:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand start_vacuum 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand start_vacuum 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: start_vacuum 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-stop_vacuum:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand stop_vacuum 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand stop_vacuum 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: stop_vacuum 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-vent_to_atmosphere:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand vent_to_atmosphere 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand vent_to_atmosphere 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: vent_to_atmosphere 命令参数
+          type: object
+        type: UniLabJsonCommand
+      pause_vacuum:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
         result:
           success: success
-          message: message
-  schema:
-    type: object
-    properties:
-      status:
-        type: string
-      vessel:
-        type: string
-      purpose:
-        type: string
-      stir_speed:
-        type: number
-      target_stir_speed:
-        type: number
-      stir_state:
-        type: string
-      stir_time:
-        type: number
-      settling_time:
-        type: number
-      progress:
-        type: number
-      max_stir_speed:
-        type: number
-    required:
-    - status
-    - stir_speed
-    - stir_state
-    - vessel
-    additionalProperties: false
-mock_vacuum:
-  description: Mock Vacuum Pump Device
-  class:
-    module: unilabos.devices.mock.mock_vacuum:MockVacuum
-    type: python
-    status_types:
-      status: String
-      power_state: String
-      pump_state: String
-      vacuum_level: Float64
-      target_vacuum: Float64
-      pump_speed: Float64
-      pump_efficiency: Float64
-      max_pump_speed: Float64
-    action_value_mappings:
+        schema:
+          description: ROS Action EmptyIn 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: EmptyIn_Result
+              type: object
+          required:
+          - goal
+          title: EmptyIn
+          type: object
+        type: EmptyIn
       power_control:
-        type: StrSingleInput
+        feedback: {}
         goal:
           string: power_state
-        feedback: {}
+        goal_default:
+          string: ''
+        handles: []
         result:
           success: success
+        schema:
+          description: ROS Action StrSingleInput 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: StrSingleInput_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                string:
+                  type: string
+              required:
+              - string
+              title: StrSingleInput_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: StrSingleInput_Result
+              type: object
+          required:
+          - goal
+          title: StrSingleInput
+          type: object
+        type: StrSingleInput
+      resume_vacuum:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result:
+          success: success
+        schema:
+          description: ROS Action EmptyIn 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: EmptyIn_Result
+              type: object
+          required:
+          - goal
+          title: EmptyIn
+          type: object
+        type: EmptyIn
       set_vacuum_level:
-        type: FloatSingleInput
+        feedback: {}
         goal:
           float_in: vacuum_level
-        feedback: {}
+        goal_default:
+          float_in: 0.0
+        handles: []
         result:
           success: success
+        schema:
+          description: ROS Action FloatSingleInput 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: FloatSingleInput_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                float_in:
+                  type: number
+              required:
+              - float_in
+              title: FloatSingleInput_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: FloatSingleInput_Result
+              type: object
+          required:
+          - goal
+          title: FloatSingleInput
+          type: object
+        type: FloatSingleInput
       start_vacuum:
-        type: EmptyIn
-        goal: {}
         feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
         result:
           success: success
+        schema:
+          description: ROS Action EmptyIn 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: EmptyIn_Result
+              type: object
+          required:
+          - goal
+          title: EmptyIn
+          type: object
+        type: EmptyIn
       stop_vacuum:
-        type: EmptyIn
-        goal: {}
         feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
         result:
           success: success
-      pause_vacuum:
+        schema:
+          description: ROS Action EmptyIn 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: EmptyIn_Result
+              type: object
+          required:
+          - goal
+          title: EmptyIn
+          type: object
         type: EmptyIn
-        goal: {}
-        feedback: {}
-        result:
-          success: success
-      resume_vacuum:
-        type: EmptyIn
-        goal: {}
-        feedback: {}
-        result:
-          success: success
       vent_to_atmosphere:
-        type: EmptyIn
-        goal: {}
         feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
         result:
           success: success
-  schema:
-    type: object
+        schema:
+          description: ROS Action EmptyIn 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: EmptyIn_Result
+              type: object
+          required:
+          - goal
+          title: EmptyIn
+          type: object
+        type: EmptyIn
+    module: unilabos.devices.mock.mock_vacuum:MockVacuum
+    status_types:
+      max_pump_speed: float
+      power_state: str
+      pump_efficiency: float
+      pump_speed: float
+      pump_state: str
+      status: str
+      target_vacuum: float
+      vacuum_level: float
+    type: python
+  description: Mock Vacuum Pump Device
+  handles: []
+  icon: ''
+  init_param_schema:
+    description: UniLabJsonCommand __init__ 的参数schema
     properties:
-      status:
-        type: string
-        description: Current status of the vacuum pump
-      power_state:
-        type: string
-        description: Power state (On/Off)
-      pump_state:
-        type: string
-        description: Pump operation state (Running/Stopped/Paused)
-      vacuum_level:
-        type: number
-        description: Current vacuum level in mbar
-      target_vacuum:
-        type: number
-        description: Target vacuum level in mbar
-      pump_speed:
-        type: number
-        description: Current pump speed in L/s
-      pump_efficiency:
-        type: number
-        description: Pump efficiency percentage
-      max_pump_speed:
-        type: number
-        description: Maximum pump speed in L/s
+      feedback: {}
+      goal:
+        description: UniLabJsonCommand __init__ 的参数schema
+        properties:
+          port:
+            default: MOCK
+            description: '参数: port'
+            type: string
+        required: []
+        type: object
+      result: {}
     required:
-    - status
-    - power_state
-    - pump_state
-    - vacuum_level
-    additionalProperties: false
+    - goal
+    title: __init__ 命令参数
+    type: object

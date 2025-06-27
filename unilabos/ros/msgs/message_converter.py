@@ -727,7 +727,6 @@ def ros_action_to_json_schema(action_class: Any) -> Dict[str, Any]:
     
     # 创建基础 schema
     schema = {
-        '$schema': 'http://json-schema.org/draft-07/schema#',
         'title': action_class.__name__,
         'description': f"ROS Action {action_class.__name__} 的 JSON Schema",
         'type': 'object',

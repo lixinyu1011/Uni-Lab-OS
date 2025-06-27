@@ -1,37 +1,174 @@
-gripper.mock:
-  description: Mock gripper
-  class:
-    module: unilabos.devices.gripper.mock:MockGripper
-    type: python
-    status_types:
-      position: Float64
-      torque: Float64
-      status: String
-    action_value_mappings:
-      push_to:
-        type: GripperCommand
-        goal:
-          command.position: position
-          command.max_effort: torque
-        feedback:
-          position: position
-          effort: torque
-        result:
-          position: position
-          effort: torque
-
 gripper.misumi_rz:
-  description: Misumi RZ gripper
   class:
-    module: unilabos.devices.motor:Grasp.EleGripper
-    type: python
-    status_types:
-      status: String
     action_value_mappings:
       execute_command_from_outer:
-        type: SendCmd
+        feedback: {}
         goal:
           command: command
-        feedback: {}
+        goal_default:
+          command: ''
+        handles: []
         result:
           success: success
+        schema:
+          description: ROS Action SendCmd 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties:
+                status:
+                  type: string
+              required:
+              - status
+              title: SendCmd_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                command:
+                  type: string
+              required:
+              - command
+              title: SendCmd_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: SendCmd_Result
+              type: object
+          required:
+          - goal
+          title: SendCmd
+          type: object
+        type: SendCmd
+    module: unilabos.devices.motor.Grasp:EleGripper
+    status_types:
+      status: String
+    type: python
+  description: Misumi RZ gripper
+  handles: []
+  icon: ''
+  init_param_schema:
+    description: UniLabJsonCommand __init__ 的参数schema
+    properties:
+      feedback: {}
+      goal:
+        description: UniLabJsonCommand __init__ 的参数schema
+        properties: {}
+        required: []
+        type: object
+      result: {}
+    required:
+    - goal
+    title: __init__ 命令参数
+    type: object
+gripper.mock:
+  class:
+    action_value_mappings:
+      push_to:
+        feedback:
+          effort: torque
+          position: position
+        goal:
+          command.max_effort: torque
+          command.position: position
+        goal_default:
+          command:
+            max_effort: 0.0
+            position: 0.0
+        handles: []
+        result:
+          effort: torque
+          position: position
+        schema:
+          description: ROS Action GripperCommand 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties:
+                effort:
+                  type: number
+                position:
+                  type: number
+                reached_goal:
+                  type: boolean
+                stalled:
+                  type: boolean
+              required:
+              - position
+              - effort
+              - stalled
+              - reached_goal
+              title: GripperCommand_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                command:
+                  properties:
+                    max_effort:
+                      type: number
+                    position:
+                      type: number
+                  required:
+                  - position
+                  - max_effort
+                  title: GripperCommand
+                  type: object
+              required:
+              - command
+              title: GripperCommand_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                effort:
+                  type: number
+                position:
+                  type: number
+                reached_goal:
+                  type: boolean
+                stalled:
+                  type: boolean
+              required:
+              - position
+              - effort
+              - stalled
+              - reached_goal
+              title: GripperCommand_Result
+              type: object
+          required:
+          - goal
+          title: GripperCommand
+          type: object
+        type: GripperCommand
+    module: unilabos.devices.gripper.mock:MockGripper
+    status_types:
+      position: Float64
+      status: String
+      torque: Float64
+    type: python
+  description: Mock gripper
+  handles: []
+  icon: ''
+  init_param_schema:
+    description: UniLabJsonCommand __init__ 的参数schema
+    properties:
+      feedback: {}
+      goal:
+        description: UniLabJsonCommand __init__ 的参数schema
+        properties: {}
+        required: []
+        type: object
+      result: {}
+    required:
+    - goal
+    title: __init__ 命令参数
+    type: object

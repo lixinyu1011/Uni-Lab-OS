@@ -40,6 +40,7 @@ class HTTPClient:
         Returns:
             Response: API响应对象
         """
+        return True
         response = requests.post(
             f"{self.remote_addr}/lab/resource/edge/batch_create/?database_process_later={1 if database_process_later else 0}",
             json=resources,
@@ -60,6 +61,7 @@ class HTTPClient:
         Returns:
             Response: API响应对象
         """
+        return True
         response = requests.post(
             f"{self.remote_addr}/lab/resource/?database_process_later={1 if database_process_later else 0}",
             json=resources,

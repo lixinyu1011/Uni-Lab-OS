@@ -1,56 +1,608 @@
 laiyu_add_solid:
-  description: Laiyu Add Solid
   class:
-    module: unilabos.devices.laiyu_add_solid.laiyu:Laiyu
-    type: python
-    status_types: {}
     action_value_mappings:
+      add_powder_tube:
+        feedback: {}
+        goal:
+          compound_mass: compound_mass
+          powder_tube_number: powder_tube_number
+          target_tube_position: target_tube_position
+        goal_default:
+          compound_mass: 0.0
+          powder_tube_number: 0
+          target_tube_position: ''
+        handles: []
+        result:
+          actual_mass_mg: actual_mass_mg
+        schema:
+          description: ROS Action SolidDispenseAddPowderTube 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: SolidDispenseAddPowderTube_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                compound_mass:
+                  type: number
+                powder_tube_number:
+                  maximum: 2147483647
+                  minimum: -2147483648
+                  type: integer
+                target_tube_position:
+                  type: string
+              required:
+              - powder_tube_number
+              - target_tube_position
+              - compound_mass
+              title: SolidDispenseAddPowderTube_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                actual_mass_mg:
+                  type: number
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - actual_mass_mg
+              - success
+              title: SolidDispenseAddPowderTube_Result
+              type: object
+          required:
+          - goal
+          title: SolidDispenseAddPowderTube
+          type: object
+        type: SolidDispenseAddPowderTube
+      auto-add_powder_tube:
+        feedback: {}
+        goal: {}
+        goal_default:
+          compound_mass: null
+          powder_tube_number: null
+          target_tube_position: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand add_powder_tube 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand add_powder_tube 的参数schema
+              properties:
+                compound_mass:
+                  description: '参数: compound_mass'
+                  type: string
+                powder_tube_number:
+                  description: '参数: powder_tube_number'
+                  type: string
+                target_tube_position:
+                  description: '参数: target_tube_position'
+                  type: string
+              required:
+              - powder_tube_number
+              - target_tube_position
+              - compound_mass
+              type: object
+            result: {}
+          required:
+          - goal
+          title: add_powder_tube 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-calculate_crc:
+        feedback: {}
+        goal: {}
+        goal_default:
+          data: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand calculate_crc 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand calculate_crc 的参数schema
+              properties:
+                data:
+                  description: '参数: data'
+                  type: string
+              required:
+              - data
+              type: object
+            result: {}
+          required:
+          - goal
+          title: calculate_crc 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-discharge:
+        feedback: {}
+        goal: {}
+        goal_default:
+          float_in: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand discharge 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand discharge 的参数schema
+              properties:
+                float_in:
+                  description: '参数: float_in'
+                  type: number
+              required:
+              - float_in
+              type: object
+            result: {}
+          required:
+          - goal
+          title: discharge 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-move_to_plate:
+        feedback: {}
+        goal: {}
+        goal_default:
+          string: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand move_to_plate 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand move_to_plate 的参数schema
+              properties:
+                string:
+                  description: '参数: string'
+                  type: string
+              required:
+              - string
+              type: object
+            result: {}
+          required:
+          - goal
+          title: move_to_plate 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-move_to_xyz:
+        feedback: {}
+        goal: {}
+        goal_default:
+          x: null
+          y: null
+          z: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand move_to_xyz 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand move_to_xyz 的参数schema
+              properties:
+                x:
+                  description: '参数: x'
+                  type: number
+                y:
+                  description: '参数: y'
+                  type: number
+                z:
+                  description: '参数: z'
+                  type: number
+              required:
+              - x
+              - y
+              - z
+              type: object
+            result: {}
+          required:
+          - goal
+          title: move_to_xyz 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-pick_powder_tube:
+        feedback: {}
+        goal: {}
+        goal_default:
+          int_input: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand pick_powder_tube 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand pick_powder_tube 的参数schema
+              properties:
+                int_input:
+                  description: '参数: int_input'
+                  type: integer
+              required:
+              - int_input
+              type: object
+            result: {}
+          required:
+          - goal
+          title: pick_powder_tube 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-put_powder_tube:
+        feedback: {}
+        goal: {}
+        goal_default:
+          int_input: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand put_powder_tube 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand put_powder_tube 的参数schema
+              properties:
+                int_input:
+                  description: '参数: int_input'
+                  type: integer
+              required:
+              - int_input
+              type: object
+            result: {}
+          required:
+          - goal
+          title: put_powder_tube 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-reset:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand reset 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand reset 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: reset 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-send_command:
+        feedback: {}
+        goal: {}
+        goal_default:
+          command: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand send_command 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand send_command 的参数schema
+              properties:
+                command:
+                  description: '参数: command'
+                  type: string
+              required:
+              - command
+              type: object
+            result: {}
+          required:
+          - goal
+          title: send_command 命令参数
+          type: object
+        type: UniLabJsonCommand
+      discharge:
+        feedback: {}
+        goal:
+          float_input: float_input
+        goal_default:
+          float_in: 0.0
+        handles: []
+        result: {}
+        schema:
+          description: ROS Action FloatSingleInput 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: FloatSingleInput_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                float_in:
+                  type: number
+              required:
+              - float_in
+              title: FloatSingleInput_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: FloatSingleInput_Result
+              type: object
+          required:
+          - goal
+          title: FloatSingleInput
+          type: object
+        type: FloatSingleInput
+      move_to_plate:
+        feedback: {}
+        goal:
+          string: string
+        goal_default:
+          string: ''
+        handles: []
+        result: {}
+        schema:
+          description: ROS Action StrSingleInput 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: StrSingleInput_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                string:
+                  type: string
+              required:
+              - string
+              title: StrSingleInput_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: StrSingleInput_Result
+              type: object
+          required:
+          - goal
+          title: StrSingleInput
+          type: object
+        type: StrSingleInput
       move_to_xyz:
-        type: Point3DSeparateInput
+        feedback: {}
         goal:
           x: x
           y: y
           z: z
-        feedback: {}
+        goal_default:
+          x: 0.0
+          y: 0.0
+          z: 0.0
+        handles: []
         result: {}
+        schema:
+          description: ROS Action Point3DSeparateInput 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: Point3DSeparateInput_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                x:
+                  type: number
+                y:
+                  type: number
+                z:
+                  type: number
+              required:
+              - x
+              - y
+              - z
+              title: Point3DSeparateInput_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: Point3DSeparateInput_Result
+              type: object
+          required:
+          - goal
+          title: Point3DSeparateInput
+          type: object
+        type: Point3DSeparateInput
       pick_powder_tube:
-        type: IntSingleInput
+        feedback: {}
         goal:
           int_input: int_input
-        feedback: {}
+        goal_default:
+          int_input: 0
+        handles: []
         result: {}
+        schema:
+          description: ROS Action IntSingleInput 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: IntSingleInput_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                int_input:
+                  maximum: 2147483647
+                  minimum: -2147483648
+                  type: integer
+              required:
+              - int_input
+              title: IntSingleInput_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: IntSingleInput_Result
+              type: object
+          required:
+          - goal
+          title: IntSingleInput
+          type: object
+        type: IntSingleInput
       put_powder_tube:
-        type: IntSingleInput
+        feedback: {}
         goal:
           int_input: int_input
-        feedback: {}
+        goal_default:
+          int_input: 0
+        handles: []
         result: {}
+        schema:
+          description: ROS Action IntSingleInput 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: IntSingleInput_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                int_input:
+                  maximum: 2147483647
+                  minimum: -2147483648
+                  type: integer
+              required:
+              - int_input
+              title: IntSingleInput_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: IntSingleInput_Result
+              type: object
+          required:
+          - goal
+          title: IntSingleInput
+          type: object
+        type: IntSingleInput
       reset:
-        type: EmptyIn
+        feedback: {}
         goal: {}
-        feedback: {}
+        goal_default: {}
+        handles: []
         result: {}
-      add_powder_tube:
-        type: SolidDispenseAddPowderTube
-        goal:
-          powder_tube_number: powder_tube_number
-          target_tube_position: target_tube_position
-          compound_mass: compound_mass
-        feedback: {}
-        result: 
-          actual_mass_mg: actual_mass_mg
-      move_to_plate:
-        type: StrSingleInput
-        goal:
-          string: string
-        feedback: {}
-        result: {}
-      discharge:
-        type: FloatSingleInput
-        goal:
-          float_input: float_input
-        feedback: {}
-        result: {}
-        
-  schema:
-    properties: {}
+        schema:
+          description: ROS Action EmptyIn 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: EmptyIn_Result
+              type: object
+          required:
+          - goal
+          title: EmptyIn
+          type: object
+        type: EmptyIn
+    module: unilabos.devices.laiyu_add_solid.laiyu:Laiyu
+    status_types:
+      status: str
+    type: python
+  description: Laiyu Add Solid
+  handles: []
+  icon: ''
+  init_param_schema:
+    description: UniLabJsonCommand __init__ 的参数schema
+    properties:
+      feedback: {}
+      goal:
+        description: UniLabJsonCommand __init__ 的参数schema
+        properties:
+          baudrate:
+            default: 115200
+            description: '参数: baudrate'
+            type: integer
+          port:
+            description: '参数: port'
+            type: string
+          timeout:
+            default: 0.5
+            description: '参数: timeout'
+            type: number
+        required:
+        - port
+        type: object
+      result: {}
+    required:
+    - goal
+    title: __init__ 命令参数
+    type: object

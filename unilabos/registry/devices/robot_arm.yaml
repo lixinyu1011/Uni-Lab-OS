@@ -1,37 +1,202 @@
 robotic_arm.UR:
-  description: UR robotic arm
   class:
-    module: unilabos.devices.agv.ur_arm_task:UrArmTask
-    type: python
-    status_types:
-      arm_pose: Float64MultiArray
-      gripper_pose: Float64
-      arm_status: String
-      gripper_status: String
     action_value_mappings:
+      auto-arm_init:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand arm_init 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand arm_init 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: arm_init 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-load_pose_data:
+        feedback: {}
+        goal: {}
+        goal_default:
+          data: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand load_pose_data 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand load_pose_data 的参数schema
+              properties:
+                data:
+                  description: '参数: data'
+                  type: string
+              required:
+              - data
+              type: object
+            result: {}
+          required:
+          - goal
+          title: load_pose_data 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-load_pose_file:
+        feedback: {}
+        goal: {}
+        goal_default:
+          file: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand load_pose_file 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand load_pose_file 的参数schema
+              properties:
+                file:
+                  description: '参数: file'
+                  type: string
+              required:
+              - file
+              type: object
+            result: {}
+          required:
+          - goal
+          title: load_pose_file 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-move_pos_task:
+        feedback: {}
+        goal: {}
+        goal_default:
+          command: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand move_pos_task 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand move_pos_task 的参数schema
+              properties:
+                command:
+                  description: '参数: command'
+                  type: string
+              required:
+              - command
+              type: object
+            result: {}
+          required:
+          - goal
+          title: move_pos_task 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-reload_pose:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand reload_pose 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand reload_pose 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: reload_pose 命令参数
+          type: object
+        type: UniLabJsonCommand
       move_pos_task:
-        type: SendCmd
+        feedback: {}
         goal:
           command: command
-        feedback: {}
+        goal_default:
+          command: ''
+        handles: []
         result:
           success: success
-  schema:
+        schema:
+          description: ROS Action SendCmd 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties:
+                status:
+                  type: string
+              required:
+              - status
+              title: SendCmd_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                command:
+                  type: string
+              required:
+              - command
+              title: SendCmd_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: SendCmd_Result
+              type: object
+          required:
+          - goal
+          title: SendCmd
+          type: object
+        type: SendCmd
+    module: unilabos.devices.agv.ur_arm_task:UrArmTask
+    status_types:
+      arm_pose: list
+      arm_status: str
+      gripper_pose: float
+      gripper_status: str
+    type: python
+  description: UR robotic arm
+  handles: []
+  icon: ''
+  init_param_schema:
+    description: UniLabJsonCommand __init__ 的参数schema
     properties:
-      arm_pose:
-        type: array
-        items:
-          type: number
-      gripper_pose:
-        type: number
-      arm_status:
-        type: string
-        description: 机械臂设备状态
-      gripper_status:
-        type: string
-        description: 机械爪设备状态
+      feedback: {}
+      goal:
+        description: UniLabJsonCommand __init__ 的参数schema
+        properties:
+          host:
+            description: '参数: host'
+            type: string
+          retry:
+            default: 30
+            description: '参数: retry'
+            type: integer
+        required:
+        - host
+        type: object
+      result: {}
     required:
-      - arm_status
-      - gripper_status
-    additionalProperties: false
+    - goal
+    title: __init__ 命令参数
     type: object
