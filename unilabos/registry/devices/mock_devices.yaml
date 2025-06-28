@@ -22,27 +22,6 @@ mock_chiller:
           title: emergency_stop 命令参数
           type: object
         type: UniLabJsonCommand
-      auto-get_status_info:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_status_info 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_status_info 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_status_info 命令参数
-          type: object
-        type: UniLabJsonCommand
       auto-heat_chill_start:
         feedback: {}
         goal: {}
@@ -250,11 +229,11 @@ mock_chiller:
     module: unilabos.devices.mock.mock_chiller:MockChiller
     status_types:
       current_temperature: float
-      get_status_info: dict
       is_cooling: bool
       is_heating: bool
       purpose: str
       status: str
+      status_info: dict
       target_temperature: float
       vessel: str
     type: python
@@ -357,27 +336,6 @@ mock_filter:
           required:
           - goal
           title: filter 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-get_status_info:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_status_info 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_status_info 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_status_info 命令参数
           type: object
         type: UniLabJsonCommand
       auto-replace_filter:
@@ -595,11 +553,11 @@ mock_filter:
       filtered_volume: float
       filtrate_vessel: str
       flow_rate: float
-      get_status_info: dict
       is_filtering: bool
       pressure_drop: float
       progress: float
       status: str
+      status_info: dict
       stir: bool
       stir_speed: float
       target_volume: float
@@ -649,27 +607,6 @@ mock_heater:
           required:
           - goal
           title: emergency_stop 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-get_status_info:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_status_info 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_status_info 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_status_info 命令参数
           type: object
         type: UniLabJsonCommand
       auto-heat_chill:
@@ -1055,12 +992,12 @@ mock_heater:
     module: unilabos.devices.mock.mock_heater:MockHeater
     status_types:
       current_temperature: float
-      get_status_info: dict
       heating_power: float
       is_heating: bool
       max_temperature: float
       purpose: str
       status: str
+      status_info: dict
       stir: bool
       stir_speed: float
       target_temperature: float
@@ -1109,27 +1046,6 @@ mock_pump:
           required:
           - goal
           title: emergency_stop 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-get_status_info:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_status_info 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_status_info 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_status_info 命令参数
           type: object
         type: UniLabJsonCommand
       auto-pause_pump:
@@ -1513,7 +1429,6 @@ mock_pump:
       current_device: str
       flow_rate: float
       from_vessel: str
-      get_status_info: dict
       is_solid: bool
       is_viscous: bool
       max_flow_rate: float
@@ -1524,6 +1439,7 @@ mock_pump:
       rinsing_solvent: str
       rinsing_volume: float
       status: str
+      status_info: dict
       target_flow_rate: float
       time_remaining: float
       time_spent: float
@@ -1575,27 +1491,6 @@ mock_rotavap:
           required:
           - goal
           title: emergency_stop 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-get_status_info:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_status_info 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_status_info 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_status_info 命令参数
           type: object
         type: UniLabJsonCommand
       auto-set_pump_time:
@@ -2085,14 +1980,13 @@ mock_rotavap:
         type: EmptyIn
     module: unilabos.devices.mock.mock_rotavap:MockRotavap
     status_types:
-      get_status_info: dict
       pump_state: str
       pump_time: float
       rotate_speed: float
       rotate_state: str
       rotate_time: float
       status: str
-      success: String
+      status_info: dict
       target_temperature: float
       temperature: float
       vacuum_level: float
@@ -2121,27 +2015,6 @@ mock_rotavap:
 mock_separator:
   class:
     action_value_mappings:
-      auto-get_status_info:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_status_info 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_status_info 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_status_info 命令参数
-          type: object
-        type: UniLabJsonCommand
       auto-separate:
         feedback: {}
         goal: {}
@@ -2578,7 +2451,6 @@ mock_separator:
     status_types:
       current_device: str
       from_vessel: str
-      get_status_info: dict
       product_phase: str
       purpose: str
       repeats: int
@@ -2589,6 +2461,7 @@ mock_separator:
       solvent: str
       solvent_volume: float
       status: str
+      status_info: dict
       stir_speed: float
       stir_time: float
       through: str
@@ -2641,27 +2514,6 @@ mock_solenoid_valve:
           required:
           - goal
           title: close_valve 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-get_valve_status:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_valve_status 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_valve_status 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_valve_status 命令参数
           type: object
         type: UniLabJsonCommand
       auto-is_closed:
@@ -2871,7 +2723,6 @@ mock_solenoid_valve:
         type: StrSingleInput
     module: unilabos.devices.mock.mock_solenoid_valve:MockSolenoidValve
     status_types:
-      get_valve_status: str
       status: str
       valve_status: str
     type: python
@@ -2918,27 +2769,6 @@ mock_stirrer:
           required:
           - goal
           title: emergency_stop 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-get_status_info:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_status_info 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_status_info 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_status_info 命令参数
           type: object
         type: UniLabJsonCommand
       auto-heating_control:
@@ -3288,12 +3118,12 @@ mock_stirrer:
         type: EmptyIn
     module: unilabos.devices.mock.mock_stirrer:MockStirrer
     status_types:
-      get_status_info: dict
       heating_power: float
       heating_state: str
       max_stir_speed: float
       max_temperature: float
       status: str
+      status_info: dict
       stir_speed: float
       stir_state: str
       target_stir_speed: float
@@ -3324,27 +3154,6 @@ mock_stirrer:
 mock_stirrer_new:
   class:
     action_value_mappings:
-      auto-get_status_info:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_status_info 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_status_info 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_status_info 命令参数
-          type: object
-        type: UniLabJsonCommand
       auto-start_stir:
         feedback: {}
         goal: {}
@@ -3629,12 +3438,12 @@ mock_stirrer_new:
         type: StopStir
     module: unilabos.devices.mock.mock_stirrer_new:MockStirrer_new
     status_types:
-      get_status_info: dict
       max_stir_speed: float
       progress: float
       purpose: str
       settling_time: float
       status: str
+      status_info: dict
       stir_speed: float
       stir_state: str
       stir_time: float
@@ -3684,27 +3493,6 @@ mock_vacuum:
           required:
           - goal
           title: emergency_stop 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-get_status_info:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_status_info 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_status_info 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_status_info 命令参数
           type: object
         type: UniLabJsonCommand
       auto-pause_vacuum:
@@ -4134,13 +3922,13 @@ mock_vacuum:
         type: EmptyIn
     module: unilabos.devices.mock.mock_vacuum:MockVacuum
     status_types:
-      get_status_info: dict
       max_pump_speed: float
       power_state: str
       pump_efficiency: float
       pump_speed: float
       pump_state: str
       status: str
+      status_info: dict
       target_vacuum: float
       vacuum_level: float
     type: python

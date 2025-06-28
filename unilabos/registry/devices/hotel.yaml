@@ -1,30 +1,9 @@
 hotel.thermo_orbitor_rs2_hotel:
   class:
-    action_value_mappings:
-      auto-get_rotation:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_rotation 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_rotation 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_rotation 命令参数
-          type: object
-        type: UniLabJsonCommand
+    action_value_mappings: {}
     module: unilabos.devices.resource_container.container:HotelContainer
     status_types:
-      get_rotation: String
+      rotation: String
     type: python
   description: Thermo Orbitor RS2 Hotel
   handles: []

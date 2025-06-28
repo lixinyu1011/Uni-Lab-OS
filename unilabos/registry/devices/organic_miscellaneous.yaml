@@ -174,9 +174,7 @@ rotavap.one:
           type: object
         type: SendCmd
     module: unilabos.devices.rotavap.rotavap_one:RotavapOne
-    status_types:
-      pump_time: Float64
-      rotate_time: Float64
+    status_types: {}
     type: python
   description: Rotavap device
   handles: []
@@ -453,9 +451,7 @@ separator.homemade:
           type: object
         type: SendCmd
     module: unilabos.devices.separator.homemade_grbl_conductivity:SeparatorController
-    status_types:
-      sensordata: Float64
-      status: String
+    status_types: {}
     type: python
   description: Separator device with homemade grbl controller
   handles: []

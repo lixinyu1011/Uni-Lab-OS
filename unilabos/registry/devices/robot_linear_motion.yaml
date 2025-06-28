@@ -494,8 +494,6 @@ linear_motion.grbl:
         type: SingleJointPosition
     module: unilabos.devices.cnc.grbl_sync:GrblCNC
     status_types:
-      get_position: String
-      get_status: String
       position: unilabos.messages:Point3D
       spindle_speed: float
       status: str

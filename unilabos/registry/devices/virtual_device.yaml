@@ -721,27 +721,6 @@ virtual_gas_source:
           title: close 命令参数
           type: object
         type: UniLabJsonCommand
-      auto-get_status:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_status 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_status 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_status 命令参数
-          type: object
-        type: UniLabJsonCommand
       auto-initialize:
         feedback: {}
         goal: {}
@@ -967,7 +946,6 @@ virtual_gas_source:
         type: StrSingleInput
     module: unilabos.devices.virtual.virtual_gas_source:VirtualGasSource
     status_types:
-      get_status: str
       status: str
     type: python
   description: Virtual gas source
@@ -1409,153 +1387,6 @@ virtual_multiway_valve:
           title: close 命令参数
           type: object
         type: UniLabJsonCommand
-      auto-get_available_ports:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_available_ports 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_available_ports 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_available_ports 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-get_available_positions:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_available_positions 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_available_positions 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_available_positions 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-get_current_port:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_current_port 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_current_port 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_current_port 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-get_current_position:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_current_position 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_current_position 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_current_position 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-get_flow_path:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_flow_path 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_flow_path 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_flow_path 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-get_info:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_info 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_info 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_info 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-get_valve_position:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_valve_position 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_valve_position 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_valve_position 命令参数
-          type: object
-        type: UniLabJsonCommand
       auto-is_at_port:
         feedback: {}
         goal: {}
@@ -1892,17 +1723,15 @@ virtual_multiway_valve:
         type: SendCmd
     module: unilabos.devices.virtual.virtual_multiway_valve:VirtualMultiwayValve
     status_types:
+      available_ports: dict
+      available_positions: list
+      current_port: str
       current_position: int
-      get_available_ports: dict
-      get_available_positions: list
-      get_current_port: str
-      get_current_position: int
-      get_flow_path: str
-      get_info: dict
-      get_valve_position: int
-      max_positions: Int32
+      flow_path: str
+      info: dict
       status: str
       target_position: int
+      valve_position: int
       valve_state: str
     type: python
   description: Virtual 8-Way Valve for flow direction control
@@ -2345,7 +2174,6 @@ virtual_pump:
       current_volume: float
       from_vessel: str
       max_volume: float
-      position: Float64
       progress: float
       status: str
       to_vessel: str
@@ -3044,48 +2872,6 @@ virtual_solenoid_valve:
           title: close 命令参数
           type: object
         type: UniLabJsonCommandAsync
-      auto-get_state:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_state 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_state 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_state 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-get_valve_position:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_valve_position 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_valve_position 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_valve_position 命令参数
-          type: object
-        type: UniLabJsonCommand
       auto-initialize:
         feedback: {}
         goal: {}
@@ -3432,10 +3218,10 @@ virtual_solenoid_valve:
         type: SendCmd
     module: unilabos.devices.virtual.virtual_solenoid_valve:VirtualSolenoidValve
     status_types:
-      get_state: dict
-      get_valve_position: str
       is_open: bool
+      state: dict
       status: str
+      valve_position: str
       valve_state: str
     type: python
   description: Virtual Solenoid Valve for simple on/off flow control
@@ -3981,111 +3767,6 @@ virtual_transfer_pump:
           title: fill_syringe 命令参数
           type: object
         type: UniLabJsonCommandAsync
-      auto-get_current_volume:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_current_volume 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_current_volume 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_current_volume 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-get_position:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_position 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_position 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_position 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-get_pump_info:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_pump_info 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_pump_info 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_pump_info 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-get_remaining_capacity:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_remaining_capacity 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_remaining_capacity 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_remaining_capacity 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-get_status:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_status 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_status 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_status 命令参数
-          type: object
-        type: UniLabJsonCommand
       auto-initialize:
         feedback: {}
         goal: {}
@@ -4495,14 +4176,10 @@ virtual_transfer_pump:
     module: unilabos.devices.virtual.virtual_transferpump:VirtualTransferPump
     status_types:
       current_volume: float
-      get_current_volume: float
-      get_position: float
-      get_pump_info: dict
-      get_remaining_capacity: float
-      get_status: str
       max_velocity: float
-      max_volume: Float64
       position: float
+      pump_info: dict
+      remaining_capacity: float
       status: str
       transfer_rate: float
     type: python
@@ -4584,27 +4261,6 @@ virtual_vacuum_pump:
           required:
           - goal
           title: close 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-get_status:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_status 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_status 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_status 命令参数
           type: object
         type: UniLabJsonCommand
       auto-initialize:
@@ -4832,7 +4488,6 @@ virtual_vacuum_pump:
         type: StrSingleInput
     module: unilabos.devices.virtual.virtual_vacuum_pump:VirtualVacuumPump
     status_types:
-      get_status: str
       status: str
     type: python
   description: Virtual vacuum pump

@@ -7,7 +7,7 @@ from typing import Any, Dict, List
 
 import yaml
 
-from unilabos.ros.msgs.message_converter import msg_converter_manager, ros_action_to_json_schema
+from unilabos.ros.msgs.message_converter import msg_converter_manager, ros_action_to_json_schema, String
 from unilabos.utils import logger
 from unilabos.utils.decorator import singleton
 from unilabos.utils.import_manager import get_enhanced_class_info
@@ -180,6 +180,13 @@ class Registry:
         if not type_name or type_name == "":
             logger.warning(f"[UniLab Registry] 设备 {device_id} 的 {field_name} 类型为空，跳过替换")
             return type_name
+        convert_manager = {  # 将python基本对象转为ros2基本对象
+            "str": "String",
+            "bool": "Bool",
+            "int": "Int64",
+            "float": "Float64",
+        }
+        type_name = convert_manager.get(type_name, type_name)  # 替换为ROS2类型
         if ":" in type_name:
             type_class = msg_converter_manager.get_class(type_name)
         else:
@@ -297,6 +304,7 @@ class Registry:
                             device_config["class"]["action_value_mappings"] = {}
                         enhanced_info = {}
                         if complete_registry:
+                            device_config["class"]["status_types"].clear()
                             enhanced_info = get_enhanced_class_info(device_config["class"]["module"], use_dynamic=True)
                             device_config["class"]["status_types"].update(
                                 {k: v["return_type"] for k, v in enhanced_info["status_methods"].items()}
@@ -306,11 +314,14 @@ class Registry:
                                 status_type = "String"  # 替换成ROS的String，便于显示
                                 device_config["class"]["status_types"][status_name] = status_type
                             target_type = self._replace_type_with_class(status_type, device_id, f"状态 {status_name}")
+                            if target_type in [dict]:  # 对于字典和对象的返回类型，要处理成字符串，直接进行转换
+                                target_type = String
                             status_str_type_mapping[status_type] = target_type
                         device_config["class"]["status_types"] = dict(
                             sorted(device_config["class"]["status_types"].items())
                         )
                         if complete_registry:
+                            device_config["class"]["action_value_mappings"] = {k:v for k, v in device_config["class"]["action_value_mappings"].items() if not k.startswith("auto-")}
                             # 处理动作值映射
                             device_config["class"]["action_value_mappings"].update(
                                 {

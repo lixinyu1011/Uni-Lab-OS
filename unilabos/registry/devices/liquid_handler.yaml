@@ -4831,8 +4831,7 @@ liquid_handler:
           type: object
         type: LiquidHandlerTransfer
     module: unilabos.devices.liquid_handling.liquid_handler_abstract:LiquidHandlerAbstract
-    status_types:
-      name: String
+    status_types: {}
     type: python
   description: Liquid handler device controlled by pylabrobot
   handles:

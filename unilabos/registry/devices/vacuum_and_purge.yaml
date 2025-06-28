@@ -22,27 +22,6 @@ gas_source.mock:
           title: close 命令参数
           type: object
         type: UniLabJsonCommand
-      auto-get_status:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_status 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_status 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_status 命令参数
-          type: object
-        type: UniLabJsonCommand
       auto-is_closed:
         feedback: {}
         goal: {}
@@ -247,7 +226,6 @@ gas_source.mock:
         type: StrSingleInput
     module: unilabos.devices.pump_and_valve.vacuum_pump_mock:VacuumPumpMock
     status_types:
-      get_status: str
       status: str
     type: python
   description: Mock gas source
@@ -301,27 +279,6 @@ vacuum_pump.mock:
           title: close 命令参数
           type: object
         type: UniLabJsonCommand
-      auto-get_status:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_status 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_status 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_status 命令参数
-          type: object
-        type: UniLabJsonCommand
       auto-is_closed:
         feedback: {}
         goal: {}
@@ -526,7 +483,6 @@ vacuum_pump.mock:
         type: StrSingleInput
     module: unilabos.devices.pump_and_valve.vacuum_pump_mock:VacuumPumpMock
     status_types:
-      get_status: str
       status: str
     type: python
   description: Mock vacuum pump

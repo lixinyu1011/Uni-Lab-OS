@@ -245,48 +245,6 @@ heaterstirrer.dalong:
           title: close 命令参数
           type: object
         type: UniLabJsonCommand
-      auto-get_status:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_status 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_status 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_status 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-get_temp:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_temp 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_temp 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_temp 命令参数
-          type: object
-        type: UniLabJsonCommand
       auto-heatchill:
         feedback: {}
         goal: {}
@@ -614,8 +572,6 @@ heaterstirrer.dalong:
         type: SendCmd
     module: unilabos.devices.heaterstirrer.dalong:HeaterStirrer_DaLong
     status_types:
-      get_status: str
-      get_temp: String
       status: str
       stir_speed: float
       temp: float
@@ -849,7 +805,6 @@ tempsensor:
     module: unilabos.devices.temperature.sensor_node:TempSensorNode
     status_types:
       value: float
-      warning: Float64
     type: python
   description: Temperature sensor
   handles: []

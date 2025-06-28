@@ -22,32 +22,6 @@ hplc.agilent:
           title: check_status 命令参数
           type: object
         type: UniLabJsonCommand
-      auto-execute_command_from_outer:
-        feedback: {}
-        goal: {}
-        goal_default:
-          command: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand execute_command_from_outer 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand execute_command_from_outer 的参数schema
-              properties:
-                command:
-                  description: '参数: command'
-                  type: string
-              required:
-              - command
-              type: object
-            result: {}
-          required:
-          - goal
-          title: execute_command_from_outer 命令参数
-          type: object
-        type: UniLabJsonCommand
       auto-extract_data_from_txt:
         feedback: {}
         goal: {}
@@ -72,35 +46,6 @@ hplc.agilent:
           required:
           - goal
           title: extract_data_from_txt 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-get_data_file:
-        feedback: {}
-        goal: {}
-        goal_default:
-          after_time: null
-          mat_index: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand get_data_file 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand get_data_file 的参数schema
-              properties:
-                after_time:
-                  description: '参数: after_time'
-                  type: string
-                mat_index:
-                  description: '参数: mat_index'
-                  type: string
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: get_data_file 命令参数
           type: object
         type: UniLabJsonCommand
       auto-start_sequence:
@@ -237,10 +182,10 @@ hplc.agilent:
     module: unilabos.devices.hplc.AgilentHPLC:HPLCDriver
     status_types:
       could_run: bool
+      data_file: tuple
       device_status: str
       driver_init_ok: bool
       finish_status: str
-      get_data_file: tuple
       is_running: bool
       status_text: str
       success: bool
@@ -467,8 +412,7 @@ raman_home_made:
           type: object
         type: SendCmd
     module: unilabos.devices.raman_uv.home_made_raman:RamanObj
-    status_types:
-      status: String
+    status_types: {}
     type: python
   description: Raman spectroscopy device
   handles: []

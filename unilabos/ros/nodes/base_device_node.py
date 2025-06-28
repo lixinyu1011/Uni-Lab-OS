@@ -168,7 +168,10 @@ class PropertyPublisher:
         self.print_publish = print_publish
 
         self._value = None
-        self.publisher_ = node.create_publisher(msg_type, f"{name}", 10)
+        try:
+            self.publisher_ = node.create_publisher(msg_type, f"{name}", 10)
+        except AttributeError as ex:
+            logger.error(f"创建发布者失败，可能由于注册表有误，类型: {msg_type}，错误: {ex}\n{traceback.format_exc()}")
         self.timer = node.create_timer(self.timer_period, self.publish_property)
         self.__loop = get_event_loop()
         str_msg_type = str(msg_type)[8:-2]

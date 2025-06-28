@@ -293,9 +293,12 @@ class ImportManager:
 
             elif inspect.ismethod(method) or inspect.isfunction(method):
                 if name.startswith("get_"):
+                    actual_name = name[4:]  # 去掉get_前缀
+                    if actual_name in result["status_methods"]:
+                        continue
                     # get_ 开头的方法归类为status
                     method_info = self._analyze_method_signature(method)
-                    result["status_methods"][name] = method_info
+                    result["status_methods"][actual_name] = method_info
                 elif not name.startswith("_"):
                     # 其他非_开头的方法归类为action
                     method_info = self._analyze_method_signature(method)
@@ -346,8 +349,13 @@ class ImportManager:
                 elif self._is_property_method(node):
                     # @property 装饰的方法
                     result["status_methods"][method_name] = method_info
+                elif method_name.startswith("get_"):
+                    # get_ 开头的方法归类为status
+                    actual_name = method_name[4:]  # 去掉get_前缀
+                    if actual_name not in result["status_methods"]:
+                        result["status_methods"][actual_name] = method_info
                 else:
-                    # set_ 开头或其他非_开头的方法
+                    # 其他非_开头的方法归类为action
                     result["action_methods"][method_name] = method_info
         return result
 
@@ -417,7 +425,9 @@ class ImportManager:
         if "typing." in annotation_str:
             # 简化typing类型显示
             return (
-                annotation_str.replace("typing.", "") if getattr(annotation, "_name", None) is None else annotation._name.lower()
+                annotation_str.replace("typing.", "")
+                if getattr(annotation, "_name", None) is None
+                else annotation._name.lower()
             )
         # 如果是类型对象
         if hasattr(annotation, "__name__"):
