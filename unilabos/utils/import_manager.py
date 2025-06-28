@@ -216,15 +216,16 @@ class ImportManager:
                     f"{module_path} 失败（将使用静态分析，"
                     f"建议修复导入错误，以实现更好的注册表识别效果！）: {e}"
                 )
-
-        # 尝试静态分析
-        static_info = None
-        try:
-            static_info = self._get_static_class_info(module_path)
-            result["static_analysis_success"] = True
-            logger.debug(f"[ImportManager] 静态分析类 {module_path} 成功")
-        except Exception as e:
-            logger.warning(f"[ImportManager] 静态分析类 {module_path} 失败: {e}")
+            use_dynamic = False
+        if not use_dynamic:
+            # 尝试静态分析
+            static_info = None
+            try:
+                static_info = self._get_static_class_info(module_path)
+                result["static_analysis_success"] = True
+                logger.debug(f"[ImportManager] 静态分析类 {module_path} 成功")
+            except Exception as e:
+                logger.warning(f"[ImportManager] 静态分析类 {module_path} 失败: {e}")
 
         # 合并信息（优先使用动态导入的信息）
         if dynamic_info:
@@ -351,13 +352,30 @@ class ImportManager:
         return result
 
     def _analyze_method_signature(self, method) -> Dict[str, Any]:
-        """分析方法签名"""
-        signature = inspect.signature(method)
+        """
+        分析方法签名，提取具体的命名参数信息
 
+        注意：此方法会跳过*args和**kwargs，只提取具体的命名参数
+        这样可以确保通过**dict方式传参时的准确性
+
+        示例用法：
+            method_info = self._analyze_method_signature(some_method)
+            params = {"param1": "value1", "param2": "value2"}
+            result = some_method(**params)  # 安全的参数传递
+        """
+        signature = inspect.signature(method)
         args = []
         num_required = 0
+
         for param_name, param in signature.parameters.items():
+            # 跳过self参数
             if param_name == "self":
+                continue
+
+            # 跳过*args和**kwargs参数
+            if param.kind == param.VAR_POSITIONAL:  # *args
+                continue
+            if param.kind == param.VAR_KEYWORD:  # **kwargs
                 continue
 
             is_required = param.default == inspect.Parameter.empty
@@ -392,10 +410,15 @@ class ImportManager:
         """将类型注解转换为字符串"""
         if annotation == inspect.Parameter.empty:
             return "Any"  # 如果没有注解，返回Any
-
         if annotation is None:
             return "None"  # 明确的None类型
-
+        annotation_str = str(annotation)
+        # 处理typing模块的复杂类型
+        if "typing." in annotation_str:
+            # 简化typing类型显示
+            return (
+                annotation_str.replace("typing.", "") if getattr(annotation, "_name", None) is None else annotation._name.lower()
+            )
         # 如果是类型对象
         if hasattr(annotation, "__name__"):
             # 如果是内置类型
@@ -404,22 +427,13 @@ class ImportManager:
             else:
                 # 如果是自定义类，返回完整路径
                 return f"{annotation.__module__}:{annotation.__name__}"
-
         # 如果是typing模块的类型
         elif hasattr(annotation, "_name"):
             return annotation._name
-
         # 如果是字符串形式的类型注解
         elif isinstance(annotation, str):
             return annotation
-
-        # 其他情况，尝试转换为字符串
         else:
-            annotation_str = str(annotation)
-            # 处理typing模块的复杂类型
-            if "typing." in annotation_str:
-                # 简化typing类型显示
-                return annotation_str.replace("typing.", "")
             return annotation_str
 
     def _is_property_method(self, node: ast.FunctionDef) -> bool:

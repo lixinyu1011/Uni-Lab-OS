@@ -402,7 +402,7 @@ virtual_column:
         properties:
           config:
             description: '参数: config'
-            type: string
+            type: object
           device_id:
             description: '参数: device_id'
             type: string
@@ -1370,7 +1370,7 @@ virtual_heatchill:
         properties:
           config:
             description: '参数: config'
-            type: string
+            type: object
           device_id:
             description: '参数: device_id'
             type: string
@@ -1893,7 +1893,7 @@ virtual_multiway_valve:
     module: unilabos.devices.virtual.virtual_multiway_valve:VirtualMultiwayValve
     status_types:
       current_position: int
-      get_available_ports: typing:Dict
+      get_available_ports: dict
       get_available_positions: list
       get_current_port: str
       get_current_position: int
@@ -2372,7 +2372,7 @@ virtual_pump:
         properties:
           config:
             description: '参数: config'
-            type: string
+            type: object
           device_id:
             description: '参数: device_id'
             type: string
@@ -3026,8 +3026,7 @@ virtual_solenoid_valve:
       auto-close:
         feedback: {}
         goal: {}
-        goal_default:
-          kwargs: null
+        goal_default: {}
         handles: []
         result: {}
         schema:
@@ -3036,12 +3035,8 @@ virtual_solenoid_valve:
             feedback: {}
             goal:
               description: UniLabJsonCommand close 的参数schema
-              properties:
-                kwargs:
-                  description: '参数: kwargs'
-                  type: string
-              required:
-              - kwargs
+              properties: {}
+              required: []
               type: object
             result: {}
           required:
@@ -3136,8 +3131,7 @@ virtual_solenoid_valve:
       auto-open:
         feedback: {}
         goal: {}
-        goal_default:
-          kwargs: null
+        goal_default: {}
         handles: []
         result: {}
         schema:
@@ -3146,12 +3140,8 @@ virtual_solenoid_valve:
             feedback: {}
             goal:
               description: UniLabJsonCommand open 的参数schema
-              properties:
-                kwargs:
-                  description: '参数: kwargs'
-                  type: string
-              required:
-              - kwargs
+              properties: {}
+              required: []
               type: object
             result: {}
           required:
@@ -3185,7 +3175,6 @@ virtual_solenoid_valve:
         goal: {}
         goal_default:
           command: null
-          kwargs: null
         handles: []
         result: {}
         schema:
@@ -3198,12 +3187,8 @@ virtual_solenoid_valve:
                 command:
                   description: '参数: command'
                   type: string
-                kwargs:
-                  description: '参数: kwargs'
-                  type: string
               required:
               - command
-              - kwargs
               type: object
             result: {}
           required:
@@ -3216,7 +3201,6 @@ virtual_solenoid_valve:
         goal: {}
         goal_default:
           command: null
-          kwargs: null
         handles: []
         result: {}
         schema:
@@ -3229,11 +3213,7 @@ virtual_solenoid_valve:
                 command:
                   description: '参数: command'
                   type: string
-                kwargs:
-                  description: '参数: kwargs'
-                  type: string
-              required:
-              - kwargs
+              required: []
               type: object
             result: {}
           required:
@@ -3852,7 +3832,7 @@ virtual_stirrer:
         properties:
           config:
             description: '参数: config'
-            type: string
+            type: object
           device_id:
             description: '参数: device_id'
             type: string

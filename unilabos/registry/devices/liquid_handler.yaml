@@ -4899,7 +4899,7 @@ liquid_handler.biomek:
                 none_keys:
                   default: []
                   description: '参数: none_keys'
-                  type: string
+                  type: array
                 protocol_author:
                   description: '参数: protocol_author'
                   type: string
@@ -5287,7 +5287,7 @@ liquid_handler.biomek:
                 none_keys:
                   default: []
                   description: '参数: none_keys'
-                  type: string
+                  type: array
                 offsets:
                   description: '参数: offsets'
                   type: string

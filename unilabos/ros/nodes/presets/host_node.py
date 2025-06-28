@@ -459,6 +459,8 @@ class HostNode(BaseROS2DeviceNode):
         self.devices_instances[device_id] = d
         # noinspection PyProtectedMember
         for action_name, action_value_mapping in d._ros_node._action_value_mappings.items():
+            if action_name.startswith("auto-"):
+                continue
             action_id = f"/devices/{device_id}/{action_name}"
             if action_id not in self._action_clients:
                 action_type = action_value_mapping["type"]
