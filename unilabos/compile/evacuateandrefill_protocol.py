@@ -5,36 +5,136 @@ from .pump_protocol import generate_pump_protocol_with_rinsing, generate_pump_pr
 
 
 def find_gas_source(G: nx.DiGraph, gas: str) -> str:
-    """根据气体名称查找对应的气源"""
-    # 按照命名规则查找气源
+    """
+    根据气体名称查找对应的气源，支持多种匹配模式：
+    1. 容器名称匹配
+    2. 气体类型匹配（data.gas_type）
+    3. 默认气源
+    """
+    print(f"EVACUATE_REFILL: 正在查找气体 '{gas}' 的气源...")
+    
+    # 第一步：通过容器名称匹配
     gas_source_patterns = [
         f"gas_source_{gas}",
         f"gas_{gas}",
         f"flask_{gas}",
-        f"{gas}_source"
+        f"{gas}_source",
+        f"source_{gas}",
+        f"reagent_bottle_{gas}",
+        f"bottle_{gas}"
     ]
     
     for pattern in gas_source_patterns:
         if pattern in G.nodes():
+            print(f"EVACUATE_REFILL: 通过名称匹配找到气源: {pattern}")
             return pattern
     
-    # 模糊匹配
-    for node in G.nodes():
-        node_class = G.nodes[node].get('class', '') or ''
-        if 'gas_source' in node_class and gas.lower() in node.lower():
-            return node
-        if node.startswith('flask_') and gas.lower() in node.lower():
-            return node
+    # 第二步：通过气体类型匹配 (data.gas_type)
+    for node_id in G.nodes():
+        node_data = G.nodes[node_id]
+        node_class = node_data.get('class', '') or ''
+        
+        # 检查是否是气源设备
+        if ('gas_source' in node_class or 
+            'gas' in node_id.lower() or 
+            node_id.startswith('flask_')):
+            
+            # 检查 data.gas_type
+            data = node_data.get('data', {})
+            gas_type = data.get('gas_type', '')
+            
+            if gas_type.lower() == gas.lower():
+                print(f"EVACUATE_REFILL: 通过气体类型匹配找到气源: {node_id} (gas_type: {gas_type})")
+                return node_id
+            
+            # 检查 config.gas_type  
+            config = node_data.get('config', {})
+            config_gas_type = config.get('gas_type', '')
+            
+            if config_gas_type.lower() == gas.lower():
+                print(f"EVACUATE_REFILL: 通过配置气体类型匹配找到气源: {node_id} (config.gas_type: {config_gas_type})")
+                return node_id
     
-    # 查找所有可用的气源
-    available_gas_sources = [
+    # 第三步：查找所有可用的气源设备
+    available_gas_sources = []
+    for node_id in G.nodes():
+        node_data = G.nodes[node_id]
+        node_class = node_data.get('class', '') or ''
+        
+        if ('gas_source' in node_class or 
+            'gas' in node_id.lower() or
+            (node_id.startswith('flask_') and any(g in node_id.lower() for g in ['air', 'nitrogen', 'argon']))):
+            
+            data = node_data.get('data', {})
+            gas_type = data.get('gas_type', 'unknown')
+            available_gas_sources.append(f"{node_id} (gas_type: {gas_type})")
+    
+    print(f"EVACUATE_REFILL: 可用气源列表: {available_gas_sources}")
+    
+    # 第四步：如果找不到特定气体，使用默认的第一个气源
+    default_gas_sources = [
         node for node in G.nodes() 
         if ((G.nodes[node].get('class') or '').startswith('virtual_gas_source')
-            or ('gas' in node and 'source' in node)
-            or (node.startswith('flask_') and any(g in node.lower() for g in ['air', 'nitrogen', 'argon', 'vacuum'])))
+            or 'gas_source' in node)
     ]
     
+    if default_gas_sources:
+        default_source = default_gas_sources[0]
+        print(f"EVACUATE_REFILL: ⚠️ 未找到特定气体 '{gas}'，使用默认气源: {default_source}")
+        return default_source
+    
     raise ValueError(f"找不到气体 '{gas}' 对应的气源。可用气源: {available_gas_sources}")
+
+
+def find_gas_source_by_any_match(G: nx.DiGraph, gas: str) -> str:
+    """
+    增强版气源查找，支持各种匹配方式的别名函数
+    """
+    return find_gas_source(G, gas)
+
+
+def get_gas_source_type(G: nx.DiGraph, gas_source: str) -> str:
+    """获取气源的气体类型"""
+    if gas_source not in G.nodes():
+        return "unknown"
+    
+    node_data = G.nodes[gas_source]
+    data = node_data.get('data', {})
+    config = node_data.get('config', {})
+    
+    # 检查多个可能的字段
+    gas_type = (data.get('gas_type') or 
+                config.get('gas_type') or 
+                data.get('gas') or
+                config.get('gas') or
+                "air")  # 默认为空气
+    
+    return gas_type
+
+
+def find_vessels_by_gas_type(G: nx.DiGraph, gas: str) -> List[str]:
+    """
+    根据气体类型查找所有匹配的容器/气源
+    """
+    matching_vessels = []
+    
+    for node_id in G.nodes():
+        node_data = G.nodes[node_id]
+        
+        # 检查容器名称匹配
+        if gas.lower() in node_id.lower():
+            matching_vessels.append(f"{node_id} (名称匹配)")
+            continue
+        
+        # 检查气体类型匹配
+        data = node_data.get('data', {})
+        config = node_data.get('config', {})
+        
+        gas_type = data.get('gas_type', '') or config.get('gas_type', '')
+        if gas_type.lower() == gas.lower():
+            matching_vessels.append(f"{node_id} (gas_type: {gas_type})")
+    
+    return matching_vessels
 
 
 def find_vacuum_pump(G: nx.DiGraph) -> str:
