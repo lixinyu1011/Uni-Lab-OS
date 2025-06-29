@@ -17,7 +17,7 @@ from unilabos.ros.msgs.message_converter import (
     get_action_type,
     convert_to_ros_msg,
     convert_from_ros_msg,
-    convert_from_ros_msg_with_mapping,
+    convert_from_ros_msg_with_mapping, String,
 )
 from unilabos.ros.nodes.base_device_node import BaseROS2DeviceNode, DeviceNodeResourceTracker, ROS2DeviceNode
 from unilabos.utils.log import error
@@ -75,7 +75,7 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
             try:
                 d = self.initialize_device(device_id, device_config)
             except Exception as ex:
-                self.lab_logger().error(f"[Protocol Node] Failed to initialize device {device_id}: {ex}")
+                self.lab_logger().error(f"[Protocol Node] Failed to initialize device {device_id}: {ex}\n{traceback.format_exc()}")
                 d = None
             if d is None:
                 continue
@@ -134,11 +134,17 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
         if d is not None and hasattr(d, "ros_node_instance"):
             node = d.ros_node_instance
             for action_name, action_mapping in node._action_value_mappings.items():
+                if action_name.startswith("auto-"):
+                    continue
                 action_id = f"/devices/{device_id_abs}/{action_name}"
                 if action_id not in self._action_clients:
-                    self._action_clients[action_id] = ActionClient(
-                        self, action_mapping["type"], action_id, callback_group=self.callback_group
-                    )
+                    try:
+                        self._action_clients[action_id] = ActionClient(
+                            self, action_mapping["type"], action_id, callback_group=self.callback_group
+                        )
+                    except Exception as ex:
+                        self.lab_logger().error(f"创建动作客户端失败: {action_id}, 错误: {ex}")
+                        continue
                     self.lab_logger().debug(f"为子设备 {device_id} 创建动作客户端: {action_name}")
         return d
 
