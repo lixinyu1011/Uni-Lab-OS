@@ -1,0 +1,10 @@
+camera:
+  class:
+    action_value_mappings: {}
+    module: unilabos.ros.nodes.presets.camera:VideoPublisher
+    status_types: {}
+    type: ros2
+  description: ''
+  handles: []
+  icon: ''
+  init_param_schema: {}
