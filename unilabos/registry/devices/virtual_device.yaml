@@ -631,7 +631,7 @@ virtual_filter:
     data_source: handle
     data_type: transport
     description: 需要过滤的样品容器
-    handler_key: filter_in
+    handler_key: filterin
     io_type: target
     label: filter_in
     side: NORTH
@@ -639,7 +639,7 @@ virtual_filter:
     data_source: handle
     data_type: transport
     description: 滤液出口
-    handler_key: filtrate_out
+    handler_key: filtrateout
     io_type: source
     label: filtrate_out
     side: SOUTH
@@ -647,7 +647,7 @@ virtual_filter:
     data_source: handle
     data_type: transport
     description: 滤渣/固体出口
-    handler_key: retentate_out
+    handler_key: retentateout
     io_type: source
     label: retentate_out
     side: EAST
@@ -2433,7 +2433,7 @@ virtual_rotavap:
     data_source: handle
     data_type: fluid
     description: 样品连接口
-    handler_key: sample_in
+    handler_key: samplein
     io_type: target
     label: sample_in
     side: NORTH
@@ -2441,7 +2441,7 @@ virtual_rotavap:
     data_source: handle
     data_type: fluid
     description: 浓缩产物出口
-    handler_key: product_out
+    handler_key: productout
     io_type: source
     label: product_out
     side: SOUTH
@@ -2449,7 +2449,7 @@ virtual_rotavap:
     data_source: handle
     data_type: fluid
     description: 冷凝溶剂出口
-    handler_key: solvent_out
+    handler_key: solventout
     io_type: source
     label: solvent_out
     side: EAST
@@ -2774,7 +2774,7 @@ virtual_separator:
     data_source: handle
     data_type: fluid
     description: 需要分离的混合液体输入口
-    handler_key: separator_in
+    handler_key: separatorin
     io_type: target
     label: separator_in
     side: NORTH
@@ -2782,7 +2782,7 @@ virtual_separator:
     data_source: executor
     data_type: fluid
     description: 下相（重相）液体输出口
-    handler_key: bottom_phase_out
+    handler_key: bottomphaseout
     io_type: source
     label: bottom_phase_out
     side: SOUTH
@@ -2790,7 +2790,7 @@ virtual_separator:
     data_source: executor
     data_type: fluid
     description: 上相（轻相）液体输出口
-    handler_key: top_phase_out
+    handler_key: topphaseout
     io_type: source
     label: top_phase_out
     side: EAST
