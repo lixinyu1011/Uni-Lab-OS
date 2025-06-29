@@ -1,7 +1,117 @@
 serial:
-  description: Serial communication interface, used when sharing same serial port for multiple devices
   class:
+    action_value_mappings:
+      auto-handle_serial_request:
+        feedback: {}
+        goal: {}
+        goal_default:
+          request: null
+          response: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand handle_serial_request 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand handle_serial_request 的参数schema
+              properties:
+                request:
+                  description: '参数: request'
+                  type: string
+                response:
+                  description: '参数: response'
+                  type: string
+              required:
+              - request
+              - response
+              type: object
+            result: {}
+          required:
+          - goal
+          title: handle_serial_request 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-read_data:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand read_data 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand read_data 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: read_data 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-send_command:
+        feedback: {}
+        goal: {}
+        goal_default:
+          command: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand send_command 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand send_command 的参数schema
+              properties:
+                command:
+                  description: '参数: command'
+                  type: string
+              required:
+              - command
+              type: object
+            result: {}
+          required:
+          - goal
+          title: send_command 命令参数
+          type: object
+        type: UniLabJsonCommand
     module: unilabos.ros.nodes.presets.serial_node:ROS2SerialNode
+    status_types: {}
     type: ros2
-  schema:
-    properties: {}
+  description: Serial communication interface, used when sharing same serial port
+    for multiple devices
+  handles: []
+  icon: ''
+  init_param_schema:
+    description: UniLabJsonCommand __init__ 的参数schema
+    properties:
+      feedback: {}
+      goal:
+        description: UniLabJsonCommand __init__ 的参数schema
+        properties:
+          baudrate:
+            default: 9600
+            description: '参数: baudrate'
+            type: integer
+          device_id:
+            description: '参数: device_id'
+            type: string
+          port:
+            description: '参数: port'
+            type: string
+          resource_tracker:
+            description: '参数: resource_tracker'
+            type: string
+        required:
+        - device_id
+        - port
+        type: object
+      result: {}
+    required:
+    - goal
+    title: __init__ 命令参数
+    type: object

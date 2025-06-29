@@ -1,57 +1,709 @@
 linear_motion.grbl:
-  description: Grbl CNC
   class:
-    module: unilabos.devices.cnc.grbl_sync:GrblCNC
-    type: python
     action_value_mappings:
-      move_through_points: &move_through_points
-        type: NavigateThroughPoses
-        goal: 
-          poses[].pose.position: positions[]
-        feedback: 
-          current_pose.pose.position: position
-          navigation_time.sec: time_spent
-          estimated_time_remaining.sec: time_remaining
-          number_of_poses_remaining: pose_number_remaining
+      auto-initialize:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
         result: {}
-      set_spindle_speed:
-        type: SingleJointPosition
+        schema:
+          description: UniLabJsonCommand initialize 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand initialize 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: initialize 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-move_through_points:
+        feedback: {}
+        goal: {}
+        goal_default:
+          positions: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand move_through_points 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand move_through_points 的参数schema
+              properties:
+                positions:
+                  description: '参数: positions'
+                  type: array
+              required:
+              - positions
+              type: object
+            result: {}
+          required:
+          - goal
+          title: move_through_points 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_position:
+        feedback: {}
+        goal: {}
+        goal_default:
+          position: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_position 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_position 的参数schema
+              properties:
+                position:
+                  description: '参数: position'
+                  type: string
+              required:
+              - position
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_position 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_spindle_speed:
+        feedback: {}
+        goal: {}
+        goal_default:
+          max_velocity: 500
+          spindle_speed: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_spindle_speed 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_spindle_speed 的参数schema
+              properties:
+                max_velocity:
+                  default: 500
+                  description: '参数: max_velocity'
+                  type: number
+                spindle_speed:
+                  description: '参数: spindle_speed'
+                  type: number
+              required:
+              - spindle_speed
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_spindle_speed 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-stop_operation:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand stop_operation 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand stop_operation 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: stop_operation 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-wait_error:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand wait_error 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand wait_error 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: wait_error 命令参数
+          type: object
+        type: UniLabJsonCommandAsync
+      move_through_points:
+        feedback:
+          current_pose.pose.position: position
+          estimated_time_remaining.sec: time_remaining
+          navigation_time.sec: time_spent
+          number_of_poses_remaining: pose_number_remaining
         goal:
-          position: spindle_speed
+          poses[].pose.position: positions[]
+        goal_default:
+          behavior_tree: ''
+          poses:
+          - header:
+              frame_id: ''
+              stamp:
+                nanosec: 0
+                sec: 0
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+        handles: []
+        result: {}
+        schema:
+          description: ROS Action NavigateThroughPoses 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties:
+                current_pose:
+                  properties:
+                    header:
+                      properties:
+                        frame_id:
+                          type: string
+                        stamp:
+                          properties:
+                            nanosec:
+                              maximum: 4294967295
+                              minimum: 0
+                              type: integer
+                            sec:
+                              maximum: 2147483647
+                              minimum: -2147483648
+                              type: integer
+                          required:
+                          - sec
+                          - nanosec
+                          title: Time
+                          type: object
+                      required:
+                      - stamp
+                      - frame_id
+                      title: Header
+                      type: object
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                  required:
+                  - header
+                  - pose
+                  title: PoseStamped
+                  type: object
+                distance_remaining:
+                  type: number
+                estimated_time_remaining:
+                  properties:
+                    nanosec:
+                      maximum: 4294967295
+                      minimum: 0
+                      type: integer
+                    sec:
+                      maximum: 2147483647
+                      minimum: -2147483648
+                      type: integer
+                  required:
+                  - sec
+                  - nanosec
+                  title: Duration
+                  type: object
+                navigation_time:
+                  properties:
+                    nanosec:
+                      maximum: 4294967295
+                      minimum: 0
+                      type: integer
+                    sec:
+                      maximum: 2147483647
+                      minimum: -2147483648
+                      type: integer
+                  required:
+                  - sec
+                  - nanosec
+                  title: Duration
+                  type: object
+                number_of_poses_remaining:
+                  maximum: 32767
+                  minimum: -32768
+                  type: integer
+                number_of_recoveries:
+                  maximum: 32767
+                  minimum: -32768
+                  type: integer
+              required:
+              - current_pose
+              - navigation_time
+              - estimated_time_remaining
+              - number_of_recoveries
+              - distance_remaining
+              - number_of_poses_remaining
+              title: NavigateThroughPoses_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                behavior_tree:
+                  type: string
+                poses:
+                  items:
+                    properties:
+                      header:
+                        properties:
+                          frame_id:
+                            type: string
+                          stamp:
+                            properties:
+                              nanosec:
+                                maximum: 4294967295
+                                minimum: 0
+                                type: integer
+                              sec:
+                                maximum: 2147483647
+                                minimum: -2147483648
+                                type: integer
+                            required:
+                            - sec
+                            - nanosec
+                            title: Time
+                            type: object
+                        required:
+                        - stamp
+                        - frame_id
+                        title: Header
+                        type: object
+                      pose:
+                        properties:
+                          orientation:
+                            properties:
+                              w:
+                                type: number
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            - w
+                            title: Quaternion
+                            type: object
+                          position:
+                            properties:
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            title: Point
+                            type: object
+                        required:
+                        - position
+                        - orientation
+                        title: Pose
+                        type: object
+                    required:
+                    - header
+                    - pose
+                    title: PoseStamped
+                    type: object
+                  type: array
+              required:
+              - poses
+              - behavior_tree
+              title: NavigateThroughPoses_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                result:
+                  properties: {}
+                  required: []
+                  title: Empty
+                  type: object
+              required:
+              - result
+              title: NavigateThroughPoses_Result
+              type: object
+          required:
+          - goal
+          title: NavigateThroughPoses
+          type: object
+        type: NavigateThroughPoses
+      set_spindle_speed:
         feedback:
           position: spindle_speed
+        goal:
+          position: spindle_speed
+        goal_default:
+          max_velocity: 0.0
+          min_duration:
+            nanosec: 0
+            sec: 0
+          position: 0.0
+        handles: []
         result: {}
-  schema:
-    type: object
-    properties:
-      position:
-        type: array
-        items:
-          type: number
-        description: The position of the device
-      spindle_speed:
-        type: number
-        description: The spindle speed of the device
-    required:
-      - position
-      - spindle_speed
-    additionalProperties: false
-
-
-motor.iCL42:
-  description: iCL42 motor
-  class:
-    module: unilabos.devices.motor.iCL42:iCL42Driver
-    type: python
+        schema:
+          description: ROS Action SingleJointPosition 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties:
+                error:
+                  type: number
+                header:
+                  properties:
+                    frame_id:
+                      type: string
+                    stamp:
+                      properties:
+                        nanosec:
+                          maximum: 4294967295
+                          minimum: 0
+                          type: integer
+                        sec:
+                          maximum: 2147483647
+                          minimum: -2147483648
+                          type: integer
+                      required:
+                      - sec
+                      - nanosec
+                      title: Time
+                      type: object
+                  required:
+                  - stamp
+                  - frame_id
+                  title: Header
+                  type: object
+                position:
+                  type: number
+                velocity:
+                  type: number
+              required:
+              - header
+              - position
+              - velocity
+              - error
+              title: SingleJointPosition_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                max_velocity:
+                  type: number
+                min_duration:
+                  properties:
+                    nanosec:
+                      maximum: 4294967295
+                      minimum: 0
+                      type: integer
+                    sec:
+                      maximum: 2147483647
+                      minimum: -2147483648
+                      type: integer
+                  required:
+                  - sec
+                  - nanosec
+                  title: Duration
+                  type: object
+                position:
+                  type: number
+              required:
+              - position
+              - min_duration
+              - max_velocity
+              title: SingleJointPosition_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties: {}
+              required: []
+              title: SingleJointPosition_Result
+              type: object
+          required:
+          - goal
+          title: SingleJointPosition
+          type: object
+        type: SingleJointPosition
+    module: unilabos.devices.cnc.grbl_sync:GrblCNC
     status_types:
-      motor_position: Int64
-      is_executing_run: Bool
-      success: Bool
+      position: unilabos.messages:Point3D
+      spindle_speed: float
+      status: str
+    type: python
+  description: Grbl CNC
+  handles: []
+  icon: ''
+  init_param_schema:
+    description: UniLabJsonCommand __init__ 的参数schema
+    properties:
+      feedback: {}
+      goal:
+        description: UniLabJsonCommand __init__ 的参数schema
+        properties:
+          address:
+            default: '1'
+            description: '参数: address'
+            type: string
+          limits:
+            default:
+            - -150
+            - 150
+            - -200
+            - 0
+            - -80
+            - 0
+            description: '参数: limits'
+            type: array
+          port:
+            description: '参数: port'
+            type: string
+        required:
+        - port
+        type: object
+      result: {}
+    required:
+    - goal
+    title: __init__ 命令参数
+    type: object
+motor.iCL42:
+  class:
     action_value_mappings:
+      auto-execute_run_motor:
+        feedback: {}
+        goal: {}
+        goal_default:
+          mode: null
+          position: null
+          velocity: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand execute_run_motor 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand execute_run_motor 的参数schema
+              properties:
+                mode:
+                  description: '参数: mode'
+                  type: string
+                position:
+                  description: '参数: position'
+                  type: number
+                velocity:
+                  description: '参数: velocity'
+                  type: integer
+              required:
+              - mode
+              - position
+              - velocity
+              type: object
+            result: {}
+          required:
+          - goal
+          title: execute_run_motor 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-init_device:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand init_device 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand init_device 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: init_device 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-run_motor:
+        feedback: {}
+        goal: {}
+        goal_default:
+          mode: null
+          position: null
+          velocity: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand run_motor 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand run_motor 的参数schema
+              properties:
+                mode:
+                  description: '参数: mode'
+                  type: string
+                position:
+                  description: '参数: position'
+                  type: number
+                velocity:
+                  description: '参数: velocity'
+                  type: integer
+              required:
+              - mode
+              - position
+              - velocity
+              type: object
+            result: {}
+          required:
+          - goal
+          title: run_motor 命令参数
+          type: object
+        type: UniLabJsonCommand
       execute_command_from_outer:
-        type: SendCmd
+        feedback: {}
         goal:
           command: command
-        feedback: {}
+        goal_default:
+          command: ''
+        handles: []
         result:
           success: success
+        schema:
+          description: ROS Action SendCmd 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties:
+                status:
+                  type: string
+              required:
+              - status
+              title: SendCmd_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                command:
+                  type: string
+              required:
+              - command
+              title: SendCmd_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: SendCmd_Result
+              type: object
+          required:
+          - goal
+          title: SendCmd
+          type: object
+        type: SendCmd
+    module: unilabos.devices.motor.iCL42:iCL42Driver
+    status_types:
+      is_executing_run: bool
+      motor_position: int
+      success: bool
+    type: python
+  description: iCL42 motor
+  handles: []
+  icon: ''
+  init_param_schema:
+    description: UniLabJsonCommand __init__ 的参数schema
+    properties:
+      feedback: {}
+      goal:
+        description: UniLabJsonCommand __init__ 的参数schema
+        properties:
+          device_address:
+            default: 1
+            description: '参数: device_address'
+            type: integer
+          device_com:
+            default: COM9
+            description: '参数: device_com'
+            type: string
+        required: []
+        type: object
+      result: {}
+    required:
+    - goal
+    title: __init__ 命令参数
+    type: object

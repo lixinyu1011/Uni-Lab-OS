@@ -1,67 +1,449 @@
-# 光学表征设备：红外、紫外可见、拉曼等
-raman_home_made:
-  description: Raman spectroscopy device
-  class:
-    module: unilabos.devices.raman_uv.home_made_raman:RamanObj
-    type: python
-    status_types:
-      status: String
-    action_value_mappings:
-      raman_cmd:
-        type: SendCmd
-        goal:
-          command: command
-        feedback: {}
-        result:
-          success: success
-  schema:
-    properties:
-      status:
-        type: string
-    required:
-    - status
-    additionalProperties: false
-    type: object
 hplc.agilent:
-  description: HPLC device
   class:
-    module: unilabos.devices.hplc.AgilentHPLC:HPLCDriver
-    type: python
-    status_types:
-      device_status: String
-      could_run: Bool
-      driver_init_ok: Bool
-      is_running: Bool
-      finish_status: String
-      status_text: String
     action_value_mappings:
+      auto-check_status:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand check_status 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand check_status 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: check_status 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-extract_data_from_txt:
+        feedback: {}
+        goal: {}
+        goal_default:
+          file_path: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand extract_data_from_txt 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand extract_data_from_txt 的参数schema
+              properties:
+                file_path:
+                  description: '参数: file_path'
+                  type: string
+              required:
+              - file_path
+              type: object
+            result: {}
+          required:
+          - goal
+          title: extract_data_from_txt 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-start_sequence:
+        feedback: {}
+        goal: {}
+        goal_default:
+          params: null
+          resource: null
+          wf_name: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand start_sequence 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand start_sequence 的参数schema
+              properties:
+                params:
+                  description: '参数: params'
+                  type: string
+                resource:
+                  description: '参数: resource'
+                  type: object
+                wf_name:
+                  description: '参数: wf_name'
+                  type: string
+              required:
+              - wf_name
+              type: object
+            result: {}
+          required:
+          - goal
+          title: start_sequence 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-try_close_sub_device:
+        feedback: {}
+        goal: {}
+        goal_default:
+          device_name: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand try_close_sub_device 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand try_close_sub_device 的参数schema
+              properties:
+                device_name:
+                  description: '参数: device_name'
+                  type: string
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: try_close_sub_device 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-try_open_sub_device:
+        feedback: {}
+        goal: {}
+        goal_default:
+          device_name: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand try_open_sub_device 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand try_open_sub_device 的参数schema
+              properties:
+                device_name:
+                  description: '参数: device_name'
+                  type: string
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: try_open_sub_device 命令参数
+          type: object
+        type: UniLabJsonCommand
       execute_command_from_outer:
-        type: SendCmd
+        feedback: {}
         goal:
           command: command
-        feedback: {}
+        goal_default:
+          command: ''
+        handles: []
         result:
           success: success
-  schema:
+        schema:
+          description: ROS Action SendCmd 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties:
+                status:
+                  type: string
+              required:
+              - status
+              title: SendCmd_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                command:
+                  type: string
+              required:
+              - command
+              title: SendCmd_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: SendCmd_Result
+              type: object
+          required:
+          - goal
+          title: SendCmd
+          type: object
+        type: SendCmd
+    module: unilabos.devices.hplc.AgilentHPLC:HPLCDriver
+    status_types:
+      could_run: bool
+      data_file: list
+      device_status: str
+      driver_init_ok: bool
+      finish_status: str
+      is_running: bool
+      status_text: str
+      success: bool
+    type: python
+  description: HPLC device
+  handles: []
+  icon: ''
+  init_param_schema:
+    description: UniLabJsonCommand __init__ 的参数schema
     properties:
-      device_status:
-        type: string
-      could_run:
-        type: boolean
-      driver_init_ok:
-        type: boolean
-      is_running:
-        type: boolean
-      finish_status:
-        type: string
-      status_text:
-        type: string
+      feedback: {}
+      goal:
+        description: UniLabJsonCommand __init__ 的参数schema
+        properties:
+          driver_debug:
+            default: false
+            description: '参数: driver_debug'
+            type: boolean
+        required: []
+        type: object
+      result: {}
     required:
-    - device_status
-    - could_run
-    - driver_init_ok
-    - is_running
-    - finish_status
-    - status_text
-    additionalProperties: false
+    - goal
+    title: __init__ 命令参数
+    type: object
+raman_home_made:
+  class:
+    action_value_mappings:
+      auto-ccd_time:
+        feedback: {}
+        goal: {}
+        goal_default:
+          int_time: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand ccd_time 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand ccd_time 的参数schema
+              properties:
+                int_time:
+                  description: '参数: int_time'
+                  type: string
+              required:
+              - int_time
+              type: object
+            result: {}
+          required:
+          - goal
+          title: ccd_time 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-laser_on_power:
+        feedback: {}
+        goal: {}
+        goal_default:
+          output_voltage_laser: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand laser_on_power 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand laser_on_power 的参数schema
+              properties:
+                output_voltage_laser:
+                  description: '参数: output_voltage_laser'
+                  type: string
+              required:
+              - output_voltage_laser
+              type: object
+            result: {}
+          required:
+          - goal
+          title: laser_on_power 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-raman_cmd:
+        feedback: {}
+        goal: {}
+        goal_default:
+          command: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand raman_cmd 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand raman_cmd 的参数schema
+              properties:
+                command:
+                  description: '参数: command'
+                  type: string
+              required:
+              - command
+              type: object
+            result: {}
+          required:
+          - goal
+          title: raman_cmd 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-raman_without_background:
+        feedback: {}
+        goal: {}
+        goal_default:
+          int_time: null
+          laser_power: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand raman_without_background 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand raman_without_background 的参数schema
+              properties:
+                int_time:
+                  description: '参数: int_time'
+                  type: string
+                laser_power:
+                  description: '参数: laser_power'
+                  type: string
+              required:
+              - int_time
+              - laser_power
+              type: object
+            result: {}
+          required:
+          - goal
+          title: raman_without_background 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-raman_without_background_average:
+        feedback: {}
+        goal: {}
+        goal_default:
+          average: null
+          int_time: null
+          laser_power: null
+          sample_name: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand raman_without_background_average 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand raman_without_background_average 的参数schema
+              properties:
+                average:
+                  description: '参数: average'
+                  type: string
+                int_time:
+                  description: '参数: int_time'
+                  type: string
+                laser_power:
+                  description: '参数: laser_power'
+                  type: string
+                sample_name:
+                  description: '参数: sample_name'
+                  type: string
+              required:
+              - sample_name
+              - int_time
+              - laser_power
+              - average
+              type: object
+            result: {}
+          required:
+          - goal
+          title: raman_without_background_average 命令参数
+          type: object
+        type: UniLabJsonCommand
+      raman_cmd:
+        feedback: {}
+        goal:
+          command: command
+        goal_default:
+          command: ''
+        handles: []
+        result:
+          success: success
+        schema:
+          description: ROS Action SendCmd 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties:
+                status:
+                  type: string
+              required:
+              - status
+              title: SendCmd_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                command:
+                  type: string
+              required:
+              - command
+              title: SendCmd_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: SendCmd_Result
+              type: object
+          required:
+          - goal
+          title: SendCmd
+          type: object
+        type: SendCmd
+    module: unilabos.devices.raman_uv.home_made_raman:RamanObj
+    status_types: {}
+    type: python
+  description: Raman spectroscopy device
+  handles: []
+  icon: ''
+  init_param_schema:
+    description: UniLabJsonCommand __init__ 的参数schema
+    properties:
+      feedback: {}
+      goal:
+        description: UniLabJsonCommand __init__ 的参数schema
+        properties:
+          baudrate_ccd:
+            default: 921600
+            description: '参数: baudrate_ccd'
+            type: integer
+          baudrate_laser:
+            default: 9600
+            description: '参数: baudrate_laser'
+            type: integer
+          port_ccd:
+            description: '参数: port_ccd'
+            type: string
+          port_laser:
+            description: '参数: port_laser'
+            type: string
+        required:
+        - port_laser
+        - port_ccd
+        type: object
+      result: {}
+    required:
+    - goal
+    title: __init__ 命令参数
     type: object

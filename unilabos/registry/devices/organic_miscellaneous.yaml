@@ -1,73 +1,488 @@
-separator.homemade:
-  description: Separator device with homemade grbl controller
-  class:
-    module: unilabos.devices.separator.homemade_grbl_conductivity:SeparatorController
-    type: python
-    status_types:
-      sensordata: Float64
-      status: String
-    action_value_mappings:
-      stir:
-        type: Stir
-        goal:
-          stir_time: stir_time,
-          stir_speed: stir_speed
-          settling_time: settling_time
-        feedback:
-          status: status
-        result: 
-          success: success
-      valve_open_cmd:
-        type: SendCmd
-        goal: 
-          command: command
-        feedback: 
-          status: status
-        result": 
-          success: success
-  schema:
-    type: object
-    properties:
-      status:
-        type: string
-        description: The status of the device
-      sensordata:
-        type: number
-        description: 电导传感器数据
-    required:
-      - status
-      - sensordata
-    additionalProperties: false
-
 rotavap.one:
-  description: Rotavap device
   class:
-    module: unilabos.devices.rotavap.rotavap_one:RotavapOne
-    type: python
-    status_types:
-      pump_time: Float64
-      rotate_time: Float64
     action_value_mappings:
+      auto-cmd_write:
+        feedback: {}
+        goal: {}
+        goal_default:
+          cmd: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand cmd_write 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand cmd_write 的参数schema
+              properties:
+                cmd:
+                  description: '参数: cmd'
+                  type: string
+              required:
+              - cmd
+              type: object
+            result: {}
+          required:
+          - goal
+          title: cmd_write 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-main_loop:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand main_loop 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand main_loop 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: main_loop 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_pump_time:
+        feedback: {}
+        goal: {}
+        goal_default:
+          time: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_pump_time 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_pump_time 的参数schema
+              properties:
+                time:
+                  description: '参数: time'
+                  type: string
+              required:
+              - time
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_pump_time 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_rotate_time:
+        feedback: {}
+        goal: {}
+        goal_default:
+          time: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_rotate_time 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_rotate_time 的参数schema
+              properties:
+                time:
+                  description: '参数: time'
+                  type: string
+              required:
+              - time
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_rotate_time 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_timer:
+        feedback: {}
+        goal: {}
+        goal_default:
+          command: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand set_timer 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand set_timer 的参数schema
+              properties:
+                command:
+                  description: '参数: command'
+                  type: string
+              required:
+              - command
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_timer 命令参数
+          type: object
+        type: UniLabJsonCommand
       set_timer:
-        type: SendCmd
+        feedback: {}
         goal:
           command: command
-        feedback: {}
+        goal_default:
+          command: ''
+        handles: []
         result:
           success: success
-  schema:
-    type: object
+        schema:
+          description: ROS Action SendCmd 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties:
+                status:
+                  type: string
+              required:
+              - status
+              title: SendCmd_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                command:
+                  type: string
+              required:
+              - command
+              title: SendCmd_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: SendCmd_Result
+              type: object
+          required:
+          - goal
+          title: SendCmd
+          type: object
+        type: SendCmd
+    module: unilabos.devices.rotavap.rotavap_one:RotavapOne
+    status_types: {}
+    type: python
+  description: Rotavap device
+  handles: []
+  icon: ''
+  init_param_schema:
+    description: UniLabJsonCommand __init__ 的参数schema
     properties:
-      temperature:
-        type: number
-        description: 旋蒸水浴温度
-      pump_time:
-        type: number
-        description: The pump time of the device
-      rotate_time:
-        type: number
-        description: The rotate time of the device
+      feedback: {}
+      goal:
+        description: UniLabJsonCommand __init__ 的参数schema
+        properties:
+          port:
+            description: '参数: port'
+            type: string
+          rate:
+            default: 9600
+            description: '参数: rate'
+            type: integer
+        required:
+        - port
+        type: object
+      result: {}
     required:
-      - pump_time
-      - rotate_time
-    additionalProperties: false
+    - goal
+    title: __init__ 命令参数
+    type: object
+separator.homemade:
+  class:
+    action_value_mappings:
+      auto-read_sensor_loop:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand read_sensor_loop 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand read_sensor_loop 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: read_sensor_loop 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-stir:
+        feedback: {}
+        goal: {}
+        goal_default:
+          settling_time: 10
+          stir_speed: 300
+          stir_time: 10
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand stir 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand stir 的参数schema
+              properties:
+                settling_time:
+                  default: 10
+                  description: '参数: settling_time'
+                  type: number
+                stir_speed:
+                  default: 300
+                  description: '参数: stir_speed'
+                  type: number
+                stir_time:
+                  default: 10
+                  description: '参数: stir_time'
+                  type: number
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: stir 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-valve_open:
+        feedback: {}
+        goal: {}
+        goal_default:
+          condition: null
+          value: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand valve_open 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand valve_open 的参数schema
+              properties:
+                condition:
+                  description: '参数: condition'
+                  type: string
+                value:
+                  description: '参数: value'
+                  type: string
+              required:
+              - condition
+              - value
+              type: object
+            result: {}
+          required:
+          - goal
+          title: valve_open 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-valve_open_cmd:
+        feedback: {}
+        goal: {}
+        goal_default:
+          command: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand valve_open_cmd 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand valve_open_cmd 的参数schema
+              properties:
+                command:
+                  description: '参数: command'
+                  type: string
+              required:
+              - command
+              type: object
+            result: {}
+          required:
+          - goal
+          title: valve_open_cmd 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-write:
+        feedback: {}
+        goal: {}
+        goal_default:
+          data: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand write 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand write 的参数schema
+              properties:
+                data:
+                  description: '参数: data'
+                  type: string
+              required:
+              - data
+              type: object
+            result: {}
+          required:
+          - goal
+          title: write 命令参数
+          type: object
+        type: UniLabJsonCommand
+      stir:
+        feedback:
+          status: status
+        goal:
+          settling_time: settling_time
+          stir_speed: stir_speed
+          stir_time: stir_time,
+        goal_default:
+          settling_time: 0.0
+          stir_speed: 0.0
+          stir_time: 0.0
+        handles: []
+        result:
+          success: success
+        schema:
+          description: ROS Action Stir 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties:
+                status:
+                  type: string
+              required:
+              - status
+              title: Stir_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                settling_time:
+                  type: number
+                stir_speed:
+                  type: number
+                stir_time:
+                  type: number
+              required:
+              - stir_time
+              - stir_speed
+              - settling_time
+              title: Stir_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: Stir_Result
+              type: object
+          required:
+          - goal
+          title: Stir
+          type: object
+        type: Stir
+      valve_open_cmd:
+        feedback:
+          status: status
+        goal:
+          command: command
+        goal_default:
+          command: ''
+        handles: []
+        result":
+          success: success
+        schema:
+          description: ROS Action SendCmd 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties:
+                status:
+                  type: string
+              required:
+              - status
+              title: SendCmd_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                command:
+                  type: string
+              required:
+              - command
+              title: SendCmd_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: SendCmd_Result
+              type: object
+          required:
+          - goal
+          title: SendCmd
+          type: object
+        type: SendCmd
+    module: unilabos.devices.separator.homemade_grbl_conductivity:SeparatorController
+    status_types: {}
+    type: python
+  description: Separator device with homemade grbl controller
+  handles: []
+  icon: ''
+  init_param_schema:
+    description: UniLabJsonCommand __init__ 的参数schema
+    properties:
+      feedback: {}
+      goal:
+        description: UniLabJsonCommand __init__ 的参数schema
+        properties:
+          baudrate_executor:
+            default: 115200
+            description: '参数: baudrate_executor'
+            type: integer
+          baudrate_sensor:
+            default: 115200
+            description: '参数: baudrate_sensor'
+            type: integer
+          port_executor:
+            description: '参数: port_executor'
+            type: string
+          port_sensor:
+            description: '参数: port_sensor'
+            type: string
+        required:
+        - port_executor
+        - port_sensor
+        type: object
+      result: {}
+    required:
+    - goal
+    title: __init__ 命令参数
+    type: object

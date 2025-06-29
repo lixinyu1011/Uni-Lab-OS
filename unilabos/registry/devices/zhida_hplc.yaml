@@ -1,27 +1,239 @@
 zhida_hplc:
-  description: Zhida HPLC
   class:
-    module: unilabos.devices.zhida_hplc.zhida:ZhidaClient
-    type: python
-    status_types:
-      status: String
     action_value_mappings:
+      abort:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: ROS Action EmptyIn 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: EmptyIn_Result
+              type: object
+          required:
+          - goal
+          title: EmptyIn
+          type: object
+        type: EmptyIn
+      auto-abort:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand abort 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand abort 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: abort 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-close:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand close 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand close 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: close 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-connect:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand connect 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand connect 的参数schema
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: connect 命令参数
+          type: object
+        type: UniLabJsonCommand
+      auto-start:
+        feedback: {}
+        goal: {}
+        goal_default:
+          text: null
+        handles: []
+        result: {}
+        schema:
+          description: UniLabJsonCommand start 的参数schema
+          properties:
+            feedback: {}
+            goal:
+              description: UniLabJsonCommand start 的参数schema
+              properties:
+                text:
+                  description: '参数: text'
+                  type: string
+              required:
+              - text
+              type: object
+            result: {}
+          required:
+          - goal
+          title: start 命令参数
+          type: object
+        type: UniLabJsonCommand
+      get_methods:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: ROS Action EmptyIn 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: EmptyIn_Result
+              type: object
+          required:
+          - goal
+          title: EmptyIn
+          type: object
+        type: EmptyIn
       start:
-        type: StrSingleInput
+        feedback: {}
         goal:
           string: string
-        feedback: {}
+        goal_default:
+          string: ''
+        handles: []
         result: {}
-      abort:
-        type: EmptyIn
-        goal: {}
-        feedback: {}
-        result: {}
-      get_methods:
-        type: EmptyIn
-        goal: {}
-        feedback: {}
-        result: {}
-
-  schema:
-    properties: {}
+        schema:
+          description: ROS Action StrSingleInput 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: StrSingleInput_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                string:
+                  type: string
+              required:
+              - string
+              title: StrSingleInput_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: StrSingleInput_Result
+              type: object
+          required:
+          - goal
+          title: StrSingleInput
+          type: object
+        type: StrSingleInput
+    module: unilabos.devices.zhida_hplc.zhida:ZhidaClient
+    status_types:
+      methods: dict
+      status: dict
+    type: python
+  description: Zhida HPLC
+  handles: []
+  icon: ''
+  init_param_schema:
+    description: UniLabJsonCommand __init__ 的参数schema
+    properties:
+      feedback: {}
+      goal:
+        description: UniLabJsonCommand __init__ 的参数schema
+        properties:
+          host:
+            default: 192.168.1.47
+            description: '参数: host'
+            type: string
+          port:
+            default: 5792
+            description: '参数: port'
+            type: integer
+          timeout:
+            default: 10.0
+            description: '参数: timeout'
+            type: number
+        required: []
+        type: object
+      result: {}
+    required:
+    - goal
+    title: __init__ 命令参数
+    type: object

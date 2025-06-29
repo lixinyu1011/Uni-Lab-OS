@@ -34,7 +34,7 @@ def main():
     """
     parser = argparse.ArgumentParser(description="注册设备和资源到 MQTT")
     parser.add_argument(
-        "--registry_path",
+        "--registry",
         type=str,
         default=None,
         action="append",
@@ -46,10 +46,16 @@ def main():
         default=None,
         help="配置文件路径，支持.py格式的Python配置文件",
     )
+    parser.add_argument(
+        "--complete_registry",
+        action="store_true",
+        default=False,
+        help="是否补全注册表",
+    )
     args = parser.parse_args()
 
     # 构建注册表
-    build_registry(args.registry_path)
+    build_registry(args.registry, args.complete_registry)
     load_config_from_file(args.config)
 
     from unilabos.app.mq import mqtt_client
