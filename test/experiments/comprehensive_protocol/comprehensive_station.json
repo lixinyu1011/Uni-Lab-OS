@@ -680,7 +680,7 @@
             "type": "fluid",
             "port": {
                 "multiway_valve_1": "5",
-                "rotavap_1": "sample_in"
+                "rotavap_1": "samplein"
             }
         },
         {
@@ -770,7 +770,7 @@
             "type": "transport",
             "port": {
                 "multiway_valve_2": "4",
-                "filter_1": "filter_in"
+                "filter_1": "filterin"
             }
         },
         {
@@ -800,7 +800,7 @@
             "type": "fluid",
             "port": {
                 "multiway_valve_2": "6",
-                "separator_1": "separator_in"
+                "separator_1": "separatorin"
             }
         },
         {
@@ -809,7 +809,7 @@
             "target": "collection_bottle_3",
             "type": "fluid",
             "port": {
-                "separator_1": "bottom_phase_out",
+                "separator_1": "bottomphaseout",
                 "collection_bottle_3": "top"
             }
         },
@@ -859,7 +859,7 @@
             "target": "waste_bottle_2",
             "type": "fluid",
             "port": {
-                "separator_1": "top_phase_out",
+                "separator_1": "topphaseout",
                 "waste_bottle_2": "top"
             }
         },
@@ -879,7 +879,7 @@
         "target": "collection_bottle_1",
         "type": "transport",
         "port": {
-            "filter_1": "filtrate_out",
+            "filter_1": "filtrateout",
             "collection_bottle_1": "top"
         }
         },
@@ -889,7 +889,7 @@
             "target": "waste_bottle_1",
             "type": "transport",
             "port": {
-                "filter_1": "retentate_out",
+                "filter_1": "retentateout",
                 "waste_bottle_1": "top"
             }
         }
