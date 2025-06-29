@@ -205,6 +205,7 @@ class ImportManager:
 
         # 尝试动态导入
         dynamic_info = None
+        static_info = None
         if use_dynamic:
             try:
                 dynamic_info = self._get_dynamic_class_info(module_path)
@@ -216,10 +217,9 @@ class ImportManager:
                     f"{module_path} 失败（将使用静态分析，"
                     f"建议修复导入错误，以实现更好的注册表识别效果！）: {e}"
                 )
-            use_dynamic = False
+                use_dynamic = False
         if not use_dynamic:
             # 尝试静态分析
-            static_info = None
             try:
                 static_info = self._get_static_class_info(module_path)
                 result["static_analysis_success"] = True
@@ -408,18 +408,32 @@ class ImportManager:
 
     def _get_return_type_from_method(self, method) -> str:
         """从方法中获取返回类型"""
-        if hasattr(method, "__annotations__") and "return" in method.__annotations__:
-            return self._get_type_string(method.__annotations__["return"])
-
         signature = inspect.signature(method)
         return self._get_type_string(signature.return_annotation)
 
     def _get_type_string(self, annotation) -> str:
-        """将类型注解转换为字符串"""
+        """将类型注解转换为Class Library中可搜索的类名"""
         if annotation == inspect.Parameter.empty:
             return "Any"  # 如果没有注解，返回Any
         if annotation is None:
             return "None"  # 明确的None类型
+        if hasattr(annotation, "__origin__"):
+            # 处理typing模块的类型
+            origin = annotation.__origin__
+            if origin in (list, set, tuple):
+                if hasattr(annotation, "__args__") and annotation.__args__:
+                    if len(annotation.__args__):
+                        arg0 = annotation.__args__[0]
+                        if isinstance(arg0, int):
+                            return "Int64MultiArray"
+                        elif isinstance(arg0, float):
+                            return "Float64MultiArray"
+                return "list"
+            elif origin is dict:
+                return "dict"
+            elif origin is Optional:
+                return "Unknown"
+            return f"Unknown"
         annotation_str = str(annotation)
         # 处理typing模块的复杂类型
         if "typing." in annotation_str:
