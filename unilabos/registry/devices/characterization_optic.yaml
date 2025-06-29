@@ -182,7 +182,7 @@ hplc.agilent:
     module: unilabos.devices.hplc.AgilentHPLC:HPLCDriver
     status_types:
       could_run: bool
-      data_file: tuple
+      data_file: list
       device_status: str
       driver_init_ok: bool
       finish_status: str

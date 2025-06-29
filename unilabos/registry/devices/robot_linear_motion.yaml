@@ -521,7 +521,7 @@ linear_motion.grbl:
             - -80
             - 0
             description: '参数: limits'
-            type: string
+            type: array
           port:
             description: '参数: port'
             type: string
