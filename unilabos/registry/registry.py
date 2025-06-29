@@ -314,7 +314,7 @@ class Registry:
                                 status_type = "String"  # 替换成ROS的String，便于显示
                                 device_config["class"]["status_types"][status_name] = status_type
                             target_type = self._replace_type_with_class(status_type, device_id, f"状态 {status_name}")
-                            if target_type in [dict]:  # 对于字典和对象的返回类型，要处理成字符串，直接进行转换
+                            if target_type in [dict, list]:  # 对于嵌套类型返回的对象，暂时处理成字符串，无法直接进行转换
                                 target_type = String
                             status_str_type_mapping[status_type] = target_type
                         device_config["class"]["status_types"] = dict(
