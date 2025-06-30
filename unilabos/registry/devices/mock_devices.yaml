@@ -8,18 +8,17 @@ mock_chiller:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand emergency_stop 的参数schema
+          description: emergency_stop的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand emergency_stop 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: emergency_stop 命令参数
+          title: emergency_stop参数
           type: object
         type: UniLabJsonCommand
       auto-heat_chill_start:
@@ -32,20 +31,16 @@ mock_chiller:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand heat_chill_start 的参数schema
+          description: heat_chill_start的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand heat_chill_start 的参数schema
               properties:
                 purpose:
-                  description: '参数: purpose'
                   type: string
                 temp:
-                  description: '参数: temp'
                   type: number
                 vessel:
-                  description: '参数: vessel'
                   type: string
               required:
               - vessel
@@ -55,7 +50,7 @@ mock_chiller:
             result: {}
           required:
           - goal
-          title: heat_chill_start 命令参数
+          title: heat_chill_start参数
           type: object
         type: UniLabJsonCommand
       auto-heat_chill_stop:
@@ -66,14 +61,12 @@ mock_chiller:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand heat_chill_stop 的参数schema
+          description: heat_chill_stop的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand heat_chill_stop 的参数schema
               properties:
                 vessel:
-                  description: '参数: vessel'
                   type: string
               required:
               - vessel
@@ -81,7 +74,7 @@ mock_chiller:
             result: {}
           required:
           - goal
-          title: heat_chill_stop 命令参数
+          title: heat_chill_stop参数
           type: object
         type: UniLabJsonCommand
       emergency_stop:
@@ -241,23 +234,41 @@ mock_chiller:
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          port:
-            default: MOCK
-            description: '参数: port'
-            type: string
-        required: []
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        port:
+          default: MOCK
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        current_temperature:
+          type: number
+        is_cooling:
+          type: boolean
+        is_heating:
+          type: boolean
+        purpose:
+          type: string
+        status:
+          type: string
+        status_info:
+          type: object
+        target_temperature:
+          type: number
+        vessel:
+          type: string
+      required:
+      - current_temperature
+      - target_temperature
+      - status
+      - is_cooling
+      - is_heating
+      - vessel
+      - purpose
+      - status_info
+      type: object
 mock_filter:
   class:
     action_value_mappings:
@@ -268,18 +279,17 @@ mock_filter:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand emergency_stop 的参数schema
+          description: emergency_stop的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand emergency_stop 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: emergency_stop 命令参数
+          title: emergency_stop参数
           type: object
         type: UniLabJsonCommand
       auto-filter:
@@ -296,37 +306,29 @@ mock_filter:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand filter 的参数schema
+          description: filter的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand filter 的参数schema
               properties:
                 continue_heatchill:
                   default: false
-                  description: '参数: continue_heatchill'
                   type: boolean
                 filtrate_vessel:
-                  description: '参数: filtrate_vessel'
                   type: string
                 stir:
                   default: false
-                  description: '参数: stir'
                   type: boolean
                 stir_speed:
                   default: 0.0
-                  description: '参数: stir_speed'
                   type: number
                 temp:
                   default: 25.0
-                  description: '参数: temp'
                   type: number
                 vessel:
-                  description: '参数: vessel'
                   type: string
                 volume:
                   default: 0.0
-                  description: '参数: volume'
                   type: number
               required:
               - vessel
@@ -335,7 +337,7 @@ mock_filter:
             result: {}
           required:
           - goal
-          title: filter 命令参数
+          title: filter参数
           type: object
         type: UniLabJsonCommand
       auto-replace_filter:
@@ -345,18 +347,17 @@ mock_filter:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand replace_filter 的参数schema
+          description: replace_filter的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand replace_filter 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: replace_filter 命令参数
+          title: replace_filter参数
           type: object
         type: UniLabJsonCommand
       auto-stop_filtering:
@@ -366,18 +367,17 @@ mock_filter:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand stop_filtering 的参数schema
+          description: stop_filtering的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand stop_filtering 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: stop_filtering 命令参数
+          title: stop_filtering参数
           type: object
         type: UniLabJsonCommand
       filter:
@@ -568,23 +568,62 @@ mock_filter:
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          port:
-            default: MOCK
-            description: '参数: port'
-            type: string
-        required: []
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        port:
+          default: MOCK
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        continue_heatchill:
+          type: boolean
+        filter_life:
+          type: number
+        filtered_volume:
+          type: number
+        filtrate_vessel:
+          type: string
+        flow_rate:
+          type: number
+        is_filtering:
+          type: boolean
+        pressure_drop:
+          type: number
+        progress:
+          type: number
+        status:
+          type: string
+        status_info:
+          type: object
+        stir:
+          type: boolean
+        stir_speed:
+          type: number
+        target_volume:
+          type: number
+        temperature:
+          type: number
+        vessel:
+          type: string
+      required:
+      - status
+      - is_filtering
+      - flow_rate
+      - pressure_drop
+      - filter_life
+      - vessel
+      - filtrate_vessel
+      - filtered_volume
+      - progress
+      - stir
+      - stir_speed
+      - temperature
+      - continue_heatchill
+      - target_volume
+      - status_info
+      type: object
 mock_heater:
   class:
     action_value_mappings:
@@ -595,18 +634,17 @@ mock_heater:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand emergency_stop 的参数schema
+          description: emergency_stop的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand emergency_stop 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: emergency_stop 命令参数
+          title: emergency_stop参数
           type: object
         type: UniLabJsonCommand
       auto-heat_chill:
@@ -622,32 +660,25 @@ mock_heater:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand heat_chill 的参数schema
+          description: heat_chill的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand heat_chill 的参数schema
               properties:
                 purpose:
                   default: Unknown
-                  description: '参数: purpose'
                   type: string
                 stir:
                   default: false
-                  description: '参数: stir'
                   type: boolean
                 stir_speed:
                   default: 0.0
-                  description: '参数: stir_speed'
                   type: number
                 temp:
-                  description: '参数: temp'
                   type: number
                 time:
-                  description: '参数: time'
                   type: number
                 vessel:
-                  description: '参数: vessel'
                   type: string
               required:
               - vessel
@@ -657,7 +688,7 @@ mock_heater:
             result: {}
           required:
           - goal
-          title: heat_chill 命令参数
+          title: heat_chill参数
           type: object
         type: UniLabJsonCommand
       auto-heat_chill_start:
@@ -670,20 +701,16 @@ mock_heater:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand heat_chill_start 的参数schema
+          description: heat_chill_start的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand heat_chill_start 的参数schema
               properties:
                 purpose:
-                  description: '参数: purpose'
                   type: string
                 temp:
-                  description: '参数: temp'
                   type: number
                 vessel:
-                  description: '参数: vessel'
                   type: string
               required:
               - vessel
@@ -693,7 +720,7 @@ mock_heater:
             result: {}
           required:
           - goal
-          title: heat_chill_start 命令参数
+          title: heat_chill_start参数
           type: object
         type: UniLabJsonCommand
       auto-heat_chill_stop:
@@ -704,14 +731,12 @@ mock_heater:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand heat_chill_stop 的参数schema
+          description: heat_chill_stop的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand heat_chill_stop 的参数schema
               properties:
                 vessel:
-                  description: '参数: vessel'
                   type: string
               required:
               - vessel
@@ -719,7 +744,7 @@ mock_heater:
             result: {}
           required:
           - goal
-          title: heat_chill_stop 命令参数
+          title: heat_chill_stop参数
           type: object
         type: UniLabJsonCommand
       auto-set_heating_power:
@@ -730,14 +755,12 @@ mock_heater:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand set_heating_power 的参数schema
+          description: set_heating_power的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand set_heating_power 的参数schema
               properties:
                 power:
-                  description: '参数: power'
                   type: number
               required:
               - power
@@ -745,7 +768,7 @@ mock_heater:
             result: {}
           required:
           - goal
-          title: set_heating_power 命令参数
+          title: set_heating_power参数
           type: object
         type: UniLabJsonCommand
       auto-set_temperature:
@@ -756,14 +779,12 @@ mock_heater:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand set_temperature 的参数schema
+          description: set_temperature的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand set_temperature 的参数schema
               properties:
                 temperature:
-                  description: '参数: temperature'
                   type: number
               required:
               - temperature
@@ -771,7 +792,7 @@ mock_heater:
             result: {}
           required:
           - goal
-          title: set_temperature 命令参数
+          title: set_temperature参数
           type: object
         type: UniLabJsonCommand
       emergency_stop:
@@ -1007,23 +1028,50 @@ mock_heater:
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          port:
-            default: MOCK
-            description: '参数: port'
-            type: string
-        required: []
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        port:
+          default: MOCK
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        current_temperature:
+          type: number
+        heating_power:
+          type: number
+        is_heating:
+          type: boolean
+        max_temperature:
+          type: number
+        purpose:
+          type: string
+        status:
+          type: string
+        status_info:
+          type: object
+        stir:
+          type: boolean
+        stir_speed:
+          type: number
+        target_temperature:
+          type: number
+        vessel:
+          type: string
+      required:
+      - current_temperature
+      - target_temperature
+      - status
+      - is_heating
+      - heating_power
+      - max_temperature
+      - vessel
+      - purpose
+      - stir
+      - stir_speed
+      - status_info
+      type: object
 mock_pump:
   class:
     action_value_mappings:
@@ -1034,18 +1082,17 @@ mock_pump:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand emergency_stop 的参数schema
+          description: emergency_stop的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand emergency_stop 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: emergency_stop 命令参数
+          title: emergency_stop参数
           type: object
         type: UniLabJsonCommand
       auto-pause_pump:
@@ -1055,18 +1102,17 @@ mock_pump:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand pause_pump 的参数schema
+          description: pause_pump的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand pause_pump 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: pause_pump 命令参数
+          title: pause_pump参数
           type: object
         type: UniLabJsonCommand
       auto-pump_transfer:
@@ -1086,48 +1132,37 @@ mock_pump:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand pump_transfer 的参数schema
+          description: pump_transfer的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand pump_transfer 的参数schema
               properties:
                 amount:
                   default: ''
-                  description: '参数: amount'
                   type: string
                 from_vessel:
-                  description: '参数: from_vessel'
                   type: string
                 rinsing_repeats:
                   default: 0
-                  description: '参数: rinsing_repeats'
                   type: integer
                 rinsing_solvent:
                   default: ''
-                  description: '参数: rinsing_solvent'
                   type: string
                 rinsing_volume:
                   default: 0.0
-                  description: '参数: rinsing_volume'
                   type: number
                 solid:
                   default: false
-                  description: '参数: solid'
                   type: boolean
                 time:
                   default: 0.0
-                  description: '参数: time'
                   type: number
                 to_vessel:
-                  description: '参数: to_vessel'
                   type: string
                 viscous:
                   default: false
-                  description: '参数: viscous'
                   type: boolean
                 volume:
-                  description: '参数: volume'
                   type: number
               required:
               - from_vessel
@@ -1137,7 +1172,7 @@ mock_pump:
             result: {}
           required:
           - goal
-          title: pump_transfer 命令参数
+          title: pump_transfer参数
           type: object
         type: UniLabJsonCommand
       auto-reset_volume_counter:
@@ -1147,18 +1182,17 @@ mock_pump:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand reset_volume_counter 的参数schema
+          description: reset_volume_counter的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand reset_volume_counter 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: reset_volume_counter 命令参数
+          title: reset_volume_counter参数
           type: object
         type: UniLabJsonCommand
       auto-resume_pump:
@@ -1168,18 +1202,17 @@ mock_pump:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand resume_pump 的参数schema
+          description: resume_pump的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand resume_pump 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: resume_pump 命令参数
+          title: resume_pump参数
           type: object
         type: UniLabJsonCommand
       pause_pump:
@@ -1452,23 +1485,83 @@ mock_pump:
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          port:
-            default: MOCK
-            description: '参数: port'
-            type: string
-        required: []
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        port:
+          default: MOCK
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        amount:
+          type: string
+        current_device:
+          type: string
+        flow_rate:
+          type: number
+        from_vessel:
+          type: string
+        is_solid:
+          type: boolean
+        is_viscous:
+          type: boolean
+        max_flow_rate:
+          type: number
+        max_pressure:
+          type: number
+        pressure:
+          type: number
+        pump_state:
+          type: string
+        rinsing_repeats:
+          type: integer
+        rinsing_solvent:
+          type: string
+        rinsing_volume:
+          type: number
+        status:
+          type: string
+        status_info:
+          type: object
+        target_flow_rate:
+          type: number
+        time_remaining:
+          type: number
+        time_spent:
+          type: number
+        to_vessel:
+          type: string
+        total_volume:
+          type: number
+        transfer_time:
+          type: number
+        transfer_volume:
+          type: number
+      required:
+      - status
+      - current_device
+      - pump_state
+      - flow_rate
+      - target_flow_rate
+      - pressure
+      - total_volume
+      - max_flow_rate
+      - max_pressure
+      - from_vessel
+      - to_vessel
+      - transfer_volume
+      - amount
+      - transfer_time
+      - is_viscous
+      - rinsing_solvent
+      - rinsing_volume
+      - rinsing_repeats
+      - is_solid
+      - time_spent
+      - time_remaining
+      - status_info
+      type: object
 mock_rotavap:
   class:
     action_value_mappings:
@@ -1479,18 +1572,17 @@ mock_rotavap:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand emergency_stop 的参数schema
+          description: emergency_stop的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand emergency_stop 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: emergency_stop 命令参数
+          title: emergency_stop参数
           type: object
         type: UniLabJsonCommand
       auto-set_pump_time:
@@ -1501,14 +1593,12 @@ mock_rotavap:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand set_pump_time 的参数schema
+          description: set_pump_time的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand set_pump_time 的参数schema
               properties:
                 time_seconds:
-                  description: '参数: time_seconds'
                   type: number
               required:
               - time_seconds
@@ -1516,7 +1606,7 @@ mock_rotavap:
             result: {}
           required:
           - goal
-          title: set_pump_time 命令参数
+          title: set_pump_time参数
           type: object
         type: UniLabJsonCommand
       auto-set_rotate_speed:
@@ -1527,14 +1617,12 @@ mock_rotavap:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand set_rotate_speed 的参数schema
+          description: set_rotate_speed的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand set_rotate_speed 的参数schema
               properties:
                 speed:
-                  description: '参数: speed'
                   type: number
               required:
               - speed
@@ -1542,7 +1630,7 @@ mock_rotavap:
             result: {}
           required:
           - goal
-          title: set_rotate_speed 命令参数
+          title: set_rotate_speed参数
           type: object
         type: UniLabJsonCommand
       auto-set_rotate_time:
@@ -1553,14 +1641,12 @@ mock_rotavap:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand set_rotate_time 的参数schema
+          description: set_rotate_time的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand set_rotate_time 的参数schema
               properties:
                 time_seconds:
-                  description: '参数: time_seconds'
                   type: number
               required:
               - time_seconds
@@ -1568,7 +1654,7 @@ mock_rotavap:
             result: {}
           required:
           - goal
-          title: set_rotate_time 命令参数
+          title: set_rotate_time参数
           type: object
         type: UniLabJsonCommand
       auto-set_temperature:
@@ -1579,14 +1665,12 @@ mock_rotavap:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand set_temperature 的参数schema
+          description: set_temperature的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand set_temperature 的参数schema
               properties:
                 temperature:
-                  description: '参数: temperature'
                   type: number
               required:
               - temperature
@@ -1594,7 +1678,7 @@ mock_rotavap:
             result: {}
           required:
           - goal
-          title: set_temperature 命令参数
+          title: set_temperature参数
           type: object
         type: UniLabJsonCommand
       auto-set_timer:
@@ -1605,14 +1689,12 @@ mock_rotavap:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand set_timer 的参数schema
+          description: set_timer的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand set_timer 的参数schema
               properties:
                 command:
-                  description: '参数: command'
                   type: string
               required:
               - command
@@ -1620,7 +1702,7 @@ mock_rotavap:
             result: {}
           required:
           - goal
-          title: set_timer 命令参数
+          title: set_timer参数
           type: object
         type: UniLabJsonCommand
       auto-start_pump:
@@ -1630,18 +1712,17 @@ mock_rotavap:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand start_pump 的参数schema
+          description: start_pump的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand start_pump 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: start_pump 命令参数
+          title: start_pump参数
           type: object
         type: UniLabJsonCommand
       auto-start_rotation:
@@ -1651,18 +1732,17 @@ mock_rotavap:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand start_rotation 的参数schema
+          description: start_rotation的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand start_rotation 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: start_rotation 命令参数
+          title: start_rotation参数
           type: object
         type: UniLabJsonCommand
       auto-stop_all_operations:
@@ -1672,18 +1752,17 @@ mock_rotavap:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand stop_all_operations 的参数schema
+          description: stop_all_operations的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand stop_all_operations 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: stop_all_operations 命令参数
+          title: stop_all_operations参数
           type: object
         type: UniLabJsonCommand
       set_pump_time:
@@ -1995,23 +2074,47 @@ mock_rotavap:
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          port:
-            default: MOCK
-            description: '参数: port'
-            type: string
-        required: []
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        port:
+          default: MOCK
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        pump_state:
+          type: string
+        pump_time:
+          type: number
+        rotate_speed:
+          type: number
+        rotate_state:
+          type: string
+        rotate_time:
+          type: number
+        status:
+          type: string
+        status_info:
+          type: object
+        target_temperature:
+          type: number
+        temperature:
+          type: number
+        vacuum_level:
+          type: number
+      required:
+      - status
+      - rotate_state
+      - rotate_time
+      - rotate_speed
+      - pump_state
+      - pump_time
+      - vacuum_level
+      - temperature
+      - target_temperature
+      - status_info
+      type: object
 mock_separator:
   class:
     action_value_mappings:
@@ -2035,58 +2138,44 @@ mock_separator:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand separate 的参数schema
+          description: separate的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand separate 的参数schema
               properties:
                 from_vessel:
-                  description: '参数: from_vessel'
                   type: string
                 product_phase:
-                  description: '参数: product_phase'
                   type: string
                 purpose:
-                  description: '参数: purpose'
                   type: string
                 repeats:
                   default: 1
-                  description: '参数: repeats'
                   type: integer
                 separation_vessel:
-                  description: '参数: separation_vessel'
                   type: string
                 settling_time:
                   default: 60.0
-                  description: '参数: settling_time'
                   type: number
                 solvent:
                   default: ''
-                  description: '参数: solvent'
                   type: string
                 solvent_volume:
                   default: 0.0
-                  description: '参数: solvent_volume'
                   type: number
                 stir_speed:
                   default: 0.0
-                  description: '参数: stir_speed'
                   type: number
                 stir_time:
                   default: 0.0
-                  description: '参数: stir_time'
                   type: number
                 through:
                   default: ''
-                  description: '参数: through'
                   type: string
                 to_vessel:
-                  description: '参数: to_vessel'
                   type: string
                 waste_phase_to_vessel:
                   default: ''
-                  description: '参数: waste_phase_to_vessel'
                   type: string
               required:
               - purpose
@@ -2098,7 +2187,7 @@ mock_separator:
             result: {}
           required:
           - goal
-          title: separate 命令参数
+          title: separate参数
           type: object
         type: UniLabJsonCommand
       auto-set_valve:
@@ -2109,14 +2198,12 @@ mock_separator:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand set_valve 的参数schema
+          description: set_valve的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand set_valve 的参数schema
               properties:
                 command:
-                  description: '参数: command'
                   type: string
               required:
               - command
@@ -2124,7 +2211,7 @@ mock_separator:
             result: {}
           required:
           - goal
-          title: set_valve 命令参数
+          title: set_valve参数
           type: object
         type: UniLabJsonCommand
       auto-shake:
@@ -2135,14 +2222,12 @@ mock_separator:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand shake 的参数schema
+          description: shake的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand shake 的参数schema
               properties:
                 shake_time:
-                  description: '参数: shake_time'
                   type: number
               required:
               - shake_time
@@ -2150,7 +2235,7 @@ mock_separator:
             result: {}
           required:
           - goal
-          title: shake 命令参数
+          title: shake参数
           type: object
         type: UniLabJsonCommand
       auto-stop_operations:
@@ -2160,18 +2245,17 @@ mock_separator:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand stop_operations 的参数schema
+          description: stop_operations的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand stop_operations 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: stop_operations 命令参数
+          title: stop_operations参数
           type: object
         type: UniLabJsonCommand
       separate:
@@ -2475,23 +2559,80 @@ mock_separator:
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          port:
-            default: MOCK
-            description: '参数: port'
-            type: string
-        required: []
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        port:
+          default: MOCK
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        current_device:
+          type: string
+        from_vessel:
+          type: string
+        product_phase:
+          type: string
+        purpose:
+          type: string
+        repeats:
+          type: integer
+        separation_vessel:
+          type: string
+        settling_time:
+          type: number
+        shake_status:
+          type: string
+        shake_time:
+          type: number
+        solvent:
+          type: string
+        solvent_volume:
+          type: number
+        status:
+          type: string
+        status_info:
+          type: object
+        stir_speed:
+          type: number
+        stir_time:
+          type: number
+        through:
+          type: string
+        time_remaining:
+          type: number
+        time_spent:
+          type: number
+        to_vessel:
+          type: string
+        valve_state:
+          type: string
+        waste_phase_to_vessel:
+          type: string
+      required:
+      - current_device
+      - purpose
+      - valve_state
+      - settling_time
+      - status
+      - shake_time
+      - shake_status
+      - product_phase
+      - from_vessel
+      - separation_vessel
+      - to_vessel
+      - waste_phase_to_vessel
+      - solvent
+      - solvent_volume
+      - through
+      - repeats
+      - stir_time
+      - stir_speed
+      - time_spent
+      - time_remaining
+      - status_info
+      type: object
 mock_solenoid_valve:
   class:
     action_value_mappings:
@@ -2502,18 +2643,17 @@ mock_solenoid_valve:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand close_valve 的参数schema
+          description: close_valve的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand close_valve 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: close_valve 命令参数
+          title: close_valve参数
           type: object
         type: UniLabJsonCommand
       auto-is_closed:
@@ -2523,18 +2663,17 @@ mock_solenoid_valve:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand is_closed 的参数schema
+          description: is_closed的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand is_closed 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: is_closed 命令参数
+          title: is_closed参数
           type: object
         type: UniLabJsonCommand
       auto-is_open:
@@ -2544,18 +2683,17 @@ mock_solenoid_valve:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand is_open 的参数schema
+          description: is_open的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand is_open 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: is_open 命令参数
+          title: is_open参数
           type: object
         type: UniLabJsonCommand
       auto-open_valve:
@@ -2565,18 +2703,17 @@ mock_solenoid_valve:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand open_valve 的参数schema
+          description: open_valve的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand open_valve 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: open_valve 命令参数
+          title: open_valve参数
           type: object
         type: UniLabJsonCommand
       auto-set_valve_status:
@@ -2587,14 +2724,12 @@ mock_solenoid_valve:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand set_valve_status 的参数schema
+          description: set_valve_status的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand set_valve_status 的参数schema
               properties:
                 status:
-                  description: '参数: status'
                   type: string
               required:
               - status
@@ -2602,7 +2737,7 @@ mock_solenoid_valve:
             result: {}
           required:
           - goal
-          title: set_valve_status 命令参数
+          title: set_valve_status参数
           type: object
         type: UniLabJsonCommand
       close_valve:
@@ -2730,23 +2865,23 @@ mock_solenoid_valve:
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          port:
-            default: MOCK
-            description: '参数: port'
-            type: string
-        required: []
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        port:
+          default: MOCK
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        status:
+          type: string
+        valve_status:
+          type: string
+      required:
+      - status
+      - valve_status
+      type: object
 mock_stirrer:
   class:
     action_value_mappings:
@@ -2757,18 +2892,17 @@ mock_stirrer:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand emergency_stop 的参数schema
+          description: emergency_stop的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand emergency_stop 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: emergency_stop 命令参数
+          title: emergency_stop参数
           type: object
         type: UniLabJsonCommand
       auto-heating_control:
@@ -2779,22 +2913,20 @@ mock_stirrer:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand heating_control 的参数schema
+          description: heating_control的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand heating_control 的参数schema
               properties:
                 heating_state:
                   default: 'On'
-                  description: '参数: heating_state'
                   type: string
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: heating_control 命令参数
+          title: heating_control参数
           type: object
         type: UniLabJsonCommand
       auto-set_stir_speed:
@@ -2805,14 +2937,12 @@ mock_stirrer:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand set_stir_speed 的参数schema
+          description: set_stir_speed的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand set_stir_speed 的参数schema
               properties:
                 speed:
-                  description: '参数: speed'
                   type: number
               required:
               - speed
@@ -2820,7 +2950,7 @@ mock_stirrer:
             result: {}
           required:
           - goal
-          title: set_stir_speed 命令参数
+          title: set_stir_speed参数
           type: object
         type: UniLabJsonCommand
       auto-set_temperature:
@@ -2831,14 +2961,12 @@ mock_stirrer:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand set_temperature 的参数schema
+          description: set_temperature的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand set_temperature 的参数schema
               properties:
                 temperature:
-                  description: '参数: temperature'
                   type: number
               required:
               - temperature
@@ -2846,7 +2974,7 @@ mock_stirrer:
             result: {}
           required:
           - goal
-          title: set_temperature 命令参数
+          title: set_temperature参数
           type: object
         type: UniLabJsonCommand
       auto-start_stirring:
@@ -2856,18 +2984,17 @@ mock_stirrer:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand start_stirring 的参数schema
+          description: start_stirring的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand start_stirring 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: start_stirring 命令参数
+          title: start_stirring参数
           type: object
         type: UniLabJsonCommand
       auto-stop_all_operations:
@@ -2877,18 +3004,17 @@ mock_stirrer:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand stop_all_operations 的参数schema
+          description: stop_all_operations的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand stop_all_operations 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: stop_all_operations 命令参数
+          title: stop_all_operations参数
           type: object
         type: UniLabJsonCommand
       auto-stop_stirring:
@@ -2898,18 +3024,17 @@ mock_stirrer:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand stop_stirring 的参数schema
+          description: stop_stirring的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand stop_stirring 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: stop_stirring 命令参数
+          title: stop_stirring参数
           type: object
         type: UniLabJsonCommand
       heating_control:
@@ -3134,23 +3259,50 @@ mock_stirrer:
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          port:
-            default: MOCK
-            description: '参数: port'
-            type: string
-        required: []
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        port:
+          default: MOCK
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        heating_power:
+          type: number
+        heating_state:
+          type: string
+        max_stir_speed:
+          type: number
+        max_temperature:
+          type: number
+        status:
+          type: string
+        status_info:
+          type: object
+        stir_speed:
+          type: number
+        stir_state:
+          type: string
+        target_stir_speed:
+          type: number
+        target_temperature:
+          type: number
+        temperature:
+          type: number
+      required:
+      - status
+      - stir_speed
+      - target_stir_speed
+      - stir_state
+      - temperature
+      - target_temperature
+      - heating_state
+      - heating_power
+      - max_stir_speed
+      - max_temperature
+      - status_info
+      type: object
 mock_stirrer_new:
   class:
     action_value_mappings:
@@ -3164,22 +3316,18 @@ mock_stirrer_new:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand start_stir 的参数schema
+          description: start_stir的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand start_stir 的参数schema
               properties:
                 purpose:
                   default: ''
-                  description: '参数: purpose'
                   type: string
                 stir_speed:
                   default: 0.0
-                  description: '参数: stir_speed'
                   type: number
                 vessel:
-                  description: '参数: vessel'
                   type: string
               required:
               - vessel
@@ -3187,7 +3335,7 @@ mock_stirrer_new:
             result: {}
           required:
           - goal
-          title: start_stir 命令参数
+          title: start_stir参数
           type: object
         type: UniLabJsonCommand
       auto-stir:
@@ -3200,20 +3348,16 @@ mock_stirrer_new:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand stir 的参数schema
+          description: stir的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand stir 的参数schema
               properties:
                 settling_time:
-                  description: '参数: settling_time'
                   type: number
                 stir_speed:
-                  description: '参数: stir_speed'
                   type: number
                 stir_time:
-                  description: '参数: stir_time'
                   type: number
               required:
               - stir_time
@@ -3223,7 +3367,7 @@ mock_stirrer_new:
             result: {}
           required:
           - goal
-          title: stir 命令参数
+          title: stir参数
           type: object
         type: UniLabJsonCommand
       auto-stop_stir:
@@ -3234,14 +3378,12 @@ mock_stirrer_new:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand stop_stir 的参数schema
+          description: stop_stir的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand stop_stir 的参数schema
               properties:
                 vessel:
-                  description: '参数: vessel'
                   type: string
               required:
               - vessel
@@ -3249,7 +3391,7 @@ mock_stirrer_new:
             result: {}
           required:
           - goal
-          title: stop_stir 命令参数
+          title: stop_stir参数
           type: object
         type: UniLabJsonCommand
       start_stir:
@@ -3454,23 +3596,50 @@ mock_stirrer_new:
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          port:
-            default: MOCK
-            description: '参数: port'
-            type: string
-        required: []
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        port:
+          default: MOCK
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        max_stir_speed:
+          type: number
+        progress:
+          type: number
+        purpose:
+          type: string
+        settling_time:
+          type: number
+        status:
+          type: string
+        status_info:
+          type: object
+        stir_speed:
+          type: number
+        stir_state:
+          type: string
+        stir_time:
+          type: number
+        target_stir_speed:
+          type: number
+        vessel:
+          type: string
+      required:
+      - status
+      - stir_speed
+      - target_stir_speed
+      - stir_state
+      - vessel
+      - purpose
+      - stir_time
+      - settling_time
+      - max_stir_speed
+      - progress
+      - status_info
+      type: object
 mock_vacuum:
   class:
     action_value_mappings:
@@ -3481,18 +3650,17 @@ mock_vacuum:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand emergency_stop 的参数schema
+          description: emergency_stop的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand emergency_stop 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: emergency_stop 命令参数
+          title: emergency_stop参数
           type: object
         type: UniLabJsonCommand
       auto-pause_vacuum:
@@ -3502,18 +3670,17 @@ mock_vacuum:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand pause_vacuum 的参数schema
+          description: pause_vacuum的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand pause_vacuum 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: pause_vacuum 命令参数
+          title: pause_vacuum参数
           type: object
         type: UniLabJsonCommand
       auto-power_control:
@@ -3524,22 +3691,20 @@ mock_vacuum:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand power_control 的参数schema
+          description: power_control的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand power_control 的参数schema
               properties:
                 power_state:
                   default: 'On'
-                  description: '参数: power_state'
                   type: string
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: power_control 命令参数
+          title: power_control参数
           type: object
         type: UniLabJsonCommand
       auto-resume_vacuum:
@@ -3549,18 +3714,17 @@ mock_vacuum:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand resume_vacuum 的参数schema
+          description: resume_vacuum的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand resume_vacuum 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: resume_vacuum 命令参数
+          title: resume_vacuum参数
           type: object
         type: UniLabJsonCommand
       auto-set_vacuum_level:
@@ -3571,14 +3735,12 @@ mock_vacuum:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand set_vacuum_level 的参数schema
+          description: set_vacuum_level的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand set_vacuum_level 的参数schema
               properties:
                 vacuum_level:
-                  description: '参数: vacuum_level'
                   type: number
               required:
               - vacuum_level
@@ -3586,7 +3748,7 @@ mock_vacuum:
             result: {}
           required:
           - goal
-          title: set_vacuum_level 命令参数
+          title: set_vacuum_level参数
           type: object
         type: UniLabJsonCommand
       auto-start_vacuum:
@@ -3596,18 +3758,17 @@ mock_vacuum:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand start_vacuum 的参数schema
+          description: start_vacuum的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand start_vacuum 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: start_vacuum 命令参数
+          title: start_vacuum参数
           type: object
         type: UniLabJsonCommand
       auto-stop_vacuum:
@@ -3617,18 +3778,17 @@ mock_vacuum:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand stop_vacuum 的参数schema
+          description: stop_vacuum的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand stop_vacuum 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: stop_vacuum 命令参数
+          title: stop_vacuum参数
           type: object
         type: UniLabJsonCommand
       auto-vent_to_atmosphere:
@@ -3638,18 +3798,17 @@ mock_vacuum:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand vent_to_atmosphere 的参数schema
+          description: vent_to_atmosphere的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand vent_to_atmosphere 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: vent_to_atmosphere 命令参数
+          title: vent_to_atmosphere参数
           type: object
         type: UniLabJsonCommand
       pause_vacuum:
@@ -3936,20 +4095,41 @@ mock_vacuum:
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          port:
-            default: MOCK
-            description: '参数: port'
-            type: string
-        required: []
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        port:
+          default: MOCK
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        max_pump_speed:
+          type: number
+        power_state:
+          type: string
+        pump_efficiency:
+          type: number
+        pump_speed:
+          type: number
+        pump_state:
+          type: string
+        status:
+          type: string
+        status_info:
+          type: object
+        target_vacuum:
+          type: number
+        vacuum_level:
+          type: number
+      required:
+      - status
+      - power_state
+      - pump_state
+      - vacuum_level
+      - target_vacuum
+      - pump_speed
+      - pump_efficiency
+      - max_pump_speed
+      - status_info
+      type: object

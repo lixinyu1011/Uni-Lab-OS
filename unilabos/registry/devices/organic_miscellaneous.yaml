@@ -9,14 +9,12 @@ rotavap.one:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand cmd_write 的参数schema
+          description: cmd_write的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand cmd_write 的参数schema
               properties:
                 cmd:
-                  description: '参数: cmd'
                   type: string
               required:
               - cmd
@@ -24,7 +22,7 @@ rotavap.one:
             result: {}
           required:
           - goal
-          title: cmd_write 命令参数
+          title: cmd_write参数
           type: object
         type: UniLabJsonCommand
       auto-main_loop:
@@ -34,18 +32,17 @@ rotavap.one:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand main_loop 的参数schema
+          description: main_loop的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand main_loop 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: main_loop 命令参数
+          title: main_loop参数
           type: object
         type: UniLabJsonCommand
       auto-set_pump_time:
@@ -56,14 +53,12 @@ rotavap.one:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand set_pump_time 的参数schema
+          description: set_pump_time的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand set_pump_time 的参数schema
               properties:
                 time:
-                  description: '参数: time'
                   type: string
               required:
               - time
@@ -71,7 +66,7 @@ rotavap.one:
             result: {}
           required:
           - goal
-          title: set_pump_time 命令参数
+          title: set_pump_time参数
           type: object
         type: UniLabJsonCommand
       auto-set_rotate_time:
@@ -82,14 +77,12 @@ rotavap.one:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand set_rotate_time 的参数schema
+          description: set_rotate_time的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand set_rotate_time 的参数schema
               properties:
                 time:
-                  description: '参数: time'
                   type: string
               required:
               - time
@@ -97,7 +90,7 @@ rotavap.one:
             result: {}
           required:
           - goal
-          title: set_rotate_time 命令参数
+          title: set_rotate_time参数
           type: object
         type: UniLabJsonCommand
       auto-set_timer:
@@ -108,14 +101,12 @@ rotavap.one:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand set_timer 的参数schema
+          description: set_timer的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand set_timer 的参数schema
               properties:
                 command:
-                  description: '参数: command'
                   type: string
               required:
               - command
@@ -123,7 +114,7 @@ rotavap.one:
             result: {}
           required:
           - goal
-          title: set_timer 命令参数
+          title: set_timer参数
           type: object
         type: UniLabJsonCommand
       set_timer:
@@ -180,27 +171,20 @@ rotavap.one:
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          port:
-            description: '参数: port'
-            type: string
-          rate:
-            default: 9600
-            description: '参数: rate'
-            type: integer
-        required:
-        - port
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        port:
+          type: string
+        rate:
+          default: 9600
+          type: string
+      required:
+      - port
+      type: object
+    data:
+      properties: {}
+      required: []
+      type: object
 separator.homemade:
   class:
     action_value_mappings:
@@ -211,18 +195,17 @@ separator.homemade:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand read_sensor_loop 的参数schema
+          description: read_sensor_loop的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand read_sensor_loop 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: read_sensor_loop 命令参数
+          title: read_sensor_loop参数
           type: object
         type: UniLabJsonCommand
       auto-stir:
@@ -235,30 +218,26 @@ separator.homemade:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand stir 的参数schema
+          description: stir的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand stir 的参数schema
               properties:
                 settling_time:
                   default: 10
-                  description: '参数: settling_time'
                   type: number
                 stir_speed:
                   default: 300
-                  description: '参数: stir_speed'
                   type: number
                 stir_time:
                   default: 10
-                  description: '参数: stir_time'
                   type: number
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: stir 命令参数
+          title: stir参数
           type: object
         type: UniLabJsonCommand
       auto-valve_open:
@@ -270,17 +249,14 @@ separator.homemade:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand valve_open 的参数schema
+          description: valve_open的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand valve_open 的参数schema
               properties:
                 condition:
-                  description: '参数: condition'
                   type: string
                 value:
-                  description: '参数: value'
                   type: string
               required:
               - condition
@@ -289,7 +265,7 @@ separator.homemade:
             result: {}
           required:
           - goal
-          title: valve_open 命令参数
+          title: valve_open参数
           type: object
         type: UniLabJsonCommand
       auto-valve_open_cmd:
@@ -300,14 +276,12 @@ separator.homemade:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand valve_open_cmd 的参数schema
+          description: valve_open_cmd的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand valve_open_cmd 的参数schema
               properties:
                 command:
-                  description: '参数: command'
                   type: string
               required:
               - command
@@ -315,7 +289,7 @@ separator.homemade:
             result: {}
           required:
           - goal
-          title: valve_open_cmd 命令参数
+          title: valve_open_cmd参数
           type: object
         type: UniLabJsonCommand
       auto-write:
@@ -326,14 +300,12 @@ separator.homemade:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand write 的参数schema
+          description: write的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand write 的参数schema
               properties:
                 data:
-                  description: '参数: data'
                   type: string
               required:
               - data
@@ -341,7 +313,7 @@ separator.homemade:
             result: {}
           required:
           - goal
-          title: write 命令参数
+          title: write参数
           type: object
         type: UniLabJsonCommand
       stir:
@@ -457,32 +429,23 @@ separator.homemade:
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          baudrate_executor:
-            default: 115200
-            description: '参数: baudrate_executor'
-            type: integer
-          baudrate_sensor:
-            default: 115200
-            description: '参数: baudrate_sensor'
-            type: integer
-          port_executor:
-            description: '参数: port_executor'
-            type: string
-          port_sensor:
-            description: '参数: port_sensor'
-            type: string
-        required:
-        - port_executor
-        - port_sensor
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        baudrate_executor:
+          default: 115200
+          type: integer
+        baudrate_sensor:
+          default: 115200
+          type: integer
+        port_executor:
+          type: string
+        port_sensor:
+          type: string
+      required:
+      - port_executor
+      - port_sensor
+      type: object
+    data:
+      properties: {}
+      required: []
+      type: object

@@ -8,18 +8,17 @@ linear_motion.grbl:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand initialize 的参数schema
+          description: initialize的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand initialize 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: initialize 命令参数
+          title: initialize参数
           type: object
         type: UniLabJsonCommand
       auto-move_through_points:
@@ -30,14 +29,12 @@ linear_motion.grbl:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand move_through_points 的参数schema
+          description: move_through_points的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand move_through_points 的参数schema
               properties:
                 positions:
-                  description: '参数: positions'
                   type: array
               required:
               - positions
@@ -45,7 +42,7 @@ linear_motion.grbl:
             result: {}
           required:
           - goal
-          title: move_through_points 命令参数
+          title: move_through_points参数
           type: object
         type: UniLabJsonCommand
       auto-set_position:
@@ -56,14 +53,12 @@ linear_motion.grbl:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand set_position 的参数schema
+          description: set_position的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand set_position 的参数schema
               properties:
                 position:
-                  description: '参数: position'
                   type: string
               required:
               - position
@@ -71,7 +66,7 @@ linear_motion.grbl:
             result: {}
           required:
           - goal
-          title: set_position 命令参数
+          title: set_position参数
           type: object
         type: UniLabJsonCommand
       auto-set_spindle_speed:
@@ -83,18 +78,15 @@ linear_motion.grbl:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand set_spindle_speed 的参数schema
+          description: set_spindle_speed的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand set_spindle_speed 的参数schema
               properties:
                 max_velocity:
                   default: 500
-                  description: '参数: max_velocity'
                   type: number
                 spindle_speed:
-                  description: '参数: spindle_speed'
                   type: number
               required:
               - spindle_speed
@@ -102,7 +94,7 @@ linear_motion.grbl:
             result: {}
           required:
           - goal
-          title: set_spindle_speed 命令参数
+          title: set_spindle_speed参数
           type: object
         type: UniLabJsonCommand
       auto-stop_operation:
@@ -112,18 +104,17 @@ linear_motion.grbl:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand stop_operation 的参数schema
+          description: stop_operation的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand stop_operation 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: stop_operation 命令参数
+          title: stop_operation参数
           type: object
         type: UniLabJsonCommand
       auto-wait_error:
@@ -133,18 +124,17 @@ linear_motion.grbl:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand wait_error 的参数schema
+          description: wait_error的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand wait_error 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: wait_error 命令参数
+          title: wait_error参数
           type: object
         type: UniLabJsonCommandAsync
       move_through_points:
@@ -502,37 +492,38 @@ linear_motion.grbl:
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          address:
-            default: '1'
-            description: '参数: address'
-            type: string
-          limits:
-            default:
-            - -150
-            - 150
-            - -200
-            - 0
-            - -80
-            - 0
-            description: '参数: limits'
-            type: array
-          port:
-            description: '参数: port'
-            type: string
-        required:
-        - port
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        address:
+          default: '1'
+          type: string
+        limits:
+          default:
+          - -150
+          - 150
+          - -200
+          - 0
+          - -80
+          - 0
+          type: array
+        port:
+          type: string
+      required:
+      - port
+      type: object
+    data:
+      properties:
+        position:
+          type: string
+        spindle_speed:
+          type: number
+        status:
+          type: string
+      required:
+      - status
+      - position
+      - spindle_speed
+      type: object
 motor.iCL42:
   class:
     action_value_mappings:
@@ -546,20 +537,16 @@ motor.iCL42:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand execute_run_motor 的参数schema
+          description: execute_run_motor的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand execute_run_motor 的参数schema
               properties:
                 mode:
-                  description: '参数: mode'
                   type: string
                 position:
-                  description: '参数: position'
                   type: number
                 velocity:
-                  description: '参数: velocity'
                   type: integer
               required:
               - mode
@@ -569,7 +556,7 @@ motor.iCL42:
             result: {}
           required:
           - goal
-          title: execute_run_motor 命令参数
+          title: execute_run_motor参数
           type: object
         type: UniLabJsonCommand
       auto-init_device:
@@ -579,18 +566,17 @@ motor.iCL42:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand init_device 的参数schema
+          description: init_device的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand init_device 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: init_device 命令参数
+          title: init_device参数
           type: object
         type: UniLabJsonCommand
       auto-run_motor:
@@ -603,20 +589,16 @@ motor.iCL42:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand run_motor 的参数schema
+          description: run_motor的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand run_motor 的参数schema
               properties:
                 mode:
-                  description: '参数: mode'
                   type: string
                 position:
-                  description: '参数: position'
                   type: number
                 velocity:
-                  description: '参数: velocity'
                   type: integer
               required:
               - mode
@@ -626,7 +608,7 @@ motor.iCL42:
             result: {}
           required:
           - goal
-          title: run_motor 命令参数
+          title: run_motor参数
           type: object
         type: UniLabJsonCommand
       execute_command_from_outer:
@@ -686,24 +668,26 @@ motor.iCL42:
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          device_address:
-            default: 1
-            description: '参数: device_address'
-            type: integer
-          device_com:
-            default: COM9
-            description: '参数: device_com'
-            type: string
-        required: []
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        device_address:
+          default: 1
+          type: integer
+        device_com:
+          default: COM9
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        is_executing_run:
+          type: boolean
+        motor_position:
+          type: integer
+        success:
+          type: boolean
+      required:
+      - motor_position
+      - is_executing_run
+      - success
+      type: object

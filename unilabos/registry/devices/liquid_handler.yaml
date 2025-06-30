@@ -578,65 +578,47 @@ liquid_handler:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand add_liquid 的参数schema
+          description: add_liquid的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand add_liquid 的参数schema
               properties:
                 asp_vols:
-                  description: '参数: asp_vols'
                   type: string
                 blow_out_air_volume:
-                  description: '参数: blow_out_air_volume'
                   type: string
                 delays:
-                  description: '参数: delays'
                   type: string
                 dis_vols:
-                  description: '参数: dis_vols'
                   type: string
                 flow_rates:
-                  description: '参数: flow_rates'
                   type: string
                 is_96_well:
                   default: false
-                  description: '参数: is_96_well'
                   type: boolean
                 liquid_height:
-                  description: '参数: liquid_height'
                   type: string
                 mix_liquid_height:
-                  description: '参数: mix_liquid_height'
                   type: string
                 mix_rate:
-                  description: '参数: mix_rate'
                   type: string
                 mix_time:
-                  description: '参数: mix_time'
                   type: string
                 mix_vol:
-                  description: '参数: mix_vol'
                   type: string
                 none_keys:
                   default: []
-                  description: '参数: none_keys'
                   type: string
                 offsets:
-                  description: '参数: offsets'
                   type: string
                 reagent_sources:
-                  description: '参数: reagent_sources'
                   type: string
                 spread:
                   default: wide
-                  description: '参数: spread'
                   type: string
                 targets:
-                  description: '参数: targets'
                   type: string
                 use_channels:
-                  description: '参数: use_channels'
                   type: string
               required:
               - asp_vols
@@ -647,7 +629,7 @@ liquid_handler:
             result: {}
           required:
           - goal
-          title: add_liquid 命令参数
+          title: add_liquid参数
           type: object
         type: UniLabJsonCommandAsync
       auto-create_protocol:
@@ -664,33 +646,25 @@ liquid_handler:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand create_protocol 的参数schema
+          description: create_protocol的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand create_protocol 的参数schema
               properties:
                 none_keys:
                   default: []
-                  description: '参数: none_keys'
                   type: string
                 protocol_author:
-                  description: '参数: protocol_author'
                   type: string
                 protocol_date:
-                  description: '参数: protocol_date'
                   type: string
                 protocol_description:
-                  description: '参数: protocol_description'
                   type: string
                 protocol_name:
-                  description: '参数: protocol_name'
                   type: string
                 protocol_type:
-                  description: '参数: protocol_type'
                   type: string
                 protocol_version:
-                  description: '参数: protocol_version'
                   type: string
               required:
               - protocol_name
@@ -703,7 +677,7 @@ liquid_handler:
             result: {}
           required:
           - goal
-          title: create_protocol 命令参数
+          title: create_protocol参数
           type: object
         type: UniLabJsonCommandAsync
       auto-custom_delay:
@@ -715,25 +689,22 @@ liquid_handler:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand custom_delay 的参数schema
+          description: custom_delay的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand custom_delay 的参数schema
               properties:
                 msg:
-                  description: '参数: msg'
                   type: string
                 seconds:
                   default: 0
-                  description: '参数: seconds'
                   type: string
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: custom_delay 命令参数
+          title: custom_delay参数
           type: object
         type: UniLabJsonCommandAsync
       auto-iter_tips:
@@ -744,14 +715,12 @@ liquid_handler:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand iter_tips 的参数schema
+          description: iter_tips的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand iter_tips 的参数schema
               properties:
                 tip_racks:
-                  description: '参数: tip_racks'
                   type: string
               required:
               - tip_racks
@@ -759,7 +728,7 @@ liquid_handler:
             result: {}
           required:
           - goal
-          title: iter_tips 命令参数
+          title: iter_tips参数
           type: object
         type: UniLabJsonCommand
       auto-mix:
@@ -776,33 +745,25 @@ liquid_handler:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand mix 的参数schema
+          description: mix的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand mix 的参数schema
               properties:
                 height_to_bottom:
-                  description: '参数: height_to_bottom'
                   type: string
                 mix_rate:
-                  description: '参数: mix_rate'
                   type: string
                 mix_time:
-                  description: '参数: mix_time'
                   type: integer
                 mix_vol:
-                  description: '参数: mix_vol'
                   type: string
                 none_keys:
                   default: []
-                  description: '参数: none_keys'
                   type: string
                 offsets:
-                  description: '参数: offsets'
                   type: string
                 targets:
-                  description: '参数: targets'
                   type: string
               required:
               - targets
@@ -810,7 +771,7 @@ liquid_handler:
             result: {}
           required:
           - goal
-          title: mix 命令参数
+          title: mix参数
           type: object
         type: UniLabJsonCommandAsync
       auto-move_to:
@@ -823,22 +784,18 @@ liquid_handler:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand move_to 的参数schema
+          description: move_to的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand move_to 的参数schema
               properties:
                 channel:
                   default: 0
-                  description: '参数: channel'
                   type: integer
                 dis_to_top:
                   default: 0
-                  description: '参数: dis_to_top'
                   type: number
                 well:
-                  description: '参数: well'
                   type: string
               required:
               - well
@@ -846,7 +803,7 @@ liquid_handler:
             result: {}
           required:
           - goal
-          title: move_to 命令参数
+          title: move_to参数
           type: object
         type: UniLabJsonCommandAsync
       auto-remove_liquid:
@@ -869,53 +826,39 @@ liquid_handler:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand remove_liquid 的参数schema
+          description: remove_liquid的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand remove_liquid 的参数schema
               properties:
                 blow_out_air_volume:
-                  description: '参数: blow_out_air_volume'
                   type: string
                 delays:
-                  description: '参数: delays'
                   type: string
                 flow_rates:
-                  description: '参数: flow_rates'
                   type: string
                 is_96_well:
                   default: false
-                  description: '参数: is_96_well'
                   type: string
                 liquid_height:
-                  description: '参数: liquid_height'
                   type: string
                 none_keys:
                   default: []
-                  description: '参数: none_keys'
                   type: string
                 offsets:
-                  description: '参数: offsets'
                   type: string
                 sources:
-                  description: '参数: sources'
                   type: string
                 spread:
                   default: wide
-                  description: '参数: spread'
                   type: string
                 top:
-                  description: '参数: top'
                   type: string
                 use_channels:
-                  description: '参数: use_channels'
                   type: string
                 vols:
-                  description: '参数: vols'
                   type: string
                 waste_liquid:
-                  description: '参数: waste_liquid'
                   type: string
               required:
               - vols
@@ -924,7 +867,7 @@ liquid_handler:
             result: {}
           required:
           - goal
-          title: remove_liquid 命令参数
+          title: remove_liquid参数
           type: object
         type: UniLabJsonCommandAsync
       auto-set_tiprack:
@@ -935,14 +878,12 @@ liquid_handler:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand set_tiprack 的参数schema
+          description: set_tiprack的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand set_tiprack 的参数schema
               properties:
                 tip_racks:
-                  description: '参数: tip_racks'
                   type: string
               required:
               - tip_racks
@@ -950,7 +891,7 @@ liquid_handler:
             result: {}
           required:
           - goal
-          title: set_tiprack 命令参数
+          title: set_tiprack参数
           type: object
         type: UniLabJsonCommand
       auto-touch_tip:
@@ -961,14 +902,12 @@ liquid_handler:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand touch_tip 的参数schema
+          description: touch_tip的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand touch_tip 的参数schema
               properties:
                 targets:
-                  description: '参数: targets'
                   type: string
               required:
               - targets
@@ -976,7 +915,7 @@ liquid_handler:
             result: {}
           required:
           - goal
-          title: touch_tip 命令参数
+          title: touch_tip参数
           type: object
         type: UniLabJsonCommandAsync
       auto-transfer_liquid:
@@ -1007,79 +946,57 @@ liquid_handler:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand transfer_liquid 的参数schema
+          description: transfer_liquid的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand transfer_liquid 的参数schema
               properties:
                 asp_flow_rates:
-                  description: '参数: asp_flow_rates'
                   type: string
                 asp_vols:
-                  description: '参数: asp_vols'
                   type: string
                 blow_out_air_volume:
-                  description: '参数: blow_out_air_volume'
                   type: string
                 delays:
-                  description: '参数: delays'
                   type: string
                 dis_flow_rates:
-                  description: '参数: dis_flow_rates'
                   type: string
                 dis_vols:
-                  description: '参数: dis_vols'
                   type: string
                 is_96_well:
                   default: false
-                  description: '参数: is_96_well'
                   type: boolean
                 liquid_height:
-                  description: '参数: liquid_height'
                   type: string
                 mix_liquid_height:
-                  description: '参数: mix_liquid_height'
                   type: string
                 mix_rate:
-                  description: '参数: mix_rate'
                   type: string
                 mix_stage:
                   default: none
-                  description: '参数: mix_stage'
                   type: string
                 mix_times:
-                  description: '参数: mix_times'
                   type: string
                 mix_vol:
-                  description: '参数: mix_vol'
                   type: string
                 none_keys:
                   default: []
-                  description: '参数: none_keys'
                   type: string
                 offsets:
-                  description: '参数: offsets'
                   type: string
                 sources:
-                  description: '参数: sources'
                   type: string
                 spread:
                   default: wide
-                  description: '参数: spread'
                   type: string
                 targets:
-                  description: '参数: targets'
                   type: string
                 tip_racks:
-                  description: '参数: tip_racks'
                   type: string
                 touch_tip:
                   default: false
-                  description: '参数: touch_tip'
                   type: boolean
                 use_channels:
-                  description: '参数: use_channels'
                   type: string
               required:
               - sources
@@ -1091,7 +1008,7 @@ liquid_handler:
             result: {}
           required:
           - goal
-          title: transfer_liquid 命令参数
+          title: transfer_liquid参数
           type: object
         type: UniLabJsonCommandAsync
       discard_tips:
@@ -4851,27 +4768,20 @@ liquid_handler:
       label: Liquid Output
   icon: icon_yiyezhan.webp
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          backend:
-            description: '参数: backend'
-            type: string
-          deck:
-            description: '参数: deck'
-            type: string
-        required:
-        - backend
-        - deck
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        backend:
+          type: string
+        deck:
+          type: string
+      required:
+      - backend
+      - deck
+      type: object
+    data:
+      properties: {}
+      required: []
+      type: object
 liquid_handler.biomek:
   class:
     action_value_mappings:
@@ -4889,33 +4799,25 @@ liquid_handler.biomek:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand create_protocol 的参数schema
+          description: create_protocol的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand create_protocol 的参数schema
               properties:
                 none_keys:
                   default: []
-                  description: '参数: none_keys'
                   type: array
                 protocol_author:
-                  description: '参数: protocol_author'
                   type: string
                 protocol_date:
-                  description: '参数: protocol_date'
                   type: string
                 protocol_description:
-                  description: '参数: protocol_description'
                   type: string
                 protocol_name:
-                  description: '参数: protocol_name'
                   type: string
                 protocol_type:
-                  description: '参数: protocol_type'
                   type: string
                 protocol_version:
-                  description: '参数: protocol_version'
                   type: string
               required:
               - protocol_name
@@ -4928,7 +4830,7 @@ liquid_handler.biomek:
             result: {}
           required:
           - goal
-          title: create_protocol 命令参数
+          title: create_protocol参数
           type: object
         type: UniLabJsonCommand
       auto-create_resource:
@@ -4946,35 +4848,26 @@ liquid_handler.biomek:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand create_resource 的参数schema
+          description: create_resource的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand create_resource 的参数schema
               properties:
                 bind_location:
-                  description: '参数: bind_location'
                   type: object
                 bind_parent_id:
-                  description: '参数: bind_parent_id'
                   type: string
                 liquid_input_slot:
-                  description: '参数: liquid_input_slot'
                   type: array
                 liquid_type:
-                  description: '参数: liquid_type'
                   type: array
                 liquid_volume:
-                  description: '参数: liquid_volume'
                   type: array
                 resource_tracker:
-                  description: '参数: resource_tracker'
                   type: string
                 resources:
-                  description: '参数: resources'
                   type: array
                 slot_on_deck:
-                  description: '参数: slot_on_deck'
                   type: integer
               required:
               - resource_tracker
@@ -4989,7 +4882,7 @@ liquid_handler.biomek:
             result: {}
           required:
           - goal
-          title: create_resource 命令参数
+          title: create_resource参数
           type: object
         type: UniLabJsonCommand
       auto-incubation_biomek:
@@ -5000,14 +4893,12 @@ liquid_handler.biomek:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand incubation_biomek 的参数schema
+          description: incubation_biomek的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand incubation_biomek 的参数schema
               properties:
                 time:
-                  description: '参数: time'
                   type: integer
               required:
               - time
@@ -5015,7 +4906,7 @@ liquid_handler.biomek:
             result: {}
           required:
           - goal
-          title: incubation_biomek 命令参数
+          title: incubation_biomek参数
           type: object
         type: UniLabJsonCommand
       auto-instrument_setup_biomek:
@@ -5032,32 +4923,24 @@ liquid_handler.biomek:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand instrument_setup_biomek 的参数schema
+          description: instrument_setup_biomek的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand instrument_setup_biomek 的参数schema
               properties:
                 class_name:
-                  description: '参数: class_name'
                   type: string
                 id:
-                  description: '参数: id'
                   type: string
                 liquid_input_wells:
-                  description: '参数: liquid_input_wells'
                   type: array
                 liquid_type:
-                  description: '参数: liquid_type'
                   type: array
                 liquid_volume:
-                  description: '参数: liquid_volume'
                   type: array
                 parent:
-                  description: '参数: parent'
                   type: string
                 slot_on_deck:
-                  description: '参数: slot_on_deck'
                   type: string
               required:
               - id
@@ -5071,7 +4954,7 @@ liquid_handler.biomek:
             result: {}
           required:
           - goal
-          title: instrument_setup_biomek 命令参数
+          title: instrument_setup_biomek参数
           type: object
         type: UniLabJsonCommand
       auto-move_biomek:
@@ -5083,17 +4966,14 @@ liquid_handler.biomek:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand move_biomek 的参数schema
+          description: move_biomek的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand move_biomek 的参数schema
               properties:
                 source:
-                  description: '参数: source'
                   type: string
                 target:
-                  description: '参数: target'
                   type: string
               required:
               - source
@@ -5102,7 +4982,7 @@ liquid_handler.biomek:
             result: {}
           required:
           - goal
-          title: move_biomek 命令参数
+          title: move_biomek参数
           type: object
         type: UniLabJsonCommand
       auto-oscillation_biomek:
@@ -5114,17 +4994,14 @@ liquid_handler.biomek:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand oscillation_biomek 的参数schema
+          description: oscillation_biomek的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand oscillation_biomek 的参数schema
               properties:
                 rpm:
-                  description: '参数: rpm'
                   type: integer
                 time:
-                  description: '参数: time'
                   type: integer
               required:
               - rpm
@@ -5133,7 +5010,7 @@ liquid_handler.biomek:
             result: {}
           required:
           - goal
-          title: oscillation_biomek 命令参数
+          title: oscillation_biomek参数
           type: object
         type: UniLabJsonCommand
       auto-run_protocol:
@@ -5143,18 +5020,17 @@ liquid_handler.biomek:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand run_protocol 的参数schema
+          description: run_protocol的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand run_protocol 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: run_protocol 命令参数
+          title: run_protocol参数
           type: object
         type: UniLabJsonCommand
       auto-transfer_biomek:
@@ -5170,29 +5046,22 @@ liquid_handler.biomek:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand transfer_biomek 的参数schema
+          description: transfer_biomek的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand transfer_biomek 的参数schema
               properties:
                 aspirate_techniques:
-                  description: '参数: aspirate_techniques'
                   type: string
                 dispense_techniques:
-                  description: '参数: dispense_techniques'
                   type: string
                 source:
-                  description: '参数: source'
                   type: string
                 target:
-                  description: '参数: target'
                   type: string
                 tip_rack:
-                  description: '参数: tip_rack'
                   type: string
                 volume:
-                  description: '参数: volume'
                   type: number
               required:
               - source
@@ -5205,7 +5074,7 @@ liquid_handler.biomek:
             result: {}
           required:
           - goal
-          title: transfer_biomek 命令参数
+          title: transfer_biomek参数
           type: object
         type: UniLabJsonCommand
       auto-transfer_liquid:
@@ -5236,79 +5105,57 @@ liquid_handler.biomek:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand transfer_liquid 的参数schema
+          description: transfer_liquid的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand transfer_liquid 的参数schema
               properties:
                 asp_flow_rates:
-                  description: '参数: asp_flow_rates'
                   type: string
                 asp_vols:
-                  description: '参数: asp_vols'
                   type: string
                 blow_out_air_volume:
-                  description: '参数: blow_out_air_volume'
                   type: string
                 delays:
-                  description: '参数: delays'
                   type: string
                 dis_flow_rates:
-                  description: '参数: dis_flow_rates'
                   type: string
                 dis_vols:
-                  description: '参数: dis_vols'
                   type: string
                 is_96_well:
                   default: false
-                  description: '参数: is_96_well'
                   type: boolean
                 liquid_height:
-                  description: '参数: liquid_height'
                   type: string
                 mix_liquid_height:
-                  description: '参数: mix_liquid_height'
                   type: string
                 mix_rate:
-                  description: '参数: mix_rate'
                   type: string
                 mix_stage:
                   default: none
-                  description: '参数: mix_stage'
                   type: string
                 mix_times:
-                  description: '参数: mix_times'
                   type: string
                 mix_vol:
-                  description: '参数: mix_vol'
                   type: string
                 none_keys:
                   default: []
-                  description: '参数: none_keys'
                   type: array
                 offsets:
-                  description: '参数: offsets'
                   type: string
                 sources:
-                  description: '参数: sources'
                   type: string
                 spread:
                   default: wide
-                  description: '参数: spread'
                   type: string
                 targets:
-                  description: '参数: targets'
                   type: string
                 tip_racks:
-                  description: '参数: tip_racks'
                   type: string
                 touch_tip:
                   default: false
-                  description: '参数: touch_tip'
                   type: boolean
                 use_channels:
-                  description: '参数: use_channels'
                   type: string
               required:
               - sources
@@ -5320,7 +5167,7 @@ liquid_handler.biomek:
             result: {}
           required:
           - goal
-          title: transfer_liquid 命令参数
+          title: transfer_liquid参数
           type: object
         type: UniLabJsonCommand
       create_protocol:
@@ -6206,27 +6053,17 @@ liquid_handler.biomek:
   handles: []
   icon: icon_yiyezhan.webp
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          args:
-            description: '参数: args'
-            type: string
-          kwargs:
-            description: '参数: kwargs'
-            type: string
-        required:
-        - args
-        - kwargs
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties: {}
+      required: []
+      type: object
+    data:
+      properties:
+        success:
+          type: string
+      required:
+      - success
+      type: object
 liquid_handler.revvity:
   class:
     action_value_mappings:
@@ -6242,23 +6079,19 @@ liquid_handler.revvity:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand run 的参数schema
+          description: run的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand run 的参数schema
               properties:
                 file_path:
-                  description: '参数: file_path'
                   type: string
                 params:
-                  description: '参数: params'
                   type: string
                 resource:
                   default:
                     AichemecoHiwo:
                       id: AichemecoHiwo
-                  description: '参数: resource'
                   type: object
               required:
               - file_path
@@ -6267,7 +6100,7 @@ liquid_handler.revvity:
             result: {}
           required:
           - goal
-          title: run 命令参数
+          title: run参数
           type: object
         type: UniLabJsonCommand
       run:
@@ -6430,16 +6263,17 @@ liquid_handler.revvity:
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties: {}
-        required: []
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties: {}
+      required: []
+      type: object
+    data:
+      properties:
+        status:
+          type: string
+        success:
+          type: boolean
+      required:
+      - success
+      - status
+      type: object

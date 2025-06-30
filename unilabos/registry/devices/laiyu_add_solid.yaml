@@ -70,20 +70,16 @@ laiyu_add_solid:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand add_powder_tube 的参数schema
+          description: add_powder_tube的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand add_powder_tube 的参数schema
               properties:
                 compound_mass:
-                  description: '参数: compound_mass'
                   type: string
                 powder_tube_number:
-                  description: '参数: powder_tube_number'
                   type: string
                 target_tube_position:
-                  description: '参数: target_tube_position'
                   type: string
               required:
               - powder_tube_number
@@ -93,7 +89,7 @@ laiyu_add_solid:
             result: {}
           required:
           - goal
-          title: add_powder_tube 命令参数
+          title: add_powder_tube参数
           type: object
         type: UniLabJsonCommand
       auto-calculate_crc:
@@ -104,14 +100,12 @@ laiyu_add_solid:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand calculate_crc 的参数schema
+          description: calculate_crc的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand calculate_crc 的参数schema
               properties:
                 data:
-                  description: '参数: data'
                   type: string
               required:
               - data
@@ -119,7 +113,7 @@ laiyu_add_solid:
             result: {}
           required:
           - goal
-          title: calculate_crc 命令参数
+          title: calculate_crc参数
           type: object
         type: UniLabJsonCommand
       auto-discharge:
@@ -130,14 +124,12 @@ laiyu_add_solid:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand discharge 的参数schema
+          description: discharge的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand discharge 的参数schema
               properties:
                 float_in:
-                  description: '参数: float_in'
                   type: number
               required:
               - float_in
@@ -145,7 +137,7 @@ laiyu_add_solid:
             result: {}
           required:
           - goal
-          title: discharge 命令参数
+          title: discharge参数
           type: object
         type: UniLabJsonCommand
       auto-move_to_plate:
@@ -156,14 +148,12 @@ laiyu_add_solid:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand move_to_plate 的参数schema
+          description: move_to_plate的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand move_to_plate 的参数schema
               properties:
                 string:
-                  description: '参数: string'
                   type: string
               required:
               - string
@@ -171,7 +161,7 @@ laiyu_add_solid:
             result: {}
           required:
           - goal
-          title: move_to_plate 命令参数
+          title: move_to_plate参数
           type: object
         type: UniLabJsonCommand
       auto-move_to_xyz:
@@ -184,20 +174,16 @@ laiyu_add_solid:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand move_to_xyz 的参数schema
+          description: move_to_xyz的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand move_to_xyz 的参数schema
               properties:
                 x:
-                  description: '参数: x'
                   type: number
                 y:
-                  description: '参数: y'
                   type: number
                 z:
-                  description: '参数: z'
                   type: number
               required:
               - x
@@ -207,7 +193,7 @@ laiyu_add_solid:
             result: {}
           required:
           - goal
-          title: move_to_xyz 命令参数
+          title: move_to_xyz参数
           type: object
         type: UniLabJsonCommand
       auto-pick_powder_tube:
@@ -218,14 +204,12 @@ laiyu_add_solid:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand pick_powder_tube 的参数schema
+          description: pick_powder_tube的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand pick_powder_tube 的参数schema
               properties:
                 int_input:
-                  description: '参数: int_input'
                   type: integer
               required:
               - int_input
@@ -233,7 +217,7 @@ laiyu_add_solid:
             result: {}
           required:
           - goal
-          title: pick_powder_tube 命令参数
+          title: pick_powder_tube参数
           type: object
         type: UniLabJsonCommand
       auto-put_powder_tube:
@@ -244,14 +228,12 @@ laiyu_add_solid:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand put_powder_tube 的参数schema
+          description: put_powder_tube的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand put_powder_tube 的参数schema
               properties:
                 int_input:
-                  description: '参数: int_input'
                   type: integer
               required:
               - int_input
@@ -259,7 +241,7 @@ laiyu_add_solid:
             result: {}
           required:
           - goal
-          title: put_powder_tube 命令参数
+          title: put_powder_tube参数
           type: object
         type: UniLabJsonCommand
       auto-reset:
@@ -269,18 +251,17 @@ laiyu_add_solid:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand reset 的参数schema
+          description: reset的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand reset 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: reset 命令参数
+          title: reset参数
           type: object
         type: UniLabJsonCommand
       auto-send_command:
@@ -291,14 +272,12 @@ laiyu_add_solid:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand send_command 的参数schema
+          description: send_command的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand send_command 的参数schema
               properties:
                 command:
-                  description: '参数: command'
                   type: string
               required:
               - command
@@ -306,7 +285,7 @@ laiyu_add_solid:
             result: {}
           required:
           - goal
-          title: send_command 命令参数
+          title: send_command参数
           type: object
         type: UniLabJsonCommand
       discharge:
@@ -581,28 +560,23 @@ laiyu_add_solid:
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          baudrate:
-            default: 115200
-            description: '参数: baudrate'
-            type: integer
-          port:
-            description: '参数: port'
-            type: string
-          timeout:
-            default: 0.5
-            description: '参数: timeout'
-            type: number
-        required:
-        - port
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        baudrate:
+          default: 115200
+          type: string
+        port:
+          type: string
+        timeout:
+          default: 0.5
+          type: string
+      required:
+      - port
+      type: object
+    data:
+      properties:
+        status:
+          type: string
+      required:
+      - status
+      type: object

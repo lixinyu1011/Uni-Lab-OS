@@ -8,18 +8,17 @@ robotic_arm.UR:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand arm_init 的参数schema
+          description: arm_init的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand arm_init 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: arm_init 命令参数
+          title: arm_init参数
           type: object
         type: UniLabJsonCommand
       auto-load_pose_data:
@@ -30,14 +29,12 @@ robotic_arm.UR:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand load_pose_data 的参数schema
+          description: load_pose_data的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand load_pose_data 的参数schema
               properties:
                 data:
-                  description: '参数: data'
                   type: string
               required:
               - data
@@ -45,7 +42,7 @@ robotic_arm.UR:
             result: {}
           required:
           - goal
-          title: load_pose_data 命令参数
+          title: load_pose_data参数
           type: object
         type: UniLabJsonCommand
       auto-load_pose_file:
@@ -56,14 +53,12 @@ robotic_arm.UR:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand load_pose_file 的参数schema
+          description: load_pose_file的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand load_pose_file 的参数schema
               properties:
                 file:
-                  description: '参数: file'
                   type: string
               required:
               - file
@@ -71,7 +66,7 @@ robotic_arm.UR:
             result: {}
           required:
           - goal
-          title: load_pose_file 命令参数
+          title: load_pose_file参数
           type: object
         type: UniLabJsonCommand
       auto-move_pos_task:
@@ -82,14 +77,12 @@ robotic_arm.UR:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand move_pos_task 的参数schema
+          description: move_pos_task的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand move_pos_task 的参数schema
               properties:
                 command:
-                  description: '参数: command'
                   type: string
               required:
               - command
@@ -97,7 +90,7 @@ robotic_arm.UR:
             result: {}
           required:
           - goal
-          title: move_pos_task 命令参数
+          title: move_pos_task参数
           type: object
         type: UniLabJsonCommand
       auto-reload_pose:
@@ -107,18 +100,17 @@ robotic_arm.UR:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand reload_pose 的参数schema
+          description: reload_pose的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand reload_pose 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: reload_pose 命令参数
+          title: reload_pose参数
           type: object
         type: UniLabJsonCommand
       move_pos_task:
@@ -179,24 +171,29 @@ robotic_arm.UR:
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          host:
-            description: '参数: host'
-            type: string
-          retry:
-            default: 30
-            description: '参数: retry'
-            type: integer
-        required:
-        - host
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        host:
+          type: string
+        retry:
+          default: 30
+          type: string
+      required:
+      - host
+      type: object
+    data:
+      properties:
+        arm_pose:
+          type: array
+        arm_status:
+          type: string
+        gripper_pose:
+          type: number
+        gripper_status:
+          type: string
+      required:
+      - arm_pose
+      - gripper_pose
+      - arm_status
+      - gripper_status
+      type: object

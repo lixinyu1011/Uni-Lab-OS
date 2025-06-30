@@ -8,18 +8,17 @@ gas_source.mock:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand close 的参数schema
+          description: close的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand close 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: close 命令参数
+          title: close参数
           type: object
         type: UniLabJsonCommand
       auto-is_closed:
@@ -29,18 +28,17 @@ gas_source.mock:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand is_closed 的参数schema
+          description: is_closed的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand is_closed 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: is_closed 命令参数
+          title: is_closed参数
           type: object
         type: UniLabJsonCommand
       auto-is_open:
@@ -50,18 +48,17 @@ gas_source.mock:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand is_open 的参数schema
+          description: is_open的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand is_open 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: is_open 命令参数
+          title: is_open参数
           type: object
         type: UniLabJsonCommand
       auto-open:
@@ -71,18 +68,17 @@ gas_source.mock:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand open 的参数schema
+          description: open的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand open 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: open 命令参数
+          title: open参数
           type: object
         type: UniLabJsonCommand
       auto-set_status:
@@ -93,14 +89,12 @@ gas_source.mock:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand set_status 的参数schema
+          description: set_status的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand set_status 的参数schema
               properties:
                 string:
-                  description: '参数: string'
                   type: string
               required:
               - string
@@ -108,7 +102,7 @@ gas_source.mock:
             result: {}
           required:
           - goal
-          title: set_status 命令参数
+          title: set_status参数
           type: object
         type: UniLabJsonCommand
       close:
@@ -238,23 +232,20 @@ gas_source.mock:
     label: out
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          port:
-            default: COM6
-            description: '参数: port'
-            type: string
-        required: []
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        port:
+          default: COM6
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        status:
+          type: string
+      required:
+      - status
+      type: object
 vacuum_pump.mock:
   class:
     action_value_mappings:
@@ -265,18 +256,17 @@ vacuum_pump.mock:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand close 的参数schema
+          description: close的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand close 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: close 命令参数
+          title: close参数
           type: object
         type: UniLabJsonCommand
       auto-is_closed:
@@ -286,18 +276,17 @@ vacuum_pump.mock:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand is_closed 的参数schema
+          description: is_closed的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand is_closed 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: is_closed 命令参数
+          title: is_closed参数
           type: object
         type: UniLabJsonCommand
       auto-is_open:
@@ -307,18 +296,17 @@ vacuum_pump.mock:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand is_open 的参数schema
+          description: is_open的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand is_open 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: is_open 命令参数
+          title: is_open参数
           type: object
         type: UniLabJsonCommand
       auto-open:
@@ -328,18 +316,17 @@ vacuum_pump.mock:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand open 的参数schema
+          description: open的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand open 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: open 命令参数
+          title: open参数
           type: object
         type: UniLabJsonCommand
       auto-set_status:
@@ -350,14 +337,12 @@ vacuum_pump.mock:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand set_status 的参数schema
+          description: set_status的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand set_status 的参数schema
               properties:
                 string:
-                  description: '参数: string'
                   type: string
               required:
               - string
@@ -365,7 +350,7 @@ vacuum_pump.mock:
             result: {}
           required:
           - goal
-          title: set_status 命令参数
+          title: set_status参数
           type: object
         type: UniLabJsonCommand
       close:
@@ -495,20 +480,17 @@ vacuum_pump.mock:
     label: out
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          port:
-            default: COM6
-            description: '参数: port'
-            type: string
-        required: []
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        port:
+          default: COM6
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        status:
+          type: string
+      required:
+      - status
+      type: object

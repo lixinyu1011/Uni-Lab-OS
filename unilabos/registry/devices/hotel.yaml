@@ -9,27 +9,23 @@ hotel.thermo_orbitor_rs2_hotel:
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          device_config:
-            description: '参数: device_config'
-            type: object
-          rotation:
-            description: '参数: rotation'
-            type: object
-        required:
-        - rotation
-        - device_config
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        device_config:
+          type: object
+        rotation:
+          type: object
+      required:
+      - rotation
+      - device_config
+      type: object
+    data:
+      properties:
+        rotation:
+          type: string
+      required:
+      - rotation
+      type: object
   model:
     mesh: thermo_orbitor_rs2_hotel
     type: device

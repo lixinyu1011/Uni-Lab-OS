@@ -240,36 +240,8 @@ class ImportManager:
         cls = get_class(class_path)
         class_name = cls.__name__
 
-        result = {
-            "class_name": class_name,
-            "init_params": [],
-            "status_methods": {},
-            "action_methods": {},
-        }
-
-        init_signature = inspect.signature(cls.__init__)
-        for param_name, param in init_signature.parameters.items():
-            if param_name == "self":
-                continue
-
-            # 先获取注解类型
-            param_type = self._get_type_string(param.annotation)
-            param_default = None if param.default == inspect.Parameter.empty else param.default
-
-            # 如果type为Any或None，尝试用default的类型推断
-            if param_type in ["Any", "None"]:
-                if param.default != inspect.Parameter.empty and param.default is not None:
-                    default_type = type(param.default)
-                    param_type = self._get_type_string(default_type)
-
-            param_info = {
-                "name": param_name,
-                "type": param_type,
-                "required": param.default == inspect.Parameter.empty,
-                "default": param_default,
-            }
-            result["init_params"].append(param_info)
-
+        result = {"class_name": class_name, "init_params": self._analyze_method_signature(cls.__init__)["args"],
+                  "status_methods": {}, "action_methods": {}}
         # 分析类的所有成员
         for name, method in cls.__dict__.items():
             if name.startswith("_"):

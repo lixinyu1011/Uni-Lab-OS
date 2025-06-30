@@ -8,18 +8,17 @@ hplc.agilent:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand check_status 的参数schema
+          description: check_status的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand check_status 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: check_status 命令参数
+          title: check_status参数
           type: object
         type: UniLabJsonCommand
       auto-extract_data_from_txt:
@@ -30,14 +29,12 @@ hplc.agilent:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand extract_data_from_txt 的参数schema
+          description: extract_data_from_txt的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand extract_data_from_txt 的参数schema
               properties:
                 file_path:
-                  description: '参数: file_path'
                   type: string
               required:
               - file_path
@@ -45,7 +42,7 @@ hplc.agilent:
             result: {}
           required:
           - goal
-          title: extract_data_from_txt 命令参数
+          title: extract_data_from_txt参数
           type: object
         type: UniLabJsonCommand
       auto-start_sequence:
@@ -58,20 +55,16 @@ hplc.agilent:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand start_sequence 的参数schema
+          description: start_sequence的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand start_sequence 的参数schema
               properties:
                 params:
-                  description: '参数: params'
                   type: string
                 resource:
-                  description: '参数: resource'
                   type: object
                 wf_name:
-                  description: '参数: wf_name'
                   type: string
               required:
               - wf_name
@@ -79,7 +72,7 @@ hplc.agilent:
             result: {}
           required:
           - goal
-          title: start_sequence 命令参数
+          title: start_sequence参数
           type: object
         type: UniLabJsonCommand
       auto-try_close_sub_device:
@@ -90,21 +83,19 @@ hplc.agilent:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand try_close_sub_device 的参数schema
+          description: try_close_sub_device的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand try_close_sub_device 的参数schema
               properties:
                 device_name:
-                  description: '参数: device_name'
                   type: string
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: try_close_sub_device 命令参数
+          title: try_close_sub_device参数
           type: object
         type: UniLabJsonCommand
       auto-try_open_sub_device:
@@ -115,21 +106,19 @@ hplc.agilent:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand try_open_sub_device 的参数schema
+          description: try_open_sub_device的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand try_open_sub_device 的参数schema
               properties:
                 device_name:
-                  description: '参数: device_name'
                   type: string
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: try_open_sub_device 命令参数
+          title: try_open_sub_device参数
           type: object
         type: UniLabJsonCommand
       execute_command_from_outer:
@@ -194,23 +183,41 @@ hplc.agilent:
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          driver_debug:
-            default: false
-            description: '参数: driver_debug'
-            type: boolean
-        required: []
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        driver_debug:
+          default: false
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        could_run:
+          type: boolean
+        data_file:
+          type: array
+        device_status:
+          type: string
+        driver_init_ok:
+          type: boolean
+        finish_status:
+          type: string
+        is_running:
+          type: boolean
+        status_text:
+          type: string
+        success:
+          type: boolean
+      required:
+      - status_text
+      - device_status
+      - could_run
+      - driver_init_ok
+      - is_running
+      - success
+      - finish_status
+      - data_file
+      type: object
 raman_home_made:
   class:
     action_value_mappings:
@@ -222,14 +229,12 @@ raman_home_made:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand ccd_time 的参数schema
+          description: ccd_time的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand ccd_time 的参数schema
               properties:
                 int_time:
-                  description: '参数: int_time'
                   type: string
               required:
               - int_time
@@ -237,7 +242,7 @@ raman_home_made:
             result: {}
           required:
           - goal
-          title: ccd_time 命令参数
+          title: ccd_time参数
           type: object
         type: UniLabJsonCommand
       auto-laser_on_power:
@@ -248,14 +253,12 @@ raman_home_made:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand laser_on_power 的参数schema
+          description: laser_on_power的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand laser_on_power 的参数schema
               properties:
                 output_voltage_laser:
-                  description: '参数: output_voltage_laser'
                   type: string
               required:
               - output_voltage_laser
@@ -263,7 +266,7 @@ raman_home_made:
             result: {}
           required:
           - goal
-          title: laser_on_power 命令参数
+          title: laser_on_power参数
           type: object
         type: UniLabJsonCommand
       auto-raman_cmd:
@@ -274,14 +277,12 @@ raman_home_made:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand raman_cmd 的参数schema
+          description: raman_cmd的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand raman_cmd 的参数schema
               properties:
                 command:
-                  description: '参数: command'
                   type: string
               required:
               - command
@@ -289,7 +290,7 @@ raman_home_made:
             result: {}
           required:
           - goal
-          title: raman_cmd 命令参数
+          title: raman_cmd参数
           type: object
         type: UniLabJsonCommand
       auto-raman_without_background:
@@ -301,17 +302,14 @@ raman_home_made:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand raman_without_background 的参数schema
+          description: raman_without_background的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand raman_without_background 的参数schema
               properties:
                 int_time:
-                  description: '参数: int_time'
                   type: string
                 laser_power:
-                  description: '参数: laser_power'
                   type: string
               required:
               - int_time
@@ -320,7 +318,7 @@ raman_home_made:
             result: {}
           required:
           - goal
-          title: raman_without_background 命令参数
+          title: raman_without_background参数
           type: object
         type: UniLabJsonCommand
       auto-raman_without_background_average:
@@ -334,23 +332,18 @@ raman_home_made:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand raman_without_background_average 的参数schema
+          description: raman_without_background_average的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand raman_without_background_average 的参数schema
               properties:
                 average:
-                  description: '参数: average'
                   type: string
                 int_time:
-                  description: '参数: int_time'
                   type: string
                 laser_power:
-                  description: '参数: laser_power'
                   type: string
                 sample_name:
-                  description: '参数: sample_name'
                   type: string
               required:
               - sample_name
@@ -361,7 +354,7 @@ raman_home_made:
             result: {}
           required:
           - goal
-          title: raman_without_background_average 命令参数
+          title: raman_without_background_average参数
           type: object
         type: UniLabJsonCommand
       raman_cmd:
@@ -418,32 +411,23 @@ raman_home_made:
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          baudrate_ccd:
-            default: 921600
-            description: '参数: baudrate_ccd'
-            type: integer
-          baudrate_laser:
-            default: 9600
-            description: '参数: baudrate_laser'
-            type: integer
-          port_ccd:
-            description: '参数: port_ccd'
-            type: string
-          port_laser:
-            description: '参数: port_laser'
-            type: string
-        required:
-        - port_laser
-        - port_ccd
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        baudrate_ccd:
+          default: 921600
+          type: string
+        baudrate_laser:
+          default: 9600
+          type: string
+        port_ccd:
+          type: string
+        port_laser:
+          type: string
+      required:
+      - port_laser
+      - port_ccd
+      type: object
+    data:
+      properties: {}
+      required: []
+      type: object

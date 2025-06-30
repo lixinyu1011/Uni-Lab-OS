@@ -11,22 +11,18 @@ agv.SEER:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand send 的参数schema
+          description: send的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand send 的参数schema
               properties:
                 cmd:
-                  description: '参数: cmd'
                   type: string
                 ex_data:
                   default: ''
-                  description: '参数: ex_data'
                   type: string
                 obj:
                   default: receive_socket
-                  description: '参数: obj'
                   type: string
               required:
               - cmd
@@ -34,7 +30,7 @@ agv.SEER:
             result: {}
           required:
           - goal
-          title: send 命令参数
+          title: send参数
           type: object
         type: UniLabJsonCommand
       auto-send_nav_task:
@@ -45,14 +41,12 @@ agv.SEER:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand send_nav_task 的参数schema
+          description: send_nav_task的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand send_nav_task 的参数schema
               properties:
                 command:
-                  description: '参数: command'
                   type: string
               required:
               - command
@@ -60,7 +54,7 @@ agv.SEER:
             result: {}
           required:
           - goal
-          title: send_nav_task 命令参数
+          title: send_nav_task参数
           type: object
         type: UniLabJsonCommand
       send_nav_task:
@@ -119,20 +113,20 @@ agv.SEER:
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          host:
-            description: '参数: host'
-            type: string
-        required:
-        - host
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        host:
+          type: string
+      required:
+      - host
+      type: object
+    data:
+      properties:
+        pose:
+          type: array
+        status:
+          type: string
+      required:
+      - pose
+      - status
+      type: object

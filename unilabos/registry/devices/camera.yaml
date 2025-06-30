@@ -1,10 +1,69 @@
 camera:
   class:
-    action_value_mappings: {}
+    action_value_mappings:
+      auto-destroy_node:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: destroy_node的参数schema
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: destroy_node参数
+          type: object
+        type: UniLabJsonCommand
+      auto-timer_callback:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: timer_callback的参数schema
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: timer_callback参数
+          type: object
+        type: UniLabJsonCommand
     module: unilabos.ros.nodes.presets.camera:VideoPublisher
     status_types: {}
     type: ros2
   description: ''
   handles: []
   icon: ''
-  init_param_schema: {}
+  init_param_schema:
+    config:
+      properties:
+        camera_index:
+          default: 0
+          type: string
+        device_id:
+          default: video_publisher
+          type: string
+        period:
+          default: 0.1
+          type: number
+        resource_tracker:
+          type: string
+      required: []
+      type: object
+    data:
+      properties: {}
+      required: []
+      type: object

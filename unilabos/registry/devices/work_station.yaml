@@ -2276,17 +2276,14 @@ workstation:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand create_ros_action_server 的参数schema
+          description: create_ros_action_server的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand create_ros_action_server 的参数schema
               properties:
                 action_name:
-                  description: '参数: action_name'
                   type: string
                 action_value_mapping:
-                  description: '参数: action_value_mapping'
                   type: string
               required:
               - action_name
@@ -2295,7 +2292,7 @@ workstation:
             result: {}
           required:
           - goal
-          title: create_ros_action_server 命令参数
+          title: create_ros_action_server参数
           type: object
         type: UniLabJsonCommand
       auto-execute_single_action:
@@ -2308,20 +2305,16 @@ workstation:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand execute_single_action 的参数schema
+          description: execute_single_action的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand execute_single_action 的参数schema
               properties:
                 action_kwargs:
-                  description: '参数: action_kwargs'
                   type: string
                 action_name:
-                  description: '参数: action_name'
                   type: string
                 device_id:
-                  description: '参数: device_id'
                   type: string
               required:
               - device_id
@@ -2331,7 +2324,7 @@ workstation:
             result: {}
           required:
           - goal
-          title: execute_single_action 命令参数
+          title: execute_single_action参数
           type: object
         type: UniLabJsonCommandAsync
       auto-initialize_device:
@@ -2343,17 +2336,14 @@ workstation:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand initialize_device 的参数schema
+          description: initialize_device的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand initialize_device 的参数schema
               properties:
                 device_config:
-                  description: '参数: device_config'
                   type: string
                 device_id:
-                  description: '参数: device_id'
                   type: string
               required:
               - device_id
@@ -2362,7 +2352,7 @@ workstation:
             result: {}
           required:
           - goal
-          title: initialize_device 命令参数
+          title: initialize_device参数
           type: object
         type: UniLabJsonCommand
     module: unilabos.ros.nodes.presets.protocol_node:ROS2ProtocolNode
@@ -2372,40 +2362,23 @@ workstation:
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          args:
-            description: '参数: args'
-            type: string
-          children:
-            description: '参数: children'
-            type: object
-          device_id:
-            description: '参数: device_id'
-            type: string
-          kwargs:
-            description: '参数: kwargs'
-            type: string
-          protocol_type:
-            description: '参数: protocol_type'
-            type: string
-          resource_tracker:
-            description: '参数: resource_tracker'
-            type: string
-        required:
-        - device_id
-        - children
-        - protocol_type
-        - resource_tracker
-        - args
-        - kwargs
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        children:
+          type: object
+        device_id:
+          type: string
+        protocol_type:
+          type: string
+        resource_tracker:
+          type: string
+      required:
+      - device_id
+      - children
+      - protocol_type
+      - resource_tracker
+      type: object
+    data:
+      properties: {}
+      required: []
+      type: object

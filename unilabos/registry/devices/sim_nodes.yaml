@@ -8,18 +8,17 @@ lh_joint_publisher:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand check_tf_update_actions 的参数schema
+          description: check_tf_update_actions的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand check_tf_update_actions 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: check_tf_update_actions 命令参数
+          title: check_tf_update_actions参数
           type: object
         type: UniLabJsonCommand
       auto-find_resource_parent:
@@ -30,14 +29,12 @@ lh_joint_publisher:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand find_resource_parent 的参数schema
+          description: find_resource_parent的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand find_resource_parent 的参数schema
               properties:
                 resource_id:
-                  description: '参数: resource_id'
                   type: string
               required:
               - resource_id
@@ -45,7 +42,7 @@ lh_joint_publisher:
             result: {}
           required:
           - goal
-          title: find_resource_parent 命令参数
+          title: find_resource_parent参数
           type: object
         type: UniLabJsonCommand
       auto-inverse_kinematics:
@@ -62,32 +59,24 @@ lh_joint_publisher:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand inverse_kinematics 的参数schema
+          description: inverse_kinematics的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand inverse_kinematics 的参数schema
               properties:
                 parent_id:
-                  description: '参数: parent_id'
                   type: string
                 x:
-                  description: '参数: x'
                   type: string
                 x_joint:
-                  description: '参数: x_joint'
                   type: object
                 y:
-                  description: '参数: y'
                   type: string
                 y_joint:
-                  description: '参数: y_joint'
                   type: object
                 z:
-                  description: '参数: z'
                   type: string
                 z_joint:
-                  description: '参数: z_joint'
                   type: object
               required:
               - x
@@ -101,7 +90,7 @@ lh_joint_publisher:
             result: {}
           required:
           - goal
-          title: inverse_kinematics 命令参数
+          title: inverse_kinematics参数
           type: object
         type: UniLabJsonCommand
       auto-lh_joint_action_callback:
@@ -112,14 +101,12 @@ lh_joint_publisher:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand lh_joint_action_callback 的参数schema
+          description: lh_joint_action_callback的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand lh_joint_action_callback 的参数schema
               properties:
                 goal_handle:
-                  description: '参数: goal_handle'
                   type: string
               required:
               - goal_handle
@@ -127,7 +114,7 @@ lh_joint_publisher:
             result: {}
           required:
           - goal
-          title: lh_joint_action_callback 命令参数
+          title: lh_joint_action_callback参数
           type: object
         type: UniLabJsonCommand
       auto-lh_joint_pub_callback:
@@ -137,18 +124,17 @@ lh_joint_publisher:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand lh_joint_pub_callback 的参数schema
+          description: lh_joint_pub_callback的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand lh_joint_pub_callback 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: lh_joint_pub_callback 命令参数
+          title: lh_joint_pub_callback参数
           type: object
         type: UniLabJsonCommand
       auto-move_joints:
@@ -167,39 +153,29 @@ lh_joint_publisher:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand move_joints 的参数schema
+          description: move_joints的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand move_joints 的参数schema
               properties:
                 option:
-                  description: '参数: option'
                   type: string
                 resource_names:
-                  description: '参数: resource_names'
                   type: string
                 speed:
                   default: 0.1
-                  description: '参数: speed'
                   type: string
                 x:
-                  description: '参数: x'
                   type: string
                 x_joint:
-                  description: '参数: x_joint'
                   type: string
                 y:
-                  description: '参数: y'
                   type: string
                 y_joint:
-                  description: '参数: y_joint'
                   type: string
                 z:
-                  description: '参数: z'
                   type: string
                 z_joint:
-                  description: '参数: z_joint'
                   type: string
               required:
               - resource_names
@@ -211,7 +187,7 @@ lh_joint_publisher:
             result: {}
           required:
           - goal
-          title: move_joints 命令参数
+          title: move_joints参数
           type: object
         type: UniLabJsonCommand
       auto-move_to:
@@ -224,20 +200,16 @@ lh_joint_publisher:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand move_to 的参数schema
+          description: move_to的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand move_to 的参数schema
               properties:
                 joint_positions:
-                  description: '参数: joint_positions'
                   type: string
                 parent_id:
-                  description: '参数: parent_id'
                   type: string
                 speed:
-                  description: '参数: speed'
                   type: string
               required:
               - joint_positions
@@ -247,7 +219,7 @@ lh_joint_publisher:
             result: {}
           required:
           - goal
-          title: move_to 命令参数
+          title: move_to参数
           type: object
         type: UniLabJsonCommand
       auto-resource_move:
@@ -260,20 +232,16 @@ lh_joint_publisher:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand resource_move 的参数schema
+          description: resource_move的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand resource_move 的参数schema
               properties:
                 channels:
-                  description: '参数: channels'
                   type: array
                 link_name:
-                  description: '参数: link_name'
                   type: string
                 resource_id:
-                  description: '参数: resource_id'
                   type: string
               required:
               - resource_id
@@ -283,7 +251,7 @@ lh_joint_publisher:
             result: {}
           required:
           - goal
-          title: resource_move 命令参数
+          title: resource_move参数
           type: object
         type: UniLabJsonCommand
       auto-send_resource_action:
@@ -295,17 +263,14 @@ lh_joint_publisher:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand send_resource_action 的参数schema
+          description: send_resource_action的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand send_resource_action 的参数schema
               properties:
                 link_name:
-                  description: '参数: link_name'
                   type: string
                 resource_id_list:
-                  description: '参数: resource_id_list'
                   type: array
               required:
               - resource_id_list
@@ -314,7 +279,7 @@ lh_joint_publisher:
             result: {}
           required:
           - goal
-          title: send_resource_action 命令参数
+          title: send_resource_action参数
           type: object
         type: UniLabJsonCommand
     module: unilabos.devices.ros_dev.liquid_handler_joint_publisher:LiquidHandlerJointPublisher
@@ -324,32 +289,23 @@ lh_joint_publisher:
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          device_id:
-            default: lh_joint_publisher
-            description: '参数: device_id'
-            type: string
-          rate:
-            default: 50
-            description: '参数: rate'
-            type: integer
-          resource_tracker:
-            description: '参数: resource_tracker'
-            type: string
-          resources_config:
-            description: '参数: resources_config'
-            type: array
-        required:
-        - resources_config
-        - resource_tracker
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        device_id:
+          default: lh_joint_publisher
+          type: string
+        rate:
+          default: 50
+          type: string
+        resource_tracker:
+          type: string
+        resources_config:
+          type: array
+      required:
+      - resources_config
+      - resource_tracker
+      type: object
+    data:
+      properties: {}
+      required: []
+      type: object
