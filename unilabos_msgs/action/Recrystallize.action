@@ -1,0 +1,15 @@
+# Request
+string ratio
+string solvent1
+string solvent2
+string vessel
+float64 volume
+---
+# Result
+bool success
+string message
+string return_info
+---
+# Feedback
+string status
+float64 progress
