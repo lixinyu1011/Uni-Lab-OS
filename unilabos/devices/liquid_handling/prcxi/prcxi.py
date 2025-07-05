@@ -128,10 +128,10 @@ class PRCXI9300:
         self.load_solution(solution_id)
         self.start(channel_idx)
 
-# ---------------------------------------------------- 辅助类 StepData 工具
-def build_step(
+# ---------------------------------------------------- 单点动作
+
+def Load(
     axis: str,
-    function: str,
     dosage: int,
     plate_no: int,
     is_whole_plate: bool,
@@ -150,7 +150,164 @@ def build_step(
 ) -> Dict[str, Any]:
     return {
         "StepAxis": axis,
-        "Function": function,
+        "Function": "Load",
+        "DosageNum": dosage,
+        "PlateNo": plate_no,
+        "IsWholePlate": is_whole_plate,
+        "HoleRow": hole_row,
+        "HoleCol": hole_col,
+        "BlendingTimes": blending_times,
+        "BalanceHeight": balance_height,
+        "PlateOrHoleNum": plate_or_hole,
+        "AssistFun1": assist_fun1,
+        "AssistFun2": assist_fun2,
+        "AssistFun3": assist_fun3,
+        "AssistFun4": assist_fun4,
+        "AssistFun5": assist_fun5,
+        "HoleNumbers": hole_numbers,
+        "LiquidDispensingMethod": liquid_method
+    }
+
+
+
+
+def Imbibing(
+    axis: str,
+    dosage: int,
+    plate_no: int,
+    is_whole_plate: bool,
+    hole_row: int,
+    hole_col: int,
+    blending_times: int,
+    balance_height: int,
+    plate_or_hole: str,
+    hole_numbers: str,
+    assist_fun1: str = "",
+    assist_fun2: str = "",
+    assist_fun3: str = "",
+    assist_fun4: str = "",
+    assist_fun5: str = "",
+    liquid_method: str = "NormalDispense"
+) -> Dict[str, Any]:
+    return {
+        "StepAxis": axis,
+        "Function": "Imbibing",
+        "DosageNum": dosage,
+        "PlateNo": plate_no,
+        "IsWholePlate": is_whole_plate,
+        "HoleRow": hole_row,
+        "HoleCol": hole_col,
+        "BlendingTimes": blending_times,
+        "BalanceHeight": balance_height,
+        "PlateOrHoleNum": plate_or_hole,
+        "AssistFun1": assist_fun1,
+        "AssistFun2": assist_fun2,
+        "AssistFun3": assist_fun3,
+        "AssistFun4": assist_fun4,
+        "AssistFun5": assist_fun5,
+        "HoleNumbers": hole_numbers,
+        "LiquidDispensingMethod": liquid_method
+    }
+
+
+def Tapping(
+    axis: str,
+    dosage: int,
+    plate_no: int,
+    is_whole_plate: bool,
+    hole_row: int,
+    hole_col: int,
+    blending_times: int,
+    balance_height: int,
+    plate_or_hole: str,
+    hole_numbers: str,
+    assist_fun1: str = "",
+    assist_fun2: str = "",
+    assist_fun3: str = "",
+    assist_fun4: str = "",
+    assist_fun5: str = "",
+    liquid_method: str = "NormalDispense"
+) -> Dict[str, Any]:
+    return {
+        "StepAxis": axis,
+        "Function": "Tapping",
+        "DosageNum": dosage,
+        "PlateNo": plate_no,
+        "IsWholePlate": is_whole_plate,
+        "HoleRow": hole_row,
+        "HoleCol": hole_col,
+        "BlendingTimes": blending_times,
+        "BalanceHeight": balance_height,
+        "PlateOrHoleNum": plate_or_hole,
+        "AssistFun1": assist_fun1,
+        "AssistFun2": assist_fun2,
+        "AssistFun3": assist_fun3,
+        "AssistFun4": assist_fun4,
+        "AssistFun5": assist_fun5,
+        "HoleNumbers": hole_numbers,
+        "LiquidDispensingMethod": liquid_method
+    }
+
+
+def Blending(
+    axis: str,
+    dosage: int,
+    plate_no: int,
+    is_whole_plate: bool,
+    hole_row: int,
+    hole_col: int,
+    blending_times: int,
+    balance_height: int,
+    plate_or_hole: str,
+    hole_numbers: str,
+    assist_fun1: str = "",
+    assist_fun2: str = "",
+    assist_fun3: str = "",
+    assist_fun4: str = "",
+    assist_fun5: str = "",
+    liquid_method: str = "NormalDispense"
+) -> Dict[str, Any]:
+    return {
+        "StepAxis": axis,
+        "Function": "Blending",
+        "DosageNum": dosage,
+        "PlateNo": plate_no,
+        "IsWholePlate": is_whole_plate,
+        "HoleRow": hole_row,
+        "HoleCol": hole_col,
+        "BlendingTimes": blending_times,
+        "BalanceHeight": balance_height,
+        "PlateOrHoleNum": plate_or_hole,
+        "AssistFun1": assist_fun1,
+        "AssistFun2": assist_fun2,
+        "AssistFun3": assist_fun3,
+        "AssistFun4": assist_fun4,
+        "AssistFun5": assist_fun5,
+        "HoleNumbers": hole_numbers,
+        "LiquidDispensingMethod": liquid_method
+    }
+
+def UnLoad(
+    axis: str,
+    dosage: int,
+    plate_no: int,
+    is_whole_plate: bool,
+    hole_row: int,
+    hole_col: int,
+    blending_times: int,
+    balance_height: int,
+    plate_or_hole: str,
+    hole_numbers: str,
+    assist_fun1: str = "",
+    assist_fun2: str = "",
+    assist_fun3: str = "",
+    assist_fun4: str = "",
+    assist_fun5: str = "",
+    liquid_method: str = "NormalDispense"
+) -> Dict[str, Any]:
+    return {
+        "StepAxis": axis,
+        "Function": "UnLoad",
         "DosageNum": dosage,
         "PlateNo": plate_no,
         "IsWholePlate": is_whole_plate,
