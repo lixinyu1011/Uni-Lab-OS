@@ -6064,6 +6064,516 @@ liquid_handler.biomek:
       required:
       - success
       type: object
+liquid_handler.prcxi:
+  class:
+    action_value_mappings:
+      auto-add_liquid:
+        feedback: {}
+        goal: {}
+        goal_default:
+          asp_vols: null
+          blow_out_air_volume: null
+          delays: null
+          dis_vols: null
+          flow_rates: null
+          is_96_well: false
+          liquid_height: null
+          mix_liquid_height: null
+          mix_rate: null
+          mix_time: null
+          mix_vol: null
+          none_keys: []
+          offsets: null
+          reagent_sources: null
+          spread: wide
+          targets: null
+          use_channels: null
+        handles: []
+        result: {}
+        schema:
+          description: add_liquid的参数schema
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                asp_vols:
+                  type: string
+                blow_out_air_volume:
+                  type: string
+                delays:
+                  type: string
+                dis_vols:
+                  type: string
+                flow_rates:
+                  type: string
+                is_96_well:
+                  default: false
+                  type: boolean
+                liquid_height:
+                  type: string
+                mix_liquid_height:
+                  type: string
+                mix_rate:
+                  type: string
+                mix_time:
+                  type: string
+                mix_vol:
+                  type: string
+                none_keys:
+                  default: []
+                  type: array
+                offsets:
+                  type: string
+                reagent_sources:
+                  type: string
+                spread:
+                  default: wide
+                  type: string
+                targets:
+                  type: string
+                use_channels:
+                  type: string
+              required:
+              - asp_vols
+              - dis_vols
+              - reagent_sources
+              - targets
+              type: object
+            result: {}
+          required:
+          - goal
+          title: add_liquid参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-create_protocol:
+        feedback: {}
+        goal: {}
+        goal_default:
+          none_keys: []
+          protocol_author: null
+          protocol_date: null
+          protocol_description: null
+          protocol_name: null
+          protocol_type: null
+          protocol_version: null
+        handles: []
+        result: {}
+        schema:
+          description: create_protocol的参数schema
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                none_keys:
+                  default: []
+                  type: array
+                protocol_author:
+                  type: string
+                protocol_date:
+                  type: string
+                protocol_description:
+                  type: string
+                protocol_name:
+                  type: string
+                protocol_type:
+                  type: string
+                protocol_version:
+                  type: string
+              required:
+              - protocol_name
+              - protocol_description
+              - protocol_version
+              - protocol_author
+              - protocol_date
+              - protocol_type
+              type: object
+            result: {}
+          required:
+          - goal
+          title: create_protocol参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-custom_delay:
+        feedback: {}
+        goal: {}
+        goal_default:
+          msg: null
+          seconds: 0
+        handles: []
+        result: {}
+        schema:
+          description: custom_delay的参数schema
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                msg:
+                  type: string
+                seconds:
+                  default: 0
+                  type: string
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: custom_delay参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-iter_tips:
+        feedback: {}
+        goal: {}
+        goal_default:
+          tip_racks: null
+        handles: []
+        result: {}
+        schema:
+          description: iter_tips的参数schema
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                tip_racks:
+                  type: string
+              required:
+              - tip_racks
+              type: object
+            result: {}
+          required:
+          - goal
+          title: iter_tips参数
+          type: object
+        type: UniLabJsonCommand
+      auto-mix:
+        feedback: {}
+        goal: {}
+        goal_default:
+          height_to_bottom: null
+          mix_rate: null
+          mix_time: null
+          mix_vol: null
+          none_keys: []
+          offsets: null
+          targets: null
+        handles: []
+        result: {}
+        schema:
+          description: mix的参数schema
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                height_to_bottom:
+                  type: string
+                mix_rate:
+                  type: string
+                mix_time:
+                  type: integer
+                mix_vol:
+                  type: string
+                none_keys:
+                  default: []
+                  type: array
+                offsets:
+                  type: string
+                targets:
+                  type: string
+              required:
+              - targets
+              type: object
+            result: {}
+          required:
+          - goal
+          title: mix参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-move_to:
+        feedback: {}
+        goal: {}
+        goal_default:
+          channel: 0
+          dis_to_top: 0
+          well: null
+        handles: []
+        result: {}
+        schema:
+          description: move_to的参数schema
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                channel:
+                  default: 0
+                  type: integer
+                dis_to_top:
+                  default: 0
+                  type: number
+                well:
+                  type: string
+              required:
+              - well
+              type: object
+            result: {}
+          required:
+          - goal
+          title: move_to参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-remove_liquid:
+        feedback: {}
+        goal: {}
+        goal_default:
+          blow_out_air_volume: null
+          delays: null
+          flow_rates: null
+          is_96_well: false
+          liquid_height: null
+          none_keys: []
+          offsets: null
+          sources: null
+          spread: wide
+          top: null
+          use_channels: null
+          vols: null
+          waste_liquid: null
+        handles: []
+        result: {}
+        schema:
+          description: remove_liquid的参数schema
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                blow_out_air_volume:
+                  type: string
+                delays:
+                  type: string
+                flow_rates:
+                  type: string
+                is_96_well:
+                  default: false
+                  type: string
+                liquid_height:
+                  type: string
+                none_keys:
+                  default: []
+                  type: array
+                offsets:
+                  type: string
+                sources:
+                  type: string
+                spread:
+                  default: wide
+                  type: string
+                top:
+                  type: string
+                use_channels:
+                  type: string
+                vols:
+                  type: array
+                waste_liquid:
+                  type: string
+              required:
+              - vols
+              - sources
+              type: object
+            result: {}
+          required:
+          - goal
+          title: remove_liquid参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-run_protocol:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: run_protocol的参数schema
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: run_protocol参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-set_tiprack:
+        feedback: {}
+        goal: {}
+        goal_default:
+          tip_racks: null
+        handles: []
+        result: {}
+        schema:
+          description: set_tiprack的参数schema
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                tip_racks:
+                  type: string
+              required:
+              - tip_racks
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_tiprack参数
+          type: object
+        type: UniLabJsonCommand
+      auto-touch_tip:
+        feedback: {}
+        goal: {}
+        goal_default:
+          targets: null
+        handles: []
+        result: {}
+        schema:
+          description: touch_tip的参数schema
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                targets:
+                  type: string
+              required:
+              - targets
+              type: object
+            result: {}
+          required:
+          - goal
+          title: touch_tip参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-transfer_liquid:
+        feedback: {}
+        goal: {}
+        goal_default:
+          asp_flow_rates: null
+          asp_vols: null
+          blow_out_air_volume: null
+          delays: null
+          dis_flow_rates: null
+          dis_vols: null
+          is_96_well: false
+          liquid_height: null
+          mix_liquid_height: null
+          mix_rate: null
+          mix_stage: none
+          mix_times: null
+          mix_vol: null
+          none_keys: []
+          offsets: null
+          sources: null
+          spread: wide
+          targets: null
+          tip_racks: null
+          touch_tip: false
+          use_channels: null
+        handles: []
+        result: {}
+        schema:
+          description: transfer_liquid的参数schema
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                asp_flow_rates:
+                  type: string
+                asp_vols:
+                  type: string
+                blow_out_air_volume:
+                  type: string
+                delays:
+                  type: string
+                dis_flow_rates:
+                  type: string
+                dis_vols:
+                  type: string
+                is_96_well:
+                  default: false
+                  type: boolean
+                liquid_height:
+                  type: string
+                mix_liquid_height:
+                  type: string
+                mix_rate:
+                  type: string
+                mix_stage:
+                  default: none
+                  type: string
+                mix_times:
+                  type: string
+                mix_vol:
+                  type: string
+                none_keys:
+                  default: []
+                  type: array
+                offsets:
+                  type: string
+                sources:
+                  type: string
+                spread:
+                  default: wide
+                  type: string
+                targets:
+                  type: string
+                tip_racks:
+                  type: string
+                touch_tip:
+                  default: false
+                  type: boolean
+                use_channels:
+                  type: string
+              required:
+              - sources
+              - targets
+              - tip_racks
+              - asp_vols
+              - dis_vols
+              type: object
+            result: {}
+          required:
+          - goal
+          title: transfer_liquid参数
+          type: object
+        type: UniLabJsonCommandAsync
+    module: unilabos.devices.liquid_handling.prcxi.prcxi:PRCXI9300Handler
+    status_types: {}
+    type: python
+  description: prcxi液体处理器设备，基于pylabrobot控制
+  handles: []
+  icon: icon_yiyezhan.webp
+  init_param_schema:
+    config:
+      properties:
+        deck:
+          type: string
+        host:
+          type: string
+        port:
+          type: integer
+        setup:
+          default: true
+          type: string
+        timeout:
+          type: number
+      required:
+      - deck
+      - host
+      - port
+      - timeout
+      type: object
+    data:
+      properties: {}
+      required: []
+      type: object
 liquid_handler.revvity:
   class:
     action_value_mappings:

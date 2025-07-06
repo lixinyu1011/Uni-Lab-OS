@@ -923,11 +923,18 @@ class ROS2DeviceNode:
             driver_class.__module__.startswith("pylabrobot")
             or driver_class.__name__ == "LiquidHandlerAbstract"
             or driver_class.__name__ == "LiquidHandlerBiomek"
+            or driver_class.__name__ == "PRCXI9300Handler"
         )
 
         # TODO: 要在创建之前预先请求服务器是否有当前id的物料，放到resource_tracker中，让pylabrobot进行创建
         # 创建设备类实例
         if use_pylabrobot_creator:
+            # 先对pylabrobot的子资源进行加载，不然subclass无法认出
+            # 在下方对于加载Deck等Resource要手动import
+            # noinspection PyUnresolvedReferences
+            from unilabos.devices.liquid_handling.prcxi.prcxi import PRCXI9300Deck
+            # noinspection PyUnresolvedReferences
+            from unilabos.devices.liquid_handling.prcxi.prcxi import PRCXI9300Container
             self._driver_creator = PyLabRobotCreator(
                 driver_class, children=children, resource_tracker=self.resource_tracker
             )
