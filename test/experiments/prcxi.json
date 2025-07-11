@@ -2,7 +2,7 @@
     "nodes": [
         {
             "id": "PRCXI",
-            "name": "PLR_PRCXI",
+            "name": "PRCXI",
             "parent": null,
             "type": "device",
             "class": "liquid_handler.prcxi",
@@ -37,7 +37,7 @@
                 "rackT4",
                 "plateT5"
             ],
-            "parent": "PLR_STATION_PRCXI",
+            "parent": "PRCXI",
             "type": "device",
             "class": "",
             "position": {
@@ -46,7 +46,7 @@
                 "z": 0
             },
             "config": {
-                "type": "PRCXI9300Deck"
+                "type": "PRCXI9300DeckPRCXI"
             },
             "data": {}
         },
