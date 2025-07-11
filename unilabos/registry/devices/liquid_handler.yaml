@@ -6069,7 +6069,15 @@ liquid_handler.prcxi:
     action_value_mappings:
       aspirate:
         feedback: {}
-        goal: {}
+        goal:
+          blow_out_air_volume: blow_out_air_volume
+          end_delay: end_delay
+          flow_rates: flow_rates
+          liquid_height: liquid_height
+          offsets: offsets
+          resources: resources
+          use_channels: use_channels
+          vols: vols
         goal_default:
           blow_out_air_volume:
           - 0.0
@@ -6930,7 +6938,14 @@ liquid_handler.prcxi:
         type: UniLabJsonCommandAsync
       dispense:
         feedback: {}
-        goal: {}
+        goal:
+          blow_out_air_volume: blow_out_air_volume
+          flow_rates: flow_rates
+          offsets: offsets
+          resources: resources
+          spread: spread
+          use_channels: use_channels
+          vols: vols
         goal_default:
           blow_out_air_volume:
           - 0
@@ -7289,7 +7304,14 @@ liquid_handler.prcxi:
         type: LiquidHandlerDropTips
       mix:
         feedback: {}
-        goal: {}
+        goal:
+          height_to_bottom: height_to_bottom
+          mix_rate: mix_rate
+          mix_time: mix_time
+          mix_vol: mix_vol
+          none_keys: none_keys
+          offsets: offsets
+          targets: targets
         goal_default:
           height_to_bottom: 0.0
           mix_rate: 0.0
