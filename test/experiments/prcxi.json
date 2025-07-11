@@ -46,7 +46,7 @@
                 "z": 0
             },
             "config": {
-                "type": "PRCXI9300DeckPRCXI"
+                "type": "PRCXI9300Deck"
             },
             "data": {}
         },
