@@ -132,7 +132,7 @@ _msg_converter: Dict[Type, Any] = {
     Bool: lambda x: Bool(data=bool(x)),
     str: str,
     String: lambda x: String(data=str(x)),
-    Point: lambda x: Point(x=x.x, y=x.y, z=x.z) if not isinstance(x, dict) else Point(x=x.get("x", 0.0), y=x.get("y", 0.0), z=x.get("z", 0.0)),
+    Point: lambda x: Point(x=x.x, y=x.y, z=x.z) if not isinstance(x, dict) else Point(x=float(x.get("x", 0.0)), y=float(x.get("y", 0.0)), z=float(x.get("z", 0.0))),
     Resource: lambda x: Resource(
         id=x.get("id", ""),
         name=x.get("name", ""),

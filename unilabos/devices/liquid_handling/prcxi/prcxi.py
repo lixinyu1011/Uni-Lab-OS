@@ -88,6 +88,12 @@ class PRCXI9300Container(Plate):
 
 
 class PRCXI9300Handler(LiquidHandlerAbstract):
+    @property
+    def reset_ok(self) -> bool:
+        """检查设备是否已重置成功。"""
+        return self._unilabos_backend.is_reset_ok
+
+
     def __init__(self, deck: Deck, host: str, port: int, timeout: float, setup=True):
         tablets_info = []
         count = 0
@@ -102,18 +108,18 @@ class PRCXI9300Handler(LiquidHandlerAbstract):
 
     async def create_protocol(
         self,
-        protocol_name: str,
-        protocol_description: str,
-        protocol_version: str,
-        protocol_author: str,
-        protocol_date: str,
-        protocol_type: str,
+        protocol_name: str = "",
+        protocol_description: str = "",
+        protocol_version: str = "",
+        protocol_author: str = "",
+        protocol_date: str = "",
+        protocol_type: str = "",
         none_keys: List[str] = [],
     ):
         self._unilabos_backend.create_protocol(protocol_name)
 
     async def run_protocol(self):
-        self._unilabos_backend.run_protocol()
+        return self._unilabos_backend.run_protocol()
 
     async def remove_liquid(
         self,
@@ -299,6 +305,13 @@ class PRCXI9300Backend(LiquidHandlerBackend):
     """
 
     _num_channels = 8  # 默认通道数为 8
+    _is_reset_ok = False
+
+    @property
+    def is_reset_ok(self) -> bool:
+        self._is_reset_ok = self.api_client.get_reset_status()
+        return self._is_reset_ok
+    
     matrix_info: MatrixInfo
     protocol_name: str
     steps_todo_list = []
@@ -323,19 +336,24 @@ class PRCXI9300Backend(LiquidHandlerBackend):
         self.steps_todo_list = []
 
     def run_protocol(self):
+        assert self.is_reset_ok, "PRCXI9300Backend is not reset successfully. Please call setup() first."
         run_time = time.time()
         self.matrix_info = MatrixInfo(
-            MatrixId=f"matrix_{run_time}",
+            MatrixId=f"{int(run_time)}",
             MatrixName=f"protocol_{run_time}",
             MatrixCount=len(self.tablets_info),
             WorkTablets=self.tablets_info,
         )
-        self.api_client.add_WorkTablet_Matrix(self.matrix_info)
+        print(json.dumps(self.matrix_info, indent=2))
+        res = self.api_client.add_WorkTablet_Matrix(self.matrix_info)
+        assert res["Success"], f"Failed to create matrix: {res.get('Message', 'Unknown error')}"
+        print(f"PRCXI9300Backend created matrix with ID: {self.matrix_info['MatrixId']}, result: {res}")
         solution_id = self.api_client.add_solution(
             f"protocol_{run_time}", self.matrix_info["MatrixId"], self.steps_todo_list
         )
+        print(f"PRCXI9300Backend created solution with ID: {solution_id}")
         self.api_client.load_solution(solution_id)
-        self.api_client.start()
+        return self.api_client.start()
 
     @classmethod
     def check_channels(cls, use_channels: List[int]) -> List[int]:
@@ -350,6 +368,10 @@ class PRCXI9300Backend(LiquidHandlerBackend):
         try:
             if self._execute_setup:
                 self.api_client.call("IAutomation", "Reset")
+                while not self.is_reset_ok:
+                    print("Waiting for PRCXI9300 to reset...")
+                    await asyncio.sleep(1)
+                print("PRCXI9300 reset successfully.")
         except ConnectionRefusedError as e:
             raise RuntimeError(
                 f"Failed to connect to PRCXI9300 API at {self.host}:{self.port}. "
@@ -363,6 +385,18 @@ class PRCXI9300Backend(LiquidHandlerBackend):
         """Pick up tips from the specified resource."""
         # 12列，要PickUp A-H 1
         # PlateNo = 1-6   # 2行3列
+        print("!!!!!!!!!" * 10)
+        print(ops, "====="*10)
+        # plate: PRCXI9300Container = ops[0].resource.parent.parent
+        # deck: PRCXI9300Deck = plate.parent
+        # plate_index = deck.children.index(plate)
+        # tipspot = ops[0].resource
+        # tipspot_index = tipspot.parent.children.index(tipspot)
+        # print(f"PRCXI9300Backend pick_up_tips: plate_index={plate_index}, tipspot_index={tipspot_index}")
+        # print(f"PRCXI9300Backend pick_up_tips: plate_index={plate_index}, plate.name={plate.name}")
+        # print(plate._unilabos_state["Material"])
+        # for op in ops:
+        #     print(f"PRCXI9300Backend pick_up_tips: {op.resource.name}")
         PlateNo = 1  # 第一块板
         hole_col = 2  # 第二列的8个孔
         step = self.api_client.Load(
@@ -406,10 +440,11 @@ class PRCXI9300Backend(LiquidHandlerBackend):
         print("PRCXI9300Backend drop_tips logged.")
 
     async def aspirate(self, ops: List[SingleChannelAspiration], use_channels: List[int] = None):
-        volumes = [op.volume for op in ops]
-        print(f"PRCXI9300Backend aspirate volumes: {volumes[0]} -> {int(volumes[0])} μL")
-        PlateNo = 1
-        hole_col = 2
+        volumes = [1]
+        # volumes = [op.volume for op in ops]
+        # print(f"PRCXI9300Backend aspirate volumes: {volumes[0]} -> {int(volumes[0])} μL")
+        PlateNo = 2
+        hole_col = 4
         step = self.api_client.Imbibing(
             "Left",
             dosage=int(volumes[0]),
@@ -425,9 +460,10 @@ class PRCXI9300Backend(LiquidHandlerBackend):
         self.steps_todo_list.append(step)
 
     async def dispense(self, ops: List[SingleChannelDispense], use_channels: List[int] = None):
-        volumes = [op.volume for op in ops]
-        print(f"PRCXI9300Backend dispense volumes: {volumes[0]} -> {int(volumes[0])} μL")
-        PlateNo = 1
+        volumes = [1]
+        # volumes = [op.volume for op in ops]
+        # print(f"PRCXI9300Backend dispense volumes: {volumes[0]} -> {int(volumes[0])} μL")
+        PlateNo = 2
         hole_col = 2
         step = self.api_client.Tapping(
             "Left",
@@ -541,6 +577,11 @@ class PRCXI9300Api:
     def get_error_code(self) -> Optional[str]:
         """GetErrorCode"""
         return self.call("IAutomation", "GetErrorCode")
+
+    def get_reset_status(self) -> Optional[str]:
+        """GetErrorCode"""
+        res = self.call("IAutomation", "GetResetStatus")
+        return not res
 
     def clear_error_code(self) -> bool:
         """RemoveErrorCodet"""
@@ -818,15 +859,59 @@ if __name__ == "__main__":
             "uuid": "57b1e4711e9e4a32b529f3132fc5931f",
         }
     })
+    plate6 = PRCXI9300Container(name="plateT6", size_x=50, size_y=50, size_z=10, category="plate")
+    plate6.load_state({
+        "Material": {
+            "uuid": "57b1e4711e9e4a32b529f3132fc5931f",
+        }
+    })
+
+    from pylabrobot.resources.opentrons.tip_racks import tipone_96_tiprack_200ul
+    from pylabrobot.resources.opentrons.plates import corning_96_wellplate_360ul_flat
+    tip_rack = tipone_96_tiprack_200ul("TipRack")
+    well_containers = corning_96_wellplate_360ul_flat("Plate")
+    # from pprint import pprint
+    # pprint(well_containers.children)
+    plate1.assign_child_resource(tip_rack, location=Coordinate(0, 0, 0))
+    plate2.assign_child_resource(well_containers, location=Coordinate(0, 0, 0))
     deck.assign_child_resource(plate1, location=Coordinate(0, 0, 0))
     deck.assign_child_resource(plate2, location=Coordinate(0, 0, 0))
     deck.assign_child_resource(plate3, location=Coordinate(0, 0, 0))
     deck.assign_child_resource(plate4, location=Coordinate(0, 0, 0))
     deck.assign_child_resource(plate5, location=Coordinate(0, 0, 0))
-
-    handler = PRCXI9300Handler(deck=deck, host="192.168.3.9", port=9999, timeout=10.0, setup=True)
+    deck.assign_child_resource(plate6, location=Coordinate(0, 0, 0))
+    input("debug....")
+    handler = PRCXI9300Handler(deck=deck, host="192.168.3.9", port=9999, timeout=10.0, setup=False)
+    handler.set_tiprack([tip_rack])  # Set the tip rack for the handler
     asyncio.run(handler.setup())  # Initialize the handler and setup the connection
+    asyncio.run(handler.create_protocol(protocol_name="Test Protocol"))  # Initialize the backend and setup the connection
+    input("Creating protocol...")
+    # asyncio.run(handler.pick_up_tips(tip_rack.children[:8],[0,1,2,3,4,5,6,7]))
+    # asyncio.run(handler.aspirate(tip_rack.children[:8],[0,1,2,3,4,5,6,7]))
+    # asyncio.run(handler.dispense(tip_rack.children[:8],[0,1,2,3,4,5,6,7]))
+    # asyncio.run(handler.drop_tips(tip_rack.children[:8],[0,1,2,3,4,5,6,7]))
+    asyncio.run(handler.pick_up_tips([], [], []))
+    asyncio.run(handler.aspirate([], [], []))
+    asyncio.run(handler.dispense([], [], []))
+    asyncio.run(handler.drop_tips([], [], []))
 
+    # asyncio.run(handler.add_liquid(
+    #     asp_vols=[100]*8,
+    #     dis_vols=[100]*8,
+    #     reagent_sources=well_containers.children[-8:],
+    #     targets=well_containers.children[:8],
+    #     use_channels=[0, 1, 2, 3, 4, 5, 6, 7],
+    #     flow_rates=[None] * 8,
+    #     offsets=[Coordinate(0, 0, 0)] * 8,
+    #     liquid_height=[None] * 8,
+    #     blow_out_air_volume=[None] * 8,
+    #     spread="wide",
+    # ))
+    input("pick_up_tips add step")
+    asyncio.run(handler.run_protocol())  # Run the protocol
+    input("Running protocol...")
+    print(json.dumps(handler._unilabos_backend.steps_todo_list, indent=2))  # Print matrix info
+    
 
     
     input("Press Enter to continue...")  # Wait for user input before proceeding

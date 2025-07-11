@@ -35,7 +35,8 @@
                 "plateT2",
                 "plateT3",
                 "rackT4",
-                "plateT5"
+                "plateT5",
+                "plateT6"
             ],
             "parent": "PRCXI",
             "type": "device",
@@ -163,6 +164,31 @@
         {
             "id": "plateT5",
             "name": "plateT5",
+            "sample_id": null,
+            "children": [],
+            "parent": "deck",
+            "type": "device",
+            "class": "",
+            "position": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+            },
+            "config": {
+                "type": "PRCXI9300Container",
+                "size_x": 120.98,
+                "size_y": 82.12,
+                "size_z": 50.3
+            },
+            "data": {
+                "Material": {
+                    "uuid": "57b1e4711e9e4a32b529f3132fc5931f"
+                }
+            }
+        },
+        {
+            "id": "plateT6",
+            "name": "plateT6",
             "sample_id": null,
             "children": [],
             "parent": "deck",
