@@ -16,10 +16,10 @@
                     "_resource_child_name": "deck",
                     "_resource_type": "unilabos.devices.liquid_handling.prcxi.prcxi:PRCXI9300Deck"
                 },
-                "host": "127.0.0.1",
+                "host": "192.168.3.9",
                 "port": 9999,
                 "timeout": 10.0,
-                "setup": false
+                "setup": true
             },
             "data": {},
             "children": [

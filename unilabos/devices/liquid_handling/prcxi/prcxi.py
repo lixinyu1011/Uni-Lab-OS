@@ -1,3 +1,4 @@
+import asyncio
 import collections
 import contextlib
 import json
@@ -742,3 +743,65 @@ class PRCXI9300Api:
             "HoleNumbers": hole_numbers,
             "LiquidDispensingMethod": liquid_method,
         }
+
+
+if __name__ == "__main__":
+    # Example usage
+    deck = PRCXI9300Deck(name="PRCXI Deck", size_x=100, size_y=100, size_z=100)
+    plate1 = PRCXI9300Container(name="rackT1", size_x=50, size_y=50, size_z=10, category="plate")
+    plate1.load_state({
+        "Material": {
+            "uuid": "80652665f6a54402b2408d50b40398df",
+            "Code": "ZX-001-1000",
+            "Name": "1000μL Tip头",
+            "SummaryName": "1000μL Tip头",
+            "PipetteHeight": 100,
+            "materialEnum": 1
+        }
+    })
+
+    plate2 = PRCXI9300Container(name="plateT2", size_x=50, size_y=50, size_z=10, category="plate")
+    plate2.load_state({
+        "Material": {
+            "uuid": "57b1e4711e9e4a32b529f3132fc5931f",
+        }
+    })
+
+    plate3 = PRCXI9300Container(name="plateT3", size_x=50, size_y=50, size_z=10, category="plate")
+    plate3.load_state({
+        "Material": {
+            "uuid": "57b1e4711e9e4a32b529f3132fc5931f",
+        }
+    })
+
+    plate4 = PRCXI9300Container(name="rackT4", size_x=50, size_y=50, size_z=10, category="plate")
+    plate4.load_state({
+        "Material": {
+            "uuid": "80652665f6a54402b2408d50b40398df",
+            "Code": "ZX-001-1000",
+            "Name": "1000μL Tip头",
+            "SummaryName": "1000μL Tip头",
+            "PipetteHeight": 100,
+            "materialEnum": 1
+        }
+    })
+
+    plate5 = PRCXI9300Container(name="plateT5", size_x=50, size_y=50, size_z=10, category="plate")
+    plate5.load_state({
+        "Material": {
+            "uuid": "57b1e4711e9e4a32b529f3132fc5931f",
+        }
+    })
+    deck.assign_child_resource(plate1, location=Coordinate(0, 0, 0))
+    deck.assign_child_resource(plate2, location=Coordinate(0, 0, 0))
+    deck.assign_child_resource(plate3, location=Coordinate(0, 0, 0))
+    deck.assign_child_resource(plate4, location=Coordinate(0, 0, 0))
+    deck.assign_child_resource(plate5, location=Coordinate(0, 0, 0))
+
+    handler = PRCXI9300Handler(deck=deck, host="192.168.3.9", port=9999, timeout=10.0, setup=True)
+    asyncio.run(handler.setup())  # Initialize the handler and setup the connection
+
+
+    
+    input("Press Enter to continue...")  # Wait for user input before proceeding
+    print("PRCXI9300Handler initialized with deck and host settings.")
