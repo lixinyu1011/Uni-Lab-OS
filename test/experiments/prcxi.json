@@ -1,7 +1,7 @@
 {
     "nodes": [
         {
-            "id": "中析PRCXI",
+            "id": "PRCXI",
             "name": "PLR_PRCXI",
             "parent": null,
             "type": "device",
