@@ -6067,6 +6067,202 @@ liquid_handler.biomek:
 liquid_handler.prcxi:
   class:
     action_value_mappings:
+      aspirate:
+        feedback: {}
+        goal: {}
+        goal_default:
+          blow_out_air_volume:
+          - 0.0
+          flow_rates:
+          - 0.0
+          liquid_height:
+          - 0.0
+          offsets:
+          - x: 0.0
+            y: 0.0
+            z: 0.0
+          resources:
+          - category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          spread: ''
+          use_channels:
+          - 0
+          vols:
+          - 0.0
+        handles: []
+        result: {}
+        schema:
+          description: ROS Action LiquidHandlerAspirate 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: LiquidHandlerAspirate_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                blow_out_air_volume:
+                  items:
+                    type: number
+                  type: array
+                flow_rates:
+                  items:
+                    type: number
+                  type: array
+                liquid_height:
+                  items:
+                    type: number
+                  type: array
+                offsets:
+                  items:
+                    properties:
+                      x:
+                        type: number
+                      y:
+                        type: number
+                      z:
+                        type: number
+                    required:
+                    - x
+                    - y
+                    - z
+                    title: Point
+                    type: object
+                  type: array
+                resources:
+                  items:
+                    properties:
+                      category:
+                        type: string
+                      children:
+                        items:
+                          type: string
+                        type: array
+                      config:
+                        type: string
+                      data:
+                        type: string
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      parent:
+                        type: string
+                      pose:
+                        properties:
+                          orientation:
+                            properties:
+                              w:
+                                type: number
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            - w
+                            title: Quaternion
+                            type: object
+                          position:
+                            properties:
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            title: Point
+                            type: object
+                        required:
+                        - position
+                        - orientation
+                        title: Pose
+                        type: object
+                      sample_id:
+                        type: string
+                      type:
+                        type: string
+                    required:
+                    - id
+                    - name
+                    - sample_id
+                    - children
+                    - parent
+                    - type
+                    - category
+                    - pose
+                    - config
+                    - data
+                    title: Resource
+                    type: object
+                  type: array
+                spread:
+                  type: string
+                use_channels:
+                  items:
+                    maximum: 2147483647
+                    minimum: -2147483648
+                    type: integer
+                  type: array
+                vols:
+                  items:
+                    type: number
+                  type: array
+              required:
+              - resources
+              - vols
+              - use_channels
+              - flow_rates
+              - offsets
+              - liquid_height
+              - blow_out_air_volume
+              - spread
+              title: LiquidHandlerAspirate_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: LiquidHandlerAspirate_Result
+              type: object
+          required:
+          - goal
+          title: LiquidHandlerAspirate
+          type: object
+        type: LiquidHandlerAspirate
       auto-add_liquid:
         feedback: {}
         goal: {}
@@ -6197,12 +6393,12 @@ liquid_handler.prcxi:
         goal: {}
         goal_default:
           none_keys: []
-          protocol_author: null
-          protocol_date: null
-          protocol_description: null
-          protocol_name: null
-          protocol_type: null
-          protocol_version: null
+          protocol_author: ''
+          protocol_date: ''
+          protocol_description: ''
+          protocol_name: ''
+          protocol_type: ''
+          protocol_version: ''
         handles: []
         result: {}
         schema:
@@ -6215,24 +6411,24 @@ liquid_handler.prcxi:
                   default: []
                   type: array
                 protocol_author:
+                  default: ''
                   type: string
                 protocol_date:
+                  default: ''
                   type: string
                 protocol_description:
+                  default: ''
                   type: string
                 protocol_name:
+                  default: ''
                   type: string
                 protocol_type:
+                  default: ''
                   type: string
                 protocol_version:
+                  default: ''
                   type: string
-              required:
-              - protocol_name
-              - protocol_description
-              - protocol_version
-              - protocol_author
-              - protocol_date
-              - protocol_type
+              required: []
               type: object
             result: {}
           required:
@@ -6342,6 +6538,40 @@ liquid_handler.prcxi:
           required:
           - goal
           title: dispense参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-drop_tips:
+        feedback: {}
+        goal: {}
+        goal_default:
+          allow_nonzero_volume: false
+          offsets: null
+          tip_spots: null
+          use_channels: null
+        handles: []
+        result: {}
+        schema:
+          description: drop_tips的参数schema
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                allow_nonzero_volume:
+                  default: false
+                  type: boolean
+                offsets:
+                  type: string
+                tip_spots:
+                  type: string
+                use_channels:
+                  type: string
+              required:
+              - tip_spots
+              type: object
+            result: {}
+          required:
+          - goal
+          title: drop_tips参数
           type: object
         type: UniLabJsonCommandAsync
       auto-iter_tips:
@@ -6698,6 +6928,547 @@ liquid_handler.prcxi:
           title: transfer_liquid参数
           type: object
         type: UniLabJsonCommandAsync
+      dispense:
+        feedback: {}
+        goal: {}
+        goal_default:
+          blow_out_air_volume:
+          - 0
+          flow_rates:
+          - 0.0
+          offsets:
+          - x: 0.0
+            y: 0.0
+            z: 0.0
+          resources:
+          - category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          spread: ''
+          use_channels:
+          - 0
+          vols:
+          - 0.0
+        handles: []
+        result: {}
+        schema:
+          description: ROS Action LiquidHandlerDispense 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: LiquidHandlerDispense_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                blow_out_air_volume:
+                  items:
+                    maximum: 2147483647
+                    minimum: -2147483648
+                    type: integer
+                  type: array
+                flow_rates:
+                  items:
+                    type: number
+                  type: array
+                offsets:
+                  items:
+                    properties:
+                      x:
+                        type: number
+                      y:
+                        type: number
+                      z:
+                        type: number
+                    required:
+                    - x
+                    - y
+                    - z
+                    title: Point
+                    type: object
+                  type: array
+                resources:
+                  items:
+                    properties:
+                      category:
+                        type: string
+                      children:
+                        items:
+                          type: string
+                        type: array
+                      config:
+                        type: string
+                      data:
+                        type: string
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      parent:
+                        type: string
+                      pose:
+                        properties:
+                          orientation:
+                            properties:
+                              w:
+                                type: number
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            - w
+                            title: Quaternion
+                            type: object
+                          position:
+                            properties:
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            title: Point
+                            type: object
+                        required:
+                        - position
+                        - orientation
+                        title: Pose
+                        type: object
+                      sample_id:
+                        type: string
+                      type:
+                        type: string
+                    required:
+                    - id
+                    - name
+                    - sample_id
+                    - children
+                    - parent
+                    - type
+                    - category
+                    - pose
+                    - config
+                    - data
+                    title: Resource
+                    type: object
+                  type: array
+                spread:
+                  type: string
+                use_channels:
+                  items:
+                    maximum: 2147483647
+                    minimum: -2147483648
+                    type: integer
+                  type: array
+                vols:
+                  items:
+                    type: number
+                  type: array
+              required:
+              - resources
+              - vols
+              - use_channels
+              - flow_rates
+              - offsets
+              - blow_out_air_volume
+              - spread
+              title: LiquidHandlerDispense_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: LiquidHandlerDispense_Result
+              type: object
+          required:
+          - goal
+          title: LiquidHandlerDispense
+          type: object
+        type: LiquidHandlerDispense
+      drop_tips:
+        feedback: {}
+        goal: {}
+        goal_default:
+          allow_nonzero_volume: false
+          offsets:
+          - x: 0.0
+            y: 0.0
+            z: 0.0
+          tip_spots:
+          - category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          use_channels:
+          - 0
+        handles: []
+        result: {}
+        schema:
+          description: ROS Action LiquidHandlerDropTips 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: LiquidHandlerDropTips_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                allow_nonzero_volume:
+                  type: boolean
+                offsets:
+                  items:
+                    properties:
+                      x:
+                        type: number
+                      y:
+                        type: number
+                      z:
+                        type: number
+                    required:
+                    - x
+                    - y
+                    - z
+                    title: Point
+                    type: object
+                  type: array
+                tip_spots:
+                  items:
+                    properties:
+                      category:
+                        type: string
+                      children:
+                        items:
+                          type: string
+                        type: array
+                      config:
+                        type: string
+                      data:
+                        type: string
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      parent:
+                        type: string
+                      pose:
+                        properties:
+                          orientation:
+                            properties:
+                              w:
+                                type: number
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            - w
+                            title: Quaternion
+                            type: object
+                          position:
+                            properties:
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            title: Point
+                            type: object
+                        required:
+                        - position
+                        - orientation
+                        title: Pose
+                        type: object
+                      sample_id:
+                        type: string
+                      type:
+                        type: string
+                    required:
+                    - id
+                    - name
+                    - sample_id
+                    - children
+                    - parent
+                    - type
+                    - category
+                    - pose
+                    - config
+                    - data
+                    title: Resource
+                    type: object
+                  type: array
+                use_channels:
+                  items:
+                    maximum: 2147483647
+                    minimum: -2147483648
+                    type: integer
+                  type: array
+              required:
+              - tip_spots
+              - use_channels
+              - offsets
+              - allow_nonzero_volume
+              title: LiquidHandlerDropTips_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: LiquidHandlerDropTips_Result
+              type: object
+          required:
+          - goal
+          title: LiquidHandlerDropTips
+          type: object
+        type: LiquidHandlerDropTips
+      mix:
+        feedback: {}
+        goal: {}
+        goal_default:
+          height_to_bottom: 0.0
+          mix_rate: 0.0
+          mix_time: 0
+          mix_vol: 0
+          none_keys:
+          - ''
+          offsets:
+          - x: 0.0
+            y: 0.0
+            z: 0.0
+          targets:
+          - category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+        handles: []
+        result: {}
+        schema:
+          description: ROS Action LiquidHandlerMix 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: LiquidHandlerMix_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                height_to_bottom:
+                  type: number
+                mix_rate:
+                  type: number
+                mix_time:
+                  maximum: 2147483647
+                  minimum: -2147483648
+                  type: integer
+                mix_vol:
+                  maximum: 2147483647
+                  minimum: -2147483648
+                  type: integer
+                none_keys:
+                  items:
+                    type: string
+                  type: array
+                offsets:
+                  items:
+                    properties:
+                      x:
+                        type: number
+                      y:
+                        type: number
+                      z:
+                        type: number
+                    required:
+                    - x
+                    - y
+                    - z
+                    title: Point
+                    type: object
+                  type: array
+                targets:
+                  items:
+                    properties:
+                      category:
+                        type: string
+                      children:
+                        items:
+                          type: string
+                        type: array
+                      config:
+                        type: string
+                      data:
+                        type: string
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      parent:
+                        type: string
+                      pose:
+                        properties:
+                          orientation:
+                            properties:
+                              w:
+                                type: number
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            - w
+                            title: Quaternion
+                            type: object
+                          position:
+                            properties:
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            title: Point
+                            type: object
+                        required:
+                        - position
+                        - orientation
+                        title: Pose
+                        type: object
+                      sample_id:
+                        type: string
+                      type:
+                        type: string
+                    required:
+                    - id
+                    - name
+                    - sample_id
+                    - children
+                    - parent
+                    - type
+                    - category
+                    - pose
+                    - config
+                    - data
+                    title: Resource
+                    type: object
+                  type: array
+              required:
+              - targets
+              - mix_time
+              - mix_vol
+              - height_to_bottom
+              - offsets
+              - mix_rate
+              - none_keys
+              title: LiquidHandlerMix_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: LiquidHandlerMix_Result
+              type: object
+          required:
+          - goal
+          title: LiquidHandlerMix
+          type: object
+        type: LiquidHandlerMix
       pick_up_tips:
         feedback: {}
         goal:
@@ -6866,7 +7637,8 @@ liquid_handler.prcxi:
           type: object
         type: LiquidHandlerPickUpTips
     module: unilabos.devices.liquid_handling.prcxi.prcxi:PRCXI9300Handler
-    status_types: {}
+    status_types:
+      reset_ok: bool
     type: python
   description: prcxi液体处理器设备，基于pylabrobot控制
   handles: []
@@ -6892,8 +7664,11 @@ liquid_handler.prcxi:
       - timeout
       type: object
     data:
-      properties: {}
-      required: []
+      properties:
+        reset_ok:
+          type: boolean
+      required:
+      - reset_ok
       type: object
 liquid_handler.revvity:
   class:
