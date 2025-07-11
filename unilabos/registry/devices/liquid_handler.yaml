@@ -6145,6 +6145,53 @@ liquid_handler.prcxi:
           title: add_liquid参数
           type: object
         type: UniLabJsonCommandAsync
+      auto-aspirate:
+        feedback: {}
+        goal: {}
+        goal_default:
+          blow_out_air_volume: null
+          flow_rates: null
+          liquid_height: null
+          offsets: null
+          resources: null
+          spread: wide
+          use_channels: null
+          vols: null
+        handles: []
+        result: {}
+        schema:
+          description: aspirate的参数schema
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                blow_out_air_volume:
+                  type: string
+                flow_rates:
+                  type: string
+                liquid_height:
+                  type: string
+                offsets:
+                  type: string
+                resources:
+                  type: string
+                spread:
+                  default: wide
+                  type: string
+                use_channels:
+                  type: string
+                vols:
+                  type: array
+              required:
+              - resources
+              - vols
+              type: object
+            result: {}
+          required:
+          - goal
+          title: aspirate参数
+          type: object
+        type: UniLabJsonCommandAsync
       auto-create_protocol:
         feedback: {}
         goal: {}
@@ -6218,6 +6265,83 @@ liquid_handler.prcxi:
           required:
           - goal
           title: custom_delay参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-discard_tips:
+        feedback: {}
+        goal: {}
+        goal_default:
+          allow_nonzero_volume: true
+          offsets: null
+          use_channels: null
+        handles: []
+        result: {}
+        schema:
+          description: discard_tips的参数schema
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                allow_nonzero_volume:
+                  default: true
+                  type: boolean
+                offsets:
+                  type: string
+                use_channels:
+                  type: string
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: discard_tips参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-dispense:
+        feedback: {}
+        goal: {}
+        goal_default:
+          blow_out_air_volume: null
+          flow_rates: null
+          liquid_height: null
+          offsets: null
+          resources: null
+          spread: wide
+          use_channels: null
+          vols: null
+        handles: []
+        result: {}
+        schema:
+          description: dispense的参数schema
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                blow_out_air_volume:
+                  type: string
+                flow_rates:
+                  type: string
+                liquid_height:
+                  type: string
+                offsets:
+                  type: string
+                resources:
+                  type: string
+                spread:
+                  default: wide
+                  type: string
+                use_channels:
+                  type: string
+                vols:
+                  type: array
+              required:
+              - resources
+              - vols
+              type: object
+            result: {}
+          required:
+          - goal
+          title: dispense参数
           type: object
         type: UniLabJsonCommandAsync
       auto-iter_tips:
@@ -6317,6 +6441,36 @@ liquid_handler.prcxi:
           required:
           - goal
           title: move_to参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-pick_up_tips:
+        feedback: {}
+        goal: {}
+        goal_default:
+          offsets: null
+          tip_spots: null
+          use_channels: null
+        handles: []
+        result: {}
+        schema:
+          description: pick_up_tips的参数schema
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                offsets:
+                  type: string
+                tip_spots:
+                  type: array
+                use_channels:
+                  type: string
+              required:
+              - tip_spots
+              type: object
+            result: {}
+          required:
+          - goal
+          title: pick_up_tips参数
           type: object
         type: UniLabJsonCommandAsync
       auto-remove_liquid:
@@ -6544,6 +6698,173 @@ liquid_handler.prcxi:
           title: transfer_liquid参数
           type: object
         type: UniLabJsonCommandAsync
+      pick_up_tips:
+        feedback: {}
+        goal:
+          offsets: offsets
+          tip_spots: tip_spots
+          use_channels: use_channels
+        goal_default:
+          offsets:
+          - x: 0.0
+            y: 0.0
+            z: 0.0
+          tip_spots:
+          - category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          use_channels:
+          - 0
+        handles: []
+        result: {}
+        schema:
+          description: ROS Action LiquidHandlerPickUpTips 的 JSON Schema
+          properties:
+            feedback:
+              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties: {}
+              required: []
+              title: LiquidHandlerPickUpTips_Feedback
+              type: object
+            goal:
+              description: Action 目标 - 从客户端发送到服务器
+              properties:
+                offsets:
+                  items:
+                    properties:
+                      x:
+                        type: number
+                      y:
+                        type: number
+                      z:
+                        type: number
+                    required:
+                    - x
+                    - y
+                    - z
+                    title: Point
+                    type: object
+                  type: array
+                tip_spots:
+                  items:
+                    properties:
+                      category:
+                        type: string
+                      children:
+                        items:
+                          type: string
+                        type: array
+                      config:
+                        type: string
+                      data:
+                        type: string
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      parent:
+                        type: string
+                      pose:
+                        properties:
+                          orientation:
+                            properties:
+                              w:
+                                type: number
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            - w
+                            title: Quaternion
+                            type: object
+                          position:
+                            properties:
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            title: Point
+                            type: object
+                        required:
+                        - position
+                        - orientation
+                        title: Pose
+                        type: object
+                      sample_id:
+                        type: string
+                      type:
+                        type: string
+                    required:
+                    - id
+                    - name
+                    - sample_id
+                    - children
+                    - parent
+                    - type
+                    - category
+                    - pose
+                    - config
+                    - data
+                    title: Resource
+                    type: object
+                  type: array
+                use_channels:
+                  items:
+                    maximum: 2147483647
+                    minimum: -2147483648
+                    type: integer
+                  type: array
+              required:
+              - tip_spots
+              - use_channels
+              - offsets
+              title: LiquidHandlerPickUpTips_Goal
+              type: object
+            result:
+              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: LiquidHandlerPickUpTips_Result
+              type: object
+          required:
+          - goal
+          title: LiquidHandlerPickUpTips
+          type: object
+        type: LiquidHandlerPickUpTips
     module: unilabos.devices.liquid_handling.prcxi.prcxi:PRCXI9300Handler
     status_types: {}
     type: python

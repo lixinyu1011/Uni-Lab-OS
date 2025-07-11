@@ -24,7 +24,7 @@ from pylabrobot.liquid_handling.standard import (
     ResourceMove,
     ResourceDrop,
 )
-from pylabrobot.resources import Tip, Deck, Plate, Well, TipRack, Resource, Container, Coordinate
+from pylabrobot.resources import Tip, Deck, Plate, Well, TipRack, Resource, Container, Coordinate, TipSpot
 
 from unilabos.devices.liquid_handling.liquid_handler_abstract import LiquidHandlerAbstract
 
@@ -258,6 +258,32 @@ class PRCXI9300Handler(LiquidHandlerAbstract):
 
     def iter_tips(self, tip_racks: Sequence[TipRack]) -> Iterator[Resource]:
         return super().iter_tips(tip_racks)
+
+    async def pick_up_tips(self, tip_spots: List[TipSpot], use_channels: Optional[List[int]] = None,
+                           offsets: Optional[List[Coordinate]] = None, **backend_kwargs):
+        return await super().pick_up_tips(tip_spots, use_channels, offsets, **backend_kwargs)
+
+    async def aspirate(self, resources: Sequence[Container], vols: List[float],
+                       use_channels: Optional[List[int]] = None, flow_rates: Optional[List[Optional[float]]] = None,
+                       offsets: Optional[List[Coordinate]] = None,
+                       liquid_height: Optional[List[Optional[float]]] = None,
+                       blow_out_air_volume: Optional[List[Optional[float]]] = None,
+                       spread: Literal["wide", "tight", "custom"] = "wide", **backend_kwargs):
+        return await super().aspirate(resources, vols, use_channels, flow_rates, offsets, liquid_height,
+                                      blow_out_air_volume, spread, **backend_kwargs)
+
+    async def dispense(self, resources: Sequence[Container], vols: List[float],
+                       use_channels: Optional[List[int]] = None, flow_rates: Optional[List[Optional[float]]] = None,
+                       offsets: Optional[List[Coordinate]] = None,
+                       liquid_height: Optional[List[Optional[float]]] = None,
+                       blow_out_air_volume: Optional[List[Optional[float]]] = None,
+                       spread: Literal["wide", "tight", "custom"] = "wide", **backend_kwargs):
+        return await super().dispense(resources, vols, use_channels, flow_rates, offsets, liquid_height,
+                                      blow_out_air_volume, spread, **backend_kwargs)
+
+    async def discard_tips(self, use_channels: Optional[List[int]] = None, allow_nonzero_volume: bool = True,
+                           offsets: Optional[List[Coordinate]] = None, **backend_kwargs):
+        return await super().discard_tips(use_channels, allow_nonzero_volume, offsets, **backend_kwargs)
 
     def set_tiprack(self, tip_racks: Sequence[TipRack]):
         super().set_tiprack(tip_racks)
