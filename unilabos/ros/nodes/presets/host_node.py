@@ -603,8 +603,7 @@ class HostNode(BaseROS2DeviceNode):
         if action_name == "test_latency" and server_info is not None:
             self.server_latest_timestamp = server_info.get("send_timestamp", 0.0)
         if action_id not in self._action_clients:
-            self.lab_logger().error(f"[Host Node] ActionClient {action_id} not found.")
-            return
+            raise ValueError(f"ActionClient {action_id} not found.")
 
         action_client: ActionClient = self._action_clients[action_id]
 
