@@ -1,8 +1,8 @@
 {
     "nodes": [
         {
-            "id": "PLR_STATION_PRCXI",
-            "name": "PLR_LH_TEST",
+            "id": "中析PRCXI",
+            "name": "PLR_PRCXI",
             "parent": null,
             "type": "device",
             "class": "liquid_handler.prcxi",
