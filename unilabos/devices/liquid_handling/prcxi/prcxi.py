@@ -24,7 +24,7 @@ from pylabrobot.liquid_handling.standard import (
     ResourceMove,
     ResourceDrop,
 )
-from pylabrobot.resources import Tip, Deck, Plate, Well, TipRack, Resource, Container, Coordinate, TipSpot
+from pylabrobot.resources import Tip, Deck, Plate, Well, TipRack, Resource, Container, Coordinate, TipSpot, Trash
 
 from unilabos.devices.liquid_handling.liquid_handler_abstract import LiquidHandlerAbstract
 
@@ -260,7 +260,7 @@ class PRCXI9300Handler(LiquidHandlerAbstract):
         mix_rate: Optional[float] = None,
         none_keys: List[str] = [],
     ):
-        return await super().mix(targets, mix_time, mix_vol, height_to_bottom, offsets, mix_rate, none_keys)
+        return await self._unilabos_backend.mix(targets, mix_time, mix_vol, height_to_bottom, offsets, mix_rate, none_keys)
 
     def iter_tips(self, tip_racks: Sequence[TipRack]) -> Iterator[Resource]:
         return super().iter_tips(tip_racks)
@@ -277,6 +277,11 @@ class PRCXI9300Handler(LiquidHandlerAbstract):
                        spread: Literal["wide", "tight", "custom"] = "wide", **backend_kwargs):
         return await super().aspirate(resources, vols, use_channels, flow_rates, offsets, liquid_height,
                                       blow_out_air_volume, spread, **backend_kwargs)
+
+    async def drop_tips(self, tip_spots: Sequence[Union[TipSpot, Trash]], use_channels: Optional[List[int]] = None,
+                        offsets: Optional[List[Coordinate]] = None, allow_nonzero_volume: bool = False,
+                        **backend_kwargs):
+        return await super().drop_tips(tip_spots, use_channels, offsets, allow_nonzero_volume, **backend_kwargs)
 
     async def dispense(self, resources: Sequence[Container], vols: List[float],
                        use_channels: Optional[List[int]] = None, flow_rates: Optional[List[Optional[float]]] = None,
@@ -438,6 +443,33 @@ class PRCXI9300Backend(LiquidHandlerBackend):
         if not allow_drop:
             raise ValueError("No matching Load step found for drop_tips.")
         print("PRCXI9300Backend drop_tips logged.")
+
+    async def mix(
+            self,
+            targets: Sequence[Container],
+            mix_time: int = None,
+            mix_vol: Optional[int] = None,
+            height_to_bottom: Optional[float] = None,
+            offsets: Optional[Coordinate] = None,
+            mix_rate: Optional[float] = None,
+            none_keys: List[str] = [],
+    ):
+        volumes = [1]
+        PlateNo = 2
+        hole_col = 2
+        step = self.api_client.Blending(
+            "Left",
+            dosage=int(volumes[0]),
+            plate_no=PlateNo,
+            is_whole_plate=False,
+            hole_row=1,
+            hole_col=hole_col,
+            blending_times=0,
+            balance_height=0,
+            plate_or_hole=f"H{hole_col}-8,T{PlateNo}",
+            hole_numbers="1,2,3,4,5,6,7,8",
+        )
+        self.steps_todo_list.append(step)
 
     async def aspirate(self, ops: List[SingleChannelAspiration], use_channels: List[int] = None):
         volumes = [1]
@@ -893,6 +925,7 @@ if __name__ == "__main__":
     asyncio.run(handler.pick_up_tips([], [], []))
     asyncio.run(handler.aspirate([], [], []))
     asyncio.run(handler.dispense([], [], []))
+    asyncio.run(handler.mix([], mix_time=3, mix_vol=10, height_to_bottom=0.5, offsets=Coordinate(0, 0, 0), mix_rate=100))
     asyncio.run(handler.drop_tips([], [], []))
 
     # asyncio.run(handler.add_liquid(
