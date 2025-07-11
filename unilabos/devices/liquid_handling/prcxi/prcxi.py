@@ -457,6 +457,8 @@ class PRCXI9300Backend(LiquidHandlerBackend):
         volumes = [1]
         PlateNo = 2
         hole_col = 2
+        blending_times = 1
+        assert blending_times > 0
         step = self.api_client.Blending(
             "Left",
             dosage=int(volumes[0]),
@@ -464,7 +466,7 @@ class PRCXI9300Backend(LiquidHandlerBackend):
             is_whole_plate=False,
             hole_row=1,
             hole_col=hole_col,
-            blending_times=0,
+            blending_times=blending_times,
             balance_height=0,
             plate_or_hole=f"H{hole_col}-8,T{PlateNo}",
             hole_numbers="1,2,3,4,5,6,7,8",
