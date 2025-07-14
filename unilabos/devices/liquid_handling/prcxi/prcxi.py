@@ -275,6 +275,7 @@ class PRCXI9300Handler(LiquidHandlerAbstract):
                        liquid_height: Optional[List[Optional[float]]] = None,
                        blow_out_air_volume: Optional[List[Optional[float]]] = None,
                        spread: Literal["wide", "tight", "custom"] = "wide", **backend_kwargs):
+
         return await super().aspirate(resources, vols, use_channels, flow_rates, offsets, liquid_height,
                                       blow_out_air_volume, spread, **backend_kwargs)
 
@@ -349,7 +350,7 @@ class PRCXI9300Backend(LiquidHandlerBackend):
             MatrixCount=len(self.tablets_info),
             WorkTablets=self.tablets_info,
         )
-        print(json.dumps(self.matrix_info, indent=2))
+        #print(json.dumps(self.matrix_info, indent=2))
         res = self.api_client.add_WorkTablet_Matrix(self.matrix_info)
         assert res["Success"], f"Failed to create matrix: {res.get('Message', 'Unknown error')}"
         print(f"PRCXI9300Backend created matrix with ID: {self.matrix_info['MatrixId']}, result: {res}")
@@ -388,22 +389,30 @@ class PRCXI9300Backend(LiquidHandlerBackend):
 
     async def pick_up_tips(self, ops: List[Pickup], use_channels: List[int] = None):
         """Pick up tips from the specified resource."""
-        # 12列，要PickUp A-H 1
-        # PlateNo = 1-6   # 2行3列
-        print("!!!!!!!!!" * 10)
-        print(ops, "====="*10)
-        # plate: PRCXI9300Container = ops[0].resource.parent.parent
-        # deck: PRCXI9300Deck = plate.parent
-        # plate_index = deck.children.index(plate)
-        # tipspot = ops[0].resource
-        # tipspot_index = tipspot.parent.children.index(tipspot)
-        # print(f"PRCXI9300Backend pick_up_tips: plate_index={plate_index}, tipspot_index={tipspot_index}")
-        # print(f"PRCXI9300Backend pick_up_tips: plate_index={plate_index}, plate.name={plate.name}")
-        # print(plate._unilabos_state["Material"])
-        # for op in ops:
-        #     print(f"PRCXI9300Backend pick_up_tips: {op.resource.name}")
-        PlateNo = 1  # 第一块板
-        hole_col = 2  # 第二列的8个孔
+
+        if len(ops) != 8:
+            raise ValueError(f"PRCXI9300Backend pick_up_tips: Expected 8 pickups, got {len(ops)}")
+
+        plate_indexes = []
+        for op in ops:
+            plate = op.resource.parent.parent
+            deck = plate.parent
+            plate_index = deck.children.index(plate)
+            plate_indexes.append(plate_index)
+        if len(set(plate_indexes)) != 1:
+            raise ValueError("All pickups must be from the same plate. Found different plates: " + str(plate_indexes)) 
+
+        tip_columns = []
+        for op in ops:
+            tipspot = op.resource
+            tipspot_index = tipspot.parent.children.index(tipspot)
+            tip_columns.append(tipspot_index // 8)
+        if len(set(tip_columns)) != 1:
+            raise ValueError("All pickups must be from the same tip column. Found different columns: " + str(tip_columns))
+        
+        PlateNo = plate_indexes[0] + 1
+        hole_col = tip_columns[0] + 1
+
         step = self.api_client.Load(
             "Left",
             dosage=0,
@@ -417,11 +426,35 @@ class PRCXI9300Backend(LiquidHandlerBackend):
             hole_numbers="1,2,3,4,5,6,7,8",
         )
         self.steps_todo_list.append(step)
-        print("PRCXI9300Backend pick_up_tips logged.")
+
 
     async def drop_tips(self, ops: List[Drop], use_channels: List[int] = None):
-        PlateNo = 1
-        hole_col = 2
+
+        """Pick up tips from the specified resource."""
+
+        if len(ops) != 8:
+            raise ValueError(f"PRCXI9300Backend drop_tips: Expected 8 pickups, got {len(ops)}")
+
+        plate_indexes = []
+        for op in ops:
+            plate = op.resource.parent.parent
+            deck = plate.parent
+            plate_index = deck.children.index(plate)
+            plate_indexes.append(plate_index)
+        if len(set(plate_indexes)) != 1:
+            raise ValueError("All drop_tips must be from the same plate. Found different plates: " + str(plate_indexes)) 
+
+        tip_columns = []
+        for op in ops:
+            tipspot = op.resource
+            tipspot_index = tipspot.parent.children.index(tipspot)
+            tip_columns.append(tipspot_index // 8)
+        if len(set(tip_columns)) != 1:
+            raise ValueError("All drop_tips must be from the same tip column. Found different columns: " + str(tip_columns))
+        
+        PlateNo = plate_indexes[0] + 1
+        hole_col = tip_columns[0] + 1
+
         step = self.api_client.UnLoad(
             "Left",
             dosage=0,
@@ -434,15 +467,7 @@ class PRCXI9300Backend(LiquidHandlerBackend):
             plate_or_hole=f"H{hole_col}-8,T{PlateNo}",
             hole_numbers="1,2,3,4,5,6,7,8",
         )
-        allow_drop = False
-        for s in self.steps_todo_list:
-            if s.get("Function") == "Load":
-                self.steps_todo_list.append(step)
-                allow_drop = True
-                break
-        if not allow_drop:
-            raise ValueError("No matching Load step found for drop_tips.")
-        print("PRCXI9300Backend drop_tips logged.")
+        self.steps_todo_list.append(step)
 
     async def mix(
             self,
@@ -454,19 +479,41 @@ class PRCXI9300Backend(LiquidHandlerBackend):
             mix_rate: Optional[float] = None,
             none_keys: List[str] = [],
     ):
-        volumes = [1]
-        PlateNo = 2
-        hole_col = 2
-        blending_times = 1
-        assert blending_times > 0
+        
+        """Mix liquid in the specified resources."""
+   
+        if len(targets) != 8:
+            raise ValueError(f"PRCXI9300Backend aspirate: Expected 8 aspirate, got {len(targets)}")
+
+        plate_indexes = []
+        for op in targets:
+            deck = op.parent.parent.parent
+            plate = op.parent.parent
+            plate_index = deck.children.index(plate)
+            plate_indexes.append(plate_index)
+
+        if len(set(plate_indexes)) != 1:
+            raise ValueError("All pickups must be from the same plate. Found different plates: " + str(plate_indexes)) 
+
+        tip_columns = []
+        for op in targets:
+            tipspot_index = op.parent.children.index(op)
+            tip_columns.append(tipspot_index // 8)
+
+        if len(set(tip_columns)) != 1:
+            raise ValueError("All pickups must be from the same tip column. Found different columns: " + str(tip_columns))
+        
+        PlateNo = plate_indexes[0] + 1
+        hole_col = tip_columns[0] + 1
+        assert mix_time > 0
         step = self.api_client.Blending(
             "Left",
-            dosage=int(volumes[0]),
+            dosage=mix_vol,
             plate_no=PlateNo,
             is_whole_plate=False,
             hole_row=1,
             hole_col=hole_col,
-            blending_times=blending_times,
+            blending_times=mix_time,
             balance_height=0,
             plate_or_hole=f"H{hole_col}-8,T{PlateNo}",
             hole_numbers="1,2,3,4,5,6,7,8",
@@ -474,11 +521,38 @@ class PRCXI9300Backend(LiquidHandlerBackend):
         self.steps_todo_list.append(step)
 
     async def aspirate(self, ops: List[SingleChannelAspiration], use_channels: List[int] = None):
-        volumes = [1]
-        # volumes = [op.volume for op in ops]
-        # print(f"PRCXI9300Backend aspirate volumes: {volumes[0]} -> {int(volumes[0])} μL")
-        PlateNo = 2
-        hole_col = 4
+
+        """Aspirate liquid from the specified resources."""
+
+        if len(ops) != 8:
+            raise ValueError(f"PRCXI9300Backend aspirate: Expected 8 aspirate, got {len(ops)}")
+        
+        plate_indexes = []
+        for op in ops:
+            plate = op.resource.parent.parent
+            deck = plate.parent
+            plate_index = deck.children.index(plate)
+            plate_indexes.append(plate_index)
+
+        if len(set(plate_indexes)) != 1:
+            raise ValueError("All pickups must be from the same plate. Found different plates: " + str(plate_indexes)) 
+
+        tip_columns = []
+        for op in ops:
+            tipspot = op.resource
+            tipspot_index = tipspot.parent.children.index(tipspot)
+            tip_columns.append(tipspot_index // 8)
+
+        if len(set(tip_columns)) != 1:
+            raise ValueError("All pickups must be from the same tip column. Found different columns: " + str(tip_columns))
+        
+        volumes = [op.volume for op in ops]
+        if len(set(volumes)) != 1:
+            raise ValueError("All aspirate volumes must be the same. Found different volumes: " + str(volumes))
+        
+        PlateNo = plate_indexes[0] + 1
+        hole_col = tip_columns[0] + 1
+
         step = self.api_client.Imbibing(
             "Left",
             dosage=int(volumes[0]),
@@ -493,12 +567,40 @@ class PRCXI9300Backend(LiquidHandlerBackend):
         )
         self.steps_todo_list.append(step)
 
+
     async def dispense(self, ops: List[SingleChannelDispense], use_channels: List[int] = None):
-        volumes = [1]
-        # volumes = [op.volume for op in ops]
-        # print(f"PRCXI9300Backend dispense volumes: {volumes[0]} -> {int(volumes[0])} μL")
-        PlateNo = 2
-        hole_col = 2
+        
+        """Dispense liquid into the specified resources."""
+
+        if len(ops) != 8:
+            raise ValueError(f"PRCXI9300Backend dispense: Expected 8 dispense, got {len(ops)}")
+        
+        plate_indexes = []
+        for op in ops:
+            plate = op.resource.parent.parent
+            deck = plate.parent
+            plate_index = deck.children.index(plate)
+            plate_indexes.append(plate_index)
+
+        if len(set(plate_indexes)) != 1:
+            raise ValueError("All dispense must be from the same plate. Found different plates: " + str(plate_indexes)) 
+
+        tip_columns = []
+        for op in ops:
+            tipspot = op.resource
+            tipspot_index = tipspot.parent.children.index(tipspot)
+            tip_columns.append(tipspot_index // 8)
+
+        if len(set(tip_columns)) != 1:
+            raise ValueError("All dispense must be from the same tip column. Found different columns: " + str(tip_columns))
+        
+        volumes = [op.volume for op in ops]
+        if len(set(volumes)) != 1:
+            raise ValueError("All dispense volumes must be the same. Found different volumes: " + str(volumes))
+        
+        PlateNo = plate_indexes[0] + 1
+        hole_col = tip_columns[0] + 1
+
         step = self.api_client.Tapping(
             "Left",
             dosage=int(volumes[0]),
@@ -914,22 +1016,17 @@ if __name__ == "__main__":
     deck.assign_child_resource(plate4, location=Coordinate(0, 0, 0))
     deck.assign_child_resource(plate5, location=Coordinate(0, 0, 0))
     deck.assign_child_resource(plate6, location=Coordinate(0, 0, 0))
-    input("debug....")
+
     handler = PRCXI9300Handler(deck=deck, host="192.168.3.9", port=9999, timeout=10.0, setup=False)
     handler.set_tiprack([tip_rack])  # Set the tip rack for the handler
     asyncio.run(handler.setup())  # Initialize the handler and setup the connection
     asyncio.run(handler.create_protocol(protocol_name="Test Protocol"))  # Initialize the backend and setup the connection
-    input("Creating protocol...")
-    # asyncio.run(handler.pick_up_tips(tip_rack.children[:8],[0,1,2,3,4,5,6,7]))
-    # asyncio.run(handler.aspirate(tip_rack.children[:8],[0,1,2,3,4,5,6,7]))
-    # asyncio.run(handler.dispense(tip_rack.children[:8],[0,1,2,3,4,5,6,7]))
-    # asyncio.run(handler.drop_tips(tip_rack.children[:8],[0,1,2,3,4,5,6,7]))
-    asyncio.run(handler.pick_up_tips([], [], []))
-    asyncio.run(handler.aspirate([], [], []))
-    asyncio.run(handler.dispense([], [], []))
-    asyncio.run(handler.mix([], mix_time=3, mix_vol=10, height_to_bottom=0.5, offsets=Coordinate(0, 0, 0), mix_rate=100))
-    asyncio.run(handler.drop_tips([], [], []))
-
+    asyncio.run(handler.pick_up_tips(tip_rack.children[:8],[0,1,2,3,4,5,6,7]))
+    asyncio.run(handler.aspirate(well_containers.children[:8],[50]*8, [0,1,2,3,4,5,6,7]))
+    asyncio.run(handler.dispense(well_containers.children[:8],[50]*8,[0,1,2,3,4,5,6,7]))
+    asyncio.run(handler.drop_tips(tip_rack.children[8:16],[0,1,2,3,4,5,6,7]))
+    asyncio.run(handler.mix(well_containers.children[:8], mix_time=3, mix_vol=50, height_to_bottom=0.5, offsets=Coordinate(0, 0, 0), mix_rate=100))
+    print(json.dumps(handler._unilabos_backend.steps_todo_list, indent=2))  # Print matrix info
     # asyncio.run(handler.add_liquid(
     #     asp_vols=[100]*8,
     #     dis_vols=[100]*8,
@@ -942,12 +1039,8 @@ if __name__ == "__main__":
     #     blow_out_air_volume=[None] * 8,
     #     spread="wide",
     # ))
-    input("pick_up_tips add step")
+    # input("pick_up_tips add step")
     asyncio.run(handler.run_protocol())  # Run the protocol
-    input("Running protocol...")
-    print(json.dumps(handler._unilabos_backend.steps_todo_list, indent=2))  # Print matrix info
-    
-
-    
-    input("Press Enter to continue...")  # Wait for user input before proceeding
-    print("PRCXI9300Handler initialized with deck and host settings.")
+    # input("Running protocol...")
+    # input("Press Enter to continue...")  # Wait for user input before proceeding
+    # print("PRCXI9300Handler initialized with deck and host settings.")
