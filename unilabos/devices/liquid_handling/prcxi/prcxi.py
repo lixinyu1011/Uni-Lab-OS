@@ -91,10 +91,11 @@ class PRCXI9300Handler(LiquidHandlerAbstract):
     @property
     def reset_ok(self) -> bool:
         """检查设备是否已重置成功。"""
+        if self._unilabos_backend.debug:
+            return True
         return self._unilabos_backend.is_reset_ok
 
-
-    def __init__(self, deck: Deck, host: str, port: int, timeout: float, setup=True):
+    def __init__(self, deck: Deck, host: str, port: int, timeout: float, setup=True, debug=False):
         tablets_info = []
         count = 0
         for child in deck.children:
@@ -103,7 +104,7 @@ class PRCXI9300Handler(LiquidHandlerAbstract):
                 tablets_info.append(
                     WorkTablets(Number=count, Code=f"T{count}", Material=child._unilabos_state["Material"])
                 )
-        self._unilabos_backend = PRCXI9300Backend(tablets_info, host, port, timeout, setup)
+        self._unilabos_backend = PRCXI9300Backend(tablets_info, host, port, timeout, setup, debug)
         super().__init__(backend=self._unilabos_backend, deck=deck)
 
     async def create_protocol(
@@ -329,13 +330,15 @@ class PRCXI9300Backend(LiquidHandlerBackend):
         port: int = 9999,
         timeout: float = 10.0,
         setup=True,
+        debug=False,
     ) -> None:
         super().__init__()
         self.tablets_info = tablets_info
-        self.api_client = PRCXI9300Api(host, port, timeout)
+        self.api_client = PRCXI9300Api(host, port, timeout, debug)
         self.host, self.port, self.timeout = host, port, timeout
         self._num_channels = 8
         self._execute_setup = setup
+        self.debug = debug
 
     def create_protocol(self, protocol_name):
         self.protocol_name = protocol_name
@@ -648,14 +651,17 @@ class PRCXI9300Backend(LiquidHandlerBackend):
 
 
 class PRCXI9300Api:
-    def __init__(self, host: str = "127.0.0.1", port: int = 9999, timeout: float = 10.0) -> None:
+    def __init__(self, host: str = "127.0.0.1", port: int = 9999, timeout: float = 10.0, debug: bool = False) -> None:
         self.host, self.port, self.timeout = host, port, timeout
+        self.debug = debug
 
     @staticmethod
     def _len_prefix(n: int) -> bytes:
         return bytes.fromhex(format(n, "016x"))
 
     def _raw_request(self, payload: str) -> str:
+        if self.debug:
+            return " "
         with contextlib.closing(socket.socket()) as sock:
             sock.settimeout(self.timeout)
             sock.connect((self.host, self.port))
@@ -1017,7 +1023,7 @@ if __name__ == "__main__":
     deck.assign_child_resource(plate5, location=Coordinate(0, 0, 0))
     deck.assign_child_resource(plate6, location=Coordinate(0, 0, 0))
 
-    handler = PRCXI9300Handler(deck=deck, host="192.168.3.9", port=9999, timeout=10.0, setup=False)
+    handler = PRCXI9300Handler(deck=deck, host="192.168.3.9", port=9999, timeout=10.0, setup=False, debug=True)
     handler.set_tiprack([tip_rack])  # Set the tip rack for the handler
     asyncio.run(handler.setup())  # Initialize the handler and setup the connection
     asyncio.run(handler.create_protocol(protocol_name="Test Protocol"))  # Initialize the backend and setup the connection

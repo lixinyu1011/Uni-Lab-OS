@@ -365,7 +365,8 @@ class Registry:
                                         "goal_default": {i["name"]: i["default"] for i in v["args"]},
                                         "handles": [],
                                     }
-                                    for k, v in enhanced_info["action_methods"].items()
+                                    # 不生成已配置action的动作
+                                    for k, v in enhanced_info["action_methods"].items() if k not in device_config["class"]["action_value_mappings"]
                                 }
                             )
                             device_config["init_param_schema"] = {}
