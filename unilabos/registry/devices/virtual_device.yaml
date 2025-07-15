@@ -1,42 +1,6 @@
 virtual_centrifuge:
   class:
     action_value_mappings:
-      auto-centrifuge:
-        feedback: {}
-        goal: {}
-        goal_default:
-          speed: null
-          temp: 25.0
-          time: null
-          vessel: null
-        handles: []
-        result: {}
-        schema:
-          description: centrifuge的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                speed:
-                  type: number
-                temp:
-                  default: 25.0
-                  type: number
-                time:
-                  type: number
-                vessel:
-                  type: string
-              required:
-              - vessel
-              - speed
-              - time
-              type: object
-            result: {}
-          required:
-          - goal
-          title: centrifuge参数
-          type: object
-        type: UniLabJsonCommandAsync
       auto-cleanup:
         feedback: {}
         goal: {}
@@ -101,7 +65,6 @@ virtual_centrifuge:
           description: ROS Action Centrifuge 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 current_speed:
                   type: number
@@ -119,7 +82,6 @@ virtual_centrifuge:
               title: Centrifuge_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 speed:
                   type: number
@@ -137,7 +99,6 @@ virtual_centrifuge:
               title: Centrifuge_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 message:
                   type: string
@@ -274,38 +235,6 @@ virtual_column:
           title: initialize参数
           type: object
         type: UniLabJsonCommandAsync
-      auto-run_column:
-        feedback: {}
-        goal: {}
-        goal_default:
-          column: null
-          from_vessel: null
-          to_vessel: null
-        handles: []
-        result: {}
-        schema:
-          description: run_column的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                column:
-                  type: string
-                from_vessel:
-                  type: string
-                to_vessel:
-                  type: string
-              required:
-              - from_vessel
-              - to_vessel
-              - column
-              type: object
-            result: {}
-          required:
-          - goal
-          title: run_column参数
-          type: object
-        type: UniLabJsonCommandAsync
       run_column:
         feedback:
           current_status: current_status
@@ -328,7 +257,6 @@ virtual_column:
           description: ROS Action RunColumn 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 progress:
                   type: number
@@ -340,7 +268,6 @@ virtual_column:
               title: RunColumn_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 column:
                   type: string
@@ -355,7 +282,6 @@ virtual_column:
               title: RunColumn_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 message:
                   type: string
@@ -468,54 +394,6 @@ virtual_filter:
           title: cleanup参数
           type: object
         type: UniLabJsonCommandAsync
-      auto-filter:
-        feedback: {}
-        goal: {}
-        goal_default:
-          continue_heatchill: false
-          filtrate_vessel: ''
-          stir: false
-          stir_speed: 300.0
-          temp: 25.0
-          vessel: null
-          volume: 0.0
-        handles: []
-        result: {}
-        schema:
-          description: filter的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                continue_heatchill:
-                  default: false
-                  type: boolean
-                filtrate_vessel:
-                  default: ''
-                  type: string
-                stir:
-                  default: false
-                  type: boolean
-                stir_speed:
-                  default: 300.0
-                  type: number
-                temp:
-                  default: 25.0
-                  type: number
-                vessel:
-                  type: string
-                volume:
-                  default: 0.0
-                  type: number
-              required:
-              - vessel
-              type: object
-            result: {}
-          required:
-          - goal
-          title: filter参数
-          type: object
-        type: UniLabJsonCommandAsync
       auto-initialize:
         feedback: {}
         goal: {}
@@ -567,7 +445,6 @@ virtual_filter:
           description: ROS Action Filter 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 current_status:
                   type: string
@@ -585,7 +462,6 @@ virtual_filter:
               title: Filter_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 continue_heatchill:
                   type: boolean
@@ -612,7 +488,6 @@ virtual_filter:
               title: Filter_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 message:
                   type: string
@@ -733,26 +608,6 @@ virtual_gas_source:
           title: cleanup参数
           type: object
         type: UniLabJsonCommandAsync
-      auto-close:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: close的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: close参数
-          type: object
-        type: UniLabJsonCommand
       auto-initialize:
         feedback: {}
         goal: {}
@@ -813,50 +668,6 @@ virtual_gas_source:
           title: is_open参数
           type: object
         type: UniLabJsonCommand
-      auto-open:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: open的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: open参数
-          type: object
-        type: UniLabJsonCommand
-      auto-set_status:
-        feedback: {}
-        goal: {}
-        goal_default:
-          string: null
-        handles: []
-        result: {}
-        schema:
-          description: set_status的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                string:
-                  type: string
-              required:
-              - string
-              type: object
-            result: {}
-          required:
-          - goal
-          title: set_status参数
-          type: object
-        type: UniLabJsonCommand
       close:
         feedback: {}
         goal: {}
@@ -867,19 +678,16 @@ virtual_gas_source:
           description: ROS Action EmptyIn 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: EmptyIn_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties: {}
               required: []
               title: EmptyIn_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -902,19 +710,16 @@ virtual_gas_source:
           description: ROS Action EmptyIn 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: EmptyIn_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties: {}
               required: []
               title: EmptyIn_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -939,13 +744,11 @@ virtual_gas_source:
           description: ROS Action StrSingleInput 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: StrSingleInput_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 string:
                   type: string
@@ -954,7 +757,6 @@ virtual_gas_source:
               title: StrSingleInput_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -1024,106 +826,6 @@ virtual_heatchill:
           title: cleanup参数
           type: object
         type: UniLabJsonCommandAsync
-      auto-heat_chill:
-        feedback: {}
-        goal: {}
-        goal_default:
-          purpose: null
-          stir: null
-          stir_speed: null
-          temp: null
-          time: null
-          vessel: null
-        handles: []
-        result: {}
-        schema:
-          description: heat_chill的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                purpose:
-                  type: string
-                stir:
-                  type: boolean
-                stir_speed:
-                  type: number
-                temp:
-                  type: number
-                time:
-                  type: number
-                vessel:
-                  type: string
-              required:
-              - vessel
-              - temp
-              - time
-              - stir
-              - stir_speed
-              - purpose
-              type: object
-            result: {}
-          required:
-          - goal
-          title: heat_chill参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-heat_chill_start:
-        feedback: {}
-        goal: {}
-        goal_default:
-          purpose: null
-          temp: null
-          vessel: null
-        handles: []
-        result: {}
-        schema:
-          description: heat_chill_start的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                purpose:
-                  type: string
-                temp:
-                  type: number
-                vessel:
-                  type: string
-              required:
-              - vessel
-              - temp
-              - purpose
-              type: object
-            result: {}
-          required:
-          - goal
-          title: heat_chill_start参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-heat_chill_stop:
-        feedback: {}
-        goal: {}
-        goal_default:
-          vessel: null
-        handles: []
-        result: {}
-        schema:
-          description: heat_chill_stop的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                vessel:
-                  type: string
-              required:
-              - vessel
-              type: object
-            result: {}
-          required:
-          - goal
-          title: heat_chill_stop参数
-          type: object
-        type: UniLabJsonCommandAsync
       auto-initialize:
         feedback: {}
         goal: {}
@@ -1168,7 +870,6 @@ virtual_heatchill:
           description: ROS Action HeatChill 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -1177,7 +878,6 @@ virtual_heatchill:
               title: HeatChill_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 purpose:
                   type: string
@@ -1201,7 +901,6 @@ virtual_heatchill:
               title: HeatChill_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -1235,7 +934,6 @@ virtual_heatchill:
           description: ROS Action HeatChillStart 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -1244,7 +942,6 @@ virtual_heatchill:
               title: HeatChillStart_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 purpose:
                   type: string
@@ -1259,7 +956,6 @@ virtual_heatchill:
               title: HeatChillStart_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -1289,7 +985,6 @@ virtual_heatchill:
           description: ROS Action HeatChillStop 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -1298,7 +993,6 @@ virtual_heatchill:
               title: HeatChillStop_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 vessel:
                   type: string
@@ -1307,7 +1001,6 @@ virtual_heatchill:
               title: HeatChillStop_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -1501,30 +1194,6 @@ virtual_multiway_valve:
           title: reset参数
           type: object
         type: UniLabJsonCommand
-      auto-set_position:
-        feedback: {}
-        goal: {}
-        goal_default:
-          command: null
-        handles: []
-        result: {}
-        schema:
-          description: set_position的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                command:
-                  type: string
-              required:
-              - command
-              type: object
-            result: {}
-          required:
-          - goal
-          title: set_position参数
-          type: object
-        type: UniLabJsonCommand
       auto-set_to_port:
         feedback: {}
         goal: {}
@@ -1569,30 +1238,6 @@ virtual_multiway_valve:
           title: set_to_pump_position参数
           type: object
         type: UniLabJsonCommand
-      auto-set_valve_position:
-        feedback: {}
-        goal: {}
-        goal_default:
-          command: null
-        handles: []
-        result: {}
-        schema:
-          description: set_valve_position的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                command:
-                  type: string
-              required:
-              - command
-              type: object
-            result: {}
-          required:
-          - goal
-          title: set_valve_position参数
-          type: object
-        type: UniLabJsonCommand
       auto-switch_between_pump_and_port:
         feedback: {}
         goal: {}
@@ -1630,7 +1275,6 @@ virtual_multiway_valve:
           description: ROS Action SendCmd 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -1639,7 +1283,6 @@ virtual_multiway_valve:
               title: SendCmd_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 command:
                   type: string
@@ -1648,7 +1291,6 @@ virtual_multiway_valve:
               title: SendCmd_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -1677,7 +1319,6 @@ virtual_multiway_valve:
           description: ROS Action SendCmd 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -1686,7 +1327,6 @@ virtual_multiway_valve:
               title: SendCmd_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 command:
                   type: string
@@ -1695,7 +1335,6 @@ virtual_multiway_valve:
               title: SendCmd_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -1927,66 +1566,6 @@ virtual_pump:
           title: initialize参数
           type: object
         type: UniLabJsonCommandAsync
-      auto-transfer:
-        feedback: {}
-        goal: {}
-        goal_default:
-          amount: ''
-          from_vessel: null
-          rinsing_repeats: 0
-          rinsing_solvent: ''
-          rinsing_volume: 0.0
-          solid: false
-          time: 0.0
-          to_vessel: null
-          viscous: false
-          volume: null
-        handles: []
-        result: {}
-        schema:
-          description: transfer的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                amount:
-                  default: ''
-                  type: string
-                from_vessel:
-                  type: string
-                rinsing_repeats:
-                  default: 0
-                  type: integer
-                rinsing_solvent:
-                  default: ''
-                  type: string
-                rinsing_volume:
-                  default: 0.0
-                  type: number
-                solid:
-                  default: false
-                  type: boolean
-                time:
-                  default: 0.0
-                  type: number
-                to_vessel:
-                  type: string
-                viscous:
-                  default: false
-                  type: boolean
-                volume:
-                  type: number
-              required:
-              - from_vessel
-              - to_vessel
-              - volume
-              type: object
-            result: {}
-          required:
-          - goal
-          title: transfer参数
-          type: object
-        type: UniLabJsonCommandAsync
       set_valve_position:
         feedback:
           status: status
@@ -2001,13 +1580,11 @@ virtual_pump:
           description: ROS Action FloatSingleInput 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: FloatSingleInput_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 float_in:
                   type: number
@@ -2016,7 +1593,6 @@ virtual_pump:
               title: FloatSingleInput_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -2064,7 +1640,6 @@ virtual_pump:
           description: ROS Action PumpTransfer 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 current_device:
                   type: string
@@ -2108,7 +1683,6 @@ virtual_pump:
               title: PumpTransfer_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 amount:
                   type: string
@@ -2146,7 +1720,6 @@ virtual_pump:
               title: PumpTransfer_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -2251,46 +1824,6 @@ virtual_rotavap:
           title: cleanup参数
           type: object
         type: UniLabJsonCommandAsync
-      auto-evaporate:
-        feedback: {}
-        goal: {}
-        goal_default:
-          pressure: 0.1
-          stir_speed: 100.0
-          temp: 60.0
-          time: 1800.0
-          vessel: null
-        handles: []
-        result: {}
-        schema:
-          description: evaporate的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                pressure:
-                  default: 0.1
-                  type: number
-                stir_speed:
-                  default: 100.0
-                  type: number
-                temp:
-                  default: 60.0
-                  type: number
-                time:
-                  default: 1800.0
-                  type: number
-                vessel:
-                  type: string
-              required:
-              - vessel
-              type: object
-            result: {}
-          required:
-          - goal
-          title: evaporate参数
-          type: object
-        type: UniLabJsonCommandAsync
       auto-initialize:
         feedback: {}
         goal: {}
@@ -2337,7 +1870,6 @@ virtual_rotavap:
           description: ROS Action Evaporate 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 current_device:
                   type: string
@@ -2381,7 +1913,6 @@ virtual_rotavap:
               title: Evaporate_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 pressure:
                   type: number
@@ -2402,7 +1933,6 @@ virtual_rotavap:
               title: Evaporate_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -2548,78 +2078,6 @@ virtual_separator:
           title: initialize参数
           type: object
         type: UniLabJsonCommandAsync
-      auto-separate:
-        feedback: {}
-        goal: {}
-        goal_default:
-          from_vessel: null
-          product_phase: null
-          purpose: null
-          repeats: 1
-          separation_vessel: null
-          settling_time: 300.0
-          solvent: ''
-          solvent_volume: 50.0
-          stir_speed: 300.0
-          stir_time: 30.0
-          through: ''
-          to_vessel: null
-          waste_phase_to_vessel: ''
-        handles: []
-        result: {}
-        schema:
-          description: separate的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                from_vessel:
-                  type: string
-                product_phase:
-                  type: string
-                purpose:
-                  type: string
-                repeats:
-                  default: 1
-                  type: integer
-                separation_vessel:
-                  type: string
-                settling_time:
-                  default: 300.0
-                  type: number
-                solvent:
-                  default: ''
-                  type: string
-                solvent_volume:
-                  default: 50.0
-                  type: number
-                stir_speed:
-                  default: 300.0
-                  type: number
-                stir_time:
-                  default: 30.0
-                  type: number
-                through:
-                  default: ''
-                  type: string
-                to_vessel:
-                  type: string
-                waste_phase_to_vessel:
-                  default: ''
-                  type: string
-              required:
-              - purpose
-              - product_phase
-              - from_vessel
-              - separation_vessel
-              - to_vessel
-              type: object
-            result: {}
-          required:
-          - goal
-          title: separate参数
-          type: object
-        type: UniLabJsonCommandAsync
       separate:
         feedback:
           current_status: status
@@ -2660,7 +2118,6 @@ virtual_separator:
           description: ROS Action Separate 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 current_device:
                   type: string
@@ -2704,7 +2161,6 @@ virtual_separator:
               title: Separate_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 from_vessel:
                   type: string
@@ -2751,7 +2207,6 @@ virtual_separator:
               title: Separate_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -2877,26 +2332,6 @@ virtual_solenoid_valve:
           title: cleanup参数
           type: object
         type: UniLabJsonCommandAsync
-      auto-close:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: close的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: close参数
-          type: object
-        type: UniLabJsonCommandAsync
       auto-initialize:
         feedback: {}
         goal: {}
@@ -2937,26 +2372,6 @@ virtual_solenoid_valve:
           title: is_closed参数
           type: object
         type: UniLabJsonCommand
-      auto-open:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: open的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: open参数
-          type: object
-        type: UniLabJsonCommandAsync
       auto-reset:
         feedback: {}
         goal: {}
@@ -2975,53 +2390,6 @@ virtual_solenoid_valve:
           required:
           - goal
           title: reset参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-set_state:
-        feedback: {}
-        goal: {}
-        goal_default:
-          command: null
-        handles: []
-        result: {}
-        schema:
-          description: set_state的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                command:
-                  type: string
-              required:
-              - command
-              type: object
-            result: {}
-          required:
-          - goal
-          title: set_state参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-set_valve_position:
-        feedback: {}
-        goal: {}
-        goal_default:
-          command: null
-        handles: []
-        result: {}
-        schema:
-          description: set_valve_position的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                command:
-                  type: string
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: set_valve_position参数
           type: object
         type: UniLabJsonCommandAsync
       auto-toggle:
@@ -3057,7 +2425,6 @@ virtual_solenoid_valve:
           description: ROS Action SendCmd 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -3066,7 +2433,6 @@ virtual_solenoid_valve:
               title: SendCmd_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 command:
                   type: string
@@ -3075,7 +2441,6 @@ virtual_solenoid_valve:
               title: SendCmd_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -3104,7 +2469,6 @@ virtual_solenoid_valve:
           description: ROS Action SendCmd 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -3113,7 +2477,6 @@ virtual_solenoid_valve:
               title: SendCmd_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 command:
                   type: string
@@ -3122,7 +2485,6 @@ virtual_solenoid_valve:
               title: SendCmd_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -3151,7 +2513,6 @@ virtual_solenoid_valve:
           description: ROS Action SendCmd 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -3160,7 +2521,6 @@ virtual_solenoid_valve:
               title: SendCmd_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 command:
                   type: string
@@ -3169,7 +2529,6 @@ virtual_solenoid_valve:
               title: SendCmd_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -3198,7 +2557,6 @@ virtual_solenoid_valve:
           description: ROS Action SendCmd 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -3207,7 +2565,6 @@ virtual_solenoid_valve:
               title: SendCmd_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 command:
                   type: string
@@ -3216,7 +2573,6 @@ virtual_solenoid_valve:
               title: SendCmd_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -3330,94 +2686,6 @@ virtual_stirrer:
           title: initialize参数
           type: object
         type: UniLabJsonCommandAsync
-      auto-start_stir:
-        feedback: {}
-        goal: {}
-        goal_default:
-          purpose: null
-          stir_speed: null
-          vessel: null
-        handles: []
-        result: {}
-        schema:
-          description: start_stir的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                purpose:
-                  type: string
-                stir_speed:
-                  type: number
-                vessel:
-                  type: string
-              required:
-              - vessel
-              - stir_speed
-              - purpose
-              type: object
-            result: {}
-          required:
-          - goal
-          title: start_stir参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-stir:
-        feedback: {}
-        goal: {}
-        goal_default:
-          settling_time: null
-          stir_speed: null
-          stir_time: null
-        handles: []
-        result: {}
-        schema:
-          description: stir的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                settling_time:
-                  type: number
-                stir_speed:
-                  type: number
-                stir_time:
-                  type: number
-              required:
-              - stir_time
-              - stir_speed
-              - settling_time
-              type: object
-            result: {}
-          required:
-          - goal
-          title: stir参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-stop_stir:
-        feedback: {}
-        goal: {}
-        goal_default:
-          vessel: null
-        handles: []
-        result: {}
-        schema:
-          description: stop_stir的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                vessel:
-                  type: string
-              required:
-              - vessel
-              type: object
-            result: {}
-          required:
-          - goal
-          title: stop_stir参数
-          type: object
-        type: UniLabJsonCommandAsync
       start_stir:
         feedback:
           status: status
@@ -3436,7 +2704,6 @@ virtual_stirrer:
           description: ROS Action StartStir 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 current_speed:
                   type: number
@@ -3451,7 +2718,6 @@ virtual_stirrer:
               title: StartStir_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 purpose:
                   type: string
@@ -3466,7 +2732,6 @@ virtual_stirrer:
               title: StartStir_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 message:
                   type: string
@@ -3503,7 +2768,6 @@ virtual_stirrer:
           description: ROS Action Stir 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -3512,7 +2776,6 @@ virtual_stirrer:
               title: Stir_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 settling_time:
                   type: number
@@ -3527,7 +2790,6 @@ virtual_stirrer:
               title: Stir_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -3557,7 +2819,6 @@ virtual_stirrer:
           description: ROS Action StopStir 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 current_status:
                   type: string
@@ -3569,7 +2830,6 @@ virtual_stirrer:
               title: StopStir_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 vessel:
                   type: string
@@ -3578,7 +2838,6 @@ virtual_stirrer:
               title: StopStir_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 message:
                   type: string
@@ -3909,33 +3168,6 @@ virtual_transfer_pump:
           title: set_max_velocity参数
           type: object
         type: UniLabJsonCommand
-      auto-set_position:
-        feedback: {}
-        goal: {}
-        goal_default:
-          max_velocity: null
-          position: null
-        handles: []
-        result: {}
-        schema:
-          description: set_position的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                max_velocity:
-                  type: number
-                position:
-                  type: number
-              required:
-              - position
-              type: object
-            result: {}
-          required:
-          - goal
-          title: set_position参数
-          type: object
-        type: UniLabJsonCommandAsync
       auto-stop_operation:
         feedback: {}
         goal: {}
@@ -3954,36 +3186,6 @@ virtual_transfer_pump:
           required:
           - goal
           title: stop_operation参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-transfer:
-        feedback: {}
-        goal: {}
-        goal_default:
-          aspirate_velocity: null
-          dispense_velocity: null
-          volume: null
-        handles: []
-        result: {}
-        schema:
-          description: transfer的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                aspirate_velocity:
-                  type: number
-                dispense_velocity:
-                  type: number
-                volume:
-                  type: number
-              required:
-              - volume
-              type: object
-            result: {}
-          required:
-          - goal
-          title: transfer参数
           type: object
         type: UniLabJsonCommandAsync
       set_position:
@@ -4005,7 +3207,6 @@ virtual_transfer_pump:
           description: ROS Action SetPumpPosition 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 current_position:
                   type: number
@@ -4020,7 +3221,6 @@ virtual_transfer_pump:
               title: SetPumpPosition_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 max_velocity:
                   type: number
@@ -4032,7 +3232,6 @@ virtual_transfer_pump:
               title: SetPumpPosition_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 message:
                   type: string
@@ -4086,7 +3285,6 @@ virtual_transfer_pump:
           description: ROS Action Transfer 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 current_status:
                   type: string
@@ -4101,7 +3299,6 @@ virtual_transfer_pump:
               title: Transfer_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 amount:
                   type: string
@@ -4139,7 +3336,6 @@ virtual_transfer_pump:
               title: Transfer_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 message:
                   type: string
@@ -4236,26 +3432,6 @@ virtual_vacuum_pump:
           title: cleanup参数
           type: object
         type: UniLabJsonCommandAsync
-      auto-close:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: close的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: close参数
-          type: object
-        type: UniLabJsonCommand
       auto-initialize:
         feedback: {}
         goal: {}
@@ -4316,50 +3492,6 @@ virtual_vacuum_pump:
           title: is_open参数
           type: object
         type: UniLabJsonCommand
-      auto-open:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: open的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: open参数
-          type: object
-        type: UniLabJsonCommand
-      auto-set_status:
-        feedback: {}
-        goal: {}
-        goal_default:
-          string: null
-        handles: []
-        result: {}
-        schema:
-          description: set_status的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                string:
-                  type: string
-              required:
-              - string
-              type: object
-            result: {}
-          required:
-          - goal
-          title: set_status参数
-          type: object
-        type: UniLabJsonCommand
       close:
         feedback: {}
         goal: {}
@@ -4370,19 +3502,16 @@ virtual_vacuum_pump:
           description: ROS Action EmptyIn 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: EmptyIn_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties: {}
               required: []
               title: EmptyIn_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -4405,19 +3534,16 @@ virtual_vacuum_pump:
           description: ROS Action EmptyIn 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: EmptyIn_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties: {}
               required: []
               title: EmptyIn_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -4442,13 +3568,11 @@ virtual_vacuum_pump:
           description: ROS Action StrSingleInput 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: StrSingleInput_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 string:
                   type: string
@@ -4457,7 +3581,6 @@ virtual_vacuum_pump:
               title: StrSingleInput_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string

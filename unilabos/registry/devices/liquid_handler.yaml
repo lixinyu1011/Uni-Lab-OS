@@ -91,13 +91,11 @@ liquid_handler:
           description: ROS Action LiquidHandlerAdd 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerAdd_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 asp_vols:
                   items:
@@ -333,7 +331,6 @@ liquid_handler:
               title: LiquidHandlerAdd_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -403,13 +400,11 @@ liquid_handler:
           description: ROS Action LiquidHandlerAspirate 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerAspirate_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 blow_out_air_volume:
                   items:
@@ -538,7 +533,6 @@ liquid_handler:
               title: LiquidHandlerAspirate_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -554,84 +548,6 @@ liquid_handler:
           title: LiquidHandlerAspirate
           type: object
         type: LiquidHandlerAspirate
-      auto-add_liquid:
-        feedback: {}
-        goal: {}
-        goal_default:
-          asp_vols: null
-          blow_out_air_volume: null
-          delays: null
-          dis_vols: null
-          flow_rates: null
-          is_96_well: false
-          liquid_height: null
-          mix_liquid_height: null
-          mix_rate: null
-          mix_time: null
-          mix_vol: null
-          none_keys: []
-          offsets: null
-          reagent_sources: null
-          spread: wide
-          targets: null
-          use_channels: null
-        handles: []
-        result: {}
-        schema:
-          description: add_liquid的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                asp_vols:
-                  type: string
-                blow_out_air_volume:
-                  type: string
-                delays:
-                  type: string
-                dis_vols:
-                  type: string
-                flow_rates:
-                  type: string
-                is_96_well:
-                  default: false
-                  type: boolean
-                liquid_height:
-                  type: string
-                mix_liquid_height:
-                  type: string
-                mix_rate:
-                  type: string
-                mix_time:
-                  type: string
-                mix_vol:
-                  type: string
-                none_keys:
-                  default: []
-                  type: string
-                offsets:
-                  type: string
-                reagent_sources:
-                  type: string
-                spread:
-                  default: wide
-                  type: string
-                targets:
-                  type: string
-                use_channels:
-                  type: string
-              required:
-              - asp_vols
-              - dis_vols
-              - reagent_sources
-              - targets
-              type: object
-            result: {}
-          required:
-          - goal
-          title: add_liquid参数
-          type: object
-        type: UniLabJsonCommandAsync
       auto-create_protocol:
         feedback: {}
         goal: {}
@@ -646,7 +562,7 @@ liquid_handler:
         handles: []
         result: {}
         schema:
-          description: create_protocol的参数schema
+          description: 创建实验协议函数。用于建立新的液体处理实验协议，定义协议名称、描述、版本、作者、日期等基本信息。该函数支持协议模板化管理，便于实验流程的标准化和重复性。适用于实验设计、方法开发、标准操作程序建立等需要协议管理的应用场景。
           properties:
             feedback: {}
             goal:
@@ -689,7 +605,7 @@ liquid_handler:
         handles: []
         result: {}
         schema:
-          description: custom_delay的参数schema
+          description: 自定义延时函数。在实验流程中插入可配置的等待时间，用于满足特定的反应时间、孵育时间或设备稳定时间要求。支持自定义延时消息和秒数设置，提供流程控制和时间管理功能。适用于酶反应等待、温度平衡、样品孵育等需要时间控制的实验步骤。
           properties:
             feedback: {}
             goal:
@@ -715,7 +631,7 @@ liquid_handler:
         handles: []
         result: {}
         schema:
-          description: iter_tips的参数schema
+          description: 吸头迭代函数。用于自动管理和切换吸头架中的吸头，实现批量实验中的吸头自动分配和追踪。该函数监控吸头使用状态，自动切换到下一个可用吸头位置，确保实验流程的连续性。适用于高通量实验、批量处理、自动化流水线等需要大量吸头管理的应用场景。
           properties:
             feedback: {}
             goal:
@@ -731,81 +647,6 @@ liquid_handler:
           title: iter_tips参数
           type: object
         type: UniLabJsonCommand
-      auto-mix:
-        feedback: {}
-        goal: {}
-        goal_default:
-          height_to_bottom: null
-          mix_rate: null
-          mix_time: null
-          mix_vol: null
-          none_keys: []
-          offsets: null
-          targets: null
-        handles: []
-        result: {}
-        schema:
-          description: mix的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                height_to_bottom:
-                  type: string
-                mix_rate:
-                  type: string
-                mix_time:
-                  type: integer
-                mix_vol:
-                  type: string
-                none_keys:
-                  default: []
-                  type: string
-                offsets:
-                  type: string
-                targets:
-                  type: string
-              required:
-              - targets
-              type: object
-            result: {}
-          required:
-          - goal
-          title: mix参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-move_to:
-        feedback: {}
-        goal: {}
-        goal_default:
-          channel: 0
-          dis_to_top: 0
-          well: null
-        handles: []
-        result: {}
-        schema:
-          description: move_to的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                channel:
-                  default: 0
-                  type: integer
-                dis_to_top:
-                  default: 0
-                  type: number
-                well:
-                  type: string
-              required:
-              - well
-              type: object
-            result: {}
-          required:
-          - goal
-          title: move_to参数
-          type: object
-        type: UniLabJsonCommandAsync
       auto-remove_liquid:
         feedback: {}
         goal: {}
@@ -826,7 +667,7 @@ liquid_handler:
         handles: []
         result: {}
         schema:
-          description: remove_liquid的参数schema
+          description: 液体移除操作函数。从指定容器位置移除液体并转移到废液容器中。支持多源位置批量操作、流速控制、液面高度检测、96孔板模式等功能。可配置延时、吹气体积、位置偏移等参数，确保液体完全移除和容器清洁。适用于样品清洗、废液处理、容器清空等实验清理操作。
           properties:
             feedback: {}
             goal:
@@ -878,7 +719,7 @@ liquid_handler:
         handles: []
         result: {}
         schema:
-          description: set_tiprack的参数schema
+          description: 吸头架设置函数。用于配置和初始化液体处理系统的吸头架信息，包括吸头架位置、类型、容量等参数。该函数建立吸头资源管理系统，为后续的吸头选择和使用提供基础配置。适用于系统初始化、吸头架更换、实验配置等需要吸头资源管理的操作场景。
           properties:
             feedback: {}
             goal:
@@ -902,7 +743,7 @@ liquid_handler:
         handles: []
         result: {}
         schema:
-          description: touch_tip的参数schema
+          description: 吸头碰触函数。控制移液器吸头轻触容器边缘或底部，用于去除吸头外壁附着的液滴，提高移液精度和减少污染。该函数支持多目标位置操作，可配置碰触参数和位置偏移。适用于精密移液、减少液体残留、防止交叉污染等需要提高移液质量的实验操作。
           properties:
             feedback: {}
             goal:
@@ -916,99 +757,6 @@ liquid_handler:
           required:
           - goal
           title: touch_tip参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-transfer_liquid:
-        feedback: {}
-        goal: {}
-        goal_default:
-          asp_flow_rates: null
-          asp_vols: null
-          blow_out_air_volume: null
-          delays: null
-          dis_flow_rates: null
-          dis_vols: null
-          is_96_well: false
-          liquid_height: null
-          mix_liquid_height: null
-          mix_rate: null
-          mix_stage: none
-          mix_times: null
-          mix_vol: null
-          none_keys: []
-          offsets: null
-          sources: null
-          spread: wide
-          targets: null
-          tip_racks: null
-          touch_tip: false
-          use_channels: null
-        handles: []
-        result: {}
-        schema:
-          description: transfer_liquid的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                asp_flow_rates:
-                  type: string
-                asp_vols:
-                  type: string
-                blow_out_air_volume:
-                  type: string
-                delays:
-                  type: string
-                dis_flow_rates:
-                  type: string
-                dis_vols:
-                  type: string
-                is_96_well:
-                  default: false
-                  type: boolean
-                liquid_height:
-                  type: string
-                mix_liquid_height:
-                  type: string
-                mix_rate:
-                  type: string
-                mix_stage:
-                  default: none
-                  type: string
-                mix_times:
-                  type: string
-                mix_vol:
-                  type: string
-                none_keys:
-                  default: []
-                  type: string
-                offsets:
-                  type: string
-                sources:
-                  type: string
-                spread:
-                  default: wide
-                  type: string
-                targets:
-                  type: string
-                tip_racks:
-                  type: string
-                touch_tip:
-                  default: false
-                  type: boolean
-                use_channels:
-                  type: string
-              required:
-              - sources
-              - targets
-              - tip_racks
-              - asp_vols
-              - dis_vols
-              type: object
-            result: {}
-          required:
-          - goal
-          title: transfer_liquid参数
           type: object
         type: UniLabJsonCommandAsync
       discard_tips:
@@ -1025,13 +773,11 @@ liquid_handler:
           description: ROS Action LiquidHandlerDiscardTips 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerDiscardTips_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 use_channels:
                   items:
@@ -1044,7 +790,6 @@ liquid_handler:
               title: LiquidHandlerDiscardTips_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -1111,13 +856,11 @@ liquid_handler:
           description: ROS Action LiquidHandlerDispense 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerDispense_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 blow_out_air_volume:
                   items:
@@ -1243,7 +986,6 @@ liquid_handler:
               title: LiquidHandlerDispense_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -1301,13 +1043,11 @@ liquid_handler:
           description: ROS Action LiquidHandlerDropTips 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerDropTips_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 allow_nonzero_volume:
                   type: boolean
@@ -1416,7 +1156,6 @@ liquid_handler:
               title: LiquidHandlerDropTips_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -1471,13 +1210,11 @@ liquid_handler:
           description: ROS Action LiquidHandlerDropTips96 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerDropTips96_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 allow_nonzero_volume:
                   type: boolean
@@ -1575,7 +1312,6 @@ liquid_handler:
               title: LiquidHandlerDropTips96_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -1638,13 +1374,11 @@ liquid_handler:
           description: ROS Action LiquidHandlerMix 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerMix_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 height_to_bottom:
                   type: number
@@ -1764,7 +1498,6 @@ liquid_handler:
               title: LiquidHandlerMix_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -1858,13 +1591,11 @@ liquid_handler:
           description: ROS Action LiquidHandlerMoveLid 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerMoveLid_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 destination_offset:
                   properties:
@@ -2080,7 +1811,6 @@ liquid_handler:
               title: LiquidHandlerMoveLid_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -2178,13 +1908,11 @@ liquid_handler:
           description: ROS Action LiquidHandlerMovePlate 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerMovePlate_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 destination_offset:
                   properties:
@@ -2415,7 +2143,6 @@ liquid_handler:
               title: LiquidHandlerMovePlate_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -2493,13 +2220,11 @@ liquid_handler:
           description: ROS Action LiquidHandlerMoveResource 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerMoveResource_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 destination_offset:
                   properties:
@@ -2656,7 +2381,6 @@ liquid_handler:
               title: LiquidHandlerMoveResource_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -2707,13 +2431,11 @@ liquid_handler:
           description: ROS Action LiquidHandlerMoveTo 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerMoveTo_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 channel:
                   maximum: 2147483647
@@ -2801,7 +2523,6 @@ liquid_handler:
               title: LiquidHandlerMoveTo_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -2857,13 +2578,11 @@ liquid_handler:
           description: ROS Action LiquidHandlerPickUpTips 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerPickUpTips_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 offsets:
                   items:
@@ -2969,7 +2688,6 @@ liquid_handler:
               title: LiquidHandlerPickUpTips_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -3022,13 +2740,11 @@ liquid_handler:
           description: ROS Action LiquidHandlerPickUpTips96 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerPickUpTips96_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 offset:
                   properties:
@@ -3123,7 +2839,6 @@ liquid_handler:
               title: LiquidHandlerPickUpTips96_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -3224,13 +2939,11 @@ liquid_handler:
           description: ROS Action LiquidHandlerRemove 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerRemove_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 blow_out_air_volume:
                   items:
@@ -3453,7 +3166,6 @@ liquid_handler:
               title: LiquidHandlerRemove_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -3485,13 +3197,11 @@ liquid_handler:
           description: ROS Action LiquidHandlerReturnTips 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerReturnTips_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 allow_nonzero_volume:
                   type: boolean
@@ -3507,7 +3217,6 @@ liquid_handler:
               title: LiquidHandlerReturnTips_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -3536,13 +3245,11 @@ liquid_handler:
           description: ROS Action LiquidHandlerReturnTips96 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerReturnTips96_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 allow_nonzero_volume:
                   type: boolean
@@ -3551,7 +3258,6 @@ liquid_handler:
               title: LiquidHandlerReturnTips96_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -3626,13 +3332,11 @@ liquid_handler:
           description: ROS Action LiquidHandlerStamp 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerStamp_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 aspiration_flow_rate:
                   type: number
@@ -3795,7 +3499,6 @@ liquid_handler:
               title: LiquidHandlerStamp_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -3917,13 +3620,11 @@ liquid_handler:
           description: ROS Action LiquidHandlerTransfer 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerTransfer_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 asp_flow_rates:
                   items:
@@ -4255,7 +3956,6 @@ liquid_handler:
               title: LiquidHandlerTransfer_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -4393,13 +4093,11 @@ liquid_handler:
           description: ROS Action LiquidHandlerTransfer 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerTransfer_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 asp_flow_rates:
                   items:
@@ -4731,7 +4429,6 @@ liquid_handler:
               title: LiquidHandlerTransfer_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -4785,54 +4482,6 @@ liquid_handler:
 liquid_handler.biomek:
   class:
     action_value_mappings:
-      auto-create_protocol:
-        feedback: {}
-        goal: {}
-        goal_default:
-          none_keys: []
-          protocol_author: null
-          protocol_date: null
-          protocol_description: null
-          protocol_name: null
-          protocol_type: null
-          protocol_version: null
-        handles: []
-        result: {}
-        schema:
-          description: create_protocol的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                none_keys:
-                  default: []
-                  type: array
-                protocol_author:
-                  type: string
-                protocol_date:
-                  type: string
-                protocol_description:
-                  type: string
-                protocol_name:
-                  type: string
-                protocol_type:
-                  type: string
-                protocol_version:
-                  type: string
-              required:
-              - protocol_name
-              - protocol_description
-              - protocol_version
-              - protocol_author
-              - protocol_date
-              - protocol_type
-              type: object
-            result: {}
-          required:
-          - goal
-          title: create_protocol参数
-          type: object
-        type: UniLabJsonCommand
       auto-create_resource:
         feedback: {}
         goal: {}
@@ -4885,30 +4534,6 @@ liquid_handler.biomek:
           title: create_resource参数
           type: object
         type: UniLabJsonCommand
-      auto-incubation_biomek:
-        feedback: {}
-        goal: {}
-        goal_default:
-          time: null
-        handles: []
-        result: {}
-        schema:
-          description: incubation_biomek的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                time:
-                  type: integer
-              required:
-              - time
-              type: object
-            result: {}
-          required:
-          - goal
-          title: incubation_biomek参数
-          type: object
-        type: UniLabJsonCommand
       auto-instrument_setup_biomek:
         feedback: {}
         goal: {}
@@ -4957,219 +4582,6 @@ liquid_handler.biomek:
           title: instrument_setup_biomek参数
           type: object
         type: UniLabJsonCommand
-      auto-move_biomek:
-        feedback: {}
-        goal: {}
-        goal_default:
-          source: null
-          target: null
-        handles: []
-        result: {}
-        schema:
-          description: move_biomek的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                source:
-                  type: string
-                target:
-                  type: string
-              required:
-              - source
-              - target
-              type: object
-            result: {}
-          required:
-          - goal
-          title: move_biomek参数
-          type: object
-        type: UniLabJsonCommand
-      auto-oscillation_biomek:
-        feedback: {}
-        goal: {}
-        goal_default:
-          rpm: null
-          time: null
-        handles: []
-        result: {}
-        schema:
-          description: oscillation_biomek的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                rpm:
-                  type: integer
-                time:
-                  type: integer
-              required:
-              - rpm
-              - time
-              type: object
-            result: {}
-          required:
-          - goal
-          title: oscillation_biomek参数
-          type: object
-        type: UniLabJsonCommand
-      auto-run_protocol:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: run_protocol的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: run_protocol参数
-          type: object
-        type: UniLabJsonCommand
-      auto-transfer_biomek:
-        feedback: {}
-        goal: {}
-        goal_default:
-          aspirate_techniques: null
-          dispense_techniques: null
-          source: null
-          target: null
-          tip_rack: null
-          volume: null
-        handles: []
-        result: {}
-        schema:
-          description: transfer_biomek的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                aspirate_techniques:
-                  type: string
-                dispense_techniques:
-                  type: string
-                source:
-                  type: string
-                target:
-                  type: string
-                tip_rack:
-                  type: string
-                volume:
-                  type: number
-              required:
-              - source
-              - target
-              - tip_rack
-              - volume
-              - aspirate_techniques
-              - dispense_techniques
-              type: object
-            result: {}
-          required:
-          - goal
-          title: transfer_biomek参数
-          type: object
-        type: UniLabJsonCommand
-      auto-transfer_liquid:
-        feedback: {}
-        goal: {}
-        goal_default:
-          asp_flow_rates: null
-          asp_vols: null
-          blow_out_air_volume: null
-          delays: null
-          dis_flow_rates: null
-          dis_vols: null
-          is_96_well: false
-          liquid_height: null
-          mix_liquid_height: null
-          mix_rate: null
-          mix_stage: none
-          mix_times: null
-          mix_vol: null
-          none_keys: []
-          offsets: null
-          sources: null
-          spread: wide
-          targets: null
-          tip_racks: null
-          touch_tip: false
-          use_channels: null
-        handles: []
-        result: {}
-        schema:
-          description: transfer_liquid的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                asp_flow_rates:
-                  type: string
-                asp_vols:
-                  type: string
-                blow_out_air_volume:
-                  type: string
-                delays:
-                  type: string
-                dis_flow_rates:
-                  type: string
-                dis_vols:
-                  type: string
-                is_96_well:
-                  default: false
-                  type: boolean
-                liquid_height:
-                  type: string
-                mix_liquid_height:
-                  type: string
-                mix_rate:
-                  type: string
-                mix_stage:
-                  default: none
-                  type: string
-                mix_times:
-                  type: string
-                mix_vol:
-                  type: string
-                none_keys:
-                  default: []
-                  type: array
-                offsets:
-                  type: string
-                sources:
-                  type: string
-                spread:
-                  default: wide
-                  type: string
-                targets:
-                  type: string
-                tip_racks:
-                  type: string
-                touch_tip:
-                  default: false
-                  type: boolean
-                use_channels:
-                  type: string
-              required:
-              - sources
-              - targets
-              - tip_racks
-              - asp_vols
-              - dis_vols
-              type: object
-            result: {}
-          required:
-          - goal
-          title: transfer_liquid参数
-          type: object
-        type: UniLabJsonCommand
       create_protocol:
         feedback: {}
         goal:
@@ -5195,13 +4607,11 @@ liquid_handler.biomek:
           description: ROS Action LiquidHandlerProtocolCreation 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerProtocolCreation_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 none_keys:
                   items:
@@ -5230,7 +4640,6 @@ liquid_handler.biomek:
               title: LiquidHandlerProtocolCreation_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -5267,13 +4676,11 @@ liquid_handler.biomek:
           description: ROS Action LiquidHandlerIncubateBiomek 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerIncubateBiomek_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 time:
                   maximum: 2147483647
@@ -5284,7 +4691,6 @@ liquid_handler.biomek:
               title: LiquidHandlerIncubateBiomek_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -5327,13 +4733,11 @@ liquid_handler.biomek:
           description: ROS Action LiquidHandlerMoveBiomek 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerMoveBiomek_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 sources:
                   type: string
@@ -5345,7 +4749,6 @@ liquid_handler.biomek:
               title: LiquidHandlerMoveBiomek_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -5387,13 +4790,11 @@ liquid_handler.biomek:
           description: ROS Action LiquidHandlerOscillateBiomek 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerOscillateBiomek_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 rpm:
                   maximum: 2147483647
@@ -5409,7 +4810,6 @@ liquid_handler.biomek:
               title: LiquidHandlerOscillateBiomek_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -5435,19 +4835,16 @@ liquid_handler.biomek:
           description: ROS Action EmptyIn 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: EmptyIn_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties: {}
               required: []
               title: EmptyIn_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -5509,13 +4906,11 @@ liquid_handler.biomek:
           description: ROS Action LiquidHandlerTransferBiomek 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerTransferBiomek_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 aspirate_technique:
                   type: string
@@ -5539,7 +4934,6 @@ liquid_handler.biomek:
               title: LiquidHandlerTransferBiomek_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -5691,13 +5085,11 @@ liquid_handler.biomek:
           description: ROS Action LiquidHandlerTransfer 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerTransfer_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 asp_flow_rates:
                   items:
@@ -6029,7 +5421,6 @@ liquid_handler.biomek:
               title: LiquidHandlerTransfer_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -6120,13 +5511,11 @@ liquid_handler.prcxi:
           description: ROS Action LiquidHandlerAspirate 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerAspirate_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 blow_out_air_volume:
                   items:
@@ -6255,7 +5644,6 @@ liquid_handler.prcxi:
               title: LiquidHandlerAspirate_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -6347,53 +5735,6 @@ liquid_handler.prcxi:
           required:
           - goal
           title: add_liquid参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-aspirate:
-        feedback: {}
-        goal: {}
-        goal_default:
-          blow_out_air_volume: null
-          flow_rates: null
-          liquid_height: null
-          offsets: null
-          resources: null
-          spread: wide
-          use_channels: null
-          vols: null
-        handles: []
-        result: {}
-        schema:
-          description: aspirate的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                blow_out_air_volume:
-                  type: string
-                flow_rates:
-                  type: string
-                liquid_height:
-                  type: string
-                offsets:
-                  type: string
-                resources:
-                  type: string
-                spread:
-                  default: wide
-                  type: string
-                use_channels:
-                  type: string
-                vols:
-                  type: array
-              required:
-              - resources
-              - vols
-              type: object
-            result: {}
-          required:
-          - goal
-          title: aspirate参数
           type: object
         type: UniLabJsonCommandAsync
       auto-create_protocol:
@@ -6501,87 +5842,6 @@ liquid_handler.prcxi:
           title: discard_tips参数
           type: object
         type: UniLabJsonCommandAsync
-      auto-dispense:
-        feedback: {}
-        goal: {}
-        goal_default:
-          blow_out_air_volume: null
-          flow_rates: null
-          liquid_height: null
-          offsets: null
-          resources: null
-          spread: wide
-          use_channels: null
-          vols: null
-        handles: []
-        result: {}
-        schema:
-          description: dispense的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                blow_out_air_volume:
-                  type: string
-                flow_rates:
-                  type: string
-                liquid_height:
-                  type: string
-                offsets:
-                  type: string
-                resources:
-                  type: string
-                spread:
-                  default: wide
-                  type: string
-                use_channels:
-                  type: string
-                vols:
-                  type: array
-              required:
-              - resources
-              - vols
-              type: object
-            result: {}
-          required:
-          - goal
-          title: dispense参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-drop_tips:
-        feedback: {}
-        goal: {}
-        goal_default:
-          allow_nonzero_volume: false
-          offsets: null
-          tip_spots: null
-          use_channels: null
-        handles: []
-        result: {}
-        schema:
-          description: drop_tips的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                allow_nonzero_volume:
-                  default: false
-                  type: boolean
-                offsets:
-                  type: string
-                tip_spots:
-                  type: string
-                use_channels:
-                  type: string
-              required:
-              - tip_spots
-              type: object
-            result: {}
-          required:
-          - goal
-          title: drop_tips参数
-          type: object
-        type: UniLabJsonCommandAsync
       auto-iter_tips:
         feedback: {}
         goal: {}
@@ -6606,49 +5866,6 @@ liquid_handler.prcxi:
           title: iter_tips参数
           type: object
         type: UniLabJsonCommand
-      auto-mix:
-        feedback: {}
-        goal: {}
-        goal_default:
-          height_to_bottom: null
-          mix_rate: null
-          mix_time: null
-          mix_vol: null
-          none_keys: []
-          offsets: null
-          targets: null
-        handles: []
-        result: {}
-        schema:
-          description: mix的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                height_to_bottom:
-                  type: string
-                mix_rate:
-                  type: string
-                mix_time:
-                  type: integer
-                mix_vol:
-                  type: string
-                none_keys:
-                  default: []
-                  type: array
-                offsets:
-                  type: string
-                targets:
-                  type: string
-              required:
-              - targets
-              type: object
-            result: {}
-          required:
-          - goal
-          title: mix参数
-          type: object
-        type: UniLabJsonCommandAsync
       auto-move_to:
         feedback: {}
         goal: {}
@@ -6679,36 +5896,6 @@ liquid_handler.prcxi:
           required:
           - goal
           title: move_to参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-pick_up_tips:
-        feedback: {}
-        goal: {}
-        goal_default:
-          offsets: null
-          tip_spots: null
-          use_channels: null
-        handles: []
-        result: {}
-        schema:
-          description: pick_up_tips的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                offsets:
-                  type: string
-                tip_spots:
-                  type: array
-                use_channels:
-                  type: string
-              required:
-              - tip_spots
-              type: object
-            result: {}
-          required:
-          - goal
-          title: pick_up_tips参数
           type: object
         type: UniLabJsonCommandAsync
       auto-remove_liquid:
@@ -6986,13 +6173,11 @@ liquid_handler.prcxi:
           description: ROS Action LiquidHandlerDispense 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerDispense_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 blow_out_air_volume:
                   items:
@@ -7118,7 +6303,6 @@ liquid_handler.prcxi:
               title: LiquidHandlerDispense_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -7171,13 +6355,11 @@ liquid_handler.prcxi:
           description: ROS Action LiquidHandlerDropTips 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerDropTips_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 allow_nonzero_volume:
                   type: boolean
@@ -7286,7 +6468,6 @@ liquid_handler.prcxi:
               title: LiquidHandlerDropTips_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -7349,13 +6530,11 @@ liquid_handler.prcxi:
           description: ROS Action LiquidHandlerMix 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerMix_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 height_to_bottom:
                   type: number
@@ -7475,7 +6654,6 @@ liquid_handler.prcxi:
               title: LiquidHandlerMix_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -7530,13 +6708,11 @@ liquid_handler.prcxi:
           description: ROS Action LiquidHandlerPickUpTips 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerPickUpTips_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 offsets:
                   items:
@@ -7642,7 +6818,6 @@ liquid_handler.prcxi:
               title: LiquidHandlerPickUpTips_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -7668,6 +6843,9 @@ liquid_handler.prcxi:
   init_param_schema:
     config:
       properties:
+        debug:
+          default: false
+          type: string
         deck:
           type: string
         host:
@@ -7695,42 +6873,6 @@ liquid_handler.prcxi:
 liquid_handler.revvity:
   class:
     action_value_mappings:
-      auto-run:
-        feedback: {}
-        goal: {}
-        goal_default:
-          file_path: null
-          params: null
-          resource:
-            AichemecoHiwo:
-              id: AichemecoHiwo
-        handles: []
-        result: {}
-        schema:
-          description: run的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                file_path:
-                  type: string
-                params:
-                  type: string
-                resource:
-                  default:
-                    AichemecoHiwo:
-                      id: AichemecoHiwo
-                  type: object
-              required:
-              - file_path
-              - params
-              type: object
-            result: {}
-          required:
-          - goal
-          title: run参数
-          type: object
-        type: UniLabJsonCommand
       run:
         feedback:
           status: status
@@ -7768,7 +6910,6 @@ liquid_handler.revvity:
           description: ROS Action WorkStationRun 的 JSON Schema
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 gantt:
                   type: string
@@ -7780,7 +6921,6 @@ liquid_handler.revvity:
               title: WorkStationRun_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 params:
                   type: string
@@ -7866,7 +7006,6 @@ liquid_handler.revvity:
               title: WorkStationRun_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string

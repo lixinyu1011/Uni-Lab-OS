@@ -307,7 +307,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
         # 创建动作服务
         if self.create_action_server:
             for action_name, action_value_mapping in self._action_value_mappings.items():
-                if action_name.startswith("auto-"):
+                if action_name.startswith("auto-") or str(action_value_mapping.get("type", "")).startswith("UniLabJsonCommand"):
                     continue
                 self.create_ros_action_server(action_name, action_value_mapping)
 
