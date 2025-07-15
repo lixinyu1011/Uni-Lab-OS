@@ -19,7 +19,8 @@
                 "host": "192.168.3.9",
                 "port": 9999,
                 "timeout": 10.0,
-                "setup": true
+                "setup": false,
+                "debug": true
             },
             "data": {},
             "children": [
