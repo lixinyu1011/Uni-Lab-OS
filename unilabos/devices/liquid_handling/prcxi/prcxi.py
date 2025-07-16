@@ -14,7 +14,7 @@ from pylabrobot.liquid_handling import (
     SingleChannelDispense,
     PickupTipRack,
     DropTipRack,
-    MultiHeadAspirationPlate,
+    MultiHeadAspirationPlate, ChatterBoxBackend, LiquidHandlerChatterboxBackend,
 )
 from pylabrobot.liquid_handling.standard import (
     MultiHeadAspirationContainer,
@@ -105,7 +105,7 @@ class PRCXI9300Handler(LiquidHandlerAbstract):
                     WorkTablets(Number=count, Code=f"T{count}", Material=child._unilabos_state["Material"])
                 )
         self._unilabos_backend = PRCXI9300Backend(tablets_info, host, port, timeout, setup, debug)
-        super().__init__(backend=self._unilabos_backend, deck=deck)
+        super().__init__(backend=self._unilabos_backend, deck=deck, simulator=True)
 
     async def create_protocol(
         self,
