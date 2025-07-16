@@ -65,7 +65,7 @@ class Registry:
                                 },
                                 "feedback": {},
                                 "result": {"success": "success"},
-                                "schema": ros_action_to_json_schema(self.ResourceCreateFromOuter),
+                                "schema": ros_action_to_json_schema(self.ResourceCreateFromOuter, '用于创建或更新物料资源，每次传入多个物料信息。'),
                                 "goal_default": yaml.safe_load(
                                     io.StringIO(get_yaml_from_goal_type(self.ResourceCreateFromOuter.Goal))
                                 ),
@@ -86,7 +86,7 @@ class Registry:
                                 },
                                 "feedback": {},
                                 "result": {"success": "success"},
-                                "schema": ros_action_to_json_schema(self.ResourceCreateFromOuterEasy),
+                                "schema": ros_action_to_json_schema(self.ResourceCreateFromOuterEasy, '用于创建或更新物料资源，每次传入一个物料信息。'),
                                 "goal_default": yaml.safe_load(
                                     io.StringIO(get_yaml_from_goal_type(self.ResourceCreateFromOuterEasy.Goal))
                                 ),
@@ -113,12 +113,13 @@ class Registry:
                                 "goal": {},
                                 "feedback": {},
                                 "result": {"latency_ms": "latency_ms", "time_diff_ms": "time_diff_ms"},
-                                "schema": ros_action_to_json_schema(self.EmptyIn),
+                                "schema": ros_action_to_json_schema(self.EmptyIn, '用于测试延迟的动作，返回延迟时间和时间差。'),
                                 "goal_default": {},
                                 "handles": {},
                             },
                         },
                     },
+                    "version": "0.0.1",
                     "icon": "icon_device.webp",
                     "registry_type": "device",
                     "handles": [],
@@ -367,6 +368,8 @@ class Registry:
                 # 在添加到注册表前处理类型替换
                 for device_id, device_config in data.items():
                     # 添加文件路径信息 - 使用规范化的完整文件路径
+                    if "version" not in device_config:
+                        device_config["version"] = "0.0.1"
                     if "description" not in device_config:
                         device_config["description"] = ""
                     if "icon" not in device_config:
@@ -499,8 +502,6 @@ class Registry:
                             }
                     if "registry_type" not in device_config:
                         device_config["registry_type"] = "device"
-                    if "version" not in device_config:
-                        device_config["version"] = "0.0.1"
                     device_config["file_path"] = str(file.absolute()).replace("\\", "/")
                     device_config["registry_type"] = "device"
                     logger.debug(

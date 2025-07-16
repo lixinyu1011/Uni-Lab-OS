@@ -99,7 +99,7 @@ robotic_arm.UR:
         result:
           success: success
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -170,3 +170,4 @@ robotic_arm.UR:
       - arm_status
       - gripper_status
       type: object
+  version: 0.0.1

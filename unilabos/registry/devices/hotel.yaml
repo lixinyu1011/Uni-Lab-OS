@@ -29,3 +29,4 @@ hotel.thermo_orbitor_rs2_hotel:
   model:
     mesh: thermo_orbitor_rs2_hotel
     type: device
+  version: 0.0.1

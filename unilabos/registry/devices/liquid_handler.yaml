@@ -88,7 +88,7 @@ liquid_handler:
         handles: []
         result: {}
         schema:
-          description: ROS Action LiquidHandlerAdd 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -397,7 +397,7 @@ liquid_handler:
         result:
           name: name
         schema:
-          description: ROS Action LiquidHandlerAspirate 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -770,7 +770,7 @@ liquid_handler:
         result:
           name: name
         schema:
-          description: ROS Action LiquidHandlerDiscardTips 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -853,7 +853,7 @@ liquid_handler:
         result:
           name: name
         schema:
-          description: ROS Action LiquidHandlerDispense 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -1040,7 +1040,7 @@ liquid_handler:
         result:
           name: name
         schema:
-          description: ROS Action LiquidHandlerDropTips 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -1207,7 +1207,7 @@ liquid_handler:
         result:
           name: name
         schema:
-          description: ROS Action LiquidHandlerDropTips96 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -1371,7 +1371,7 @@ liquid_handler:
         handles: []
         result: {}
         schema:
-          description: ROS Action LiquidHandlerMix 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -1588,7 +1588,7 @@ liquid_handler:
         result:
           name: name
         schema:
-          description: ROS Action LiquidHandlerMoveLid 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -1905,7 +1905,7 @@ liquid_handler:
         result:
           name: name
         schema:
-          description: ROS Action LiquidHandlerMovePlate 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -2217,7 +2217,7 @@ liquid_handler:
         result:
           name: name
         schema:
-          description: ROS Action LiquidHandlerMoveResource 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -2428,7 +2428,7 @@ liquid_handler:
         handles: []
         result: {}
         schema:
-          description: ROS Action LiquidHandlerMoveTo 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -2575,7 +2575,7 @@ liquid_handler:
         result:
           name: name
         schema:
-          description: ROS Action LiquidHandlerPickUpTips 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -2737,7 +2737,7 @@ liquid_handler:
         result:
           name: name
         schema:
-          description: ROS Action LiquidHandlerPickUpTips96 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -2936,7 +2936,7 @@ liquid_handler:
         handles: []
         result: {}
         schema:
-          description: ROS Action LiquidHandlerRemove 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -3194,7 +3194,7 @@ liquid_handler:
         result:
           name: name
         schema:
-          description: ROS Action LiquidHandlerReturnTips 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -3242,7 +3242,7 @@ liquid_handler:
         result:
           name: name
         schema:
-          description: ROS Action LiquidHandlerReturnTips96 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -3329,7 +3329,7 @@ liquid_handler:
         result:
           name: name
         schema:
-          description: ROS Action LiquidHandlerStamp 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -3617,7 +3617,7 @@ liquid_handler:
           - 0
         handles: []
         schema:
-          description: ROS Action LiquidHandlerTransfer 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -4090,7 +4090,7 @@ liquid_handler:
         handles: []
         result: {}
         schema:
-          description: ROS Action LiquidHandlerTransfer 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -4479,6 +4479,7 @@ liquid_handler:
       properties: {}
       required: []
       type: object
+  version: 0.0.1
 liquid_handler.biomek:
   class:
     action_value_mappings:
@@ -4604,7 +4605,7 @@ liquid_handler.biomek:
         handles: []
         result: {}
         schema:
-          description: ROS Action LiquidHandlerProtocolCreation 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -4673,7 +4674,7 @@ liquid_handler.biomek:
             label: plate
         result: {}
         schema:
-          description: ROS Action LiquidHandlerIncubateBiomek 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -4730,7 +4731,7 @@ liquid_handler.biomek:
         result:
           name: name
         schema:
-          description: ROS Action LiquidHandlerMoveBiomek 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -4787,7 +4788,7 @@ liquid_handler.biomek:
             label: plate
         result: {}
         schema:
-          description: ROS Action LiquidHandlerOscillateBiomek 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -4832,7 +4833,7 @@ liquid_handler.biomek:
         handles: []
         result: {}
         schema:
-          description: ROS Action EmptyIn 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -4903,7 +4904,7 @@ liquid_handler.biomek:
             label: targets
         result: {}
         schema:
-          description: ROS Action LiquidHandlerTransferBiomek 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -5082,7 +5083,7 @@ liquid_handler.biomek:
             label: Liquid Output
         result: {}
         schema:
-          description: ROS Action LiquidHandlerTransfer 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -5455,6 +5456,7 @@ liquid_handler.biomek:
       required:
       - success
       type: object
+  version: 0.0.1
 liquid_handler.prcxi:
   class:
     action_value_mappings:
@@ -5508,7 +5510,7 @@ liquid_handler.prcxi:
         handles: []
         result: {}
         schema:
-          description: ROS Action LiquidHandlerAspirate 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -6170,7 +6172,7 @@ liquid_handler.prcxi:
         handles: []
         result: {}
         schema:
-          description: ROS Action LiquidHandlerDispense 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -6352,7 +6354,7 @@ liquid_handler.prcxi:
         handles: []
         result: {}
         schema:
-          description: ROS Action LiquidHandlerDropTips 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -6527,7 +6529,7 @@ liquid_handler.prcxi:
         handles: []
         result: {}
         schema:
-          description: ROS Action LiquidHandlerMix 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -6705,7 +6707,7 @@ liquid_handler.prcxi:
         handles: []
         result: {}
         schema:
-          description: ROS Action LiquidHandlerPickUpTips 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -6870,6 +6872,7 @@ liquid_handler.prcxi:
       required:
       - reset_ok
       type: object
+  version: 0.0.1
 liquid_handler.revvity:
   class:
     action_value_mappings:
@@ -6907,7 +6910,7 @@ liquid_handler.revvity:
         result:
           success: success
         schema:
-          description: ROS Action WorkStationRun 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -7044,3 +7047,4 @@ liquid_handler.revvity:
       - success
       - status
       type: object
+  version: 0.0.1

@@ -309,3 +309,4 @@ lh_joint_publisher:
       properties: {}
       required: []
       type: object
+  version: 0.0.1

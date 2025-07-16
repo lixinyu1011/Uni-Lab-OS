@@ -15,7 +15,7 @@ laiyu_add_solid:
         result:
           actual_mass_mg: actual_mass_mg
         schema:
-          description: 向目标粉筒位置添加固体粉末。该函数通过Modbus RTU协议与设备通信，控制粉末分装机将指定质量的粉末添加到目标粉筒位置。支持精确称量和批量处理，适用于实验室化学试剂的自动分装。
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -114,7 +114,7 @@ laiyu_add_solid:
         handles: []
         result: {}
         schema:
-          description: 执行出料操作，传入出料质量（单位0.1mg）
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -154,7 +154,7 @@ laiyu_add_solid:
         handles: []
         result: {}
         schema:
-          description: 移动到某个孔板位置。
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -198,7 +198,7 @@ laiyu_add_solid:
         handles: []
         result: {}
         schema:
-          description: 按照坐标移动，单位为0.1mm
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -244,7 +244,7 @@ laiyu_add_solid:
         handles: []
         result: {}
         schema:
-          description: 装载粉筒，传入粉筒编号
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -286,7 +286,7 @@ laiyu_add_solid:
         handles: []
         result: {}
         schema:
-          description: 放回粉筒
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -326,7 +326,7 @@ laiyu_add_solid:
         handles: []
         result: {}
         schema:
-          description: 重置指令
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -379,3 +379,4 @@ laiyu_add_solid:
       required:
       - status
       type: object
+  version: 0.0.1

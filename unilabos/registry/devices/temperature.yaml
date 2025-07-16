@@ -119,7 +119,7 @@ chiller:
         result:
           success: success
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -174,6 +174,7 @@ chiller:
       properties: {}
       required: []
       type: object
+  version: 0.0.1
 heaterstirrer.dalong:
   class:
     action_value_mappings:
@@ -268,7 +269,7 @@ heaterstirrer.dalong:
         result:
           success: success
         schema:
-          description: ROS Action HeatChill 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -327,7 +328,7 @@ heaterstirrer.dalong:
         result:
           success: success
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -371,7 +372,7 @@ heaterstirrer.dalong:
         result:
           success: success
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -449,6 +450,7 @@ heaterstirrer.dalong:
       - temp_warning
       - temp_target
       type: object
+  version: 0.0.1
 tempsensor:
   class:
     action_value_mappings:
@@ -570,7 +572,7 @@ tempsensor:
         result:
           success: success
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -635,3 +637,4 @@ tempsensor:
       required:
       - value
       type: object
+  version: 0.0.1

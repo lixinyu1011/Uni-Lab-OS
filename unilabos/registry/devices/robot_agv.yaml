@@ -43,7 +43,7 @@ agv.SEER:
         result:
           success: success
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -103,3 +103,4 @@ agv.SEER:
       - pose
       - status
       type: object
+  version: 0.0.1

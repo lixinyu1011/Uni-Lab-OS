@@ -54,7 +54,7 @@ workstation:
         handles: []
         result: {}
         schema:
-          description: ROS Action AGVTransfer 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -283,7 +283,7 @@ workstation:
             label: Vessel
         result: {}
         schema:
-          description: ROS Action Add 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -380,7 +380,7 @@ workstation:
             label: Vessel
         result: {}
         schema:
-          description: ROS Action AdjustPH 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -453,7 +453,7 @@ workstation:
             label: Vessel
         result: {}
         schema:
-          description: ROS Action Centrifuge 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -542,7 +542,7 @@ workstation:
             label: Vessel
         result: {}
         schema:
-          description: ROS Action Clean 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -659,7 +659,7 @@ workstation:
             label: Vessel
         result: {}
         schema:
-          description: ROS Action CleanVessel 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -751,7 +751,7 @@ workstation:
             label: Vessel
         result: {}
         schema:
-          description: ROS Action Dissolve 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -832,7 +832,7 @@ workstation:
             label: Vessel
         result: {}
         schema:
-          description: ROS Action Dry 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -900,7 +900,7 @@ workstation:
             label: Vessel
         result: {}
         schema:
-          description: ROS Action EvacuateAndRefill 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -1006,7 +1006,7 @@ workstation:
             label: Vessel
         result: {}
         schema:
-          description: ROS Action Evaporate 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -1130,7 +1130,7 @@ workstation:
             label: Filtrate Vessel
         result: {}
         schema:
-          description: ROS Action Filter 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -1242,7 +1242,7 @@ workstation:
             label: To Vessel
         result: {}
         schema:
-          description: ROS Action FilterThrough 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -1333,7 +1333,7 @@ workstation:
             label: Vessel
         result: {}
         schema:
-          description: ROS Action HeatChill 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -1407,7 +1407,7 @@ workstation:
             label: Vessel
         result: {}
         schema:
-          description: ROS Action HeatChillStart 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -1468,7 +1468,7 @@ workstation:
             label: Vessel
         result: {}
         schema:
-          description: ROS Action HeatChillStop 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -1527,7 +1527,7 @@ workstation:
             label: Vessel
         result: {}
         schema:
-          description: ROS Action Hydrogenate 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -1627,7 +1627,7 @@ workstation:
             label: To Vessel
         result: {}
         schema:
-          description: ROS Action PumpTransfer 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -1764,7 +1764,7 @@ workstation:
             label: Vessel
         result: {}
         schema:
-          description: ROS Action Recrystallize 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -1832,7 +1832,7 @@ workstation:
           output: []
         result: {}
         schema:
-          description: ROS Action ResetHandling 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -1907,7 +1907,7 @@ workstation:
             label: To Vessel
         result: {}
         schema:
-          description: ROS Action RunColumn 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -2013,7 +2013,7 @@ workstation:
             label: To Vessel
         result: {}
         schema:
-          description: ROS Action Separate 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -2145,7 +2145,7 @@ workstation:
             label: Vessel
         result: {}
         schema:
-          description: ROS Action StartStir 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -2219,7 +2219,7 @@ workstation:
             label: Vessel
         result: {}
         schema:
-          description: ROS Action Stir 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -2280,7 +2280,7 @@ workstation:
             label: Vessel
         result: {}
         schema:
-          description: ROS Action StopStir 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -2374,7 +2374,7 @@ workstation:
             label: To Vessel
         result: {}
         schema:
-          description: ROS Action Transfer 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -2498,7 +2498,7 @@ workstation:
             label: Filtrate Vessel
         result: {}
         schema:
-          description: ROS Action WashSolid 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -2679,3 +2679,4 @@ workstation:
       properties: {}
       required: []
       type: object
+  version: 0.0.1

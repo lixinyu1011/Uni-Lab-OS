@@ -134,7 +134,7 @@ solenoid_valve:
         handles: []
         result: {}
         schema:
-          description: ROS Action StrSingleInput 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -191,6 +191,7 @@ solenoid_valve:
       - status
       - valve_position
       type: object
+  version: 0.0.1
 solenoid_valve.mock:
   class:
     action_value_mappings:
@@ -265,7 +266,7 @@ solenoid_valve.mock:
         handles: []
         result: {}
         schema:
-          description: ROS Action EmptyIn 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -297,7 +298,7 @@ solenoid_valve.mock:
         handles: []
         result: {}
         schema:
-          description: ROS Action EmptyIn 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -358,6 +359,7 @@ solenoid_valve.mock:
       - status
       - valve_position
       type: object
+  version: 0.0.1
 syringe_pump_with_valve.runze:
   class:
     action_value_mappings:
@@ -802,3 +804,4 @@ syringe_pump_with_valve.runze:
       - position
       - plunger_position
       type: object
+  version: 0.0.1

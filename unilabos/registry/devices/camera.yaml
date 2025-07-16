@@ -67,3 +67,4 @@ camera:
       properties: {}
       required: []
       type: object
+  version: 0.0.1

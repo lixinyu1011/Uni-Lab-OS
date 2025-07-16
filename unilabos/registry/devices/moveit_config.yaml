@@ -198,7 +198,7 @@ moveit.arm_slider:
         handles: []
         result: {}
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -241,7 +241,7 @@ moveit.arm_slider:
         handles: []
         result: {}
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -284,7 +284,7 @@ moveit.arm_slider:
         handles: []
         result: {}
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -346,6 +346,7 @@ moveit.arm_slider:
   model:
     mesh: arm_slider
     type: device
+  version: 0.0.1
 moveit.toyo_xyz:
   class:
     action_value_mappings:
@@ -546,7 +547,7 @@ moveit.toyo_xyz:
         handles: []
         result: {}
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -589,7 +590,7 @@ moveit.toyo_xyz:
         handles: []
         result: {}
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -632,7 +633,7 @@ moveit.toyo_xyz:
         handles: []
         result: {}
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -694,3 +695,4 @@ moveit.toyo_xyz:
   model:
     mesh: toyo_xyz
     type: device
+  version: 0.0.1

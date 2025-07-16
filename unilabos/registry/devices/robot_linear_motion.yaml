@@ -114,7 +114,7 @@ linear_motion.grbl:
         handles: []
         result: {}
         schema:
-          description: ROS Action NavigateThroughPoses 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -346,7 +346,7 @@ linear_motion.grbl:
         handles: []
         result: {}
         schema:
-          description: ROS Action SingleJointPosition 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -466,6 +466,7 @@ linear_motion.grbl:
       - position
       - spindle_speed
       type: object
+  version: 0.0.1
 motor.iCL42:
   class:
     action_value_mappings:
@@ -563,7 +564,7 @@ motor.iCL42:
         result:
           success: success
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -630,3 +631,4 @@ motor.iCL42:
       - is_executing_run
       - success
       type: object
+  version: 0.0.1

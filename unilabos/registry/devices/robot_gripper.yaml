@@ -379,7 +379,7 @@ gripper.misumi_rz:
         result:
           success: success
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -444,6 +444,7 @@ gripper.misumi_rz:
       required:
       - status
       type: object
+  version: 0.0.1
 gripper.mock:
   class:
     action_value_mappings:
@@ -497,7 +498,7 @@ gripper.mock:
           effort: torque
           position: position
         schema:
-          description: ROS Action GripperCommand 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -586,3 +587,4 @@ gripper.mock:
       - torque
       - status
       type: object
+  version: 0.0.1

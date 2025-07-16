@@ -48,7 +48,7 @@ gas_source.mock:
         handles: []
         result: {}
         schema:
-          description: ROS Action EmptyIn 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -80,7 +80,7 @@ gas_source.mock:
         handles: []
         result: {}
         schema:
-          description: ROS Action EmptyIn 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -114,7 +114,7 @@ gas_source.mock:
         handles: []
         result: {}
         schema:
-          description: ROS Action StrSingleInput 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -173,6 +173,7 @@ gas_source.mock:
       required:
       - status
       type: object
+  version: 0.0.1
 vacuum_pump.mock:
   class:
     action_value_mappings:
@@ -223,7 +224,7 @@ vacuum_pump.mock:
         handles: []
         result: {}
         schema:
-          description: ROS Action EmptyIn 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -255,7 +256,7 @@ vacuum_pump.mock:
         handles: []
         result: {}
         schema:
-          description: ROS Action EmptyIn 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -289,7 +290,7 @@ vacuum_pump.mock:
         handles: []
         result: {}
         schema:
-          description: ROS Action StrSingleInput 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -348,3 +349,4 @@ vacuum_pump.mock:
       required:
       - status
       type: object
+  version: 0.0.1

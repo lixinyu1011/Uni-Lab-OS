@@ -131,7 +131,7 @@ hplc.agilent:
         result:
           success: success
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -215,6 +215,7 @@ hplc.agilent:
       - finish_status
       - data_file
       type: object
+  version: 0.0.1
 raman_home_made:
   class:
     action_value_mappings:
@@ -340,7 +341,7 @@ raman_home_made:
         result:
           success: success
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties:
@@ -401,3 +402,4 @@ raman_home_made:
       properties: {}
       required: []
       type: object
+  version: 0.0.1

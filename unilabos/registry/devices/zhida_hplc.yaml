@@ -8,7 +8,7 @@ zhida_hplc:
         handles: []
         result: {}
         schema:
-          description: ROS Action EmptyIn 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -80,7 +80,7 @@ zhida_hplc:
         handles: []
         result: {}
         schema:
-          description: ROS Action EmptyIn 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -114,7 +114,7 @@ zhida_hplc:
         handles: []
         result: {}
         schema:
-          description: ROS Action StrSingleInput 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -177,3 +177,4 @@ zhida_hplc:
       - status
       - methods
       type: object
+  version: 0.0.1

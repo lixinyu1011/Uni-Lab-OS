@@ -717,12 +717,13 @@ def ros_message_to_json_schema(msg_class: Any) -> Dict[str, Any]:
     return schema
 
 
-def ros_action_to_json_schema(action_class: Any) -> Dict[str, Any]:
+def ros_action_to_json_schema(action_class: Any, description="") -> Dict[str, Any]:
     """
     将 ROS Action 类转换为 JSON Schema
 
     Args:
         action_class: ROS Action 类
+        description: 描述
 
     Returns:
         完整的 JSON Schema 定义
@@ -737,7 +738,7 @@ def ros_action_to_json_schema(action_class: Any) -> Dict[str, Any]:
     # 创建基础 schema
     schema = {
         "title": action_class.__name__,
-        "description": f"ROS Action {action_class.__name__} 的 JSON Schema",
+        "description": description,
         "type": "object",
         "properties": {
             "goal": {
