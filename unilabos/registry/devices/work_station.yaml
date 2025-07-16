@@ -879,7 +879,6 @@ workstation:
         feedback: {}
         goal:
           gas: gas
-          repeats: repeats
           vessel: vessel
         goal_default:
           gas: ''
@@ -981,6 +980,7 @@ workstation:
         feedback: {}
         goal:
           pressure: pressure
+          solvent: solvent
           stir_speed: stir_speed
           temp: temp
           time: time
@@ -996,14 +996,14 @@ workstation:
           - data_key: vessel
             data_source: handle
             data_type: resource
-            handler_key: Vessel
-            label: Vessel
+            handler_key: vessel
+            label: Evaporation Vessel
           output:
           - data_key: vessel
-            data_source: executor
+            data_source: handle
             data_type: resource
-            handler_key: VesselOut
-            label: Vessel
+            handler_key: vessel_out
+            label: Evaporation Vessel
         result: {}
         schema:
           description: ''
@@ -1112,7 +1112,7 @@ workstation:
             data_type: resource
             handler_key: Vessel
             label: Vessel
-          - data_key: vessel
+          - data_key: filtrate_vessel
             data_source: handle
             data_type: resource
             handler_key: filtrate_vessel
@@ -1123,7 +1123,7 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
-          - data_key: vessel
+          - data_key: filtrate_vessel
             data_source: executor
             data_type: resource
             handler_key: filtrate_out
@@ -1305,11 +1305,15 @@ workstation:
       HeatChillProtocol:
         feedback: {}
         goal:
+          pressure: pressure
           purpose: purpose
+          reflux_solvent: reflux_solvent
           stir: stir
           stir_speed: stir_speed
           temp: temp
+          temp_spec: temp_spec
           time: time
+          time_spec: time_spec
           vessel: vessel
         goal_default:
           purpose: ''
@@ -1577,13 +1581,18 @@ workstation:
         feedback: {}
         goal:
           amount: amount
+          event: event
+          flowrate: flowrate
           from_vessel: from_vessel
+          rate_spec: rate_spec
           rinsing_repeats: rinsing_repeats
           rinsing_solvent: rinsing_solvent
           rinsing_volume: rinsing_volume
           solid: solid
+          through: through
           time: time
           to_vessel: to_vessel
+          transfer_flowrate: transfer_flowrate
           viscous: viscous
           volume: volume
         goal_default:
@@ -1746,12 +1755,12 @@ workstation:
             data_type: resource
             handler_key: Vessel
             label: Vessel
-          - data_key: solvent
+          - data_key: solvent1
             data_source: handle
             data_type: resource
             handler_key: solvent1
             label: Solvent 1
-          - data_key: solvent
+          - data_key: solvent2
             data_source: handle
             data_type: resource
             handler_key: solvent2
@@ -2197,9 +2206,13 @@ workstation:
       StirProtocol:
         feedback: {}
         goal:
+          event: event
           settling_time: settling_time
           stir_speed: stir_speed
           stir_time: stir_time
+          time: time
+          time_spec: time_spec
+          vessel: vessel
         goal_default:
           settling_time: 0.0
           stir_speed: 0.0
@@ -2480,8 +2493,8 @@ workstation:
             data_type: resource
             handler_key: solvent
             label: Solvent
-          - data_key: vessel
-            data_source: executor
+          - data_key: filtrate_vessel
+            data_source: handle
             data_type: resource
             handler_key: filtrate_vessel
             label: Filtrate Vessel
@@ -2491,7 +2504,7 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel Out
-          - data_key: vessel
+          - data_key: filtrate_vessel
             data_source: executor
             data_type: resource
             handler_key: filtrate_vessel_out

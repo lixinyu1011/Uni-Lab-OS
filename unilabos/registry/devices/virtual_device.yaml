@@ -307,7 +307,9 @@ virtual_column:
       column_length: float
       column_state: str
       current_flow_rate: float
+      current_phase: str
       current_status: str
+      final_volume: float
       max_flow_rate: float
       processed_volume: float
       progress: float
@@ -351,8 +353,12 @@ virtual_column:
           type: string
         current_flow_rate:
           type: number
+        current_phase:
+          type: string
         current_status:
           type: string
+        final_volume:
+          type: number
         max_flow_rate:
           type: number
         processed_volume:
@@ -371,6 +377,8 @@ virtual_column:
       - processed_volume
       - progress
       - current_status
+      - current_phase
+      - final_volume
       type: object
   version: 0.0.1
 virtual_filter:
@@ -1023,7 +1031,11 @@ virtual_heatchill:
     module: unilabos.devices.virtual.virtual_heatchill:VirtualHeatChill
     status_types:
       is_stirring: bool
+      max_stir_speed: float
+      max_temp: float
+      min_temp: float
       operation_mode: str
+      progress: float
       remaining_time: float
       status: str
       stir_speed: float
@@ -1052,8 +1064,16 @@ virtual_heatchill:
       properties:
         is_stirring:
           type: boolean
+        max_stir_speed:
+          type: number
+        max_temp:
+          type: number
+        min_temp:
+          type: number
         operation_mode:
           type: string
+        progress:
+          type: number
         remaining_time:
           type: number
         status:
@@ -1066,6 +1086,10 @@ virtual_heatchill:
       - is_stirring
       - stir_speed
       - remaining_time
+      - progress
+      - max_temp
+      - min_temp
+      - max_stir_speed
       type: object
   version: 0.0.1
 virtual_multiway_valve:
@@ -1166,7 +1190,7 @@ virtual_multiway_valve:
         handles: []
         result: {}
         schema:
-          description: open的参数schema
+          description: ''
           properties:
             feedback: {}
             goal:
@@ -1853,9 +1877,7 @@ virtual_rotavap:
         type: UniLabJsonCommandAsync
       evaporate:
         feedback:
-          current_temp: current_temp
-          evaporated_volume: evaporated_volume
-          progress: progress
+          current_device: current_device
           status: status
         goal:
           pressure: pressure
@@ -2425,8 +2447,7 @@ virtual_solenoid_valve:
         feedback: {}
         goal:
           command: CLOSED
-        goal_default:
-          command: ''
+        goal_default: {}
         handles: []
         result:
           success: success
@@ -2434,108 +2455,83 @@ virtual_solenoid_valve:
           description: ''
           properties:
             feedback:
-              properties:
-                status:
-                  type: string
-              required:
-              - status
-              title: SendCmd_Feedback
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
               type: object
             goal:
-              properties:
-                command:
-                  type: string
-              required:
-              - command
-              title: SendCmd_Goal
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
               type: object
             result:
               properties:
                 return_info:
                   type: string
-                success:
-                  type: boolean
               required:
               - return_info
-              - success
-              title: SendCmd_Result
+              title: EmptyIn_Result
               type: object
           required:
           - goal
-          title: SendCmd
+          title: EmptyIn
           type: object
-        type: SendCmd
+        type: EmptyIn
       open:
         feedback: {}
-        goal:
-          command: OPEN
-        goal_default:
-          command: ''
+        goal: {}
+        goal_default: {}
         handles: []
-        result:
-          success: success
+        result: {}
         schema:
           description: ''
           properties:
             feedback:
-              properties:
-                status:
-                  type: string
-              required:
-              - status
-              title: SendCmd_Feedback
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
               type: object
             goal:
-              properties:
-                command:
-                  type: string
-              required:
-              - command
-              title: SendCmd_Goal
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
               type: object
             result:
               properties:
                 return_info:
                   type: string
-                success:
-                  type: boolean
               required:
               - return_info
-              - success
-              title: SendCmd_Result
+              title: EmptyIn_Result
               type: object
           required:
           - goal
-          title: SendCmd
+          title: EmptyIn
           type: object
-        type: SendCmd
-      set_state:
+        type: EmptyIn
+      set_status:
         feedback: {}
         goal:
-          command: command
+          string: string
         goal_default:
-          command: ''
+          string: ''
         handles: []
-        result:
-          success: success
+        result: {}
         schema:
           description: ''
           properties:
             feedback:
-              properties:
-                status:
-                  type: string
-              required:
-              - status
-              title: SendCmd_Feedback
+              properties: {}
+              required: []
+              title: StrSingleInput_Feedback
               type: object
             goal:
               properties:
-                command:
+                string:
                   type: string
               required:
-              - command
-              title: SendCmd_Goal
+              - string
+              title: StrSingleInput_Goal
               type: object
             result:
               properties:
@@ -2546,13 +2542,13 @@ virtual_solenoid_valve:
               required:
               - return_info
               - success
-              title: SendCmd_Result
+              title: StrSingleInput_Result
               type: object
           required:
           - goal
-          title: SendCmd
+          title: StrSingleInput
           type: object
-        type: SendCmd
+        type: StrSingleInput
       set_valve_position:
         feedback: {}
         goal:
@@ -2561,7 +2557,9 @@ virtual_solenoid_valve:
           command: ''
         handles: []
         result:
+          message: message
           success: success
+          valve_position: valve_position
         schema:
           description: ''
           properties:
@@ -2870,7 +2868,10 @@ virtual_stirrer:
     status_types:
       current_speed: float
       current_vessel: str
+      device_info: dict
       is_stirring: bool
+      max_speed: float
+      min_speed: float
       operation_mode: str
       remaining_time: float
       status: str
@@ -2901,8 +2902,14 @@ virtual_stirrer:
           type: number
         current_vessel:
           type: string
+        device_info:
+          type: object
         is_stirring:
           type: boolean
+        max_speed:
+          type: number
+        min_speed:
+          type: number
         operation_mode:
           type: string
         remaining_time:
@@ -2916,6 +2923,9 @@ virtual_stirrer:
       - current_speed
       - is_stirring
       - remaining_time
+      - max_speed
+      - min_speed
+      - device_info
       type: object
   version: 0.0.1
 virtual_transfer_pump:

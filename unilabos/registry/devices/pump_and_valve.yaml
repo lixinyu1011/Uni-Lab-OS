@@ -68,7 +68,7 @@ solenoid_valve:
         handles: []
         result: {}
         schema:
-          description: open的参数schema
+          description: ''
           properties:
             feedback: {}
             goal:
