@@ -392,7 +392,7 @@ class PRCXI9300Backend(LiquidHandlerBackend):
 
     async def pick_up_tips(self, ops: List[Pickup], use_channels: List[int] = None):
         """Pick up tips from the specified resource."""
-
+       
         if len(ops) != 8:
             raise ValueError(f"PRCXI9300Backend pick_up_tips: Expected 8 pickups, got {len(ops)}")
 
@@ -429,7 +429,6 @@ class PRCXI9300Backend(LiquidHandlerBackend):
             hole_numbers="1,2,3,4,5,6,7,8",
         )
         self.steps_todo_list.append(step)
-
 
     async def drop_tips(self, ops: List[Drop], use_channels: List[int] = None):
 
@@ -569,6 +568,7 @@ class PRCXI9300Backend(LiquidHandlerBackend):
             hole_numbers="1,2,3,4,5,6,7,8",
         )
         self.steps_todo_list.append(step)
+        
 
 
     async def dispense(self, ops: List[SingleChannelDispense], use_channels: List[int] = None):
@@ -1027,26 +1027,51 @@ if __name__ == "__main__":
     handler.set_tiprack([tip_rack])  # Set the tip rack for the handler
     asyncio.run(handler.setup())  # Initialize the handler and setup the connection
     asyncio.run(handler.create_protocol(protocol_name="Test Protocol"))  # Initialize the backend and setup the connection
-    asyncio.run(handler.pick_up_tips(tip_rack.children[:8],[0,1,2,3,4,5,6,7]))
-    asyncio.run(handler.aspirate(well_containers.children[:8],[50]*8, [0,1,2,3,4,5,6,7]))
-    asyncio.run(handler.dispense(well_containers.children[:8],[50]*8,[0,1,2,3,4,5,6,7]))
-    asyncio.run(handler.drop_tips(tip_rack.children[8:16],[0,1,2,3,4,5,6,7]))
-    asyncio.run(handler.mix(well_containers.children[:8], mix_time=3, mix_vol=50, height_to_bottom=0.5, offsets=Coordinate(0, 0, 0), mix_rate=100))
-    print(json.dumps(handler._unilabos_backend.steps_todo_list, indent=2))  # Print matrix info
+    # asyncio.run(handler.pick_up_tips(tip_rack.children[:8],[0,1,2,3,4,5,6,7]))
+    # asyncio.run(handler.aspirate(well_containers.children[:8],[50]*8, [0,1,2,3,4,5,6,7]))
+    # asyncio.run(handler.dispense(well_containers.children[:8],[50]*8,[0,1,2,3,4,5,6,7]))
+    # asyncio.run(handler.drop_tips(tip_rack.children[8:16],[0,1,2,3,4,5,6,7]))
+    # asyncio.run(handler.mix(well_containers.children[:8], mix_time=3, mix_vol=50, height_to_bottom=0.5, offsets=Coordinate(0, 0, 0), mix_rate=100))
+    #print(json.dumps(handler._unilabos_backend.steps_todo_list, indent=2))  # Print matrix info
     asyncio.run(handler.add_liquid(
-        asp_vols=[100]*8,
-        dis_vols=[100]*8,
-        reagent_sources=well_containers.children[-8:],
-        targets=well_containers.children[:8],
+        asp_vols=[100]*16,
+        dis_vols=[100]*16,
+        reagent_sources=well_containers.children[-16:],
+        targets=well_containers.children[:16],
         use_channels=[0, 1, 2, 3, 4, 5, 6, 7],
-        flow_rates=[None] * 8,
-        offsets=[Coordinate(0, 0, 0)] * 8,
-        liquid_height=[None] * 8,
-        blow_out_air_volume=[None] * 8,
+        flow_rates=[None] * 16,
+        offsets=[Coordinate(0, 0, 0)] * 16,
+        liquid_height=[None] * 16,
+        blow_out_air_volume=[None] * 16,
+        delays=None,
+        mix_time=3,
+        mix_vol=50,
         spread="wide",
     ))
+
+    # asyncio.run(handler.transfer_liquid(
+    #     asp_vols=[100]*16,
+    #     dis_vols=[100]*16,
+    #     tip_racks=[tip_rack],
+    #     sources=well_containers.children[-16:],
+    #     targets=well_containers.children[:16],
+    #     use_channels=[0, 1, 2, 3, 4, 5, 6, 7],
+    #     offsets=[Coordinate(0, 0, 0)] * 32,
+    #     asp_flow_rates=[None] * 16,
+    #     dis_flow_rates=[None] * 16,
+    #     liquid_height=[None] * 32,
+    #     blow_out_air_volume=[None] * 32,
+    #     mix_times=3,
+    #     mix_vol=50,
+    #     spread="wide",
+    # ))
+    print(json.dumps(handler._unilabos_backend.steps_todo_list, indent=2))  # Print matrix info
     # input("pick_up_tips add step")
-    asyncio.run(handler.run_protocol())  # Run the protocol
+    #asyncio.run(handler.run_protocol())  # Run the protocol
     # input("Running protocol...")
     # input("Press Enter to continue...")  # Wait for user input before proceeding
     # print("PRCXI9300Handler initialized with deck and host settings.")
+
+
+
+# 但是怎么丢tip？这个需要手动设置一下？
