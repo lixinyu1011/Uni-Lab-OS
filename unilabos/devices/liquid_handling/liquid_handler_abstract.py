@@ -665,8 +665,8 @@ class LiquidHandlerAbstract(LiquidHandlerMiddleware):
                         )
                         if delays is not None:
                             await self.custom_delay(seconds=delays[1])
-
-                        #await self.touch_tip(current_targets)
+                        await self.touch_tip(current_targets)
+            await self.discard_tips()        
 
         except Exception as e:
             traceback.print_exc()
@@ -977,8 +977,9 @@ class LiquidHandlerAbstract(LiquidHandlerMiddleware):
                         )
                         if delays is not None:
                             await self.custom_delay(seconds=delays[1])
-
-                        #await self.touch_tip(current_targets)
+                        await self.touch_tip(current_targets)
+            await self.discard_tips()
+                        
         except Exception as e:
             traceback.print_exc()
             raise RuntimeError(f"Liquid addition failed: {e}") from e

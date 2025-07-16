@@ -458,8 +458,34 @@ class PRCXI9300Backend(LiquidHandlerBackend):
 
         """Pick up tips from the specified resource."""
 
-        print('111'*500)
 
+        plate = ops[0].resource.parent.parent
+        deck = plate.parent
+        plate_index = deck.children.index(plate)
+
+        if deck.children[plate_index].name == "trash":
+            step = self.api_client.UnLoad(
+                "Left",
+                dosage=0,
+                plate_no=plate_index+1,
+                is_whole_plate=False,
+                hole_row=1,
+                hole_col=2,# 强制投放第二列了
+                blending_times=0,
+                balance_height=0,
+                plate_or_hole=f"H{hole_col}-8,T{PlateNo}",
+                hole_numbers="1,2,3,4,5,6,7,8",
+        )
+            self.steps_todo_list.append(step)
+
+
+            return
+            
+        # 判断是不是个trash？
+        # if all(isinstance(op.resource, Trash) for op in ops):
+        #     print("All drop operations are for trash.")
+        #     await self.discard_tips()
+        #     return
 
         if len(ops) != 8:
             raise ValueError(f"PRCXI9300Backend drop_tips: Expected 8 pickups, got {len(ops)}")
@@ -1056,10 +1082,10 @@ if __name__ == "__main__":
     handler.set_tiprack([tip_rack])  # Set the tip rack for the handler
     asyncio.run(handler.setup())  # Initialize the handler and setup the connection
     asyncio.run(handler.create_protocol(protocol_name="Test Protocol"))  # Initialize the backend and setup the connection
-    # asyncio.run(handler.pick_up_tips(tip_rack.children[:8],[0,1,2,3,4,5,6,7]))
+    #asyncio.run(handler.pick_up_tips(tip_rack.children[:8],[0,1,2,3,4,5,6,7]))
     # asyncio.run(handler.aspirate(well_containers.children[:8],[50]*8, [0,1,2,3,4,5,6,7]))
     # asyncio.run(handler.dispense(well_containers.children[:8],[50]*8,[0,1,2,3,4,5,6,7]))
-    # asyncio.run(handler.drop_tips(tip_rack.children[8:16],[0,1,2,3,4,5,6,7]))
+    #asyncio.run(handler.drop_tips(tip_rack.children[8:16],[0,1,2,3,4,5,6,7]))
     # asyncio.run(handler.mix(well_containers.children[:8], mix_time=3, mix_vol=50, height_to_bottom=0.5, offsets=Coordinate(0, 0, 0), mix_rate=100))
     #print(json.dumps(handler._unilabos_backend.steps_todo_list, indent=2))  # Print matrix info
     asyncio.run(handler.add_liquid(
