@@ -106,8 +106,7 @@ class PRCXI9300Trash(Trash):
         data = super().serialize_state()
         data.update(self._unilabos_state)
         return data
-
-
+    
 class PRCXI9300Handler(LiquidHandlerAbstract):
     support_touch_tip = False
     @property
