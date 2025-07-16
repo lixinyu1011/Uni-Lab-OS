@@ -1,304 +1,236 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import networkx as nx
-from .pump_protocol import generate_pump_protocol
+import logging
+from .pump_protocol import generate_pump_protocol_with_rinsing
 
+logger = logging.getLogger(__name__)
 
-def get_vessel_liquid_volume(G: nx.DiGraph, vessel: str) -> float:
-    """获取容器中的液体体积"""
-    if vessel not in G.nodes():
-        return 0.0
-    
-    vessel_data = G.nodes[vessel].get('data', {})
-    liquids = vessel_data.get('liquid', [])
-    
-    total_volume = 0.0
-    for liquid in liquids:
-        if isinstance(liquid, dict) and 'liquid_volume' in liquid:
-            total_volume += liquid['liquid_volume']
-    
-    return total_volume
-
+def debug_print(message):
+    """调试输出"""
+    print(f"🧪 [FILTER] {message}", flush=True)
+    logger.info(f"[FILTER] {message}")
 
 def find_filter_device(G: nx.DiGraph) -> str:
     """查找过滤器设备"""
-    filter_nodes = [node for node in G.nodes() 
-                   if (G.nodes[node].get('class') or '') == 'virtual_filter']
+    debug_print("🔍 查找过滤器设备... 🌊")
     
-    if filter_nodes:
-        return filter_nodes[0]
+    # 查找过滤器设备
+    for node in G.nodes():
+        node_data = G.nodes[node]
+        node_class = node_data.get('class', '') or ''
+        
+        if 'filter' in node_class.lower() or 'filter' in node.lower():
+            debug_print(f"🎉 找到过滤器设备: {node} ✨")
+            return node
     
-    raise ValueError("系统中未找到过滤器设备")
+    # 如果没找到，寻找可能的过滤器名称
+    debug_print("🔎 在预定义名称中搜索过滤器... 📋")
+    possible_names = ["filter", "filter_1", "virtual_filter", "filtration_unit"]
+    for name in possible_names:
+        if name in G.nodes():
+            debug_print(f"🎉 找到过滤器设备: {name} ✨")
+            return name
+    
+    debug_print("😭 未找到过滤器设备 💔")
+    raise ValueError("未找到过滤器设备")
 
-
-def find_filter_vessel(G: nx.DiGraph) -> str:
-    """查找过滤器专用容器"""
-    possible_names = [
-        "filter_vessel",        # 标准过滤器容器
-        "filtration_vessel",    # 备选名称
-        "vessel_filter",        # 备选名称
-        "filter_unit",          # 备选名称
-        "filter"               # 简单名称
-    ]
+def validate_vessel(G: nx.DiGraph, vessel: str, vessel_type: str = "容器") -> None:
+    """验证容器是否存在"""
+    debug_print(f"🔍 验证{vessel_type}: '{vessel}' 🧪")
     
-    for vessel_name in possible_names:
-        if vessel_name in G.nodes():
-            return vessel_name
+    if not vessel:
+        debug_print(f"❌ {vessel_type}不能为空! 😱")
+        raise ValueError(f"{vessel_type}不能为空")
     
-    raise ValueError(f"未找到过滤器容器。尝试了以下名称: {possible_names}")
-
-
-def find_filtrate_vessel(G: nx.DiGraph, filtrate_vessel: str = "") -> str:
-    """查找滤液收集容器"""
-    if filtrate_vessel and filtrate_vessel in G.nodes():
-        return filtrate_vessel
+    if vessel not in G.nodes():
+        debug_print(f"❌ {vessel_type} '{vessel}' 不存在于系统中! 😞")
+        raise ValueError(f"{vessel_type} '{vessel}' 不存在于系统中")
     
-    # 自动查找滤液容器
-    possible_names = [
-        "filtrate_vessel",
-        "collection_bottle_1",
-        "collection_bottle_2",
-        "waste_workup"
-    ]
-    
-    for vessel_name in possible_names:
-        if vessel_name in G.nodes():
-            return vessel_name
-    
-    raise ValueError(f"未找到滤液收集容器。尝试了以下名称: {possible_names}")
-
-
-def find_connected_heatchill(G: nx.DiGraph, vessel: str) -> str:
-    """查找与指定容器相连的加热搅拌器"""
-    # 查找所有加热搅拌器节点
-    heatchill_nodes = [node for node in G.nodes() 
-                      if G.nodes[node].get('class') == 'virtual_heatchill']
-    
-    # 检查哪个加热器与目标容器相连
-    for heatchill in heatchill_nodes:
-        if G.has_edge(heatchill, vessel) or G.has_edge(vessel, heatchill):
-            return heatchill
-    
-    # 如果没有直接连接，返回第一个可用的加热器
-    if heatchill_nodes:
-        return heatchill_nodes[0]
-    
-    raise ValueError(f"未找到与容器 {vessel} 相连的加热搅拌器")
-
+    debug_print(f"✅ {vessel_type} '{vessel}' 验证通过 🎯")
 
 def generate_filter_protocol(
     G: nx.DiGraph,
     vessel: str,
     filtrate_vessel: str = "",
-    stir: bool = False,
-    stir_speed: float = 300.0,
-    temp: float = 25.0,
-    continue_heatchill: bool = False,
-    volume: float = 0.0
+    **kwargs
 ) -> List[Dict[str, Any]]:
     """
-    生成过滤操作的协议序列，复用 pump_protocol 的成熟算法
-    
-    过滤流程：
-    1. 液体转移：将待过滤溶液从源容器转移到过滤器
-    2. 启动加热搅拌：设置温度和搅拌
-    3. 执行过滤：通过过滤器分离固液
-    4. (可选) 继续或停止加热搅拌
+    生成过滤操作的协议序列
     
     Args:
-        G: 有向图，节点为设备和容器，边为流体管道
-        vessel: 包含待过滤溶液的容器名称
-        filtrate_vessel: 滤液收集容器（可选，自动查找）
-        stir: 是否在过滤过程中搅拌
-        stir_speed: 搅拌速度 (RPM)
-        temp: 过滤温度 (°C)
-        continue_heatchill: 过滤后是否继续加热搅拌
-        volume: 预期过滤体积 (mL)，0表示全部过滤
+        G: 设备图
+        vessel: 过滤容器名称（必需）- 包含需要过滤的混合物
+        filtrate_vessel: 滤液容器名称（可选）- 如果提供则收集滤液
+        **kwargs: 其他参数（兼容性）
     
     Returns:
         List[Dict[str, Any]]: 过滤操作的动作序列
     """
+    
+    debug_print("🌊" * 20)
+    debug_print("🚀 开始生成过滤协议 ✨")
+    debug_print(f"📝 输入参数:")
+    debug_print(f"  🥽 vessel: {vessel}")
+    debug_print(f"  🧪 filtrate_vessel: {filtrate_vessel}")
+    debug_print(f"  ⚙️ 其他参数: {kwargs}")
+    debug_print("🌊" * 20)
+    
     action_sequence = []
     
-    print(f"FILTER: 开始生成过滤协议")
-    print(f"  - 源容器: {vessel}")
-    print(f"  - 滤液容器: {filtrate_vessel}")
-    print(f"  - 搅拌: {stir} ({stir_speed} RPM)" if stir else "  - 搅拌: 否")
-    print(f"  - 过滤温度: {temp}°C")
-    print(f"  - 预期过滤体积: {volume} mL" if volume > 0 else "  - 预期过滤体积: 全部")
-    print(f"  - 继续加热搅拌: {continue_heatchill}")
+    # === 参数验证 ===
+    debug_print("📍 步骤1: 参数验证... 🔧")
     
-    # 验证源容器存在
-    if vessel not in G.nodes():
-        raise ValueError(f"源容器 '{vessel}' 不存在于系统中")
+    # 验证必需参数
+    debug_print("  🔍 验证必需参数...")
+    validate_vessel(G, vessel, "过滤容器")
+    debug_print("  ✅ 必需参数验证完成 🎯")
     
-    # 获取源容器中的液体体积
-    source_volume = get_vessel_liquid_volume(G, vessel)
-    print(f"FILTER: 源容器 {vessel} 中有 {source_volume} mL 液体")
-    
-    # 查找过滤器设备
-    try:
-        filter_id = find_filter_device(G)
-        print(f"FILTER: 找到过滤器: {filter_id}")
-    except ValueError as e:
-        raise ValueError(f"无法找到过滤器: {str(e)}")
-    
-    # 查找过滤器容器
-    try:
-        filter_vessel_id = find_filter_vessel(G)
-        print(f"FILTER: 找到过滤器容器: {filter_vessel_id}")
-    except ValueError as e:
-        raise ValueError(f"无法找到过滤器容器: {str(e)}")
-    
-    # 查找滤液收集容器
-    try:
-        actual_filtrate_vessel = find_filtrate_vessel(G, filtrate_vessel)
-        print(f"FILTER: 找到滤液收集容器: {actual_filtrate_vessel}")
-    except ValueError as e:
-        raise ValueError(f"无法找到滤液收集容器: {str(e)}")
-    
-    # 查找加热搅拌器（如果需要温度控制或搅拌）
-    heatchill_id = None
-    if temp != 25.0 or stir or continue_heatchill:
-        try:
-            heatchill_id = find_connected_heatchill(G, filter_vessel_id)
-            print(f"FILTER: 找到加热搅拌器: {heatchill_id}")
-        except ValueError as e:
-            print(f"FILTER: 警告 - {str(e)}")
-    
-    # === 简化的体积计算策略 ===
-    if volume > 0:
-        transfer_volume = min(volume, source_volume if source_volume > 0 else volume)
-        print(f"FILTER: 指定过滤体积 {transfer_volume} mL")
-    elif source_volume > 0:
-        transfer_volume = source_volume * 0.9  # 90%
-        print(f"FILTER: 检测到液体体积，将过滤 {transfer_volume} mL")
+    # 验证可选参数
+    debug_print("  🔍 验证可选参数...")
+    if filtrate_vessel:
+        validate_vessel(G, filtrate_vessel, "滤液容器")
+        debug_print("  🌊 模式: 过滤并收集滤液 💧")
     else:
-        transfer_volume = 50.0  # 默认过滤量
-        print(f"FILTER: 未检测到液体体积，默认过滤 {transfer_volume} mL")
+        debug_print("  🧱 模式: 过滤并收集固体 🔬")
+    debug_print("  ✅ 可选参数验证完成 🎯")
     
-    # === 第一步：启动加热搅拌器（在转移前预热） ===
-    if heatchill_id and (temp != 25.0 or stir):
-        print(f"FILTER: 启动加热搅拌器，温度: {temp}°C，搅拌: {stir}")
-        
-        heatchill_action = {
-            "device_id": heatchill_id,
-            "action_name": "heat_chill_start",
-            "action_kwargs": {
-                "vessel": filter_vessel_id,
-                "temp": temp,
-                "purpose": f"过滤过程温度控制和搅拌"
-            }
-        }
-        action_sequence.append(heatchill_action)
-        
-        # 等待温度稳定
-        if temp != 25.0:
-            wait_time = min(30, abs(temp - 25.0) * 1.0)  # 根据温差估算预热时间
-            action_sequence.append({
-                "action_name": "wait",
-                "action_kwargs": {"time": wait_time}
-            })
+    # === 查找设备 ===
+    debug_print("📍 步骤2: 查找设备... 🔍")
     
-    # === 第二步：将待过滤溶液转移到过滤器 ===
-    print(f"FILTER: 将 {transfer_volume} mL 溶液从 {vessel} 转移到 {filter_vessel_id}")
     try:
-        # 使用成熟的 pump_protocol 算法进行液体转移
-        transfer_to_filter_actions = generate_pump_protocol(
-            G=G,
-            from_vessel=vessel,
-            to_vessel=filter_vessel_id,
-            volume=transfer_volume,
-            flowrate=1.0,  # 过滤转移用较慢速度，避免扰动
-            transfer_flowrate=1.5
-        )
-        action_sequence.extend(transfer_to_filter_actions)
+        debug_print("  🔎 搜索过滤器设备...")
+        filter_device = find_filter_device(G)
+        debug_print(f"  🎉 使用过滤器设备: {filter_device} 🌊✨")
+        
     except Exception as e:
-        raise ValueError(f"无法将溶液转移到过滤器: {str(e)}")
+        debug_print(f"  ❌ 设备查找失败: {str(e)} 😭")
+        raise ValueError(f"设备查找失败: {str(e)}")
     
-    # 转移后等待
-    action_sequence.append({
-        "action_name": "wait",
-        "action_kwargs": {"time": 5}
-    })
+    # === 转移到过滤器（如果需要）===
+    debug_print("📍 步骤3: 转移到过滤器... 🚚")
     
-    # === 第三步：执行过滤操作（完全按照 Filter.action 参数） ===
-    print(f"FILTER: 执行过滤操作")
+    if vessel != filter_device:
+        debug_print(f"  🚛 需要转移: {vessel} → {filter_device} 📦")
+        
+        try:
+            debug_print("  🔄 开始执行转移操作...")
+            # 使用pump protocol转移液体到过滤器
+            transfer_actions = generate_pump_protocol_with_rinsing(
+                G=G,
+                from_vessel=vessel,
+                to_vessel=filter_device,
+                volume=0.0,  # 转移所有液体
+                amount="",
+                time=0.0,
+                viscous=False,
+                rinsing_solvent="",
+                rinsing_volume=0.0,
+                rinsing_repeats=0,
+                solid=False,
+                flowrate=2.0,
+                transfer_flowrate=2.0
+            )
+            
+            if transfer_actions:
+                action_sequence.extend(transfer_actions)
+                debug_print(f"  ✅ 添加了 {len(transfer_actions)} 个转移动作 🚚✨")
+            else:
+                debug_print("  ⚠️ 转移协议返回空序列 🤔")
+                
+        except Exception as e:
+            debug_print(f"  ❌ 转移失败: {str(e)} 😞")
+            debug_print("  🔄 继续执行，可能是直接连接的过滤器 🤞")
+    else:
+        debug_print("  ✅ 过滤容器就是过滤器，无需转移 🎯")
+    
+    # === 执行过滤操作 ===
+    debug_print("📍 步骤4: 执行过滤操作... 🌊")
+    
+    # 构建过滤动作参数
+    debug_print("  ⚙️ 构建过滤参数...")
+    filter_kwargs = {
+        "vessel": filter_device,  # 过滤器设备
+        "filtrate_vessel": filtrate_vessel,  # 滤液容器（可能为空）
+        "stir": kwargs.get("stir", False),
+        "stir_speed": kwargs.get("stir_speed", 0.0),
+        "temp": kwargs.get("temp", 25.0),
+        "continue_heatchill": kwargs.get("continue_heatchill", False),
+        "volume": kwargs.get("volume", 0.0)  # 0表示过滤所有
+    }
+    
+    debug_print(f"  📋 过滤参数: {filter_kwargs}")
+    debug_print("  🌊 开始过滤操作...")
+    
+    # 过滤动作
     filter_action = {
-        "device_id": filter_id,
+        "device_id": filter_device,
         "action_name": "filter",
-        "action_kwargs": {
-            "vessel": filter_vessel_id,
-            "filtrate_vessel": actual_filtrate_vessel,
-            "stir": stir,
-            "stir_speed": stir_speed,
-            "temp": temp,
-            "continue_heatchill": continue_heatchill,
-            "volume": transfer_volume
-        }
+        "action_kwargs": filter_kwargs
     }
     action_sequence.append(filter_action)
+    debug_print("  ✅ 过滤动作已添加 🌊✨")
     
     # 过滤后等待
+    debug_print("  ⏳ 添加过滤后等待...")
     action_sequence.append({
         "action_name": "wait",
-        "action_kwargs": {"time": 10}
+        "action_kwargs": {"time": 10.0}
     })
+    debug_print("  ✅ 过滤后等待动作已添加 ⏰✨")
     
-    # === 第四步：如果不继续加热搅拌，停止加热器 ===
-    if heatchill_id and not continue_heatchill and (temp != 25.0 or stir):
-        print(f"FILTER: 停止加热搅拌器")
+    # === 收集滤液（如果需要）===
+    debug_print("📍 步骤5: 收集滤液... 💧")
+    
+    if filtrate_vessel:
+        debug_print(f"  🧪 收集滤液: {filter_device} → {filtrate_vessel} 💧")
         
-        stop_action = {
-            "device_id": heatchill_id,
-            "action_name": "heat_chill_stop",
-            "action_kwargs": {
-                "vessel": filter_vessel_id
-            }
-        }
-        action_sequence.append(stop_action)
+        try:
+            debug_print("  🔄 开始执行收集操作...")
+            # 使用pump protocol收集滤液
+            collect_actions = generate_pump_protocol_with_rinsing(
+                G=G,
+                from_vessel=filter_device,
+                to_vessel=filtrate_vessel,
+                volume=0.0,  # 收集所有滤液
+                amount="",
+                time=0.0,
+                viscous=False,
+                rinsing_solvent="",
+                rinsing_volume=0.0,
+                rinsing_repeats=0,
+                solid=False,
+                flowrate=2.0,
+                transfer_flowrate=2.0
+            )
+            
+            if collect_actions:
+                action_sequence.extend(collect_actions)
+                debug_print(f"  ✅ 添加了 {len(collect_actions)} 个收集动作 🧪✨")
+            else:
+                debug_print("  ⚠️ 收集协议返回空序列 🤔")
+                
+        except Exception as e:
+            debug_print(f"  ❌ 收集滤液失败: {str(e)} 😞")
+            debug_print("  🔄 继续执行，可能滤液直接流入指定容器 🤞")
+    else:
+        debug_print("  🧱 未指定滤液容器，固体保留在过滤器中 🔬")
     
-    print(f"FILTER: 生成了 {len(action_sequence)} 个动作")
-    print(f"FILTER: 过滤协议生成完成")
+    # === 最终等待 ===
+    debug_print("📍 步骤6: 最终等待... ⏰")
+    action_sequence.append({
+        "action_name": "wait",
+        "action_kwargs": {"time": 5.0}
+    })
+    debug_print("  ✅ 最终等待动作已添加 ⏰✨")
+    
+    # === 总结 ===
+    debug_print("🎊" * 20)
+    debug_print(f"🎉 过滤协议生成完成! ✨")
+    debug_print(f"📊 总动作数: {len(action_sequence)} 个 📝")
+    debug_print(f"🥽 过滤容器: {vessel} 🧪")
+    debug_print(f"🌊 过滤器设备: {filter_device} 🔧")
+    debug_print(f"💧 滤液容器: {filtrate_vessel or '无（保留固体）'} 🧱")
+    debug_print(f"⏱️ 预计总时间: {(len(action_sequence) * 5):.0f} 秒 ⌛")
+    debug_print("🎊" * 20)
     
     return action_sequence
-
-
-# 便捷函数：常用过滤方案
-def generate_gravity_filter_protocol(
-    G: nx.DiGraph,
-    vessel: str,
-    filtrate_vessel: str = ""
-) -> List[Dict[str, Any]]:
-    """重力过滤：室温，无搅拌"""
-    return generate_filter_protocol(G, vessel, filtrate_vessel, False, 0.0, 25.0, False, 0.0)
-
-
-def generate_hot_filter_protocol(
-    G: nx.DiGraph,
-    vessel: str,
-    filtrate_vessel: str = "",
-    temp: float = 60.0
-) -> List[Dict[str, Any]]:
-    """热过滤：高温过滤，防止结晶析出"""
-    return generate_filter_protocol(G, vessel, filtrate_vessel, False, 0.0, temp, False, 0.0)
-
-
-def generate_stirred_filter_protocol(
-    G: nx.DiGraph,
-    vessel: str,
-    filtrate_vessel: str = "",
-    stir_speed: float = 200.0
-) -> List[Dict[str, Any]]:
-    """搅拌过滤：低速搅拌，防止滤饼堵塞"""
-    return generate_filter_protocol(G, vessel, filtrate_vessel, True, stir_speed, 25.0, False, 0.0)
-
-
-def generate_hot_stirred_filter_protocol(
-    G: nx.DiGraph,
-    vessel: str,
-    filtrate_vessel: str = "",
-    temp: float = 60.0,
-    stir_speed: float = 300.0
-) -> List[Dict[str, Any]]:
-    """热搅拌过滤：高温搅拌过滤"""
-    return generate_filter_protocol(G, vessel, filtrate_vessel, True, stir_speed, temp, False, 0.0)

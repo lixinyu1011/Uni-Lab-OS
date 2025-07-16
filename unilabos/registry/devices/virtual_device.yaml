@@ -248,6 +248,12 @@ virtual_column:
         goal_default:
           column: ''
           from_vessel: ''
+          pct1: ''
+          pct2: ''
+          ratio: ''
+          rf: ''
+          solvent1: ''
+          solvent2: ''
           to_vessel: ''
         handles: []
         result:
@@ -274,12 +280,30 @@ virtual_column:
                   type: string
                 from_vessel:
                   type: string
+                pct1:
+                  type: string
+                pct2:
+                  type: string
+                ratio:
+                  type: string
+                rf:
+                  type: string
+                solvent1:
+                  type: string
+                solvent2:
+                  type: string
                 to_vessel:
                   type: string
               required:
               - from_vessel
               - to_vessel
               - column
+              - rf
+              - pct1
+              - pct2
+              - solvent1
+              - solvent2
+              - ratio
               title: RunColumn_Goal
               type: object
             result:
@@ -861,11 +885,15 @@ virtual_heatchill:
           time: time
           vessel: vessel
         goal_default:
+          pressure: ''
           purpose: ''
+          reflux_solvent: ''
           stir: false
           stir_speed: 0.0
           temp: 0.0
+          temp_spec: ''
           time: 0.0
+          time_spec: ''
           vessel: ''
         handles: []
         result:
@@ -883,7 +911,11 @@ virtual_heatchill:
               type: object
             goal:
               properties:
+                pressure:
+                  type: string
                 purpose:
+                  type: string
+                reflux_solvent:
                   type: string
                 stir:
                   type: boolean
@@ -891,14 +923,22 @@ virtual_heatchill:
                   type: number
                 temp:
                   type: number
+                temp_spec:
+                  type: string
                 time:
                   type: number
+                time_spec:
+                  type: string
                 vessel:
                   type: string
               required:
               - vessel
               - temp
               - time
+              - temp_spec
+              - time_spec
+              - pressure
+              - reflux_solvent
               - stir
               - stir_speed
               - purpose
@@ -906,13 +946,16 @@ virtual_heatchill:
               type: object
             result:
               properties:
+                message:
+                  type: string
                 return_info:
                   type: string
                 success:
                   type: boolean
               required:
-              - return_info
               - success
+              - message
+              - return_info
               title: HeatChill_Result
               type: object
           required:
@@ -1630,13 +1673,18 @@ virtual_pump:
           volume: volume
         goal_default:
           amount: ''
+          event: ''
+          flowrate: 0.0
           from_vessel: ''
+          rate_spec: ''
           rinsing_repeats: 0
           rinsing_solvent: ''
           rinsing_volume: 0.0
           solid: false
+          through: ''
           time: 0.0
           to_vessel: ''
+          transfer_flowrate: 0.0
           viscous: false
           volume: 0.0
         handles: []
@@ -1692,7 +1740,13 @@ virtual_pump:
               properties:
                 amount:
                   type: string
+                event:
+                  type: string
+                flowrate:
+                  type: number
                 from_vessel:
+                  type: string
+                rate_spec:
                   type: string
                 rinsing_repeats:
                   maximum: 2147483647
@@ -1704,10 +1758,14 @@ virtual_pump:
                   type: number
                 solid:
                   type: boolean
+                through:
+                  type: string
                 time:
                   type: number
                 to_vessel:
                   type: string
+                transfer_flowrate:
+                  type: number
                 viscous:
                   type: boolean
                 volume:
@@ -1723,6 +1781,11 @@ virtual_pump:
               - rinsing_volume
               - rinsing_repeats
               - solid
+              - flowrate
+              - transfer_flowrate
+              - rate_spec
+              - event
+              - through
               title: PumpTransfer_Goal
               type: object
             result:
@@ -1853,10 +1916,8 @@ virtual_rotavap:
         type: UniLabJsonCommandAsync
       evaporate:
         feedback:
-          current_temp: current_temp
-          evaporated_volume: evaporated_volume
-          progress: progress
           status: status
+          current_device: current_device
         goal:
           pressure: pressure
           stir_speed: stir_speed
@@ -1865,6 +1926,7 @@ virtual_rotavap:
           vessel: vessel
         goal_default:
           pressure: 0.0
+          solvent: ''
           stir_speed: 0.0
           temp: 0.0
           time: 0.0
@@ -1923,6 +1985,8 @@ virtual_rotavap:
               properties:
                 pressure:
                   type: number
+                solvent:
+                  type: string
                 stir_speed:
                   type: number
                 temp:
@@ -1937,6 +2001,7 @@ virtual_rotavap:
               - temp
               - time
               - stir_speed
+              - solvent
               title: Evaporate_Goal
               type: object
             result:
@@ -2107,6 +2172,7 @@ virtual_separator:
         goal_default:
           from_vessel: ''
           product_phase: ''
+          product_vessel: ''
           purpose: ''
           repeats: 0
           separation_vessel: ''
@@ -2117,7 +2183,10 @@ virtual_separator:
           stir_time: 0.0
           through: ''
           to_vessel: ''
+          vessel: ''
+          volume: ''
           waste_phase_to_vessel: ''
+          waste_vessel: ''
         handles: []
         result:
           message: message
@@ -2174,6 +2243,8 @@ virtual_separator:
                   type: string
                 product_phase:
                   type: string
+                product_vessel:
+                  type: string
                 purpose:
                   type: string
                 repeats:
@@ -2196,7 +2267,13 @@ virtual_separator:
                   type: string
                 to_vessel:
                   type: string
+                vessel:
+                  type: string
+                volume:
+                  type: string
                 waste_phase_to_vessel:
+                  type: string
+                waste_vessel:
                   type: string
               required:
               - purpose
@@ -2212,17 +2289,24 @@ virtual_separator:
               - stir_time
               - stir_speed
               - settling_time
+              - vessel
+              - volume
+              - product_vessel
+              - waste_vessel
               title: Separate_Goal
               type: object
             result:
               properties:
+                message:
+                  type: string
                 return_info:
                   type: string
                 success:
                   type: boolean
               required:
-              - return_info
               - success
+              - message
+              - return_info
               title: Separate_Result
               type: object
           required:
@@ -2381,6 +2465,26 @@ virtual_solenoid_valve:
           title: is_closed参数
           type: object
         type: UniLabJsonCommand
+      auto-open:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: open的参数schema
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: open参数
+          type: object
+        type: UniLabJsonCommandAsync
       auto-reset:
         feedback: {}
         goal: {}
@@ -2399,6 +2503,53 @@ virtual_solenoid_valve:
           required:
           - goal
           title: reset参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-set_state:
+        feedback: {}
+        goal: {}
+        goal_default:
+          command: null
+        handles: []
+        result: {}
+        schema:
+          description: set_state的参数schema
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                command:
+                  type: string
+              required:
+              - command
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_state参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-set_valve_position:
+        feedback: {}
+        goal: {}
+        goal_default:
+          command: null
+        handles: []
+        result: {}
+        schema:
+          description: set_valve_position的参数schema
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                command:
+                  type: string
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_valve_position参数
           type: object
         type: UniLabJsonCommandAsync
       auto-toggle:
@@ -2431,111 +2582,86 @@ virtual_solenoid_valve:
         result:
           success: success
         schema:
-          description: ''
+          description: ROS Action SendCmd 的 JSON Schema
           properties:
             feedback:
-              properties:
-                status:
-                  type: string
-              required:
-              - status
-              title: SendCmd_Feedback
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
               type: object
             goal:
-              properties:
-                command:
-                  type: string
-              required:
-              - command
-              title: SendCmd_Goal
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
               type: object
             result:
               properties:
                 return_info:
                   type: string
-                success:
-                  type: boolean
               required:
               - return_info
-              - success
-              title: SendCmd_Result
+              title: EmptyIn_Result
               type: object
           required:
           - goal
-          title: SendCmd
+          title: EmptyIn
           type: object
-        type: SendCmd
+        type: EmptyIn
       open:
         feedback: {}
-        goal:
-          command: OPEN
-        goal_default:
-          command: ''
+        goal: {}
+        goal_default: {}
         handles: []
-        result:
-          success: success
+        result: {}
         schema:
-          description: ''
+          description: ROS Action SendCmd 的 JSON Schema
           properties:
             feedback:
-              properties:
-                status:
-                  type: string
-              required:
-              - status
-              title: SendCmd_Feedback
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
               type: object
             goal:
-              properties:
-                command:
-                  type: string
-              required:
-              - command
-              title: SendCmd_Goal
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
               type: object
             result:
               properties:
                 return_info:
                   type: string
-                success:
-                  type: boolean
               required:
               - return_info
-              - success
-              title: SendCmd_Result
+              title: EmptyIn_Result
               type: object
           required:
           - goal
-          title: SendCmd
+          title: EmptyIn
           type: object
-        type: SendCmd
-      set_state:
+        type: EmptyIn
+      set_status:
         feedback: {}
         goal:
-          command: command
+          string: string
         goal_default:
-          command: ''
+          string: ''
         handles: []
-        result:
-          success: success
+        result: {}
         schema:
-          description: ''
+          description: ROS Action SendCmd 的 JSON Schema
           properties:
             feedback:
-              properties:
-                status:
-                  type: string
-              required:
-              - status
-              title: SendCmd_Feedback
+              properties: {}
+              required: []
+              title: StrSingleInput_Feedback
               type: object
             goal:
               properties:
-                command:
+                string:
                   type: string
               required:
-              - command
-              title: SendCmd_Goal
+              - string
+              title: StrSingleInput_Goal
               type: object
             result:
               properties:
@@ -2546,13 +2672,13 @@ virtual_solenoid_valve:
               required:
               - return_info
               - success
-              title: SendCmd_Result
+              title: StrSingleInput_Result
               type: object
           required:
           - goal
-          title: SendCmd
+          title: StrSingleInput
           type: object
-        type: SendCmd
+        type: StrSingleInput
       set_valve_position:
         feedback: {}
         goal:
@@ -2562,15 +2688,14 @@ virtual_solenoid_valve:
         handles: []
         result:
           success: success
+          message: message
+          valve_position: valve_position
         schema:
           description: ''
           properties:
             feedback:
-              properties:
-                status:
-                  type: string
-              required:
-              - status
+              properties: {}
+              required: []
               title: SendCmd_Feedback
               type: object
             goal:
@@ -2583,13 +2708,15 @@ virtual_solenoid_valve:
               type: object
             result:
               properties:
-                return_info:
-                  type: string
                 success:
                   type: boolean
+                message:
+                  type: string
+                valve_position:
+                  type: string
               required:
-              - return_info
               - success
+              - message
               title: SendCmd_Result
               type: object
           required:
@@ -2652,7 +2779,6 @@ virtual_solenoid_valve:
       - valve_position
       - state
       type: object
-  version: 0.0.1
 virtual_stirrer:
   class:
     action_value_mappings:
@@ -2768,9 +2894,13 @@ virtual_stirrer:
           stir_speed: stir_speed
           stir_time: stir_time
         goal_default:
+          event: ''
           settling_time: 0.0
           stir_speed: 0.0
           stir_time: 0.0
+          time: ''
+          time_spec: ''
+          vessel: ''
         handles: []
         result:
           success: success
@@ -2787,13 +2917,25 @@ virtual_stirrer:
               type: object
             goal:
               properties:
+                event:
+                  type: string
                 settling_time:
                   type: number
                 stir_speed:
                   type: number
                 stir_time:
                   type: number
+                time:
+                  type: string
+                time_spec:
+                  type: string
+                vessel:
+                  type: string
               required:
+              - vessel
+              - time
+              - event
+              - time_spec
               - stir_time
               - stir_speed
               - settling_time
@@ -2801,13 +2943,16 @@ virtual_stirrer:
               type: object
             result:
               properties:
+                message:
+                  type: string
                 return_info:
                   type: string
                 success:
                   type: boolean
               required:
-              - return_info
               - success
+              - message
+              - return_info
               title: Stir_Result
               type: object
           required:

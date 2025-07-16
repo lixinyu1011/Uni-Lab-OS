@@ -259,11 +259,15 @@ heaterstirrer.dalong:
           time: time
           vessel: vessel
         goal_default:
+          pressure: ''
           purpose: ''
+          reflux_solvent: ''
           stir: false
           stir_speed: 0.0
           temp: 0.0
+          temp_spec: ''
           time: 0.0
+          time_spec: ''
           vessel: ''
         handles: []
         result:
@@ -281,7 +285,11 @@ heaterstirrer.dalong:
               type: object
             goal:
               properties:
+                pressure:
+                  type: string
                 purpose:
+                  type: string
+                reflux_solvent:
                   type: string
                 stir:
                   type: boolean
@@ -289,14 +297,22 @@ heaterstirrer.dalong:
                   type: number
                 temp:
                   type: number
+                temp_spec:
+                  type: string
                 time:
                   type: number
+                time_spec:
+                  type: string
                 vessel:
                   type: string
               required:
               - vessel
               - temp
               - time
+              - temp_spec
+              - time_spec
+              - pressure
+              - reflux_solvent
               - stir
               - stir_speed
               - purpose
@@ -304,13 +320,16 @@ heaterstirrer.dalong:
               type: object
             result:
               properties:
+                message:
+                  type: string
                 return_info:
                   type: string
                 success:
                   type: boolean
               required:
-              - return_info
               - success
+              - message
+              - return_info
               title: HeatChill_Result
               type: object
           required:

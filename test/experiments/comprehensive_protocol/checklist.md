@@ -43,6 +43,15 @@
     Hydrogenate                                                                 <Hydrogenate temp="45 °C" time="?" vessel="main_reactor"/>
 4. 参数对齐
 
+
+
+
+
+
+
+
+
+
 class PumpTransferProtocol(BaseModel):
     from_vessel: str
     to_vessel: str
@@ -51,9 +60,9 @@ class PumpTransferProtocol(BaseModel):
     time: float = 0
     viscous: bool = False
     rinsing_solvent: str = "air"        <Transfer from_vessel="main_reactor" to_vessel="rotavap"/>
-    rinsing_volume: float = 5000
-    rinsing_repeats: int = 2
-    solid: bool = False
+    rinsing_volume: float = 5000        <Transfer event="A" from_vessel="reactor" rate_spec="dropwise" to_vessel="main_reactor"/>
+    rinsing_repeats: int = 2            <Transfer from_vessel="separator" through="cartridge" to_vessel="rotavap"/>
+    solid: bool = False                 测完了三个都能跑✅
     flowrate: float = 500
     transfer_flowrate: float = 2500
 
@@ -66,25 +75,25 @@ class SeparateProtocol(BaseModel):
     waste_phase_to_vessel: str
     solvent: str
     solvent_volume: float               <Separate product_phase="bottom" purpose="wash" solvent="water" vessel="separator" volume="?"/>
-    through: str
-    repeats: int
-    stir_time: float
+    through: str                        <Separate product_phase="top" purpose="separate" vessel="separator"/>
+    repeats: int                        <Separate product_phase="bottom" purpose="extract" repeats="3" solvent="CH2Cl2" vessel="separator" volume="?"/>
+    stir_time: float                    <Separate product_phase="top" product_vessel="flask" purpose="separate" vessel="separator" waste_vessel="separator"/>
     stir_speed: float
-    settling_time: float
+    settling_time: float                测完了能跑✅
 
 
 class EvaporateProtocol(BaseModel):
     vessel: str
     pressure: float
     temp: float                         <Evaporate solvent="ethanol" vessel="rotavap"/>
-    time: float
+    time: float                         测完了能跑✅
     stir_speed: float
 
 
 class EvacuateAndRefillProtocol(BaseModel):
     vessel: str
     gas: str                            <EvacuateAndRefill gas="nitrogen" vessel="main_reactor"/>
-    repeats: int
+    repeats: int                        测完了能跑✅
 
 class AddProtocol(BaseModel):
     vessel: str
@@ -95,21 +104,27 @@ class AddProtocol(BaseModel):
     time: float
     stir: bool
     stir_speed: float                   <Add reagent="ethanol" vessel="main_reactor" volume="2.7 mL"/>
+    <Add event="A" mass="19.3 g" mol="0.28 mol" rate_spec="portionwise" reagent="sodium nitrite" time="1 h" vessel="main_reactor"/>
+    <Add mass="4.5 g" mol="16.2 mmol" reagent="(S)-2-phthalimido-6-hydroxyhexanoic acid" vessel="main_reactor"/>
+    <Add purpose="dilute" reagent="hydrochloric acid" vessel="main_reactor" volume="?"/>
+    <Add equiv="1.1" event="B" mol="25.2 mmol" rate_spec="dropwise" reagent="1-fluoro-2-nitrobenzene" time="20 min" 
+    vessel="main_reactor" volume="2.67 mL"/>
+    <Add ratio="?" reagent="tetrahydrofuran|tert-butanol" vessel="main_reactor" volume="?"/>
     viscous: bool
-    purpose: str
+    purpose: str                        测完了能跑✅
 
 class CentrifugeProtocol(BaseModel):
     vessel: str
     speed: float
-    time: float                         自创的
+    time: float                         没毛病
     temp: float
 
 class FilterProtocol(BaseModel):
     vessel: str
     filtrate_vessel: str
     stir: bool                          <Filter vessel="filter"/>
-    stir_speed: float
-    temp: float
+    stir_speed: float                   <Filter filtrate_vessel="rotavap" vessel="filter"/>
+    temp: float                         测完了能跑✅
     continue_heatchill: bool
     volume: float
 
@@ -118,7 +133,10 @@ class HeatChillProtocol(BaseModel):
     temp: float
     time: float                         <HeatChill pressure="1 mbar" temp_spec="room temperature" time="?" vessel="main_reactor"/>
                                         <HeatChill temp_spec="room temperature" time_spec="overnight" vessel="main_reactor"/>
-    stir: bool
+                                        <HeatChill temp="256 °C" time="?" vessel="main_reactor"/>
+                                        <HeatChill reflux_solvent="methanol" temp_spec="reflux" time="2 h" vessel="main_reactor"/>
+                                        <HeatChillToTemp temp_spec="room temperature" vessel="main_reactor"/>
+    stir: bool                          测完了能跑✅
     stir_speed: float
     purpose: str
 
@@ -133,7 +151,9 @@ class HeatChillStopProtocol(BaseModel):
 class StirProtocol(BaseModel):
     stir_time: float
     stir_speed: float               <Stir time="0.5 h" vessel="main_reactor"/>
-    settling_time: float
+                                    <Stir event="A" time="30 min" vessel="main_reactor"/>
+                                    <Stir time_spec="several minutes" vessel="filter"/>
+    settling_time: float            测完了能跑✅
 
 class StartStirProtocol(BaseModel):
     vessel: str
@@ -149,11 +169,11 @@ class TransferProtocol(BaseModel):
     volume: float
     amount: str = ""
     time: float = 0
-    viscous: bool = False    <Transfer from_vessel="main_reactor" to_vessel="rotavap"/>
+    viscous: bool = False   
     rinsing_solvent: str = ""
     rinsing_volume: float = 0.0
     rinsing_repeats: int = 0
-    solid: bool = False
+    solid: bool = False             这个protocol早该删掉了
 
 class CleanVesselProtocol(BaseModel):
     vessel: str
@@ -165,11 +185,11 @@ class CleanVesselProtocol(BaseModel):
 class DissolveProtocol(BaseModel):
     vessel: str
     solvent: str
-    volume: float   <Dissolve mass="2.9 g" mol="0.12 mol" reagent="magnesium" vessel="main_reactor"/>
-    amount: str = ""   
-    temp: float = 25.0
-    time: float = 0.0
-    stir_speed: float = 0.0
+    volume: float       <Dissolve mass="2.9 g" mol="0.12 mol" reagent="magnesium" vessel="main_reactor"/>
+    amount: str = ""    <Dissolve mass="12.9 g" reagent="4-tert-butylbenzyl bromide" vessel="main_reactor"/>
+    temp: float = 25.0  <Dissolve solvent="diisopropyl ether" vessel="rotavap" volume="?"/>
+    time: float = 0.0   <Dissolve event="A" mass="?" reagent="pyridinone" vessel="main_reactor"/>
+    stir_speed: float = 0.0     测完了能跑✅
 
 class FilterThroughProtocol(BaseModel):
     from_vessel: str
@@ -183,16 +203,19 @@ class FilterThroughProtocol(BaseModel):
 class RunColumnProtocol(BaseModel):
     from_vessel: str
     to_vessel: str              <RunColumn Rf="?" column="column" from_vessel="rotavap" pct1="40 %" pct2="50 %" solvent1="ethyl acetate" solvent2="hexane" to_vessel="rotavap"/>
-    column: str
+    column: str                 测完了能跑✅
 
 class WashSolidProtocol(BaseModel):
     vessel: str
     solvent: str
     volume: float
-    filtrate_vessel: str = ""
+    filtrate_vessel: str = ""   <WashSolid repeats="4" solvent="water" vessel="main_reactor" volume="400 mL"/>
     temp: float = 25.0          <WashSolid filtrate_vessel="rotavap" solvent="formic acid" vessel="main_reactor" volume="?"/>
-    stir: bool = False
-    stir_speed: float = 0.0
+    stir: bool = False          <WashSolid solvent="acetone" vessel="rotavap" volume="5 mL"/>
+                                <WashSolid solvent="ethyl alcohol" vessel="main_reactor" volume_spec="small volume"/>
+                                <WashSolid filtrate_vessel="rotavap" mass="10 g" solvent="toluene" vessel="separator"/>
+                                <WashSolid repeats_spec="several" solvent="water" vessel="main_reactor" volume="?"/>
+    stir_speed: float = 0.0     测完了能跑✅
     time: float = 0.0
     repeats: int = 1
 
@@ -220,3 +243,16 @@ class HydrogenateProtocol(BaseModel):
     temp: str = Field(..., description="反应温度（如 '45 °C'）")
     time: str = Field(..., description="反应时间（如 '2 h'）")                          <新写的，没问题>
     vessel: str = Field(..., description="反应容器")
+
+    还差
+    <dissolve>
+    <separate>
+    <CleanVessel vessel="centrifuge"/>
+
+
+单位修复：
+    evaporate
+    heatchill
+    recrysitallize
+    stir
+    wash solid
