@@ -1033,18 +1033,18 @@ if __name__ == "__main__":
     asyncio.run(handler.drop_tips(tip_rack.children[8:16],[0,1,2,3,4,5,6,7]))
     asyncio.run(handler.mix(well_containers.children[:8], mix_time=3, mix_vol=50, height_to_bottom=0.5, offsets=Coordinate(0, 0, 0), mix_rate=100))
     print(json.dumps(handler._unilabos_backend.steps_todo_list, indent=2))  # Print matrix info
-    # asyncio.run(handler.add_liquid(
-    #     asp_vols=[100]*8,
-    #     dis_vols=[100]*8,
-    #     reagent_sources=well_containers.children[-8:],
-    #     targets=well_containers.children[:8],
-    #     use_channels=[0, 1, 2, 3, 4, 5, 6, 7],
-    #     flow_rates=[None] * 8,
-    #     offsets=[Coordinate(0, 0, 0)] * 8,
-    #     liquid_height=[None] * 8,
-    #     blow_out_air_volume=[None] * 8,
-    #     spread="wide",
-    # ))
+    asyncio.run(handler.add_liquid(
+        asp_vols=[100]*8,
+        dis_vols=[100]*8,
+        reagent_sources=well_containers.children[-8:],
+        targets=well_containers.children[:8],
+        use_channels=[0, 1, 2, 3, 4, 5, 6, 7],
+        flow_rates=[None] * 8,
+        offsets=[Coordinate(0, 0, 0)] * 8,
+        liquid_height=[None] * 8,
+        blow_out_air_volume=[None] * 8,
+        spread="wide",
+    ))
     # input("pick_up_tips add step")
     asyncio.run(handler.run_protocol())  # Run the protocol
     # input("Running protocol...")
