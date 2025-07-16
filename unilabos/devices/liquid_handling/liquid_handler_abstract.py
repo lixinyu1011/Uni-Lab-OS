@@ -531,6 +531,7 @@ class LiquidHandlerMiddleware(LiquidHandler):
 
 class LiquidHandlerAbstract(LiquidHandlerMiddleware):
     """Extended LiquidHandler with additional operations."""
+    support_touch_tip = True
 
     def __init__(self, backend: LiquidHandlerBackend, deck: Deck, simulator: bool):
         """Initialize a LiquidHandler.
@@ -748,7 +749,7 @@ class LiquidHandlerAbstract(LiquidHandlerMiddleware):
                         if delays is not None:
                             await self.custom_delay(seconds=delays[1])
                         await self.touch_tip(targets[_])
-                    await self.discard_tips()
+
                 elif len(use_channels) == 8:
                     tip = []
                     for _ in range(len(use_channels)):
@@ -811,7 +812,8 @@ class LiquidHandlerAbstract(LiquidHandlerMiddleware):
                         )
                         if delays is not None:
                             await self.custom_delay(seconds=delays[1])
-                        #await self.touch_tip(current_targets)
+                        await self.touch_tip(current_targets)
+                await self.discard_tips()
 
         except Exception as e:
             traceback.print_exc()
@@ -1002,7 +1004,11 @@ class LiquidHandlerAbstract(LiquidHandlerMiddleware):
                 print(f"Current time: {time.strftime('%H:%M:%S')}")
 
     async def touch_tip(self, targets: Sequence[Container]):
+
         """Touch the tip to the side of the well."""
+
+        if not self.support_touch_tip:
+            return
         await self.aspirate(
             resources=[targets],
             vols=[0],

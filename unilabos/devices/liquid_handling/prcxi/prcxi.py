@@ -87,7 +87,31 @@ class PRCXI9300Container(Plate):
         return data
 
 
+class PRCXI9300Trash(Trash):
+    """PRCXI 9300 的专用 Trash 类，继承自 Trash。
+
+    该类定义了 PRCXI 9300 的工作台布局和槽位信息。
+    """
+
+    def __init__(self, name: str, size_x: float, size_y: float, size_z: float, category: str):
+        super().__init__(name, size_x, size_y, size_z, category=category)
+        self._unilabos_state = {}
+
+    def load_state(self, state: Dict[str, Any]) -> None:
+        """从给定的状态加载工作台信息。"""
+        #super().load_state(state)
+        self._unilabos_state = state
+
+    def serialize_state(self) -> Dict[str, Dict[str, Any]]:
+        data = super().serialize_state()
+        data.update(self._unilabos_state)
+        return data
+
+
+
+
 class PRCXI9300Handler(LiquidHandlerAbstract):
+    support_touch_tip = False
     @property
     def reset_ok(self) -> bool:
         """检查设备是否已重置成功。"""
@@ -433,6 +457,9 @@ class PRCXI9300Backend(LiquidHandlerBackend):
     async def drop_tips(self, ops: List[Drop], use_channels: List[int] = None):
 
         """Pick up tips from the specified resource."""
+
+        print('111'*500)
+
 
         if len(ops) != 8:
             raise ValueError(f"PRCXI9300Backend drop_tips: Expected 8 pickups, got {len(ops)}")
@@ -1001,7 +1028,7 @@ if __name__ == "__main__":
             "uuid": "57b1e4711e9e4a32b529f3132fc5931f",
         }
     })
-    plate6 = PRCXI9300Container(name="plateT6", size_x=50, size_y=50, size_z=10, category="plate")
+    plate6 = PRCXI9300Trash(name="trash", size_x=50, size_y=50, size_z=10, category="trash")
     plate6.load_state({
         "Material": {
             "uuid": "57b1e4711e9e4a32b529f3132fc5931f",
@@ -1009,13 +1036,15 @@ if __name__ == "__main__":
     })
 
     from pylabrobot.resources.opentrons.tip_racks import tipone_96_tiprack_200ul
-    from pylabrobot.resources.opentrons.plates import corning_96_wellplate_360ul_flat
+    from pylabrobot.resources.opentrons.plates import corning_96_wellplate_360ul_flat 
+
     tip_rack = tipone_96_tiprack_200ul("TipRack")
     well_containers = corning_96_wellplate_360ul_flat("Plate")
     # from pprint import pprint
     # pprint(well_containers.children)
     plate1.assign_child_resource(tip_rack, location=Coordinate(0, 0, 0))
     plate2.assign_child_resource(well_containers, location=Coordinate(0, 0, 0))
+
     deck.assign_child_resource(plate1, location=Coordinate(0, 0, 0))
     deck.assign_child_resource(plate2, location=Coordinate(0, 0, 0))
     deck.assign_child_resource(plate3, location=Coordinate(0, 0, 0))
@@ -1033,33 +1062,33 @@ if __name__ == "__main__":
     # asyncio.run(handler.drop_tips(tip_rack.children[8:16],[0,1,2,3,4,5,6,7]))
     # asyncio.run(handler.mix(well_containers.children[:8], mix_time=3, mix_vol=50, height_to_bottom=0.5, offsets=Coordinate(0, 0, 0), mix_rate=100))
     #print(json.dumps(handler._unilabos_backend.steps_todo_list, indent=2))  # Print matrix info
-    # asyncio.run(handler.add_liquid(
-    #     asp_vols=[100]*16,
-    #     dis_vols=[100]*16,
-    #     reagent_sources=well_containers.children[-16:],
-    #     targets=well_containers.children[:16],
-    #     use_channels=[0, 1, 2, 3, 4, 5, 6, 7],
-    #     flow_rates=[None] * 32,
-    #     offsets=[Coordinate(0, 0, 0)] * 32,
-    #     liquid_height=[None] * 16,
-    #     blow_out_air_volume=[None] * 16,
-    #     delays=None,
-    #     mix_time=3,
-    #     mix_vol=50,
-    #     spread="wide",
-    # ))
-
-    asyncio.run(handler.remove_liquid(
-        vols=[100]*16,
-        sources=well_containers.children[-16:],
-        waste_liquid=well_containers.children[:16], # 这个有些奇怪，但是好像也只能这么写
+    asyncio.run(handler.add_liquid(
+        asp_vols=[100]*16,
+        dis_vols=[100]*16,
+        reagent_sources=well_containers.children[-16:],
+        targets=well_containers.children[:16],
         use_channels=[0, 1, 2, 3, 4, 5, 6, 7],
         flow_rates=[None] * 32,
         offsets=[Coordinate(0, 0, 0)] * 32,
-        liquid_height=[None] * 32,
-        blow_out_air_volume=[None] * 32,
+        liquid_height=[None] * 16,
+        blow_out_air_volume=[None] * 16,
+        delays=None,
+        mix_time=3,
+        mix_vol=50,
         spread="wide",
     ))
+
+    # asyncio.run(handler.remove_liquid(
+    #     vols=[100]*16,
+    #     sources=well_containers.children[-16:],
+    #     waste_liquid=well_containers.children[:16], # 这个有些奇怪，但是好像也只能这么写
+    #     use_channels=[0, 1, 2, 3, 4, 5, 6, 7],
+    #     flow_rates=[None] * 32,
+    #     offsets=[Coordinate(0, 0, 0)] * 32,
+    #     liquid_height=[None] * 32,
+    #     blow_out_air_volume=[None] * 32,
+    #     spread="wide",
+    # ))
     # asyncio.run(handler.transfer_liquid(
     #     asp_vols=[100]*16,
     #     dis_vols=[100]*16,
