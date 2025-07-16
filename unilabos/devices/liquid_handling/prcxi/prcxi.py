@@ -108,8 +108,6 @@ class PRCXI9300Trash(Trash):
         return data
 
 
-
-
 class PRCXI9300Handler(LiquidHandlerAbstract):
     support_touch_tip = False
     @property
