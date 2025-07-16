@@ -1033,22 +1033,33 @@ if __name__ == "__main__":
     # asyncio.run(handler.drop_tips(tip_rack.children[8:16],[0,1,2,3,4,5,6,7]))
     # asyncio.run(handler.mix(well_containers.children[:8], mix_time=3, mix_vol=50, height_to_bottom=0.5, offsets=Coordinate(0, 0, 0), mix_rate=100))
     #print(json.dumps(handler._unilabos_backend.steps_todo_list, indent=2))  # Print matrix info
-    asyncio.run(handler.add_liquid(
-        asp_vols=[100]*16,
-        dis_vols=[100]*16,
-        reagent_sources=well_containers.children[-16:],
-        targets=well_containers.children[:16],
+    # asyncio.run(handler.add_liquid(
+    #     asp_vols=[100]*16,
+    #     dis_vols=[100]*16,
+    #     reagent_sources=well_containers.children[-16:],
+    #     targets=well_containers.children[:16],
+    #     use_channels=[0, 1, 2, 3, 4, 5, 6, 7],
+    #     flow_rates=[None] * 32,
+    #     offsets=[Coordinate(0, 0, 0)] * 32,
+    #     liquid_height=[None] * 16,
+    #     blow_out_air_volume=[None] * 16,
+    #     delays=None,
+    #     mix_time=3,
+    #     mix_vol=50,
+    #     spread="wide",
+    # ))
+
+    asyncio.run(handler.remove_liquid(
+        vols=[100]*16,
+        sources=well_containers.children[-16:],
+        waste_liquid=well_containers.children[:16], # 这个有些奇怪，但是好像也只能这么写
         use_channels=[0, 1, 2, 3, 4, 5, 6, 7],
-        flow_rates=[None] * 16,
-        offsets=[Coordinate(0, 0, 0)] * 16,
-        liquid_height=[None] * 16,
-        blow_out_air_volume=[None] * 16,
-        delays=None,
-        mix_time=3,
-        mix_vol=50,
+        flow_rates=[None] * 32,
+        offsets=[Coordinate(0, 0, 0)] * 32,
+        liquid_height=[None] * 32,
+        blow_out_air_volume=[None] * 32,
         spread="wide",
     ))
-
     # asyncio.run(handler.transfer_liquid(
     #     asp_vols=[100]*16,
     #     dis_vols=[100]*16,
