@@ -248,12 +248,6 @@ virtual_column:
         goal_default:
           column: ''
           from_vessel: ''
-          pct1: ''
-          pct2: ''
-          ratio: ''
-          rf: ''
-          solvent1: ''
-          solvent2: ''
           to_vessel: ''
         handles: []
         result:
@@ -280,30 +274,12 @@ virtual_column:
                   type: string
                 from_vessel:
                   type: string
-                pct1:
-                  type: string
-                pct2:
-                  type: string
-                ratio:
-                  type: string
-                rf:
-                  type: string
-                solvent1:
-                  type: string
-                solvent2:
-                  type: string
                 to_vessel:
                   type: string
               required:
               - from_vessel
               - to_vessel
               - column
-              - rf
-              - pct1
-              - pct2
-              - solvent1
-              - solvent2
-              - ratio
               title: RunColumn_Goal
               type: object
             result:
@@ -331,7 +307,9 @@ virtual_column:
       column_length: float
       column_state: str
       current_flow_rate: float
+      current_phase: str
       current_status: str
+      final_volume: float
       max_flow_rate: float
       processed_volume: float
       progress: float
@@ -375,8 +353,12 @@ virtual_column:
           type: string
         current_flow_rate:
           type: number
+        current_phase:
+          type: string
         current_status:
           type: string
+        final_volume:
+          type: number
         max_flow_rate:
           type: number
         processed_volume:
@@ -395,6 +377,8 @@ virtual_column:
       - processed_volume
       - progress
       - current_status
+      - current_phase
+      - final_volume
       type: object
   version: 0.0.1
 virtual_filter:
@@ -885,15 +869,11 @@ virtual_heatchill:
           time: time
           vessel: vessel
         goal_default:
-          pressure: ''
           purpose: ''
-          reflux_solvent: ''
           stir: false
           stir_speed: 0.0
           temp: 0.0
-          temp_spec: ''
           time: 0.0
-          time_spec: ''
           vessel: ''
         handles: []
         result:
@@ -911,11 +891,7 @@ virtual_heatchill:
               type: object
             goal:
               properties:
-                pressure:
-                  type: string
                 purpose:
-                  type: string
-                reflux_solvent:
                   type: string
                 stir:
                   type: boolean
@@ -923,22 +899,14 @@ virtual_heatchill:
                   type: number
                 temp:
                   type: number
-                temp_spec:
-                  type: string
                 time:
                   type: number
-                time_spec:
-                  type: string
                 vessel:
                   type: string
               required:
               - vessel
               - temp
               - time
-              - temp_spec
-              - time_spec
-              - pressure
-              - reflux_solvent
               - stir
               - stir_speed
               - purpose
@@ -946,16 +914,13 @@ virtual_heatchill:
               type: object
             result:
               properties:
-                message:
-                  type: string
                 return_info:
                   type: string
                 success:
                   type: boolean
               required:
-              - success
-              - message
               - return_info
+              - success
               title: HeatChill_Result
               type: object
           required:
@@ -1066,7 +1031,11 @@ virtual_heatchill:
     module: unilabos.devices.virtual.virtual_heatchill:VirtualHeatChill
     status_types:
       is_stirring: bool
+      max_stir_speed: float
+      max_temp: float
+      min_temp: float
       operation_mode: str
+      progress: float
       remaining_time: float
       status: str
       stir_speed: float
@@ -1095,8 +1064,16 @@ virtual_heatchill:
       properties:
         is_stirring:
           type: boolean
+        max_stir_speed:
+          type: number
+        max_temp:
+          type: number
+        min_temp:
+          type: number
         operation_mode:
           type: string
+        progress:
+          type: number
         remaining_time:
           type: number
         status:
@@ -1109,6 +1086,10 @@ virtual_heatchill:
       - is_stirring
       - stir_speed
       - remaining_time
+      - progress
+      - max_temp
+      - min_temp
+      - max_stir_speed
       type: object
   version: 0.0.1
 virtual_multiway_valve:
@@ -1209,7 +1190,7 @@ virtual_multiway_valve:
         handles: []
         result: {}
         schema:
-          description: open的参数schema
+          description: ''
           properties:
             feedback: {}
             goal:
@@ -1673,18 +1654,13 @@ virtual_pump:
           volume: volume
         goal_default:
           amount: ''
-          event: ''
-          flowrate: 0.0
           from_vessel: ''
-          rate_spec: ''
           rinsing_repeats: 0
           rinsing_solvent: ''
           rinsing_volume: 0.0
           solid: false
-          through: ''
           time: 0.0
           to_vessel: ''
-          transfer_flowrate: 0.0
           viscous: false
           volume: 0.0
         handles: []
@@ -1740,13 +1716,7 @@ virtual_pump:
               properties:
                 amount:
                   type: string
-                event:
-                  type: string
-                flowrate:
-                  type: number
                 from_vessel:
-                  type: string
-                rate_spec:
                   type: string
                 rinsing_repeats:
                   maximum: 2147483647
@@ -1758,14 +1728,10 @@ virtual_pump:
                   type: number
                 solid:
                   type: boolean
-                through:
-                  type: string
                 time:
                   type: number
                 to_vessel:
                   type: string
-                transfer_flowrate:
-                  type: number
                 viscous:
                   type: boolean
                 volume:
@@ -1781,11 +1747,6 @@ virtual_pump:
               - rinsing_volume
               - rinsing_repeats
               - solid
-              - flowrate
-              - transfer_flowrate
-              - rate_spec
-              - event
-              - through
               title: PumpTransfer_Goal
               type: object
             result:
@@ -1916,8 +1877,8 @@ virtual_rotavap:
         type: UniLabJsonCommandAsync
       evaporate:
         feedback:
-          status: status
           current_device: current_device
+          status: status
         goal:
           pressure: pressure
           stir_speed: stir_speed
@@ -1926,7 +1887,6 @@ virtual_rotavap:
           vessel: vessel
         goal_default:
           pressure: 0.0
-          solvent: ''
           stir_speed: 0.0
           temp: 0.0
           time: 0.0
@@ -1985,8 +1945,6 @@ virtual_rotavap:
               properties:
                 pressure:
                   type: number
-                solvent:
-                  type: string
                 stir_speed:
                   type: number
                 temp:
@@ -2001,7 +1959,6 @@ virtual_rotavap:
               - temp
               - time
               - stir_speed
-              - solvent
               title: Evaporate_Goal
               type: object
             result:
@@ -2172,7 +2129,6 @@ virtual_separator:
         goal_default:
           from_vessel: ''
           product_phase: ''
-          product_vessel: ''
           purpose: ''
           repeats: 0
           separation_vessel: ''
@@ -2183,10 +2139,7 @@ virtual_separator:
           stir_time: 0.0
           through: ''
           to_vessel: ''
-          vessel: ''
-          volume: ''
           waste_phase_to_vessel: ''
-          waste_vessel: ''
         handles: []
         result:
           message: message
@@ -2243,8 +2196,6 @@ virtual_separator:
                   type: string
                 product_phase:
                   type: string
-                product_vessel:
-                  type: string
                 purpose:
                   type: string
                 repeats:
@@ -2267,13 +2218,7 @@ virtual_separator:
                   type: string
                 to_vessel:
                   type: string
-                vessel:
-                  type: string
-                volume:
-                  type: string
                 waste_phase_to_vessel:
-                  type: string
-                waste_vessel:
                   type: string
               required:
               - purpose
@@ -2289,24 +2234,17 @@ virtual_separator:
               - stir_time
               - stir_speed
               - settling_time
-              - vessel
-              - volume
-              - product_vessel
-              - waste_vessel
               title: Separate_Goal
               type: object
             result:
               properties:
-                message:
-                  type: string
                 return_info:
                   type: string
                 success:
                   type: boolean
               required:
-              - success
-              - message
               - return_info
+              - success
               title: Separate_Result
               type: object
           required:
@@ -2465,26 +2403,6 @@ virtual_solenoid_valve:
           title: is_closed参数
           type: object
         type: UniLabJsonCommand
-      auto-open:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: open的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: open参数
-          type: object
-        type: UniLabJsonCommandAsync
       auto-reset:
         feedback: {}
         goal: {}
@@ -2503,53 +2421,6 @@ virtual_solenoid_valve:
           required:
           - goal
           title: reset参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-set_state:
-        feedback: {}
-        goal: {}
-        goal_default:
-          command: null
-        handles: []
-        result: {}
-        schema:
-          description: set_state的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                command:
-                  type: string
-              required:
-              - command
-              type: object
-            result: {}
-          required:
-          - goal
-          title: set_state参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-set_valve_position:
-        feedback: {}
-        goal: {}
-        goal_default:
-          command: null
-        handles: []
-        result: {}
-        schema:
-          description: set_valve_position的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                command:
-                  type: string
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: set_valve_position参数
           type: object
         type: UniLabJsonCommandAsync
       auto-toggle:
@@ -2576,13 +2447,12 @@ virtual_solenoid_valve:
         feedback: {}
         goal:
           command: CLOSED
-        goal_default:
-          command: ''
+        goal_default: {}
         handles: []
         result:
           success: success
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -2614,7 +2484,7 @@ virtual_solenoid_valve:
         handles: []
         result: {}
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -2648,7 +2518,7 @@ virtual_solenoid_valve:
         handles: []
         result: {}
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
               properties: {}
@@ -2687,15 +2557,18 @@ virtual_solenoid_valve:
           command: ''
         handles: []
         result:
-          success: success
           message: message
+          success: success
           valve_position: valve_position
         schema:
           description: ''
           properties:
             feedback:
-              properties: {}
-              required: []
+              properties:
+                status:
+                  type: string
+              required:
+              - status
               title: SendCmd_Feedback
               type: object
             goal:
@@ -2708,15 +2581,13 @@ virtual_solenoid_valve:
               type: object
             result:
               properties:
+                return_info:
+                  type: string
                 success:
                   type: boolean
-                message:
-                  type: string
-                valve_position:
-                  type: string
               required:
+              - return_info
               - success
-              - message
               title: SendCmd_Result
               type: object
           required:
@@ -2779,6 +2650,7 @@ virtual_solenoid_valve:
       - valve_position
       - state
       type: object
+  version: 0.0.1
 virtual_stirrer:
   class:
     action_value_mappings:
@@ -2894,13 +2766,9 @@ virtual_stirrer:
           stir_speed: stir_speed
           stir_time: stir_time
         goal_default:
-          event: ''
           settling_time: 0.0
           stir_speed: 0.0
           stir_time: 0.0
-          time: ''
-          time_spec: ''
-          vessel: ''
         handles: []
         result:
           success: success
@@ -2917,25 +2785,13 @@ virtual_stirrer:
               type: object
             goal:
               properties:
-                event:
-                  type: string
                 settling_time:
                   type: number
                 stir_speed:
                   type: number
                 stir_time:
                   type: number
-                time:
-                  type: string
-                time_spec:
-                  type: string
-                vessel:
-                  type: string
               required:
-              - vessel
-              - time
-              - event
-              - time_spec
               - stir_time
               - stir_speed
               - settling_time
@@ -2943,16 +2799,13 @@ virtual_stirrer:
               type: object
             result:
               properties:
-                message:
-                  type: string
                 return_info:
                   type: string
                 success:
                   type: boolean
               required:
-              - success
-              - message
               - return_info
+              - success
               title: Stir_Result
               type: object
           required:
@@ -3015,7 +2868,10 @@ virtual_stirrer:
     status_types:
       current_speed: float
       current_vessel: str
+      device_info: dict
       is_stirring: bool
+      max_speed: float
+      min_speed: float
       operation_mode: str
       remaining_time: float
       status: str
@@ -3046,8 +2902,14 @@ virtual_stirrer:
           type: number
         current_vessel:
           type: string
+        device_info:
+          type: object
         is_stirring:
           type: boolean
+        max_speed:
+          type: number
+        min_speed:
+          type: number
         operation_mode:
           type: string
         remaining_time:
@@ -3061,6 +2923,9 @@ virtual_stirrer:
       - current_speed
       - is_stirring
       - remaining_time
+      - max_speed
+      - min_speed
+      - device_info
       type: object
   version: 0.0.1
 virtual_transfer_pump:

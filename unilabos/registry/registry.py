@@ -438,7 +438,8 @@ class Registry:
 
                             # 恢复原有的description信息（auto开头的不修改）
                             for action_name, description in old_descriptions.items():
-                                device_config["class"]["action_value_mappings"][action_name]["schema"]["description"] = description
+                                if action_name in device_config["class"]["action_value_mappings"]:  # 有一些会被删除
+                                    device_config["class"]["action_value_mappings"][action_name]["schema"]["description"] = description
                             device_config["init_param_schema"] = {}
                             device_config["init_param_schema"]["config"] = self._generate_unilab_json_command_schema(
                                 enhanced_info["init_params"], "__init__"

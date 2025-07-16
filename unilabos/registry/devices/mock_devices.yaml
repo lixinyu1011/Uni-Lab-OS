@@ -539,15 +539,11 @@ mock_heater:
           time: time
           vessel: vessel
         goal_default:
-          pressure: ''
           purpose: ''
-          reflux_solvent: ''
           stir: false
           stir_speed: 0.0
           temp: 0.0
-          temp_spec: ''
           time: 0.0
-          time_spec: ''
           vessel: ''
         handles: []
         result:
@@ -565,11 +561,7 @@ mock_heater:
               type: object
             goal:
               properties:
-                pressure:
-                  type: string
                 purpose:
-                  type: string
-                reflux_solvent:
                   type: string
                 stir:
                   type: boolean
@@ -577,22 +569,14 @@ mock_heater:
                   type: number
                 temp:
                   type: number
-                temp_spec:
-                  type: string
                 time:
                   type: number
-                time_spec:
-                  type: string
                 vessel:
                   type: string
               required:
               - vessel
               - temp
               - time
-              - temp_spec
-              - time_spec
-              - pressure
-              - reflux_solvent
               - stir
               - stir_speed
               - purpose
@@ -600,16 +584,13 @@ mock_heater:
               type: object
             result:
               properties:
-                message:
-                  type: string
                 return_info:
                   type: string
                 success:
                   type: boolean
               required:
-              - success
-              - message
               - return_info
+              - success
               title: HeatChill_Result
               type: object
           required:
@@ -855,18 +836,13 @@ mock_pump:
           volume: volume
         goal_default:
           amount: ''
-          event: ''
-          flowrate: 0.0
           from_vessel: ''
-          rate_spec: ''
           rinsing_repeats: 0
           rinsing_solvent: ''
           rinsing_volume: 0.0
           solid: false
-          through: ''
           time: 0.0
           to_vessel: ''
-          transfer_flowrate: 0.0
           viscous: false
           volume: 0.0
         handles: []
@@ -922,13 +898,7 @@ mock_pump:
               properties:
                 amount:
                   type: string
-                event:
-                  type: string
-                flowrate:
-                  type: number
                 from_vessel:
-                  type: string
-                rate_spec:
                   type: string
                 rinsing_repeats:
                   maximum: 2147483647
@@ -940,14 +910,10 @@ mock_pump:
                   type: number
                 solid:
                   type: boolean
-                through:
-                  type: string
                 time:
                   type: number
                 to_vessel:
                   type: string
-                transfer_flowrate:
-                  type: number
                 viscous:
                   type: boolean
                 volume:
@@ -963,11 +929,6 @@ mock_pump:
               - rinsing_volume
               - rinsing_repeats
               - solid
-              - flowrate
-              - transfer_flowrate
-              - rate_spec
-              - event
-              - through
               title: PumpTransfer_Goal
               type: object
             result:
@@ -1558,7 +1519,6 @@ mock_separator:
         goal_default:
           from_vessel: ''
           product_phase: ''
-          product_vessel: ''
           purpose: ''
           repeats: 0
           separation_vessel: ''
@@ -1569,10 +1529,7 @@ mock_separator:
           stir_time: 0.0
           through: ''
           to_vessel: ''
-          vessel: ''
-          volume: ''
           waste_phase_to_vessel: ''
-          waste_vessel: ''
         handles: []
         result:
           success: success
@@ -1628,8 +1585,6 @@ mock_separator:
                   type: string
                 product_phase:
                   type: string
-                product_vessel:
-                  type: string
                 purpose:
                   type: string
                 repeats:
@@ -1652,13 +1607,7 @@ mock_separator:
                   type: string
                 to_vessel:
                   type: string
-                vessel:
-                  type: string
-                volume:
-                  type: string
                 waste_phase_to_vessel:
-                  type: string
-                waste_vessel:
                   type: string
               required:
               - purpose
@@ -1674,24 +1623,17 @@ mock_separator:
               - stir_time
               - stir_speed
               - settling_time
-              - vessel
-              - volume
-              - product_vessel
-              - waste_vessel
               title: Separate_Goal
               type: object
             result:
               properties:
-                message:
-                  type: string
                 return_info:
                   type: string
                 success:
                   type: boolean
               required:
-              - success
-              - message
               - return_info
+              - success
               title: Separate_Result
               type: object
           required:
@@ -2468,13 +2410,9 @@ mock_stirrer_new:
           stir_speed: stir_speed
           stir_time: stir_time
         goal_default:
-          event: ''
           settling_time: 0.0
           stir_speed: 0.0
           stir_time: 0.0
-          time: ''
-          time_spec: ''
-          vessel: ''
         handles: []
         result:
           success: success
@@ -2491,25 +2429,13 @@ mock_stirrer_new:
               type: object
             goal:
               properties:
-                event:
-                  type: string
                 settling_time:
                   type: number
                 stir_speed:
                   type: number
                 stir_time:
                   type: number
-                time:
-                  type: string
-                time_spec:
-                  type: string
-                vessel:
-                  type: string
               required:
-              - vessel
-              - time
-              - event
-              - time_spec
               - stir_time
               - stir_speed
               - settling_time
@@ -2517,16 +2443,13 @@ mock_stirrer_new:
               type: object
             result:
               properties:
-                message:
-                  type: string
                 return_info:
                   type: string
                 success:
                   type: boolean
               required:
-              - success
-              - message
               - return_info
+              - success
               title: Stir_Result
               type: object
           required:

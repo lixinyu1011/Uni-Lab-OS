@@ -242,13 +242,9 @@ separator.homemade:
           stir_speed: stir_speed
           stir_time: stir_time,
         goal_default:
-          event: ''
           settling_time: 0.0
           stir_speed: 0.0
           stir_time: 0.0
-          time: ''
-          time_spec: ''
-          vessel: ''
         handles: []
         result:
           success: success
@@ -265,25 +261,13 @@ separator.homemade:
               type: object
             goal:
               properties:
-                event:
-                  type: string
                 settling_time:
                   type: number
                 stir_speed:
                   type: number
                 stir_time:
                   type: number
-                time:
-                  type: string
-                time_spec:
-                  type: string
-                vessel:
-                  type: string
               required:
-              - vessel
-              - time
-              - event
-              - time_spec
               - stir_time
               - stir_speed
               - settling_time
@@ -291,16 +275,13 @@ separator.homemade:
               type: object
             result:
               properties:
-                message:
-                  type: string
                 return_info:
                   type: string
                 success:
                   type: boolean
               required:
-              - success
-              - message
               - return_info
+              - success
               title: Stir_Result
               type: object
           required:
