@@ -66,14 +66,14 @@ class PRCXI9300Deck(Deck):
         self.slots = [None] * 6  # PRCXI 9300 有 6 个槽位
 
 
-class PRCXI9300Container(Plate):
+class PRCXI9300Container(Plate, TipRack):
     """PRCXI 9300 的专用 Deck 类，继承自 Deck。
 
     该类定义了 PRCXI 9300 的工作台布局和槽位信息。
     """
 
-    def __init__(self, name: str, size_x: float, size_y: float, size_z: float, category: str, ordering: collections.OrderedDict):
-        super().__init__(name, size_x, size_y, size_z, category=category, ordering=ordering)
+    def __init__(self, name: str, size_x: float, size_y: float, size_z: float, category: str, ordering: collections.OrderedDict, model: Optional[str] = None,):
+        super().__init__(name, size_x, size_y, size_z, category=category, ordering=ordering, model=model)
         self._unilabos_state = {}
 
     def load_state(self, state: Dict[str, Any]) -> None:
@@ -1018,7 +1018,7 @@ if __name__ == "__main__":
     # })
 
     # from pylabrobot.resources.opentrons.tip_racks import tipone_96_tiprack_200ul
-    # from pylabrobot.resources.opentrons.plates import corning_96_wellplate_360ul_flat 
+    # from pylabrobot.resources.opentrons.plates import corning_96_wellplate_360ul_flat
 
     # tip_rack = tipone_96_tiprack_200ul("TipRack")
     # well_containers = corning_96_wellplate_360ul_flat("Plate")
@@ -1034,7 +1034,7 @@ if __name__ == "__main__":
     # deck.assign_child_resource(plate5, location=Coordinate(0, 0, 0))
     # deck.assign_child_resource(plate6, location=Coordinate(0, 0, 0))
 
-    # print(plate2)  
+    # print(plate2)
     # # plate_2_liquids = [[(None, 500)]]*96
 
     # # plate2.set_well_liquids(plate_2_liquids)
@@ -1108,43 +1108,12 @@ if __name__ == "__main__":
     # # input("Press Enter to continue...")  # Wait for user input before proceeding
     # # print("PRCXI9300Handler initialized with deck and host settings.")
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     # Example usage
     # 1. 用导出的json，给每个T1 T2板子设定相应的物料，如果是孔板和枪头盒，要对应区分
     # 2. 设计一个单点动作流程，可以跑
     # 3.
     deck = PRCXI9300Deck(name="PRCXI_Deck", size_x=100, size_y=100, size_z=100)
-    plate1 = PRCXI9300Container(name="HPLCPlateT1", size_x=50, size_y=50, size_z=10, category="plate", ordering=collections.OrderedDict())
-    plate1.load_state({
-        "Material": {
-            "uuid": "548bbc3df0d4447586f2c19d2c0c0c55",
-            "Code": "HPLC01",
-            "Name":  "HPLC料盘"
-        }
-    })
+
 
     plate2 = PRCXI9300Container(name="plateT2", size_x=50, size_y=50, size_z=10, category="plate", ordering=collections.OrderedDict())
     plate2.load_state({
@@ -1152,7 +1121,7 @@ if __name__ == "__main__":
             "uuid": "04211a2dc93547fe9bf6121eac533650"
         }
     })
-    
+
     #储液槽
 
     plate3 = PRCXI9300Container(name="plateT3", size_x=50, size_y=50, size_z=10, category="plate", ordering=collections.OrderedDict())
@@ -1239,8 +1208,44 @@ if __name__ == "__main__":
     from pylabrobot.resources.opentrons.tip_racks import tipone_96_tiprack_200ul,opentrons_96_tiprack_10ul
     from pylabrobot.resources.opentrons.plates import corning_96_wellplate_360ul_flat, nest_96_wellplate_2ml_deep
 
-    tip_rack = opentrons_96_tiprack_10ul("TipRack")
-    well_containers = nest_96_wellplate_2ml_deep("Plate")
+
+    def get_well_container(name: str) -> PRCXI9300Container:
+        well_containers = corning_96_wellplate_360ul_flat(name).serialize()
+        plate = PRCXI9300Container(name=name, size_x=50, size_y=50, size_z=10, category="plate",
+                           ordering=collections.OrderedDict())
+        plate_serialized = plate.serialize()
+        plate_serialized["parent_name"] = deck.name
+        well_containers.update({k: v for k, v in plate_serialized.items() if k not in ["children"]})
+        new_plate: PRCXI9300Container = PRCXI9300Container.deserialize(well_containers)
+        return new_plate
+
+    def get_tip_rack(name: str) -> PRCXI9300Container:
+        tip_racks = opentrons_96_tiprack_10ul("name").serialize()
+        tip_rack = PRCXI9300Container(name=name, size_x=50, size_y=50, size_z=10, category="tip_rack",
+                           ordering=collections.OrderedDict())
+        tip_rack_serialized = tip_rack.serialize()
+        tip_rack_serialized["parent_name"] = deck.name
+        tip_racks.update({k: v for k, v in tip_rack_serialized.items() if k not in ["children"]})
+        new_tip_rack: PRCXI9300Container = PRCXI9300Container.deserialize(tip_racks)
+        return new_tip_rack
+
+    plate1 = get_well_container("HPLCPlateT1")
+    plate1.load_state({
+        "Material": {
+            "uuid": "548bbc3df0d4447586f2c19d2c0c0c55",
+            "Code": "HPLC01",
+            "Name":  "HPLC料盘"
+        }
+    })
+
+    plate2 = get_well_container("HPLCPlateT1")
+    plate2.load_state({
+        "Material": {
+            "uuid": "548bbc3df0d4447586f2c19d2c0c0c55",
+            "Code": "HPLC01",
+            "Name":  "HPLC料盘"
+        }
+    })
     # from pprint import pprint
     # pprint(well_containers.children)
     plate1.assign_child_resource(well_containers, location=Coordinate(0, 0, 0))
@@ -1258,7 +1263,9 @@ if __name__ == "__main__":
     plate13.assign_child_resource(well_containers, location=Coordinate(0, 0, 0))
 
     deck.assign_child_resource(plate1, location=Coordinate(0, 0, 0))
-    deck.assign_child_resource(plate2, location=Coordinate(0, 0, 0))
+
+
+
     deck.assign_child_resource(plate3, location=Coordinate(0, 0, 0))
     deck.assign_child_resource(plate4, location=Coordinate(0, 0, 0))
     deck.assign_child_resource(plate5, location=Coordinate(0, 0, 0))
@@ -1275,10 +1282,12 @@ if __name__ == "__main__":
     handler.set_tiprack([tip_rack])  # Set the tip rack for the handler
     asyncio.run(handler.setup())  # Initialize the handler and setup the connection
     from pylabrobot.resources import set_volume_tracking
-
     # from pylabrobot.resources import set_tip_tracking
     set_volume_tracking(enabled=True)
-    plate2.set_well_liquids([("Water", 100)] * plate2.num_items)
+
+    plate1.set_well_liquids([("Water", 100)] * plate1.num_items)
+
+
     asyncio.run(handler.create_protocol(protocol_name="Test Protocol"))  # Initialize the backend and setup the connection
     # asyncio.run(handler.pick_up_tips(tip_rack.children[:8],[0,1,2,3,4,5,6,7]))
 
@@ -1292,8 +1301,8 @@ if __name__ == "__main__":
     asyncio.run(handler.add_liquid(
         asp_vols=[100]*16,
         dis_vols=[100]*16,
-        reagent_sources=well_containers.children[-16:],
-        targets=well_containers.children[:16],
+        reagent_sources=final_plate_2.children[-16:],
+        targets=final_plate_2.children[:16],
         use_channels=[0, 1, 2, 3, 4, 5, 6, 7],
         flow_rates=[None] * 32,
         offsets=[Coordinate(0, 0, 0)] * 32,
