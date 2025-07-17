@@ -1244,9 +1244,10 @@ if __name__ == "__main__":
     with open("deck.json", "w", encoding="utf-8") as f:
         json.dump(A, f, indent=4, ensure_ascii=False)
 
+    print(plate11.get_item('A1').tracker.get_used_volume())
     asyncio.run(handler.create_protocol(protocol_name="Test Protocol"))  # Initialize the backend and setup the connection
     asyncio.run(handler.pick_up_tips([plate8.children[3]],[0]))
-    asyncio.run(handler.aspirate([plate11.children[2]],[10], [0]))
+    asyncio.run(handler.aspirate([plate11.children[0]],[10], [0]))
     asyncio.run(handler.dispense([plate1.children[3]],[10],[0]))
     asyncio.run(handler.mix([plate1.children[3]], mix_time=3, mix_vol=5, height_to_bottom=0.5, offsets=Coordinate(0, 0, 0), mix_rate=100))
     asyncio.run(handler.discard_tips())
