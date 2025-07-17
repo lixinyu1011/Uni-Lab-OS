@@ -6841,6 +6841,46 @@ liquid_handler.prcxi:
           title: LiquidHandlerPickUpTips
           type: object
         type: LiquidHandlerPickUpTips
+      set_liquid:
+        feedback: {}
+        goal: {}
+        goal_default:
+          liquid_names: []
+          volumes: []
+          wells: []
+        handles: []
+        placeholder_keys:
+          wells: unilabos_resources
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                liquid_names:
+                  items:
+                    type: string
+                  type: array
+                volumes:
+                  items:
+                    type: number
+                  type: array
+                wells:
+                  items:
+                    type: object
+                  type: array
+              required:
+              - wells
+              - liquid_names
+              - volumes
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_liquid参数
+          type: object
+        type: LiquidHandlerSetLiquid
     module: unilabos.devices.liquid_handling.prcxi.prcxi:PRCXI9300Handler
     status_types:
       reset_ok: bool

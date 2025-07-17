@@ -543,6 +543,11 @@ class LiquidHandlerAbstract(LiquidHandlerMiddleware):
         self._simulator = simulator
         super().__init__(backend, deck, simulator, channel_num)
 
+    @classmethod
+    def set_liquid(self, wells: list[Well], liquid_names: list[str], volumes: list[float]):
+        """Set the liquid in a well."""
+        for well, liquid_name, volume in zip(wells, liquid_names, volumes):
+            well.set_liquids([(liquid_name, volume)])  # type: ignore
     # ---------------------------------------------------------------
     # REMOVE LIQUID --------------------------------------------------
     # ---------------------------------------------------------------

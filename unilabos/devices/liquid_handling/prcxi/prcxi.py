@@ -132,6 +132,9 @@ class PRCXI9300Handler(LiquidHandlerAbstract):
         self._unilabos_backend = PRCXI9300Backend(tablets_info, host, port, timeout, channel_num, axis, setup, debug, matrix_id)
         super().__init__(backend=self._unilabos_backend, deck=deck, simulator=True, channel_num=channel_num)
 
+    def set_liquid(self, wells: list[Well], liquid_names: list[str], volumes: list[float]):
+        return super().set_liquid(wells, liquid_names, volumes)
+
     async def create_protocol(
         self,
         protocol_name: str = "",
