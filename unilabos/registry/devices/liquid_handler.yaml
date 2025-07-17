@@ -4469,11 +4469,17 @@ liquid_handler:
       properties:
         backend:
           type: string
+        channel_num:
+          default: 8
+          type: integer
         deck:
           type: string
+        simulator:
+          type: boolean
       required:
       - backend
       - deck
+      - simulator
       type: object
     data:
       properties: {}
@@ -6845,12 +6851,21 @@ liquid_handler.prcxi:
   init_param_schema:
     config:
       properties:
+        axis:
+          default: Left
+          type: string
+        channel_num:
+          default: 8
+          type: string
         debug:
           default: false
           type: string
         deck:
           type: string
         host:
+          type: string
+        matrix_id:
+          default: ''
           type: string
         port:
           type: integer
