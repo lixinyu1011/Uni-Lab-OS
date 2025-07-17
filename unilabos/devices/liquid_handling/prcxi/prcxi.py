@@ -427,10 +427,7 @@ class PRCXI9300Backend(LiquidHandlerBackend):
 
     async def pick_up_tips(self, ops: List[Pickup], use_channels: List[int] = None):
         """Pick up tips from the specified resource."""
-       
-        if len(ops) != 8:
-            raise ValueError(f"PRCXI9300Backend pick_up_tips: Expected 8 pickups, got {len(ops)}")
-
+    
         plate_indexes = []
         for op in ops:
             plate = op.resource.parent.parent
@@ -451,7 +448,10 @@ class PRCXI9300Backend(LiquidHandlerBackend):
         PlateNo = plate_indexes[0] + 1
         hole_col = tip_columns[0] + 1
 
-        step = self.api_client.Load(dosage=0, plate_no=PlateNo, is_whole_plate=False, hole_row=1, hole_col=hole_col,
+        if self.channel_num == 1:
+            hole_row = tipspot_index % 8 + 1 
+
+        step = self.api_client.Load(dosage=0, plate_no=PlateNo, is_whole_plate=False, hole_row=hole_row, hole_col=hole_col,
                                     blending_times=0, balance_height=0, plate_or_hole=f"H{hole_col}-8,T{PlateNo}",
                                     hole_numbers="1,2,3,4,5,6,7,8")
         self.steps_todo_list.append(step)
@@ -571,9 +571,6 @@ class PRCXI9300Backend(LiquidHandlerBackend):
 
         """Aspirate liquid from the specified resources."""
 
-        if len(ops) != 8:
-            raise ValueError(f"PRCXI9300Backend aspirate: Expected 8 aspirate, got {len(ops)}")
-        
         plate_indexes = []
         for op in ops:
             plate = op.resource.parent.parent
@@ -600,7 +597,10 @@ class PRCXI9300Backend(LiquidHandlerBackend):
         PlateNo = plate_indexes[0] + 1
         hole_col = tip_columns[0] + 1
 
-        step = self.api_client.Imbibing(dosage=int(volumes[0]), plate_no=PlateNo, is_whole_plate=False, hole_row=1,
+        if self.channel_num == 1:
+            hole_row = tipspot_index % 8 + 1 
+
+        step = self.api_client.Imbibing(dosage=int(volumes[0]), plate_no=PlateNo, is_whole_plate=False, hole_row=hole_row,
                                         hole_col=hole_col, blending_times=0, balance_height=0,
                                         plate_or_hole=f"H{hole_col}-8,T{PlateNo}", hole_numbers="1,2,3,4,5,6,7,8")
         self.steps_todo_list.append(step)
@@ -611,9 +611,6 @@ class PRCXI9300Backend(LiquidHandlerBackend):
         
         """Dispense liquid into the specified resources."""
 
-        if len(ops) != 8:
-            raise ValueError(f"PRCXI9300Backend dispense: Expected 8 dispense, got {len(ops)}")
-        
         plate_indexes = []
         for op in ops:
             plate = op.resource.parent.parent
@@ -640,12 +637,15 @@ class PRCXI9300Backend(LiquidHandlerBackend):
         PlateNo = plate_indexes[0] + 1
         hole_col = tip_columns[0] + 1
 
+        if self.channel_num == 1:
+            hole_row = tipspot_index % 8 + 1
+
         step = self.api_client.Tapping(
             "Left",
             dosage=int(volumes[0]),
             plate_no=PlateNo,
             is_whole_plate=False,
-            hole_row=1,
+            hole_row=hole_row,
             hole_col=hole_col,
             blending_times=0,
             balance_height=0,
@@ -1278,6 +1278,7 @@ if __name__ == "__main__":
     asyncio.run(handler.dispense(plate1.children[3],[10],[1]))
     asyncio.run(handler.mix(plate1.children[3], mix_time=3, mix_vol=5, height_to_bottom=0.5, offsets=Coordinate(0, 0, 0), mix_rate=100))
     asyncio.run(handler.discard_tips())
+
     # asyncio.run(handler.discard_tips())
     # asyncio.run(handler.mix(well_containers.children[:8
     # ], mix_time=3, mix_vol=50, height_to_bottom=0.5, offsets=Coordinate(0, 0, 0), mix_rate=100))
