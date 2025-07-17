@@ -660,7 +660,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                             if len(action_kwargs[k]) > 1:
                                 for i in action_kwargs[k]:
                                     r = ResourceGet.Request()
-                                    r.id = i["id"]
+                                    r.id = i["id"]  # splash optional
                                     r.with_children = True
                                     response = await self._resource_clients["resource_get"].call_async(r)
                                     current_resources.extend(response.resources)

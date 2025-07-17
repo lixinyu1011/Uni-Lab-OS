@@ -27,10 +27,10 @@ from pylabrobot.resources import (
 
 
 class LiquidHandlerMiddleware(LiquidHandler):
-    def __init__(self, backend: LiquidHandlerBackend, deck: Deck, simulator: bool = False):
+    def __init__(self, backend: LiquidHandlerBackend, deck: Deck, simulator: bool = False, channel_num: int = 8):
         self._simulator = simulator
         if simulator:
-            self._simulate_backend = LiquidHandlerChatterboxBackend(8)
+            self._simulate_backend = LiquidHandlerChatterboxBackend(channel_num)
             self._simulate_handler = LiquidHandlerAbstract(self._simulate_backend, deck, False)
         super().__init__(backend, deck)
 
@@ -533,7 +533,7 @@ class LiquidHandlerAbstract(LiquidHandlerMiddleware):
     """Extended LiquidHandler with additional operations."""
     support_touch_tip = True
 
-    def __init__(self, backend: LiquidHandlerBackend, deck: Deck, simulator: bool):
+    def __init__(self, backend: LiquidHandlerBackend, deck: Deck, simulator: bool, channel_num:int = 8):
         """Initialize a LiquidHandler.
 
         Args:
@@ -541,7 +541,7 @@ class LiquidHandlerAbstract(LiquidHandlerMiddleware):
           deck: Deck to use.
         """
         self._simulator = simulator
-        super().__init__(backend, deck, simulator)
+        super().__init__(backend, deck, simulator, channel_num)
 
     # ---------------------------------------------------------------
     # REMOVE LIQUID --------------------------------------------------
@@ -584,7 +584,7 @@ class LiquidHandlerAbstract(LiquidHandlerMiddleware):
                 pass  # This mode is not verified.
             else:
                 # 首先应该对任务分组，然后每次1个/8个进行操作处理
-                if len(use_channels) == 1:
+                if len(use_channels) == 1 and self.backend.num_channels == 1:
                     tip = []
                     for _ in range(len(use_channels)):
                         tip.extend(next(self.current_tip))
@@ -614,7 +614,7 @@ class LiquidHandlerAbstract(LiquidHandlerMiddleware):
                             spread=spread,
                         )
                     await self.discard_tips()
-                elif len(use_channels) == 8:
+                elif len(use_channels) == 8 and self.backend.num_channels == 8:
                     tip = []
                     for _ in range(len(use_channels)):
                         tip.extend(next(self.current_tip))
@@ -818,7 +818,7 @@ class LiquidHandlerAbstract(LiquidHandlerMiddleware):
                             await self.custom_delay(seconds=delays[1])
                         await self.touch_tip(current_targets)
                         await self.discard_tips()
-                
+
 
         except Exception as e:
             traceback.print_exc()

@@ -367,7 +367,7 @@ def convert_to_ros_msg(ros_msg_type: Union[Type, Any], obj: Any) -> Any:
                     logger.warning(f"Not Supported type: {td}")
                     setattr(ros_msg, key, [])  # FIXME
             elif "array.array" in str(type(attr)):
-                if attr.typecode == "f":
+                if attr.typecode == "f" or attr.typecode == "d":
                     setattr(ros_msg, key, [float(i) for i in value])
                 else:
                     setattr(ros_msg, key, value)

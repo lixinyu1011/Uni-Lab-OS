@@ -72,8 +72,8 @@ class PRCXI9300Container(Plate):
     该类定义了 PRCXI 9300 的工作台布局和槽位信息。
     """
 
-    def __init__(self, name: str, size_x: float, size_y: float, size_z: float, category: str):
-        super().__init__(name, size_x, size_y, size_z, category=category, ordering=collections.OrderedDict())
+    def __init__(self, name: str, size_x: float, size_y: float, size_z: float, category: str, ordering: collections.OrderedDict):
+        super().__init__(name, size_x, size_y, size_z, category=category, ordering=ordering)
         self._unilabos_state = {}
 
     def load_state(self, state: Dict[str, Any]) -> None:
@@ -93,8 +93,11 @@ class PRCXI9300Trash(Trash):
     该类定义了 PRCXI 9300 的工作台布局和槽位信息。
     """
 
-    def __init__(self, name: str, size_x: float, size_y: float, size_z: float, category: str):
-        super().__init__(name, size_x, size_y, size_z, category=category)
+    def __init__(self, name: str, size_x: float, size_y: float, size_z: float, category: str, **kwargs):
+        if name != "trash":
+            name = "trash"
+            print("PRCXI9300Trash name must be 'trash', using 'trash' instead.")
+        super().__init__(name, size_x, size_y, size_z, category=category, **kwargs)
         self._unilabos_state = {}
 
     def load_state(self, state: Dict[str, Any]) -> None:
@@ -117,7 +120,7 @@ class PRCXI9300Handler(LiquidHandlerAbstract):
             return True
         return self._unilabos_backend.is_reset_ok
 
-    def __init__(self, deck: Deck, host: str, port: int, timeout: float, setup=True, debug=False):
+    def __init__(self, deck: Deck, host: str, port: int, timeout: float, channel_num=8, axis="Left", setup=True, debug=False, matrix_id=""):
         tablets_info = []
         count = 0
         for child in deck.children:
@@ -126,8 +129,8 @@ class PRCXI9300Handler(LiquidHandlerAbstract):
                 tablets_info.append(
                     WorkTablets(Number=count, Code=f"T{count}", Material=child._unilabos_state["Material"])
                 )
-        self._unilabos_backend = PRCXI9300Backend(tablets_info, host, port, timeout, setup, debug)
-        super().__init__(backend=self._unilabos_backend, deck=deck, simulator=True)
+        self._unilabos_backend = PRCXI9300Backend(tablets_info, host, port, timeout, channel_num, axis, setup, debug, matrix_id)
+        super().__init__(backend=self._unilabos_backend, deck=deck, simulator=True, channel_num=channel_num)
 
     async def create_protocol(
         self,
@@ -351,14 +354,18 @@ class PRCXI9300Backend(LiquidHandlerBackend):
         host: str = "127.0.0.1",
         port: int = 9999,
         timeout: float = 10.0,
+        channel_num: int=8,
+        axis: str="Left",
         setup=True,
         debug=False,
+        matrix_id="",
     ) -> None:
         super().__init__()
         self.tablets_info = tablets_info
-        self.api_client = PRCXI9300Api(host, port, timeout, debug)
+        self.matrix_id = matrix_id
+        self.api_client = PRCXI9300Api(host, port, timeout, axis, debug)
         self.host, self.port, self.timeout = host, port, timeout
-        self._num_channels = 8
+        self._num_channels = channel_num
         self._execute_setup = setup
         self.debug = debug
 
@@ -376,12 +383,18 @@ class PRCXI9300Backend(LiquidHandlerBackend):
             WorkTablets=self.tablets_info,
         )
         #print(json.dumps(self.matrix_info, indent=2))
-        res = self.api_client.add_WorkTablet_Matrix(self.matrix_info)
-        assert res["Success"], f"Failed to create matrix: {res.get('Message', 'Unknown error')}"
-        print(f"PRCXI9300Backend created matrix with ID: {self.matrix_info['MatrixId']}, result: {res}")
-        solution_id = self.api_client.add_solution(
-            f"protocol_{run_time}", self.matrix_info["MatrixId"], self.steps_todo_list
-        )
+        if not len(self.matrix_id):
+            res = self.api_client.add_WorkTablet_Matrix(self.matrix_info)
+            assert res["Success"], f"Failed to create matrix: {res.get('Message', 'Unknown error')}"
+            print(f"PRCXI9300Backend created matrix with ID: {self.matrix_info['MatrixId']}, result: {res}")
+            solution_id = self.api_client.add_solution(
+                f"protocol_{run_time}", self.matrix_info["MatrixId"], self.steps_todo_list
+            )
+        else:
+            print(f"PRCXI9300Backend using predefined worktable {self.matrix_id}, skipping matrix creation.")
+            solution_id = self.api_client.add_solution(
+                f"protocol_{run_time}", self.matrix_id, self.steps_todo_list
+            )
         print(f"PRCXI9300Backend created solution with ID: {solution_id}")
         self.api_client.load_solution(solution_id)
         return self.api_client.start()
@@ -438,22 +451,12 @@ class PRCXI9300Backend(LiquidHandlerBackend):
         PlateNo = plate_indexes[0] + 1
         hole_col = tip_columns[0] + 1
 
-        step = self.api_client.Load(
-            "Left",
-            dosage=0,
-            plate_no=PlateNo,
-            is_whole_plate=False,
-            hole_row=1,
-            hole_col=hole_col,
-            blending_times=0,
-            balance_height=0,
-            plate_or_hole=f"H{hole_col}-8,T{PlateNo}",
-            hole_numbers="1,2,3,4,5,6,7,8",
-        )
+        step = self.api_client.Load(dosage=0, plate_no=PlateNo, is_whole_plate=False, hole_row=1, hole_col=hole_col,
+                                    blending_times=0, balance_height=0, plate_or_hole=f"H{hole_col}-8,T{PlateNo}",
+                                    hole_numbers="1,2,3,4,5,6,7,8")
         self.steps_todo_list.append(step)
 
     async def drop_tips(self, ops: List[Drop], use_channels: List[int] = None):
-
         """Pick up tips from the specified resource."""
 
         plate = ops[0].resource.parent.parent
@@ -462,7 +465,6 @@ class PRCXI9300Backend(LiquidHandlerBackend):
 
         if deck.children[plate_index].name == "trash":
             step = self.api_client.UnLoad(
-                "Left",
                 dosage=0,
                 plate_no=plate_index+1,
                 is_whole_plate=False,
@@ -475,7 +477,7 @@ class PRCXI9300Backend(LiquidHandlerBackend):
         )
             self.steps_todo_list.append(step)
             return
-            
+
 
         if len(ops) != 8:
             raise ValueError(f"PRCXI9300Backend drop_tips: Expected 8 pickups, got {len(ops)}")
@@ -598,18 +600,9 @@ class PRCXI9300Backend(LiquidHandlerBackend):
         PlateNo = plate_indexes[0] + 1
         hole_col = tip_columns[0] + 1
 
-        step = self.api_client.Imbibing(
-            "Left",
-            dosage=int(volumes[0]),
-            plate_no=PlateNo,
-            is_whole_plate=False,
-            hole_row=1,
-            hole_col=hole_col,
-            blending_times=0,
-            balance_height=0,
-            plate_or_hole=f"H{hole_col}-8,T{PlateNo}",
-            hole_numbers="1,2,3,4,5,6,7,8",
-        )
+        step = self.api_client.Imbibing(dosage=int(volumes[0]), plate_no=PlateNo, is_whole_plate=False, hole_row=1,
+                                        hole_col=hole_col, blending_times=0, balance_height=0,
+                                        plate_or_hole=f"H{hole_col}-8,T{PlateNo}", hole_numbers="1,2,3,4,5,6,7,8")
         self.steps_todo_list.append(step)
         
 
@@ -694,9 +687,10 @@ class PRCXI9300Backend(LiquidHandlerBackend):
 
 
 class PRCXI9300Api:
-    def __init__(self, host: str = "127.0.0.1", port: int = 9999, timeout: float = 10.0, debug: bool = False) -> None:
+    def __init__(self, host: str = "127.0.0.1", port: int = 9999, timeout: float = 10.0, axis="Left", debug: bool = False) -> None:
         self.host, self.port, self.timeout = host, port, timeout
         self.debug = debug
+        self.axis = axis
 
     @staticmethod
     def _len_prefix(n: int) -> bytes:
@@ -763,8 +757,10 @@ class PRCXI9300Api:
         """GetErrorCode"""
         return self.call("IAutomation", "GetErrorCode")
 
-    def get_reset_status(self) -> Optional[str]:
+    def get_reset_status(self) -> bool:
         """GetErrorCode"""
+        if self.debug:
+            return True
         res = self.call("IAutomation", "GetResetStatus")
         return not res
 
@@ -801,27 +797,12 @@ class PRCXI9300Api:
     def add_WorkTablet_Matrix(self, matrix: MatrixInfo):
         return self.call("IMatrix", "AddWorkTabletMatrix", [matrix])
 
-    def Load(
-        self,
-        axis: str,
-        dosage: int,
-        plate_no: int,
-        is_whole_plate: bool,
-        hole_row: int,
-        hole_col: int,
-        blending_times: int,
-        balance_height: int,
-        plate_or_hole: str,
-        hole_numbers: str,
-        assist_fun1: str = "",
-        assist_fun2: str = "",
-        assist_fun3: str = "",
-        assist_fun4: str = "",
-        assist_fun5: str = "",
-        liquid_method: str = "NormalDispense",
-    ) -> Dict[str, Any]:
+    def Load(self, dosage: int, plate_no: int, is_whole_plate: bool, hole_row: int, hole_col: int, blending_times: int,
+             balance_height: int, plate_or_hole: str, hole_numbers: str, assist_fun1: str = "", assist_fun2: str = "",
+             assist_fun3: str = "", assist_fun4: str = "", assist_fun5: str = "",
+             liquid_method: str = "NormalDispense") -> Dict[str, Any]:
         return {
-            "StepAxis": axis,
+            "StepAxis": self.axis,
             "Function": "Load",
             "DosageNum": dosage,
             "PlateNo": plate_no,
@@ -840,27 +821,12 @@ class PRCXI9300Api:
             "LiquidDispensingMethod": liquid_method,
         }
 
-    def Imbibing(
-        self,
-        axis: str,
-        dosage: int,
-        plate_no: int,
-        is_whole_plate: bool,
-        hole_row: int,
-        hole_col: int,
-        blending_times: int,
-        balance_height: int,
-        plate_or_hole: str,
-        hole_numbers: str,
-        assist_fun1: str = "",
-        assist_fun2: str = "",
-        assist_fun3: str = "",
-        assist_fun4: str = "",
-        assist_fun5: str = "",
-        liquid_method: str = "NormalDispense",
-    ) -> Dict[str, Any]:
+    def Imbibing(self, dosage: int, plate_no: int, is_whole_plate: bool, hole_row: int, hole_col: int,
+                 blending_times: int, balance_height: int, plate_or_hole: str, hole_numbers: str, assist_fun1: str = "",
+                 assist_fun2: str = "", assist_fun3: str = "", assist_fun4: str = "", assist_fun5: str = "",
+                 liquid_method: str = "NormalDispense") -> Dict[str, Any]:
         return {
-            "StepAxis": axis,
+            "StepAxis": self.axis,
             "Function": "Imbibing",
             "DosageNum": dosage,
             "PlateNo": plate_no,
@@ -881,7 +847,6 @@ class PRCXI9300Api:
 
     def Tapping(
         self,
-        axis: str,
         dosage: int,
         plate_no: int,
         is_whole_plate: bool,
@@ -899,7 +864,7 @@ class PRCXI9300Api:
         liquid_method: str = "NormalDispense",
     ) -> Dict[str, Any]:
         return {
-            "StepAxis": axis,
+            "StepAxis": self.axis,
             "Function": "Tapping",
             "DosageNum": dosage,
             "PlateNo": plate_no,
@@ -920,7 +885,6 @@ class PRCXI9300Api:
 
     def Blending(
         self,
-        axis: str,
         dosage: int,
         plate_no: int,
         is_whole_plate: bool,
@@ -938,7 +902,7 @@ class PRCXI9300Api:
         liquid_method: str = "NormalDispense",
     ) -> Dict[str, Any]:
         return {
-            "StepAxis": axis,
+            "StepAxis": self.axis,
             "Function": "Blending",
             "DosageNum": dosage,
             "PlateNo": plate_no,
@@ -959,7 +923,6 @@ class PRCXI9300Api:
 
     def UnLoad(
         self,
-        axis: str,
         dosage: int,
         plate_no: int,
         is_whole_plate: bool,
@@ -977,7 +940,7 @@ class PRCXI9300Api:
         liquid_method: str = "NormalDispense",
     ) -> Dict[str, Any]:
         return {
-            "StepAxis": axis,
+            "StepAxis": self.axis,
             "Function": "UnLoad",
             "DosageNum": dosage,
             "PlateNo": plate_no,
@@ -999,11 +962,11 @@ class PRCXI9300Api:
 
 if __name__ == "__main__":
     # Example usage
-    # from pylabrobot.resources import set_volume_tracking
-    # from pylabrobot.resources import set_tip_tracking
-    # set_tip_tracking(True)
-    deck = PRCXI9300Deck(name="PRCXI Deck", size_x=100, size_y=100, size_z=100)
-    plate1 = PRCXI9300Container(name="rackT1", size_x=50, size_y=50, size_z=10, category="plate")
+    # 1. 用导出的json，给每个T1 T2板子设定相应的物料，如果是孔板和枪头盒，要对应区分
+    # 2. 设计一个单点动作流程，可以跑
+    # 3.
+    deck = PRCXI9300Deck(name="PRCXI_Deck", size_x=100, size_y=100, size_z=100)
+    plate1 = PRCXI9300Container(name="rackT1", size_x=50, size_y=50, size_z=10, category="plate", ordering=collections.OrderedDict())
     plate1.load_state({
         "Material": {
             "uuid": "80652665f6a54402b2408d50b40398df",
@@ -1015,21 +978,21 @@ if __name__ == "__main__":
         }
     })
 
-    plate2 = PRCXI9300Container(name="plateT2", size_x=50, size_y=50, size_z=10, category="plate")
+    plate2 = PRCXI9300Container(name="plateT2", size_x=50, size_y=50, size_z=10, category="plate", ordering=collections.OrderedDict())
     plate2.load_state({
         "Material": {
             "uuid": "57b1e4711e9e4a32b529f3132fc5931f",
         }
     })
 
-    plate3 = PRCXI9300Container(name="plateT3", size_x=50, size_y=50, size_z=10, category="plate")
+    plate3 = PRCXI9300Container(name="plateT3", size_x=50, size_y=50, size_z=10, category="plate", ordering=collections.OrderedDict())
     plate3.load_state({
         "Material": {
             "uuid": "57b1e4711e9e4a32b529f3132fc5931f",
         }
     })
 
-    plate4 = PRCXI9300Container(name="rackT4", size_x=50, size_y=50, size_z=10, category="plate")
+    plate4 = PRCXI9300Container(name="rackT4", size_x=50, size_y=50, size_z=10, category="plate", ordering=collections.OrderedDict())
     plate4.load_state({
         "Material": {
             "uuid": "80652665f6a54402b2408d50b40398df",
@@ -1041,7 +1004,7 @@ if __name__ == "__main__":
         }
     })
 
-    plate5 = PRCXI9300Container(name="plateT5", size_x=50, size_y=50, size_z=10, category="plate")
+    plate5 = PRCXI9300Container(name="plateT5", size_x=50, size_y=50, size_z=10, category="plate", ordering=collections.OrderedDict())
     plate5.load_state({
         "Material": {
             "uuid": "57b1e4711e9e4a32b529f3132fc5931f",
@@ -1077,9 +1040,14 @@ if __name__ == "__main__":
     # plate2.set_well_liquids(plate_2_liquids)
 
 
-    handler = PRCXI9300Handler(deck=deck, host="192.168.3.9", port=9999, timeout=10.0, setup=False, debug=True)
+    handler = PRCXI9300Handler(deck=deck, host="192.168.3.9", port=9999, timeout=10.0, setup=False, debug=True, matrix_id="fd383e6d-2d0e-40b5-9c01-1b2870b1f1b1")
     handler.set_tiprack([tip_rack])  # Set the tip rack for the handler
     asyncio.run(handler.setup())  # Initialize the handler and setup the connection
+    from pylabrobot.resources import set_volume_tracking
+
+    # from pylabrobot.resources import set_tip_tracking
+    set_volume_tracking(enabled=True)
+    plate2.set_well_liquids([("Water", 100)] * plate2.num_items)
     asyncio.run(handler.create_protocol(protocol_name="Test Protocol"))  # Initialize the backend and setup the connection
     # asyncio.run(handler.pick_up_tips(tip_rack.children[:8],[0,1,2,3,4,5,6,7]))
 

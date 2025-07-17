@@ -66,6 +66,7 @@ dependencies:
   #- crcmod
   - pip:
       - paho-mqtt
+      - opentrons_shared_data
       # driver
       #- ur-rtde  # set PYTHONUTF8=1
       #- pyautogui

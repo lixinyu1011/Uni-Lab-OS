@@ -39,6 +39,7 @@ def job_add(req: JobAddReq) -> JobData:
         HostNode.get_instance().send_goal(req.device_id, action_type=action_type, action_name=action_name, action_kwargs=action_args, goal_uuid=req.job_id, server_info=req.server_info)
     except Exception as e:
         for bridge in HostNode.get_instance().bridges:
+            traceback.print_exc()
             if hasattr(bridge, "publish_job_status"):
                 bridge.publish_job_status({}, req.job_id, "failed", serialize_result_info(traceback.format_exc(), False, {}))
     return JobData(jobId=req.job_id)
