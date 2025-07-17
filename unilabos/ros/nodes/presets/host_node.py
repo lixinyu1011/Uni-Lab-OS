@@ -563,7 +563,7 @@ class HostNode(BaseROS2DeviceNode):
                     if hasattr(bridge, "publish_device_status"):
                         bridge.publish_device_status(self.device_status, device_id, property_name)
                         self.lab_logger().debug(
-                            f"[Host Node] Status updated: {device_id}.{property_name} = {msg.data}"
+                           f"[Host Node] Status updated: {device_id}.{property_name} = {msg.data}"
                         )
 
     def send_goal(
