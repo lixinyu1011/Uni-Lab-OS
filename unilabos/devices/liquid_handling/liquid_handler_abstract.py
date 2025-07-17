@@ -715,8 +715,8 @@ class LiquidHandlerAbstract(LiquidHandlerMiddleware):
                     tip = []
                     for _ in range(len(use_channels)):
                         tip.extend(next(self.current_tip))
-                    await self.pick_up_tips(tip)
 
+                    await self.pick_up_tips(tip)
                     for _ in range(len(targets)):
                         await self.aspirate(
                             resources=reagent_sources,
@@ -740,6 +740,7 @@ class LiquidHandlerAbstract(LiquidHandlerMiddleware):
                             liquid_height=[liquid_height[1]] if liquid_height else None,
                             spread=spread,
                         )
+
                         if delays is not None:
                             await self.custom_delay(seconds=delays[1])
                         await self.mix(

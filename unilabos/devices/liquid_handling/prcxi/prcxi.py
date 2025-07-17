@@ -109,6 +109,7 @@ class PRCXI9300Trash(Trash):
     
 class PRCXI9300Handler(LiquidHandlerAbstract):
     support_touch_tip = False
+
     @property
     def reset_ok(self) -> bool:
         """检查设备是否已重置成功。"""
@@ -455,7 +456,6 @@ class PRCXI9300Backend(LiquidHandlerBackend):
 
         """Pick up tips from the specified resource."""
 
-
         plate = ops[0].resource.parent.parent
         deck = plate.parent
         plate_index = deck.children.index(plate)
@@ -474,8 +474,6 @@ class PRCXI9300Backend(LiquidHandlerBackend):
                 hole_numbers="1,2,3,4,5,6,7,8",
         )
             self.steps_todo_list.append(step)
-
-
             return
             
 
@@ -1001,12 +999,15 @@ class PRCXI9300Api:
 
 if __name__ == "__main__":
     # Example usage
+    # from pylabrobot.resources import set_volume_tracking
+    # from pylabrobot.resources import set_tip_tracking
+    # set_tip_tracking(True)
     deck = PRCXI9300Deck(name="PRCXI Deck", size_x=100, size_y=100, size_z=100)
     plate1 = PRCXI9300Container(name="rackT1", size_x=50, size_y=50, size_z=10, category="plate")
     plate1.load_state({
         "Material": {
             "uuid": "80652665f6a54402b2408d50b40398df",
-            "Code": "ZX-001-1000",
+            "Co#de": "ZX-001-1000",
             "Name": "1000μL Tip头",
             "SummaryName": "1000μL Tip头",
             "PipetteHeight": 100,
@@ -1070,16 +1071,24 @@ if __name__ == "__main__":
     deck.assign_child_resource(plate5, location=Coordinate(0, 0, 0))
     deck.assign_child_resource(plate6, location=Coordinate(0, 0, 0))
 
+    print(plate2)  
+    # plate_2_liquids = [[(None, 500)]]*96
+
+    # plate2.set_well_liquids(plate_2_liquids)
+
+
     handler = PRCXI9300Handler(deck=deck, host="192.168.3.9", port=9999, timeout=10.0, setup=False, debug=True)
     handler.set_tiprack([tip_rack])  # Set the tip rack for the handler
     asyncio.run(handler.setup())  # Initialize the handler and setup the connection
     asyncio.run(handler.create_protocol(protocol_name="Test Protocol"))  # Initialize the backend and setup the connection
     # asyncio.run(handler.pick_up_tips(tip_rack.children[:8],[0,1,2,3,4,5,6,7]))
+
     # asyncio.run(handler.aspirate(well_containers.children[:8],[50]*8, [0,1,2,3,4,5,6,7]))
     # asyncio.run(handler.dispense(well_containers.children[:8],[50]*8,[0,1,2,3,4,5,6,7]))
-    #asyncio.run(handler.drop_tips(tip_rack.children[8:16],[0,1,2,3,4,5,6,7]))
+    # asyncio.run(handler.drop_tips(tip_rack.children[8:16],[0,1,2,3,4,5,6,7]))
     # asyncio.run(handler.discard_tips())
-    # asyncio.run(handler.mix(well_containers.children[:8], mix_time=3, mix_vol=50, height_to_bottom=0.5, offsets=Coordinate(0, 0, 0), mix_rate=100))
+    # asyncio.run(handler.mix(well_containers.children[:8
+    # ], mix_time=3, mix_vol=50, height_to_bottom=0.5, offsets=Coordinate(0, 0, 0), mix_rate=100))
     #print(json.dumps(handler._unilabos_backend.steps_todo_list, indent=2))  # Print matrix info
     asyncio.run(handler.add_liquid(
         asp_vols=[100]*16,
