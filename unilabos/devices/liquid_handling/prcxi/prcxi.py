@@ -1213,8 +1213,6 @@ if __name__ == "__main__":
         }
     })
 
-
-
     plate11 = PRCXI9300Container(name="plateT11", size_x=50, size_y=50, size_z=10, category="plate", ordering=collections.OrderedDict())
     plate11.load_state({
         "Material": {
@@ -1273,9 +1271,7 @@ if __name__ == "__main__":
     deck.assign_child_resource(plate12, location=Coordinate(0, 0, 0))
     deck.assign_child_resource(plate13, location=Coordinate(0, 0, 0))
 
-
-
-    handler = PRCXI9300Handler(deck=deck, host="192.168.3.9", port=9999, timeout=10.0, setup=False, debug=True, matrix_id="fd383e6d-2d0e-40b5-9c01-1b2870b1f1b1")
+    handler = PRCXI9300Handler(deck=deck, host="10.181.102.13", port=9999, timeout=10.0, setup=False, debug=True, matrix_id="fd383e6d-2d0e-40b5-9c01-1b2870b1f1b1")
     handler.set_tiprack([tip_rack])  # Set the tip rack for the handler
     asyncio.run(handler.setup())  # Initialize the handler and setup the connection
     from pylabrobot.resources import set_volume_tracking
