@@ -448,7 +448,7 @@ class PRCXI9300Backend(LiquidHandlerBackend):
         PlateNo = plate_indexes[0] + 1
         hole_col = tip_columns[0] + 1
 
-        if self.channel_num == 1:
+        if self._num_channels == 1:
             hole_row = tipspot_index % 8 + 1 
 
         step = self.api_client.Load(dosage=0, plate_no=PlateNo, is_whole_plate=False, hole_row=hole_row, hole_col=hole_col,
@@ -458,29 +458,6 @@ class PRCXI9300Backend(LiquidHandlerBackend):
 
     async def drop_tips(self, ops: List[Drop], use_channels: List[int] = None):
         """Pick up tips from the specified resource."""
-
-        plate = ops[0].resource.parent.parent
-        deck = plate.parent
-        plate_index = deck.children.index(plate)
-
-        if deck.children[plate_index].name == "trash":
-            step = self.api_client.UnLoad(
-                dosage=0,
-                plate_no=plate_index+1,
-                is_whole_plate=False,
-                hole_row=1,
-                hole_col=2,# 强制投放第二列了
-                blending_times=0,
-                balance_height=0,
-                plate_or_hole=f"H{hole_col}-8,T{PlateNo}",
-                hole_numbers="1,2,3,4,5,6,7,8",
-        )
-            self.steps_todo_list.append(step)
-            return
-
-
-        if len(ops) != 8:
-            raise ValueError(f"PRCXI9300Backend drop_tips: Expected 8 pickups, got {len(ops)}")
 
         plate_indexes = []
         for op in ops:
@@ -502,11 +479,29 @@ class PRCXI9300Backend(LiquidHandlerBackend):
         PlateNo = plate_indexes[0] + 1
         hole_col = tip_columns[0] + 1
 
+        if deck.children[plate_index].name == "trash":
+            step = self.api_client.UnLoad(
+                dosage=0,
+                plate_no=PlateNo,
+                is_whole_plate=False,
+                hole_row=3,
+                hole_col=3,
+                blending_times=0,
+                balance_height=0,
+                plate_or_hole=f"H{hole_col}-8,T{PlateNo}",
+                hole_numbers="1,2,3,4,5,6,7,8",
+        )
+            self.steps_todo_list.append(step)
+            return
+
+        if self.channel_num == 1:
+            hole_row = tipspot_index % 8 + 1
+
         step = self.api_client.UnLoad(
             dosage=0,
             plate_no=PlateNo,
             is_whole_plate=False,
-            hole_row=1,
+            hole_row=hole_row,
             hole_col=hole_col,
             blending_times=0,
             balance_height=0,
@@ -1179,7 +1174,7 @@ if __name__ == "__main__":
             "uuid": "04211a2dc93547fe9bf6121eac533650"
         }
     })
-    plate8 = get_well_container("RackT8")
+    plate8 = get_tip_rack("RackT8")
     plate8.load_state({
         "Material": {
             "uuid": "068b3815e36b4a72a59bae017011b29f",
@@ -1231,7 +1226,10 @@ if __name__ == "__main__":
     # deck.assign_child_resource(plate12, location=Coordinate(0, 0, 0))
     # deck.assign_child_resource(plate13, location=Coordinate(0, 0, 0))
 
-    handler = PRCXI9300Handler(deck=deck, host="10.181.102.13", port=9999, timeout=10.0, setup=False, debug=True, matrix_id="fd383e6d-2d0e-40b5-9c01-1b2870b1f1b1")
+    handler = PRCXI9300Handler(deck=deck, host="10.181.102.13", port=9999, 
+                               timeout=10.0, setup=False, debug=True, 
+                               matrix_id="fd383e6d-2d0e-40b5-9c01-1b2870b1f1b1",
+                               channel_num=1)
     handler.set_tiprack([plate8])  # Set the tip rack for the handler
     asyncio.run(handler.setup())  # Initialize the handler and setup the connection
     from pylabrobot.resources import set_volume_tracking
@@ -1246,11 +1244,12 @@ if __name__ == "__main__":
     with open("deck.json", "w", encoding="utf-8") as f:
         json.dump(A, f, indent=4, ensure_ascii=False)
 
+    print(plate11.get_item('A1').tracker.get_used_volume())
     asyncio.run(handler.create_protocol(protocol_name="Test Protocol"))  # Initialize the backend and setup the connection
-    asyncio.run(handler.pick_up_tips(plate8.children[3],[1]))
-    asyncio.run(handler.aspirate(plate11.children[1],[10], [1]))
-    asyncio.run(handler.dispense(plate1.children[3],[10],[1]))
-    asyncio.run(handler.mix(plate1.children[3], mix_time=3, mix_vol=5, height_to_bottom=0.5, offsets=Coordinate(0, 0, 0), mix_rate=100))
+    asyncio.run(handler.pick_up_tips([plate8.children[3]],[0]))
+    asyncio.run(handler.aspirate([plate11.children[0]],[10], [0]))
+    asyncio.run(handler.dispense([plate1.children[3]],[10],[0]))
+    asyncio.run(handler.mix([plate1.children[3]], mix_time=3, mix_vol=5, height_to_bottom=0.5, offsets=Coordinate(0, 0, 0), mix_rate=100))
     asyncio.run(handler.discard_tips())
 
     # asyncio.run(handler.discard_tips())
