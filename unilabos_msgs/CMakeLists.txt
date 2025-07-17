@@ -64,6 +64,7 @@ set(action_files
   "action/LiquidHandlerPickUpTips96.action"
   "action/LiquidHandlerReturnTips.action"
   "action/LiquidHandlerReturnTips96.action"
+  "action/LiquidHandlerSetLiquid.action"
   "action/LiquidHandlerStamp.action"
   "action/LiquidHandlerTransfer.action"
 
