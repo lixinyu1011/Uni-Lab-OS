@@ -36,7 +36,7 @@ class LiquidHandlerMiddleware(LiquidHandler):
 
     async def setup(self, **backend_kwargs):
         if self._simulator:
-            await self._simulate_handler.setup(**backend_kwargs)
+            return await self._simulate_handler.setup(**backend_kwargs)
         return await super().setup(**backend_kwargs)
 
     def serialize_state(self) -> Dict[str, Any]:
@@ -105,7 +105,7 @@ class LiquidHandlerMiddleware(LiquidHandler):
         **backend_kwargs,
     ):
         if self._simulator:
-            await self._simulate_handler.pick_up_tips(tip_spots, use_channels, offsets, **backend_kwargs)
+            return await self._simulate_handler.pick_up_tips(tip_spots, use_channels, offsets, **backend_kwargs)
         return await super().pick_up_tips(tip_spots, use_channels, offsets, **backend_kwargs)
 
     async def drop_tips(
@@ -117,7 +117,7 @@ class LiquidHandlerMiddleware(LiquidHandler):
         **backend_kwargs,
     ):
         if self._simulator:
-            await self._simulate_handler.drop_tips(
+            return await self._simulate_handler.drop_tips(
                 tip_spots, use_channels, offsets, allow_nonzero_volume, **backend_kwargs
             )
         return await super().drop_tips(tip_spots, use_channels, offsets, allow_nonzero_volume, **backend_kwargs)
@@ -126,7 +126,7 @@ class LiquidHandlerMiddleware(LiquidHandler):
         self, use_channels: Optional[list[int]] = None, allow_nonzero_volume: bool = False, **backend_kwargs
     ):
         if self._simulator:
-            await self._simulate_handler.return_tips(use_channels, allow_nonzero_volume, **backend_kwargs)
+            return await self._simulate_handler.return_tips(use_channels, allow_nonzero_volume, **backend_kwargs)
         return await super().return_tips(use_channels, allow_nonzero_volume, **backend_kwargs)
 
     async def discard_tips(
@@ -137,7 +137,7 @@ class LiquidHandlerMiddleware(LiquidHandler):
         **backend_kwargs,
     ):
         if self._simulator:
-            await self._simulate_handler.discard_tips(use_channels, allow_nonzero_volume, offsets, **backend_kwargs)
+            return await self._simulate_handler.discard_tips(use_channels, allow_nonzero_volume, offsets, **backend_kwargs)
         return await super().discard_tips(use_channels, allow_nonzero_volume, offsets, **backend_kwargs)
 
     def _check_containers(self, resources: Sequence[Resource]):
@@ -156,7 +156,7 @@ class LiquidHandlerMiddleware(LiquidHandler):
         **backend_kwargs,
     ):
         if self._simulator:
-            await self._simulate_handler.aspirate(
+            return await self._simulate_handler.aspirate(
                 resources,
                 vols,
                 use_channels,
@@ -192,7 +192,7 @@ class LiquidHandlerMiddleware(LiquidHandler):
         **backend_kwargs,
     ):
         if self._simulator:
-            await self._simulate_handler.dispense(
+            return await self._simulate_handler.dispense(
                 resources,
                 vols,
                 use_channels,
@@ -227,7 +227,7 @@ class LiquidHandlerMiddleware(LiquidHandler):
         **backend_kwargs,
     ):
         if self._simulator:
-            await self._simulate_handler.transfer(
+            return await self._simulate_handler.transfer(
                 source,
                 targets,
                 source_vol,
@@ -255,7 +255,7 @@ class LiquidHandlerMiddleware(LiquidHandler):
 
     async def pick_up_tips96(self, tip_rack: TipRack, offset: Coordinate = Coordinate.zero(), **backend_kwargs):
         if self._simulator:
-            await self._simulate_handler.pick_up_tips96(tip_rack, offset, **backend_kwargs)
+            return await self._simulate_handler.pick_up_tips96(tip_rack, offset, **backend_kwargs)
         return await super().pick_up_tips96(tip_rack, offset, **backend_kwargs)
 
     async def drop_tips96(
@@ -266,7 +266,7 @@ class LiquidHandlerMiddleware(LiquidHandler):
         **backend_kwargs,
     ):
         if self._simulator:
-            await self._simulate_handler.drop_tips96(resource, offset, allow_nonzero_volume, **backend_kwargs)
+            return await self._simulate_handler.drop_tips96(resource, offset, allow_nonzero_volume, **backend_kwargs)
         return await super().drop_tips96(resource, offset, allow_nonzero_volume, **backend_kwargs)
 
     def _get_96_head_origin_tip_rack(self) -> Optional[TipRack]:
@@ -274,12 +274,12 @@ class LiquidHandlerMiddleware(LiquidHandler):
 
     async def return_tips96(self, allow_nonzero_volume: bool = False, **backend_kwargs):
         if self._simulator:
-            await self._simulate_handler.return_tips96(allow_nonzero_volume, **backend_kwargs)
+            return await self._simulate_handler.return_tips96(allow_nonzero_volume, **backend_kwargs)
         return await super().return_tips96(allow_nonzero_volume, **backend_kwargs)
 
     async def discard_tips96(self, allow_nonzero_volume: bool = True, **backend_kwargs):
         if self._simulator:
-            await self._simulate_handler.discard_tips96(allow_nonzero_volume, **backend_kwargs)
+            return await self._simulate_handler.discard_tips96(allow_nonzero_volume, **backend_kwargs)
         return await super().discard_tips96(allow_nonzero_volume, **backend_kwargs)
 
     async def aspirate96(
@@ -292,7 +292,7 @@ class LiquidHandlerMiddleware(LiquidHandler):
         **backend_kwargs,
     ):
         if self._simulator:
-            await self._simulate_handler.aspirate96(
+            return await self._simulate_handler.aspirate96(
                 resource, volume, offset, flow_rate, blow_out_air_volume, **backend_kwargs
             )
         return await super().aspirate96(resource, volume, offset, flow_rate, blow_out_air_volume, **backend_kwargs)
@@ -307,7 +307,7 @@ class LiquidHandlerMiddleware(LiquidHandler):
         **backend_kwargs,
     ):
         if self._simulator:
-            await self._simulate_handler.dispense96(
+            return await self._simulate_handler.dispense96(
                 resource, volume, offset, flow_rate, blow_out_air_volume, **backend_kwargs
             )
         return await super().dispense96(resource, volume, offset, flow_rate, blow_out_air_volume, **backend_kwargs)
@@ -321,7 +321,7 @@ class LiquidHandlerMiddleware(LiquidHandler):
         dispense_flow_rate: Optional[float] = None,
     ):
         if self._simulator:
-            await self._simulate_handler.stamp(source, target, volume, aspiration_flow_rate, dispense_flow_rate)
+            return await self._simulate_handler.stamp(source, target, volume, aspiration_flow_rate, dispense_flow_rate)
         return await super().stamp(source, target, volume, aspiration_flow_rate, dispense_flow_rate)
 
     async def pick_up_resource(
@@ -333,7 +333,7 @@ class LiquidHandlerMiddleware(LiquidHandler):
         **backend_kwargs,
     ):
         if self._simulator:
-            await self._simulate_handler.pick_up_resource(
+            return await self._simulate_handler.pick_up_resource(
                 resource, offset, pickup_distance_from_top, direction, **backend_kwargs
             )
         return await super().pick_up_resource(resource, offset, pickup_distance_from_top, direction, **backend_kwargs)
@@ -346,7 +346,7 @@ class LiquidHandlerMiddleware(LiquidHandler):
         **backend_kwargs,
     ):
         if self._simulator:
-            await self._simulate_handler.move_picked_up_resource(to, offset, direction, **backend_kwargs)
+            return await self._simulate_handler.move_picked_up_resource(to, offset, direction, **backend_kwargs)
         return await super().move_picked_up_resource(to, offset, direction, **backend_kwargs)
 
     async def drop_resource(
@@ -357,7 +357,7 @@ class LiquidHandlerMiddleware(LiquidHandler):
         **backend_kwargs,
     ):
         if self._simulator:
-            await self._simulate_handler.drop_resource(destination, offset, direction, **backend_kwargs)
+            return await self._simulate_handler.drop_resource(destination, offset, direction, **backend_kwargs)
         return await super().drop_resource(destination, offset, direction, **backend_kwargs)
 
     async def move_resource(
@@ -373,7 +373,7 @@ class LiquidHandlerMiddleware(LiquidHandler):
         **backend_kwargs,
     ):
         if self._simulator:
-            await self._simulate_handler.move_resource(
+            return await self._simulate_handler.move_resource(
                 resource,
                 to,
                 intermediate_locations,
@@ -409,7 +409,7 @@ class LiquidHandlerMiddleware(LiquidHandler):
         **backend_kwargs,
     ):
         if self._simulator:
-            await self._simulate_handler.move_lid(
+            return await self._simulate_handler.move_lid(
                 lid,
                 to,
                 intermediate_locations,
@@ -445,7 +445,7 @@ class LiquidHandlerMiddleware(LiquidHandler):
         **backend_kwargs,
     ):
         if self._simulator:
-            await self._simulate_handler.move_plate(
+            return await self._simulate_handler.move_plate(
                 plate,
                 to,
                 intermediate_locations,
@@ -483,22 +483,22 @@ class LiquidHandlerMiddleware(LiquidHandler):
 
     async def prepare_for_manual_channel_operation(self, channel: int):
         if self._simulator:
-            await self._simulate_handler.prepare_for_manual_channel_operation(channel)
+            return await self._simulate_handler.prepare_for_manual_channel_operation(channel)
         return await super().prepare_for_manual_channel_operation(channel)
 
     async def move_channel_x(self, channel: int, x: float):
         if self._simulator:
-            await self._simulate_handler.move_channel_x(channel, x)
+            return await self._simulate_handler.move_channel_x(channel, x)
         return await super().move_channel_x(channel, x)
 
     async def move_channel_y(self, channel: int, y: float):
         if self._simulator:
-            await self._simulate_handler.move_channel_y(channel, y)
+            return await self._simulate_handler.move_channel_y(channel, y)
         return await super().move_channel_y(channel, y)
 
     async def move_channel_z(self, channel: int, z: float):
         if self._simulator:
-            await self._simulate_handler.move_channel_z(channel, z)
+            return await self._simulate_handler.move_channel_z(channel, z)
         return await super().move_channel_z(channel, z)
 
     def assign_child_resource(self, resource: Resource, location: Optional[Coordinate], reassign: bool = True):
@@ -510,7 +510,7 @@ class LiquidHandlerMiddleware(LiquidHandler):
         self, tip_spots: List[TipSpot], use_channels: Optional[List[int]] = None
     ) -> Dict[str, bool]:
         if self._simulator:
-            await self._simulate_handler.probe_tip_presence_via_pickup(tip_spots, use_channels)
+            return await self._simulate_handler.probe_tip_presence_via_pickup(tip_spots, use_channels)
         return await super().probe_tip_presence_via_pickup(tip_spots, use_channels)
 
     async def probe_tip_inventory(
@@ -520,12 +520,12 @@ class LiquidHandlerMiddleware(LiquidHandler):
         use_channels: Optional[List[int]] = None,
     ) -> Dict[str, bool]:
         if self._simulator:
-            await self._simulate_handler.probe_tip_inventory(tip_spots, probing_fn, use_channels)
+            return await self._simulate_handler.probe_tip_inventory(tip_spots, probing_fn, use_channels)
         return await super().probe_tip_inventory(tip_spots, probing_fn, use_channels)
 
     async def consolidate_tip_inventory(self, tip_racks: List[TipRack], use_channels: Optional[List[int]] = None):
         if self._simulator:
-            await self._simulate_handler.consolidate_tip_inventory(tip_racks, use_channels)
+            return await self._simulate_handler.consolidate_tip_inventory(tip_racks, use_channels)
         return await super().consolidate_tip_inventory(tip_racks, use_channels)
 
 

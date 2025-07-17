@@ -120,7 +120,7 @@ class PRCXI9300Handler(LiquidHandlerAbstract):
             return True
         return self._unilabos_backend.is_reset_ok
 
-    def __init__(self, deck: Deck, host: str, port: int, timeout: float, channel_num=8, axis="Left", setup=True, debug=False, matrix_id=""):
+    def __init__(self, deck: Deck, host: str, port: int, timeout: float, channel_num=8, axis="Left", setup=True, debug=False, simulator=False, matrix_id=""):
         tablets_info = []
         count = 0
         for child in deck.children:
@@ -130,7 +130,7 @@ class PRCXI9300Handler(LiquidHandlerAbstract):
                     WorkTablets(Number=count, Code=f"T{count}", Material=child._unilabos_state["Material"])
                 )
         self._unilabos_backend = PRCXI9300Backend(tablets_info, host, port, timeout, channel_num, axis, setup, debug, matrix_id)
-        super().__init__(backend=self._unilabos_backend, deck=deck, simulator=True, channel_num=channel_num)
+        super().__init__(backend=self._unilabos_backend, deck=deck, simulator=simulator, channel_num=channel_num)
 
     def set_liquid(self, wells: list[Well], liquid_names: list[str], volumes: list[float]):
         return super().set_liquid(wells, liquid_names, volumes)
@@ -593,7 +593,7 @@ class PRCXI9300Backend(LiquidHandlerBackend):
         PlateNo = plate_indexes[0] + 1
         hole_col = tip_columns[0] + 1
 
-        if self.channel_num == 1:
+        if self.num_channels == 1:
             hole_row = tipspot_index % 8 + 1 
 
         step = self.api_client.Imbibing(dosage=int(volumes[0]), plate_no=PlateNo, is_whole_plate=False, hole_row=hole_row,
@@ -633,7 +633,7 @@ class PRCXI9300Backend(LiquidHandlerBackend):
         PlateNo = plate_indexes[0] + 1
         hole_col = tip_columns[0] + 1
 
-        if self.channel_num == 1:
+        if self.num_channels == 1:
             hole_row = tipspot_index % 8 + 1
 
         step = self.api_client.Tapping(
@@ -1247,10 +1247,10 @@ if __name__ == "__main__":
     with open("deck.json", "w", encoding="utf-8") as f:
         json.dump(A, f, indent=4, ensure_ascii=False)
 
-    print(plate11.get_item('A1').tracker.get_used_volume())
+    print(plate11.get_well(0).tracker.get_used_volume())
     asyncio.run(handler.create_protocol(protocol_name="Test Protocol"))  # Initialize the backend and setup the connection
     asyncio.run(handler.pick_up_tips([plate8.children[3]],[0]))
-    asyncio.run(handler.aspirate([plate11.children[0]],[10], [0]))
+    asyncio.run(handler.aspirate([plate11.children[0]],[9], [0]))
     asyncio.run(handler.dispense([plate1.children[3]],[10],[0]))
     asyncio.run(handler.mix([plate1.children[3]], mix_time=3, mix_vol=5, height_to_bottom=0.5, offsets=Coordinate(0, 0, 0), mix_rate=100))
     asyncio.run(handler.discard_tips())
