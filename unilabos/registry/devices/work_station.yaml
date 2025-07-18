@@ -305,6 +305,8 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
         result: {}
         schema:
           description: ''
@@ -507,6 +509,8 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
         result: {}
         schema:
           description: ''
@@ -670,6 +674,8 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
         result: {}
         schema:
           description: ''
@@ -849,6 +855,8 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
         result: {}
         schema:
           description: ''
@@ -1056,6 +1064,8 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
         result: {}
         schema:
           description: ''
@@ -1187,6 +1197,7 @@ workstation:
         feedback: {}
         goal:
           amount: amount
+          reagent: reagent
           solvent: solvent
           stir_speed: stir_speed
           temp: temp
@@ -1242,6 +1253,8 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
         result: {}
         schema:
           description: ''
@@ -1425,6 +1438,8 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
         result: {}
         schema:
           description: ''
@@ -1581,6 +1596,8 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
         result: {}
         schema:
           description: ''
@@ -1774,6 +1791,8 @@ workstation:
             data_type: resource
             handler_key: vessel_out
             label: Evaporation Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
         result: {}
         schema:
           description: ''
@@ -2010,6 +2029,9 @@ workstation:
             data_type: resource
             handler_key: filtrate_out
             label: Filtrate Vessel
+        placeholder_keys:
+          filtrate_vessel: unilabos_resources
+          vessel: unilabos_resources
         result: {}
         schema:
           description: ''
@@ -2321,6 +2343,9 @@ workstation:
             data_type: resource
             handler_key: ToVesselOut
             label: To Vessel
+        placeholder_keys:
+          from_vessel: unilabos_resources
+          to_vessel: unilabos_resources
         result: {}
         schema:
           description: ''
@@ -2652,6 +2677,8 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
         result: {}
         schema:
           description: ''
@@ -2831,6 +2858,8 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
         result: {}
         schema:
           description: ''
@@ -2982,6 +3011,8 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
         result: {}
         schema:
           description: ''
@@ -3131,6 +3162,8 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
         result: {}
         schema:
           description: ''
@@ -3350,6 +3383,9 @@ workstation:
             data_type: resource
             handler_key: ToVesselOut
             label: To Vessel
+        placeholder_keys:
+          from_vessel: unilabos_resources
+          to_vessel: unilabos_resources
         result: {}
         schema:
           description: ''
@@ -3663,6 +3699,8 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
         result: {}
         schema:
           description: ''
@@ -4015,6 +4053,10 @@ workstation:
             data_type: resource
             handler_key: ToVesselOut
             label: To Vessel
+        placeholder_keys:
+          column: unilabos_devices
+          from_vessel: unilabos_resources
+          to_vessel: unilabos_resources
         result: {}
         schema:
           description: ''
@@ -4418,6 +4460,11 @@ workstation:
             data_type: resource
             handler_key: ToVesselOut
             label: To Vessel
+        placeholder_keys:
+          from_vessel: unilabos_resources
+          to_vessel: unilabos_resources
+          waste_phase_to_vessel: unilabos_resources
+          waste_vessel: unilabos_resources
         result: {}
         schema:
           description: ''
@@ -5049,6 +5096,8 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
         result: {}
         schema:
           description: ''
@@ -5221,6 +5270,8 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
         result: {}
         schema:
           description: ''
@@ -5387,6 +5438,8 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
         result: {}
         schema:
           description: ''
@@ -5552,6 +5605,9 @@ workstation:
             data_type: resource
             handler_key: ToVesselOut
             label: To Vessel
+        placeholder_keys:
+          from_vessel: unilabos_resources
+          to_vessel: unilabos_resources
         result: {}
         schema:
           description: ''
@@ -5718,6 +5774,9 @@ workstation:
             data_type: resource
             handler_key: filtrate_vessel_out
             label: Filtrate Vessel
+        placeholder_keys:
+          filtrate_vessel: unilabos_resources
+          vessel: unilabos_resources
         result: {}
         schema:
           description: ''
