@@ -6849,9 +6849,30 @@ liquid_handler.prcxi:
         feedback: {}
         goal: {}
         goal_default:
-          liquid_names: []
-          volumes: []
-          wells: []
+          liquid_names:
+          - ''
+          volumes:
+          - 0.0
+          wells:
+          - category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
         handles: []
         placeholder_keys:
           wells: unilabos_resources
@@ -6859,7 +6880,11 @@ liquid_handler.prcxi:
         schema:
           description: ''
           properties:
-            feedback: {}
+            feedback:
+              properties: {}
+              required: []
+              title: LiquidHandlerSetLiquid_Feedback
+              type: object
             goal:
               properties:
                 liquid_names:
@@ -6872,17 +6897,96 @@ liquid_handler.prcxi:
                   type: array
                 wells:
                   items:
+                    properties:
+                      category:
+                        type: string
+                      children:
+                        items:
+                          type: string
+                        type: array
+                      config:
+                        type: string
+                      data:
+                        type: string
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      parent:
+                        type: string
+                      pose:
+                        properties:
+                          orientation:
+                            properties:
+                              w:
+                                type: number
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            - w
+                            title: Quaternion
+                            type: object
+                          position:
+                            properties:
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            title: Point
+                            type: object
+                        required:
+                        - position
+                        - orientation
+                        title: Pose
+                        type: object
+                      sample_id:
+                        type: string
+                      type:
+                        type: string
+                    required:
+                    - id
+                    - name
+                    - sample_id
+                    - children
+                    - parent
+                    - type
+                    - category
+                    - pose
+                    - config
+                    - data
+                    title: Resource
                     type: object
                   type: array
               required:
               - wells
               - liquid_names
               - volumes
+              title: LiquidHandlerSetLiquid_Goal
               type: object
-            result: {}
+            result:
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: LiquidHandlerSetLiquid_Result
+              type: object
           required:
           - goal
-          title: set_liquid参数
+          title: LiquidHandlerSetLiquid
           type: object
         type: LiquidHandlerSetLiquid
     module: unilabos.devices.liquid_handling.prcxi.prcxi:PRCXI9300Handler
@@ -6915,6 +7019,9 @@ liquid_handler.prcxi:
           type: integer
         setup:
           default: true
+          type: string
+        simulator:
+          default: false
           type: string
         timeout:
           type: number
