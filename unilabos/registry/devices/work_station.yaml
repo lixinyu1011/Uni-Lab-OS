@@ -1792,7 +1792,7 @@ workstation:
             handler_key: vessel_out
             label: Evaporation Vessel
         placeholder_keys:
-          vessel: unilabos_resources
+          vessel: unilabos_nodes
         result: {}
         schema:
           description: ''
@@ -2031,7 +2031,7 @@ workstation:
             label: Filtrate Vessel
         placeholder_keys:
           filtrate_vessel: unilabos_resources
-          vessel: unilabos_resources
+          vessel: unilabos_nodes
         result: {}
         schema:
           description: ''
@@ -3384,8 +3384,8 @@ workstation:
             handler_key: ToVesselOut
             label: To Vessel
         placeholder_keys:
-          from_vessel: unilabos_resources
-          to_vessel: unilabos_resources
+          from_vessel: unilabos_nodes
+          to_vessel: unilabos_nodes
         result: {}
         schema:
           description: ''
@@ -5606,8 +5606,8 @@ workstation:
             handler_key: ToVesselOut
             label: To Vessel
         placeholder_keys:
-          from_vessel: unilabos_resources
-          to_vessel: unilabos_resources
+          from_vessel: unilabos_nodes
+          to_vessel: unilabos_nodes
         result: {}
         schema:
           description: ''
