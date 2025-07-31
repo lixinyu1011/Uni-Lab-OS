@@ -3,7 +3,7 @@ HTTP客户端模块
 
 提供与远程服务器通信的客户端功能，只有host需要用
 """
-
+import json
 from typing import List, Dict, Any, Optional
 
 import requests
@@ -40,8 +40,9 @@ class HTTPClient:
         Returns:
             Response: API响应对象
         """
+        database_param = 1 if database_process_later else 0
         response = requests.post(
-            f"{self.remote_addr}/lab/resource/edge/batch_create/?database_process_later={1 if database_process_later else 0}",
+            f"{self.remote_addr}/lab/resource/edge/batch_create/?database_process_later={database_param}",
             json=resources,
             headers={"Authorization": f"lab {self.auth}"},
             timeout=100,
@@ -148,6 +149,56 @@ class HTTPClient:
                 timeout=30,  # 上传文件可能需要更长的超时时间
             )
         return response
+
+    def resource_registry(self, registry_data: Dict[str, Any]) -> requests.Response:
+        """
+        注册资源到服务器
+
+        Args:
+            registry_data: 注册表数据，格式为 {resource_id: resource_info}
+
+        Returns:
+            Response: API响应对象
+        """
+        response = requests.post(
+            f"{self.remote_addr}/lab/registry/",
+            json=registry_data,
+            headers={"Authorization": f"lab {self.auth}"},
+            timeout=30,
+        )
+        if response.status_code not in [200, 201]:
+            logger.error(f"注册资源失败: {response.status_code}, {response.text}")
+        return response
+
+    def request_startup_json(self) -> Optional[Dict[str, Any]]:
+        """
+        请求启动配置
+
+        Args:
+            startup_json: 启动配置JSON数据
+
+        Returns:
+            Response: API响应对象
+        """
+        response = requests.get(
+            f"{self.remote_addr}/lab/resource/graph_info/",
+            headers={"Authorization": f"lab {self.auth}"},
+            timeout=(3, 30),
+        )
+        if response.status_code != 200:
+            logger.error(f"请求启动配置失败: {response.status_code}, {response.text}")
+        else:
+            try:
+                with open("startup_config.json", "w", encoding="utf-8") as f:
+                    f.write(response.text)
+                target_dict = json.loads(response.text)
+                if "data" in target_dict:
+                    target_dict = target_dict["data"]
+                return target_dict
+            except json.JSONDecodeError as e:
+                logger.error(f"解析启动配置JSON失败: {str(e.args)}\n响应内容: {response.text}")
+                logger.error(f"响应内容: {response.text}")
+        return None
 
 
 # 创建默认客户端实例

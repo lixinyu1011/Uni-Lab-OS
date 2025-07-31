@@ -307,7 +307,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
         # 创建动作服务
         if self.create_action_server:
             for action_name, action_value_mapping in self._action_value_mappings.items():
-                if action_name.startswith("auto-"):
+                if action_name.startswith("auto-") or str(action_value_mapping.get("type", "")).startswith("UniLabJsonCommand"):
                     continue
                 self.create_ros_action_server(action_name, action_value_mapping)
 
@@ -629,7 +629,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
             execution_success = False
             action_return_value = None
 
-            self.lab_logger().info(f"执行动作: {action_name}")
+        #####    self.lab_logger().info(f"执行动作: {action_name}")
             goal = goal_handle.request
 
             # 从目标消息中提取参数, 并调用对应的方法
@@ -656,15 +656,18 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                     if v in ["unilabos_msgs/Resource", "sequence<unilabos_msgs/Resource>"]:
                         self.lab_logger().info(f"查询资源状态: Key: {k} Type: {v}")
                         current_resources = []
+                        # TODO: resource后面需要分组
+                        only_one_resource = False
                         try:
                             if len(action_kwargs[k]) > 1:
                                 for i in action_kwargs[k]:
                                     r = ResourceGet.Request()
-                                    r.id = i["id"]
+                                    r.id = i["id"]  # splash optional
                                     r.with_children = True
                                     response = await self._resource_clients["resource_get"].call_async(r)
                                     current_resources.extend(response.resources)
                             else:
+                                only_one_resource = True
                                 r = ResourceGet.Request()
                                 r.id = (
                                     action_kwargs[k]["id"]
@@ -682,17 +685,20 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                         type_hint = action_paramtypes[k]
                         final_type = get_type_class(type_hint)
                         # 判断 ACTION 是否需要特殊的物料类型如 pylabrobot.resources.Resource，并做转换
-                        final_resource = [convert_resources_to_type([i], final_type)[0] for i in resources_list]
+                        if only_one_resource:
+                            final_resource = convert_resources_to_type(resources_list, final_type)
+                        else:
+                            final_resource = [convert_resources_to_type([i], final_type)[0] for i in resources_list]
                         action_kwargs[k] = self.resource_tracker.figure_resource(final_resource)
 
-            self.lab_logger().info(f"准备执行: {action_kwargs}, 函数: {ACTION.__name__}")
+            ##### self.lab_logger().info(f"准备执行: {action_kwargs}, 函数: {ACTION.__name__}")
             time_start = time.time()
             time_overall = 100
 
             # 将阻塞操作放入线程池执行
             if asyncio.iscoroutinefunction(ACTION):
                 try:
-                    self.lab_logger().info(f"异步执行动作 {ACTION}")
+                    ##### self.lab_logger().info(f"异步执行动作 {ACTION}")
                     future = ROS2DeviceNode.run_async_func(ACTION, trace_error=False, **action_kwargs)
 
                     def _handle_future_exception(fut):
@@ -702,7 +708,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                             execution_success = True
                         except Exception as e:
                             execution_error = traceback.format_exc()
-                            error(f"异步任务 {ACTION.__name__} 报错了")
+                            ##### error(f"异步任务 {ACTION.__name__} 报错了")
                             error(traceback.format_exc())
 
                     future.add_done_callback(_handle_future_exception)
@@ -710,7 +716,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                     self.lab_logger().error(f"创建异步任务失败: {traceback.format_exc()}")
                     raise e
             else:
-                self.lab_logger().info(f"同步执行动作 {ACTION}")
+            #####    self.lab_logger().info(f"同步执行动作 {ACTION}")
                 future = self._executor.submit(ACTION, **action_kwargs)
 
                 def _handle_future_exception(fut):
@@ -765,7 +771,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                 self.lab_logger().info(f"动作 {action_name} 已取消")
                 return action_type.Result()
 
-            self.lab_logger().info(f"动作执行完成: {action_name}")
+            ##### self.lab_logger().info(f"动作执行完成: {action_name}")
             del future
 
             # 向Host更新物料当前状态
@@ -801,7 +807,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
 
             # 发布结果
             goal_handle.succeed()
-            self.lab_logger().info(f"设置动作成功: {action_name}")
+            ##### self.lab_logger().info(f"设置动作成功: {action_name}")
 
             result_values = {}
             for msg_name, attr_name in action_value_mapping["result"].items():
@@ -820,7 +826,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                 elif attr_name == "return_info":
                     setattr(result_msg, attr_name, serialize_result_info(execution_error, execution_success, action_return_value))
 
-            self.lab_logger().info(f"动作 {action_name} 完成并返回结果")
+            ##### self.lab_logger().info(f"动作 {action_name} 完成并返回结果")
             return result_msg
 
         return execute_callback
@@ -923,11 +929,18 @@ class ROS2DeviceNode:
             driver_class.__module__.startswith("pylabrobot")
             or driver_class.__name__ == "LiquidHandlerAbstract"
             or driver_class.__name__ == "LiquidHandlerBiomek"
+            or driver_class.__name__ == "PRCXI9300Handler"
         )
 
         # TODO: 要在创建之前预先请求服务器是否有当前id的物料，放到resource_tracker中，让pylabrobot进行创建
         # 创建设备类实例
         if use_pylabrobot_creator:
+            # 先对pylabrobot的子资源进行加载，不然subclass无法认出
+            # 在下方对于加载Deck等Resource要手动import
+            # noinspection PyUnresolvedReferences
+            from unilabos.devices.liquid_handling.prcxi.prcxi import PRCXI9300Deck
+            # noinspection PyUnresolvedReferences
+            from unilabos.devices.liquid_handling.prcxi.prcxi import PRCXI9300Container
             self._driver_creator = PyLabRobotCreator(
                 driver_class, children=children, resource_tracker=self.resource_tracker
             )

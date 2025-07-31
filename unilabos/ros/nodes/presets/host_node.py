@@ -22,6 +22,7 @@ from unilabos_msgs.srv import (
 )  # type: ignore
 from unique_identifier_msgs.msg import UUID
 
+from unilabos.app.register import register_devices_and_resources
 from unilabos.config.config import BasicConfig
 from unilabos.registry.registry import lab_registry
 from unilabos.resources.graphio import initialize_resource
@@ -36,6 +37,7 @@ from unilabos.ros.msgs.message_converter import (
 )
 from unilabos.ros.nodes.base_device_node import BaseROS2DeviceNode, ROS2DeviceNode, DeviceNodeResourceTracker
 from unilabos.ros.nodes.presets.controller_node import ControllerNode
+from unilabos.utils.exception import DeviceClassInvalid
 
 
 class HostNode(BaseROS2DeviceNode):
@@ -149,11 +151,7 @@ class HostNode(BaseROS2DeviceNode):
         self.device_status_timestamps = {}  # 用来存储设备状态最后更新时间
         if BasicConfig.upload_registry:
             from unilabos.app.mq import mqtt_client
-
-            for device_info in lab_registry.obtain_registry_device_info():
-                mqtt_client.publish_registry(device_info["id"], device_info)
-            for resource_info in lab_registry.obtain_registry_resource_info():
-                mqtt_client.publish_registry(resource_info["id"], resource_info)
+            register_devices_and_resources(mqtt_client, lab_registry)
         else:
             self.lab_logger().warning("本次启动注册表不报送云端，如果您需要联网调试，请使用unilab-register命令进行单独报送，或者在启动命令增加--upload_registry")
         time.sleep(1) # 等待MQTT连接稳定
@@ -364,7 +362,16 @@ class HostNode(BaseROS2DeviceNode):
             resources, device_ids, bind_parent_ids, bind_locations, other_calling_params
         ):
             # 这里要求device_id传入必须是edge_device_id
-            namespace = "/devices/" + device_id
+            if device_id not in self.devices_names:
+                self.lab_logger().error(f"[Host Node] Device {device_id} not found in devices_names. Create resource failed.")
+                raise ValueError(f"[Host Node] Device {device_id} not found in devices_names. Create resource failed.")
+
+            device_key = f"{self.devices_names[device_id]}/{device_id}"
+            if device_key not in self._online_devices:
+                self.lab_logger().error(f"[Host Node] Device {device_key} is offline. Create resource failed.")
+                raise ValueError(f"[Host Node] Device {device_key} is offline. Create resource failed.")
+
+            namespace = self.devices_names[device_id]
             srv_address = f"/srv{namespace}/append_resource"
             sclient = self.create_client(SerialCommand, srv_address)
             sclient.wait_for_service()
@@ -450,7 +457,11 @@ class HostNode(BaseROS2DeviceNode):
         self.lab_logger().info(f"[Host Node] Initializing device: {device_id}")
 
         device_config_copy = copy.deepcopy(device_config)
-        d = initialize_device_from_dict(device_id, device_config_copy)
+        try:
+            d = initialize_device_from_dict(device_id, device_config_copy)
+        except DeviceClassInvalid as e:
+            self.lab_logger().error(f"[Host Node] Device class invalid: {e}")
+            d = None
         if d is None:
             return
         # noinspection PyProtectedMember
@@ -459,7 +470,7 @@ class HostNode(BaseROS2DeviceNode):
         self.devices_instances[device_id] = d
         # noinspection PyProtectedMember
         for action_name, action_value_mapping in d._ros_node._action_value_mappings.items():
-            if action_name.startswith("auto-"):
+            if action_name.startswith("auto-") or str(action_value_mapping.get("type", "")).startswith("UniLabJsonCommand"):
                 continue
             action_id = f"/devices/{device_id}/{action_name}"
             if action_id not in self._action_clients:
@@ -563,7 +574,7 @@ class HostNode(BaseROS2DeviceNode):
                     if hasattr(bridge, "publish_device_status"):
                         bridge.publish_device_status(self.device_status, device_id, property_name)
                         self.lab_logger().debug(
-                            f"[Host Node] Status updated: {device_id}.{property_name} = {msg.data}"
+                           f"[Host Node] Status updated: {device_id}.{property_name} = {msg.data}"
                         )
 
     def send_goal(
@@ -603,8 +614,7 @@ class HostNode(BaseROS2DeviceNode):
         if action_name == "test_latency" and server_info is not None:
             self.server_latest_timestamp = server_info.get("send_timestamp", 0.0)
         if action_id not in self._action_clients:
-            self.lab_logger().error(f"[Host Node] ActionClient {action_id} not found.")
-            return
+            raise ValueError(f"ActionClient {action_id} not found.")
 
         action_client: ActionClient = self._action_clients[action_id]
 

@@ -1,4 +1,6 @@
 linear_motion.grbl:
+  category:
+  - robot_linear_motion
   class:
     action_value_mappings:
       auto-initialize:
@@ -8,44 +10,17 @@ linear_motion.grbl:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand initialize 的参数schema
+          description: CNC设备初始化函数。执行Grbl CNC的完整初始化流程，包括归零操作、轴校准和状态复位。该函数将所有轴移动到原点位置(0,0,0)，确保设备处于已知的参考状态。初始化完成后设备进入空闲状态，可接收后续的运动指令。
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand initialize 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: initialize 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-move_through_points:
-        feedback: {}
-        goal: {}
-        goal_default:
-          positions: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand move_through_points 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand move_through_points 的参数schema
-              properties:
-                positions:
-                  description: '参数: positions'
-                  type: array
-              required:
-              - positions
-              type: object
-            result: {}
-          required:
-          - goal
-          title: move_through_points 命令参数
+          title: initialize参数
           type: object
         type: UniLabJsonCommand
       auto-set_position:
@@ -56,14 +31,12 @@ linear_motion.grbl:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand set_position 的参数schema
+          description: CNC绝对位置设定函数。控制CNC设备移动到指定的三维坐标位置(x,y,z)。该函数支持安全限位检查，防止超出设备工作范围。移动过程中会监控设备状态，确保安全到达目标位置。适用于精确定位和轨迹控制操作。
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand set_position 的参数schema
               properties:
                 position:
-                  description: '参数: position'
                   type: string
               required:
               - position
@@ -71,38 +44,7 @@ linear_motion.grbl:
             result: {}
           required:
           - goal
-          title: set_position 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-set_spindle_speed:
-        feedback: {}
-        goal: {}
-        goal_default:
-          max_velocity: 500
-          spindle_speed: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand set_spindle_speed 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand set_spindle_speed 的参数schema
-              properties:
-                max_velocity:
-                  default: 500
-                  description: '参数: max_velocity'
-                  type: number
-                spindle_speed:
-                  description: '参数: spindle_speed'
-                  type: number
-              required:
-              - spindle_speed
-              type: object
-            result: {}
-          required:
-          - goal
-          title: set_spindle_speed 命令参数
+          title: set_position参数
           type: object
         type: UniLabJsonCommand
       auto-stop_operation:
@@ -112,18 +54,17 @@ linear_motion.grbl:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand stop_operation 的参数schema
+          description: CNC操作停止函数。立即停止当前正在执行的所有CNC运动，包括轴移动和主轴旋转。该函数用于紧急停止或任务中断，确保设备和工件的安全。停止后设备将保持当前位置，等待新的指令。
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand stop_operation 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: stop_operation 命令参数
+          title: stop_operation参数
           type: object
         type: UniLabJsonCommand
       auto-wait_error:
@@ -133,18 +74,17 @@ linear_motion.grbl:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand wait_error 的参数schema
+          description: wait_error的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand wait_error 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: wait_error 命令参数
+          title: wait_error参数
           type: object
         type: UniLabJsonCommandAsync
       move_through_points:
@@ -176,10 +116,9 @@ linear_motion.grbl:
         handles: []
         result: {}
         schema:
-          description: ROS Action NavigateThroughPoses 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 current_pose:
                   properties:
@@ -300,7 +239,6 @@ linear_motion.grbl:
               title: NavigateThroughPoses_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 behavior_tree:
                   type: string
@@ -381,7 +319,6 @@ linear_motion.grbl:
               title: NavigateThroughPoses_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 result:
                   properties: {}
@@ -411,10 +348,9 @@ linear_motion.grbl:
         handles: []
         result: {}
         schema:
-          description: ROS Action SingleJointPosition 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 error:
                   type: number
@@ -454,7 +390,6 @@ linear_motion.grbl:
               title: SingleJointPosition_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 max_velocity:
                   type: number
@@ -482,7 +417,6 @@ linear_motion.grbl:
               title: SingleJointPosition_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties: {}
               required: []
               title: SingleJointPosition_Result
@@ -498,42 +432,47 @@ linear_motion.grbl:
       spindle_speed: float
       status: str
     type: python
-  description: Grbl CNC
+  config_info: []
+  description: Grbl数控机床（CNC）设备，用于实验室精密加工和三轴定位操作。该设备基于Grbl固件，通过串口通信控制步进电机实现X、Y、Z三轴的精确运动。支持绝对定位、轨迹规划、主轴控制和实时状态监控。具备安全限位保护和运动平滑控制功能。适用于精密钻孔、铣削、雕刻、样品制备等需要高精度定位和加工的实验室应用场景。
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          address:
-            default: '1'
-            description: '参数: address'
-            type: string
-          limits:
-            default:
-            - -150
-            - 150
-            - -200
-            - 0
-            - -80
-            - 0
-            description: '参数: limits'
-            type: array
-          port:
-            description: '参数: port'
-            type: string
-        required:
-        - port
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        address:
+          default: '1'
+          type: string
+        limits:
+          default:
+          - -150
+          - 150
+          - -200
+          - 0
+          - -80
+          - 0
+          type: array
+        port:
+          type: string
+      required:
+      - port
+      type: object
+    data:
+      properties:
+        position:
+          type: string
+        spindle_speed:
+          type: number
+        status:
+          type: string
+      required:
+      - status
+      - position
+      - spindle_speed
+      type: object
+  version: 1.0.0
 motor.iCL42:
+  category:
+  - robot_linear_motion
   class:
     action_value_mappings:
       auto-execute_run_motor:
@@ -546,20 +485,16 @@ motor.iCL42:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand execute_run_motor 的参数schema
+          description: 步进电机执行运动函数。直接执行电机运动命令，包括位置设定、速度控制和路径规划。该函数处理底层的电机控制协议，消除警告信息，设置运动参数并启动电机运行。适用于需要直接控制电机运动的应用场景。
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand execute_run_motor 的参数schema
               properties:
                 mode:
-                  description: '参数: mode'
                   type: string
                 position:
-                  description: '参数: position'
                   type: number
                 velocity:
-                  description: '参数: velocity'
                   type: integer
               required:
               - mode
@@ -569,7 +504,7 @@ motor.iCL42:
             result: {}
           required:
           - goal
-          title: execute_run_motor 命令参数
+          title: execute_run_motor参数
           type: object
         type: UniLabJsonCommand
       auto-init_device:
@@ -579,18 +514,17 @@ motor.iCL42:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand init_device 的参数schema
+          description: iCL42电机设备初始化函数。建立与iCL42步进电机驱动器的串口通信连接，配置通信参数包括波特率、数据位、校验位等。该函数是电机使用前的必要步骤，确保驱动器处于可控状态并准备接收运动指令。
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand init_device 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: init_device 命令参数
+          title: init_device参数
           type: object
         type: UniLabJsonCommand
       auto-run_motor:
@@ -603,20 +537,16 @@ motor.iCL42:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand run_motor 的参数schema
+          description: 步进电机运动控制函数。根据指定的运动模式、目标位置和速度参数控制电机运动。支持多种运动模式和精确的位置控制，自动处理运动轨迹规划和执行。该函数提供异步执行和状态反馈，确保运动的准确性和可靠性。
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand run_motor 的参数schema
               properties:
                 mode:
-                  description: '参数: mode'
                   type: string
                 position:
-                  description: '参数: position'
                   type: number
                 velocity:
-                  description: '参数: velocity'
                   type: integer
               required:
               - mode
@@ -626,7 +556,7 @@ motor.iCL42:
             result: {}
           required:
           - goal
-          title: run_motor 命令参数
+          title: run_motor参数
           type: object
         type: UniLabJsonCommand
       execute_command_from_outer:
@@ -639,10 +569,9 @@ motor.iCL42:
         result:
           success: success
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -651,7 +580,6 @@ motor.iCL42:
               title: SendCmd_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 command:
                   type: string
@@ -660,7 +588,6 @@ motor.iCL42:
               title: SendCmd_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -682,28 +609,32 @@ motor.iCL42:
       motor_position: int
       success: bool
     type: python
-  description: iCL42 motor
+  config_info: []
+  description: iCL42步进电机驱动器，用于实验室设备的精密线性运动控制。该设备通过串口通信控制iCL42型步进电机驱动器，支持多种运动模式和精确的位置、速度控制。具备位置反馈、运行状态监控和故障检测功能。适用于自动进样器、样品传送、精密定位平台等需要准确线性运动控制的实验室自动化设备。
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          device_address:
-            default: 1
-            description: '参数: device_address'
-            type: integer
-          device_com:
-            default: COM9
-            description: '参数: device_com'
-            type: string
-        required: []
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        device_address:
+          default: 1
+          type: integer
+        device_com:
+          default: COM9
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        is_executing_run:
+          type: boolean
+        motor_position:
+          type: integer
+        success:
+          type: boolean
+      required:
+      - motor_position
+      - is_executing_run
+      - success
+      type: object
+  version: 1.0.0

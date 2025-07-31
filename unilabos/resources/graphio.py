@@ -1,7 +1,7 @@
 import importlib
 import inspect
 import json
-from typing import Union, Any
+from typing import Union, Any, Dict
 import numpy as np
 import networkx as nx
 from unilabos_msgs.msg import Resource
@@ -84,7 +84,7 @@ def canonicalize_links_ports(data: dict) -> dict:
     # 第一遍处理：将字符串类型的port转换为字典格式
     for link in data.get("links", []):
         port = link.get("port")
-        if link["type"] == "physical":
+        if link.get("type", "physical") == "physical":
             link["type"] = "fluid"
         if isinstance(port, int):
             port = str(port)
@@ -150,10 +150,12 @@ def handle_communications(G: nx.Graph):
             G.nodes[device]["config"]["io_device_port"] = int(edata["port"][device_comm])
 
 
-def read_node_link_json(json_file):
+def read_node_link_json(json_info: Union[str, Dict[str, Any]]) -> tuple[nx.Graph, dict]:
     global physical_setup_graph
-
-    data = json.load(open(json_file, encoding="utf-8"))
+    if isinstance(json_info, str):
+        data = json.load(open(json_info, encoding="utf-8"))
+    else:
+        data = json_info
     data = canonicalize_nodes_data(data)
     data = canonicalize_links_ports(data)
 
@@ -248,7 +250,7 @@ def dict_to_nested_dict(nodes: dict, devices_only: bool = False) -> dict:
     root_nodes = {
         node["id"]: node
         for node in nodes_list
-        if node.get("parent", node.get("parent_name")) in [None, "", "None", np.nan]
+        if node.get("parent", node.get("parent_name")) in [None, "", "None", np.nan] or len(nodes_list) == 1
     }
 
     # 如果存在多个根节点，返回所有根节点
@@ -429,6 +431,20 @@ def resource_ulab_to_plr(resource: dict, plr_model=False) -> "ResourcePLR":
 
 
 def resource_plr_to_ulab(resource_plr: "ResourcePLR", parent_name: str = None):
+    def replace_plr_type_to_ulab(source: str):
+        replace_info = {
+            "plate": "plate",
+            "well": "well",
+            "tip_spot": "container",
+            "trash": "container",
+            "deck": "deck",
+            "tip_rack": "container",
+        }
+        if source in replace_info:
+            return replace_info[source]
+        else:
+            print("转换pylabrobot的时候，出现未知类型", source)
+            return "container"
     def resource_plr_to_ulab_inner(d: dict, all_states: dict) -> dict:
         r = {
             "id": d["name"],
@@ -436,7 +452,7 @@ def resource_plr_to_ulab(resource_plr: "ResourcePLR", parent_name: str = None):
             "sample_id": None,
             "children": [resource_plr_to_ulab_inner(child, all_states) for child in d["children"]],
             "parent": d["parent_name"] if d["parent_name"] else parent_name if parent_name else None,
-            "type": "device",  # FIXME plr自带的type是python class name
+            "type": replace_plr_type_to_ulab(d.get("category")),  # FIXME plr自带的type是python class name
             "class": d.get("class", ""),
             "position": (
                 {"x": d["location"]["x"], "y": d["location"]["y"], "z": d["location"]["z"]}
@@ -447,7 +463,6 @@ def resource_plr_to_ulab(resource_plr: "ResourcePLR", parent_name: str = None):
             "data": all_states[d["name"]],
         }
         return r
-
     d = resource_plr.serialize()
     all_states = resource_plr.serialize_all_state()
     r = resource_plr_to_ulab_inner(d, all_states)

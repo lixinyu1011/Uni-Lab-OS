@@ -1,4 +1,6 @@
 workstation:
+  category:
+  - work_station
   class:
     action_value_mappings:
       AGVTransferProtocol:
@@ -54,10 +56,9 @@ workstation:
         handles: []
         result: {}
         schema:
-          description: ROS Action AGVTransfer 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -66,7 +67,6 @@ workstation:
               title: AGVTransfer_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 from_repo:
                   properties:
@@ -226,7 +226,6 @@ workstation:
               title: AGVTransfer_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -246,8 +245,13 @@ workstation:
         feedback: {}
         goal:
           amount: amount
+          equiv: equiv
+          event: event
           mass: mass
+          mol: mol
           purpose: purpose
+          rate_spec: rate_spec
+          ratio: ratio
           reagent: reagent
           stir: stir
           stir_speed: stir_speed
@@ -257,15 +261,39 @@ workstation:
           volume: volume
         goal_default:
           amount: ''
-          mass: 0.0
+          equiv: ''
+          event: ''
+          mass: ''
+          mol: ''
           purpose: ''
+          rate_spec: ''
+          ratio: ''
           reagent: ''
           stir: false
           stir_speed: 0.0
-          time: 0.0
-          vessel: ''
+          time: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
           viscous: false
-          volume: 0.0
+          volume: ''
         handles:
           input:
           - data_key: vessel
@@ -284,12 +312,13 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
         result: {}
         schema:
-          description: ROS Action Add 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 current_status:
                   type: string
@@ -301,13 +330,22 @@ workstation:
               title: Add_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 amount:
                   type: string
+                equiv:
+                  type: string
+                event:
+                  type: string
                 mass:
-                  type: number
+                  type: string
+                mol:
+                  type: string
                 purpose:
+                  type: string
+                rate_spec:
+                  type: string
+                ratio:
                   type: string
                 reagent:
                   type: string
@@ -316,13 +354,84 @@ workstation:
                 stir_speed:
                   type: number
                 time:
-                  type: number
-                vessel:
                   type: string
+                vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
                 viscous:
                   type: boolean
                 volume:
-                  type: number
+                  type: string
               required:
               - vessel
               - reagent
@@ -334,10 +443,14 @@ workstation:
               - stir_speed
               - viscous
               - purpose
+              - event
+              - mol
+              - rate_spec
+              - equiv
+              - ratio
               title: Add_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 message:
                   type: string
@@ -356,6 +469,179 @@ workstation:
           title: Add
           type: object
         type: Add
+      AdjustPHProtocol:
+        feedback: {}
+        goal:
+          ph_value: ph_value
+          reagent: reagent
+          settling_time: settling_time
+          stir: stir
+          stir_speed: stir_speed
+          stir_time: stir_time
+          vessel: vessel
+          volume: volume
+        goal_default:
+          ph_value: 0.0
+          reagent: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+        handles:
+          input:
+          - data_key: vessel
+            data_source: handle
+            data_type: resource
+            handler_key: Vessel
+            label: Vessel
+          - data_key: reagent
+            data_source: handle
+            data_type: resource
+            handler_key: reagent
+            label: Reagent
+          output:
+          - data_key: vessel
+            data_source: executor
+            data_type: resource
+            handler_key: VesselOut
+            label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback:
+              properties:
+                progress:
+                  type: number
+                status:
+                  type: string
+              required:
+              - status
+              - progress
+              title: AdjustPH_Feedback
+              type: object
+            goal:
+              properties:
+                ph_value:
+                  type: number
+                reagent:
+                  type: string
+                vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
+              required:
+              - vessel
+              - ph_value
+              - reagent
+              title: AdjustPH_Goal
+              type: object
+            result:
+              properties:
+                message:
+                  type: string
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - success
+              - message
+              - return_info
+              title: AdjustPH_Result
+              type: object
+          required:
+          - goal
+          title: AdjustPH
+          type: object
+        type: AdjustPH
       CentrifugeProtocol:
         feedback: {}
         goal:
@@ -367,7 +653,26 @@ workstation:
           speed: 0.0
           temp: 0.0
           time: 0.0
-          vessel: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
         handles:
           input:
           - data_key: vessel
@@ -381,12 +686,13 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
         result: {}
         schema:
-          description: ROS Action Centrifuge 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 current_speed:
                   type: number
@@ -404,7 +710,6 @@ workstation:
               title: Centrifuge_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 speed:
                   type: number
@@ -413,7 +718,78 @@ workstation:
                 time:
                   type: number
                 vessel:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
               required:
               - vessel
               - speed
@@ -422,7 +798,6 @@ workstation:
               title: Centrifuge_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 message:
                   type: string
@@ -453,7 +828,26 @@ workstation:
           repeats: 0
           solvent: ''
           temp: 0.0
-          vessel: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
           volume: 0.0
         handles:
           input:
@@ -473,12 +867,13 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
         result: {}
         schema:
-          description: ROS Action Clean 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 current_device:
                   type: string
@@ -522,7 +917,6 @@ workstation:
               title: Clean_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 repeats:
                   maximum: 2147483647
@@ -533,7 +927,78 @@ workstation:
                 temp:
                   type: number
                 vessel:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
                 volume:
                   type: number
               required:
@@ -545,7 +1010,6 @@ workstation:
               title: Clean_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -573,7 +1037,26 @@ workstation:
           repeats: 0
           solvent: ''
           temp: 0.0
-          vessel: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
           volume: 0.0
         handles:
           input:
@@ -593,12 +1076,13 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
         result: {}
         schema:
-          description: ROS Action CleanVessel 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 progress:
                   type: number
@@ -610,7 +1094,6 @@ workstation:
               title: CleanVessel_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 repeats:
                   maximum: 2147483647
@@ -621,7 +1104,78 @@ workstation:
                 temp:
                   type: number
                 vessel:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
                 volume:
                   type: number
               required:
@@ -633,7 +1187,6 @@ workstation:
               title: CleanVessel_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 message:
                   type: string
@@ -656,6 +1209,10 @@ workstation:
         feedback: {}
         goal:
           amount: amount
+          event: event
+          mass: mass
+          mol: mol
+          reagent: reagent
           solvent: solvent
           stir_speed: stir_speed
           temp: temp
@@ -664,12 +1221,35 @@ workstation:
           volume: volume
         goal_default:
           amount: ''
+          event: ''
+          mass: ''
+          mol: ''
+          reagent: ''
           solvent: ''
           stir_speed: 0.0
-          temp: 0.0
-          time: 0.0
-          vessel: ''
-          volume: 0.0
+          temp: ''
+          time: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          volume: ''
         handles:
           input:
           - data_key: vessel
@@ -688,12 +1268,13 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
         result: {}
         schema:
-          description: ROS Action Dissolve 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 progress:
                   type: number
@@ -705,22 +1286,100 @@ workstation:
               title: Dissolve_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 amount:
+                  type: string
+                event:
+                  type: string
+                mass:
+                  type: string
+                mol:
+                  type: string
+                reagent:
                   type: string
                 solvent:
                   type: string
                 stir_speed:
                   type: number
                 temp:
-                  type: number
-                time:
-                  type: number
-                vessel:
                   type: string
+                time:
+                  type: string
+                vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
                 volume:
-                  type: number
+                  type: string
               required:
               - vessel
               - solvent
@@ -729,10 +1388,13 @@ workstation:
               - temp
               - time
               - stir_speed
+              - mass
+              - mol
+              - reagent
+              - event
               title: Dissolve_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 message:
                   type: string
@@ -751,16 +1413,33 @@ workstation:
           title: Dissolve
           type: object
         type: Dissolve
-      EvacuateAndRefillProtocol:
+      DryProtocol:
         feedback: {}
         goal:
-          gas: gas
-          repeats: repeats
+          compound: compound
           vessel: vessel
         goal_default:
-          gas: ''
-          repeats: 0
-          vessel: ''
+          compound: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
         handles:
           input:
           - data_key: vessel
@@ -774,12 +1453,171 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
         result: {}
         schema:
-          description: ROS Action EvacuateAndRefill 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
+              properties:
+                progress:
+                  type: number
+                status:
+                  type: string
+              required:
+              - status
+              - progress
+              title: Dry_Feedback
+              type: object
+            goal:
+              properties:
+                compound:
+                  type: string
+                vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
+              required:
+              - compound
+              - vessel
+              title: Dry_Goal
+              type: object
+            result:
+              properties:
+                message:
+                  type: string
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - success
+              - message
+              - return_info
+              title: Dry_Result
+              type: object
+          required:
+          - goal
+          title: Dry
+          type: object
+        type: Dry
+      EvacuateAndRefillProtocol:
+        feedback: {}
+        goal:
+          gas: gas
+          vessel: vessel
+        goal_default:
+          gas: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+        handles:
+          input:
+          - data_key: vessel
+            data_source: handle
+            data_type: resource
+            handler_key: Vessel
+            label: Vessel
+          output:
+          - data_key: vessel
+            data_source: executor
+            data_type: resource
+            handler_key: VesselOut
+            label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback:
               properties:
                 current_device:
                   type: string
@@ -823,24 +1661,88 @@ workstation:
               title: EvacuateAndRefill_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 gas:
                   type: string
-                repeats:
-                  maximum: 2147483647
-                  minimum: -2147483648
-                  type: integer
                 vessel:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
               required:
               - vessel
               - gas
-              - repeats
               title: EvacuateAndRefill_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -860,35 +1762,57 @@ workstation:
         feedback: {}
         goal:
           pressure: pressure
+          solvent: solvent
           stir_speed: stir_speed
           temp: temp
           time: time
           vessel: vessel
         goal_default:
           pressure: 0.0
+          solvent: ''
           stir_speed: 0.0
           temp: 0.0
-          time: 0.0
-          vessel: ''
+          time: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
         handles:
           input:
           - data_key: vessel
             data_source: handle
             data_type: resource
-            handler_key: Vessel
-            label: Vessel
+            handler_key: vessel
+            label: Evaporation Vessel
           output:
           - data_key: vessel
-            data_source: executor
+            data_source: handle
             data_type: resource
-            handler_key: VesselOut
-            label: Vessel
+            handler_key: vessel_out
+            label: Evaporation Vessel
+        placeholder_keys:
+          vessel: unilabos_nodes
         result: {}
         schema:
-          description: ROS Action Evaporate 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 current_device:
                   type: string
@@ -932,28 +1856,100 @@ workstation:
               title: Evaporate_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 pressure:
                   type: number
+                solvent:
+                  type: string
                 stir_speed:
                   type: number
                 temp:
                   type: number
                 time:
-                  type: number
-                vessel:
                   type: string
+                vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
               required:
               - vessel
               - pressure
               - temp
               - time
               - stir_speed
+              - solvent
               title: Evaporate_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -981,11 +1977,49 @@ workstation:
           volume: volume
         goal_default:
           continue_heatchill: false
-          filtrate_vessel: ''
+          filtrate_vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
           stir: false
           stir_speed: 0.0
           temp: 0.0
-          vessel: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
           volume: 0.0
         handles:
           input:
@@ -994,7 +2028,7 @@ workstation:
             data_type: resource
             handler_key: Vessel
             label: Vessel
-          - data_key: vessel
+          - data_key: filtrate_vessel
             data_source: handle
             data_type: resource
             handler_key: filtrate_vessel
@@ -1005,17 +2039,19 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
-          - data_key: vessel
+          - data_key: filtrate_vessel
             data_source: executor
             data_type: resource
             handler_key: filtrate_out
             label: Filtrate Vessel
+        placeholder_keys:
+          filtrate_vessel: unilabos_resources
+          vessel: unilabos_nodes
         result: {}
         schema:
-          description: ROS Action Filter 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 current_status:
                   type: string
@@ -1033,12 +2069,82 @@ workstation:
               title: Filter_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 continue_heatchill:
                   type: boolean
                 filtrate_vessel:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
                 stir:
                   type: boolean
                 stir_speed:
@@ -1046,7 +2152,78 @@ workstation:
                 temp:
                   type: number
                 vessel:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
                 volume:
                   type: number
               required:
@@ -1060,7 +2237,6 @@ workstation:
               title: Filter_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 message:
                   type: string
@@ -1093,10 +2269,67 @@ workstation:
           eluting_repeats: 0
           eluting_solvent: ''
           eluting_volume: 0.0
-          filter_through: ''
-          from_vessel: ''
+          filter_through:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          from_vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
           residence_time: 0.0
-          to_vessel: ''
+          to_vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
         handles:
           input:
           - data_key: vessel
@@ -1125,12 +2358,14 @@ workstation:
             data_type: resource
             handler_key: ToVesselOut
             label: To Vessel
+        placeholder_keys:
+          from_vessel: unilabos_resources
+          to_vessel: unilabos_resources
         result: {}
         schema:
-          description: ROS Action FilterThrough 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 progress:
                   type: number
@@ -1142,7 +2377,6 @@ workstation:
               title: FilterThrough_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 eluting_repeats:
                   maximum: 2147483647
@@ -1153,13 +2387,226 @@ workstation:
                 eluting_volume:
                   type: number
                 filter_through:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
                 from_vessel:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
                 residence_time:
                   type: number
                 to_vessel:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
               required:
               - from_vessel
               - to_vessel
@@ -1171,7 +2618,6 @@ workstation:
               title: FilterThrough_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 message:
                   type: string
@@ -1193,19 +2639,46 @@ workstation:
       HeatChillProtocol:
         feedback: {}
         goal:
+          pressure: pressure
           purpose: purpose
+          reflux_solvent: reflux_solvent
           stir: stir
           stir_speed: stir_speed
           temp: temp
+          temp_spec: temp_spec
           time: time
+          time_spec: time_spec
           vessel: vessel
         goal_default:
+          pressure: ''
           purpose: ''
+          reflux_solvent: ''
           stir: false
           stir_speed: 0.0
           temp: 0.0
-          time: 0.0
-          vessel: ''
+          temp_spec: ''
+          time: ''
+          time_spec: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
         handles:
           input:
           - data_key: vessel
@@ -1219,12 +2692,13 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
         result: {}
         schema:
-          description: ROS Action HeatChill 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -1233,9 +2707,12 @@ workstation:
               title: HeatChill_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
+                pressure:
+                  type: string
                 purpose:
+                  type: string
+                reflux_solvent:
                   type: string
                 stir:
                   type: boolean
@@ -1243,29 +2720,110 @@ workstation:
                   type: number
                 temp:
                   type: number
-                time:
-                  type: number
-                vessel:
+                temp_spec:
                   type: string
+                time:
+                  type: string
+                time_spec:
+                  type: string
+                vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
               required:
               - vessel
               - temp
               - time
+              - temp_spec
+              - time_spec
+              - pressure
+              - reflux_solvent
               - stir
               - stir_speed
               - purpose
               title: HeatChill_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
+                message:
+                  type: string
                 return_info:
                   type: string
                 success:
                   type: boolean
               required:
-              - return_info
               - success
+              - message
+              - return_info
               title: HeatChill_Result
               type: object
           required:
@@ -1282,7 +2840,26 @@ workstation:
         goal_default:
           purpose: ''
           temp: 0.0
-          vessel: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
         handles:
           input:
           - data_key: vessel
@@ -1296,12 +2873,13 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
         result: {}
         schema:
-          description: ROS Action HeatChillStart 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -1310,14 +2888,84 @@ workstation:
               title: HeatChillStart_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 purpose:
                   type: string
                 temp:
                   type: number
                 vessel:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
               required:
               - vessel
               - temp
@@ -1325,7 +2973,6 @@ workstation:
               title: HeatChillStart_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -1346,7 +2993,26 @@ workstation:
         goal:
           vessel: vessel
         goal_default:
-          vessel: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
         handles:
           input:
           - data_key: vessel
@@ -1360,12 +3026,13 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
         result: {}
         schema:
-          description: ROS Action HeatChillStop 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -1374,16 +3041,85 @@ workstation:
               title: HeatChillStop_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 vessel:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
               required:
               - vessel
               title: HeatChillStop_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -1399,28 +3135,239 @@ workstation:
           title: HeatChillStop
           type: object
         type: HeatChillStop
+      HydrogenateProtocol:
+        feedback: {}
+        goal:
+          temp: temp
+          time: time
+          vessel: vessel
+        goal_default:
+          temp: ''
+          time: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+        handles:
+          input:
+          - data_key: vessel
+            data_source: handle
+            data_type: resource
+            handler_key: Vessel
+            label: Vessel
+          output:
+          - data_key: vessel
+            data_source: executor
+            data_type: resource
+            handler_key: VesselOut
+            label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback:
+              properties:
+                progress:
+                  type: number
+                status:
+                  type: string
+              required:
+              - status
+              - progress
+              title: Hydrogenate_Feedback
+              type: object
+            goal:
+              properties:
+                temp:
+                  type: string
+                time:
+                  type: string
+                vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
+              required:
+              - temp
+              - time
+              - vessel
+              title: Hydrogenate_Goal
+              type: object
+            result:
+              properties:
+                message:
+                  type: string
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - success
+              - message
+              - return_info
+              title: Hydrogenate_Result
+              type: object
+          required:
+          - goal
+          title: Hydrogenate
+          type: object
+        type: Hydrogenate
       PumpTransferProtocol:
         feedback: {}
         goal:
           amount: amount
+          event: event
+          flowrate: flowrate
           from_vessel: from_vessel
+          rate_spec: rate_spec
           rinsing_repeats: rinsing_repeats
           rinsing_solvent: rinsing_solvent
           rinsing_volume: rinsing_volume
           solid: solid
+          through: through
           time: time
           to_vessel: to_vessel
+          transfer_flowrate: transfer_flowrate
           viscous: viscous
           volume: volume
         goal_default:
           amount: ''
-          from_vessel: ''
+          event: ''
+          flowrate: 0.0
+          from_vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          rate_spec: ''
           rinsing_repeats: 0
           rinsing_solvent: ''
           rinsing_volume: 0.0
           solid: false
+          through: ''
           time: 0.0
-          to_vessel: ''
+          to_vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          transfer_flowrate: 0.0
           viscous: false
           volume: 0.0
         handles:
@@ -1451,12 +3398,14 @@ workstation:
             data_type: resource
             handler_key: ToVesselOut
             label: To Vessel
+        placeholder_keys:
+          from_vessel: unilabos_nodes
+          to_vessel: unilabos_nodes
         result: {}
         schema:
-          description: ROS Action PumpTransfer 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 current_device:
                   type: string
@@ -1500,11 +3449,87 @@ workstation:
               title: PumpTransfer_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 amount:
                   type: string
+                event:
+                  type: string
+                flowrate:
+                  type: number
                 from_vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
+                rate_spec:
                   type: string
                 rinsing_repeats:
                   maximum: 2147483647
@@ -1516,10 +3541,85 @@ workstation:
                   type: number
                 solid:
                   type: boolean
+                through:
+                  type: string
                 time:
                   type: number
                 to_vessel:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
+                transfer_flowrate:
+                  type: number
                 viscous:
                   type: boolean
                 volume:
@@ -1535,10 +3635,14 @@ workstation:
               - rinsing_volume
               - rinsing_repeats
               - solid
+              - flowrate
+              - transfer_flowrate
+              - rate_spec
+              - event
+              - through
               title: PumpTransfer_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -1554,6 +3658,339 @@ workstation:
           title: PumpTransfer
           type: object
         type: PumpTransfer
+      RecrystallizeProtocol:
+        feedback: {}
+        goal:
+          ratio: ratio
+          solvent1: solvent1
+          solvent2: solvent2
+          vessel: vessel
+          volume: volume
+        goal_default:
+          ratio: ''
+          solvent1: ''
+          solvent2: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          volume: ''
+        handles:
+          input:
+          - data_key: vessel
+            data_source: handle
+            data_type: resource
+            handler_key: Vessel
+            label: Vessel
+          - data_key: solvent1
+            data_source: handle
+            data_type: resource
+            handler_key: solvent1
+            label: Solvent 1
+          - data_key: solvent2
+            data_source: handle
+            data_type: resource
+            handler_key: solvent2
+            label: Solvent 2
+          output:
+          - data_key: vessel
+            data_source: executor
+            data_type: resource
+            handler_key: VesselOut
+            label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback:
+              properties:
+                progress:
+                  type: number
+                status:
+                  type: string
+              required:
+              - status
+              - progress
+              title: Recrystallize_Feedback
+              type: object
+            goal:
+              properties:
+                ratio:
+                  type: string
+                solvent1:
+                  type: string
+                solvent2:
+                  type: string
+                vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
+                volume:
+                  type: string
+              required:
+              - ratio
+              - solvent1
+              - solvent2
+              - vessel
+              - volume
+              title: Recrystallize_Goal
+              type: object
+            result:
+              properties:
+                message:
+                  type: string
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - success
+              - message
+              - return_info
+              title: Recrystallize_Result
+              type: object
+          required:
+          - goal
+          title: Recrystallize
+          type: object
+        type: Recrystallize
+      ResetHandlingProtocol:
+        feedback: {}
+        goal:
+          solvent: solvent
+        goal_default:
+          solvent: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+        handles:
+          input:
+          - data_key: solvent
+            data_source: handle
+            data_type: resource
+            handler_key: solvent
+            label: Solvent
+          output: []
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback:
+              properties:
+                progress:
+                  type: number
+                status:
+                  type: string
+              required:
+              - status
+              - progress
+              title: ResetHandling_Feedback
+              type: object
+            goal:
+              properties:
+                solvent:
+                  type: string
+                vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
+              required:
+              - solvent
+              - vessel
+              title: ResetHandling_Goal
+              type: object
+            result:
+              properties:
+                message:
+                  type: string
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - success
+              - message
+              - return_info
+              title: ResetHandling_Result
+              type: object
+          required:
+          - goal
+          title: ResetHandling
+          type: object
+        type: ResetHandling
       RunColumnProtocol:
         feedback: {}
         goal:
@@ -1562,8 +3999,52 @@ workstation:
           to_vessel: to_vessel
         goal_default:
           column: ''
-          from_vessel: ''
-          to_vessel: ''
+          from_vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          pct1: ''
+          pct2: ''
+          ratio: ''
+          rf: ''
+          solvent1: ''
+          solvent2: ''
+          to_vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
         handles:
           input:
           - data_key: vessel
@@ -1587,12 +4068,15 @@ workstation:
             data_type: resource
             handler_key: ToVesselOut
             label: To Vessel
+        placeholder_keys:
+          column: unilabos_devices
+          from_vessel: unilabos_resources
+          to_vessel: unilabos_resources
         result: {}
         schema:
-          description: ROS Action RunColumn 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 progress:
                   type: number
@@ -1604,22 +4088,180 @@ workstation:
               title: RunColumn_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 column:
                   type: string
                 from_vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
+                pct1:
+                  type: string
+                pct2:
+                  type: string
+                ratio:
+                  type: string
+                rf:
+                  type: string
+                solvent1:
+                  type: string
+                solvent2:
                   type: string
                 to_vessel:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
               required:
               - from_vessel
               - to_vessel
               - column
+              - rf
+              - pct1
+              - pct2
+              - solvent1
+              - solvent2
+              - ratio
               title: RunColumn_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 message:
                   type: string
@@ -1655,19 +4297,156 @@ workstation:
           to_vessel: to_vessel
           waste_phase_to_vessel: waste_phase_to_vessel
         goal_default:
-          from_vessel: ''
+          from_vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
           product_phase: ''
+          product_vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
           purpose: ''
           repeats: 0
-          separation_vessel: ''
+          separation_vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
           settling_time: 0.0
           solvent: ''
-          solvent_volume: 0.0
+          solvent_volume: ''
           stir_speed: 0.0
           stir_time: 0.0
           through: ''
-          to_vessel: ''
-          waste_phase_to_vessel: ''
+          to_vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          volume: ''
+          waste_phase_to_vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          waste_vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
         handles:
           input:
           - data_key: vessel
@@ -1696,61 +4475,176 @@ workstation:
             data_type: resource
             handler_key: ToVesselOut
             label: To Vessel
+        placeholder_keys:
+          from_vessel: unilabos_resources
+          to_vessel: unilabos_resources
+          waste_phase_to_vessel: unilabos_resources
+          waste_vessel: unilabos_resources
         result: {}
         schema:
-          description: ROS Action Separate 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
-                current_device:
-                  type: string
+                progress:
+                  type: number
                 status:
                   type: string
-                time_remaining:
-                  properties:
-                    nanosec:
-                      maximum: 4294967295
-                      minimum: 0
-                      type: integer
-                    sec:
-                      maximum: 2147483647
-                      minimum: -2147483648
-                      type: integer
-                  required:
-                  - sec
-                  - nanosec
-                  title: Duration
-                  type: object
-                time_spent:
-                  properties:
-                    nanosec:
-                      maximum: 4294967295
-                      minimum: 0
-                      type: integer
-                    sec:
-                      maximum: 2147483647
-                      minimum: -2147483648
-                      type: integer
-                  required:
-                  - sec
-                  - nanosec
-                  title: Duration
-                  type: object
               required:
               - status
-              - current_device
-              - time_spent
-              - time_remaining
+              - progress
               title: Separate_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 from_vessel:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
                 product_phase:
                   type: string
+                product_vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
                 purpose:
                   type: string
                 repeats:
@@ -1758,13 +4652,84 @@ workstation:
                   minimum: -2147483648
                   type: integer
                 separation_vessel:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
                 settling_time:
                   type: number
                 solvent:
                   type: string
                 solvent_volume:
-                  type: number
+                  type: string
                 stir_speed:
                   type: number
                 stir_time:
@@ -1772,18 +4737,312 @@ workstation:
                 through:
                   type: string
                 to_vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
+                vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
+                volume:
                   type: string
                 waste_phase_to_vessel:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
+                waste_vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
               required:
+              - vessel
               - purpose
               - product_phase
               - from_vessel
               - separation_vessel
               - to_vessel
               - waste_phase_to_vessel
+              - product_vessel
+              - waste_vessel
               - solvent
               - solvent_volume
+              - volume
               - through
               - repeats
               - stir_time
@@ -1792,15 +5051,17 @@ workstation:
               title: Separate_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
+                message:
+                  type: string
                 return_info:
                   type: string
                 success:
                   type: boolean
               required:
-              - return_info
               - success
+              - message
+              - return_info
               title: Separate_Result
               type: object
           required:
@@ -1817,7 +5078,26 @@ workstation:
         goal_default:
           purpose: ''
           stir_speed: 0.0
-          vessel: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
         handles:
           input:
           - data_key: vessel
@@ -1831,12 +5111,13 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
         result: {}
         schema:
-          description: ROS Action StartStir 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 current_speed:
                   type: number
@@ -1851,14 +5132,84 @@ workstation:
               title: StartStir_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 purpose:
                   type: string
                 stir_speed:
                   type: number
                 vessel:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
               required:
               - vessel
               - stir_speed
@@ -1866,7 +5217,6 @@ workstation:
               title: StartStir_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 message:
                   type: string
@@ -1888,13 +5238,40 @@ workstation:
       StirProtocol:
         feedback: {}
         goal:
+          event: event
           settling_time: settling_time
           stir_speed: stir_speed
           stir_time: stir_time
+          time: time
+          time_spec: time_spec
+          vessel: vessel
         goal_default:
-          settling_time: 0.0
+          event: ''
+          settling_time: ''
           stir_speed: 0.0
           stir_time: 0.0
+          time: ''
+          time_spec: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
         handles:
           input:
           - data_key: vessel
@@ -1908,12 +5285,13 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
         result: {}
         schema:
-          description: ROS Action Stir 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -1922,30 +5300,114 @@ workstation:
               title: Stir_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
+                event:
+                  type: string
                 settling_time:
-                  type: number
+                  type: string
                 stir_speed:
                   type: number
                 stir_time:
                   type: number
+                time:
+                  type: string
+                time_spec:
+                  type: string
+                vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
               required:
+              - vessel
+              - time
+              - event
+              - time_spec
               - stir_time
               - stir_speed
               - settling_time
               title: Stir_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
+                message:
+                  type: string
                 return_info:
                   type: string
                 success:
                   type: boolean
               required:
-              - return_info
               - success
+              - message
+              - return_info
               title: Stir_Result
               type: object
           required:
@@ -1958,7 +5420,26 @@ workstation:
         goal:
           vessel: vessel
         goal_default:
-          vessel: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
         handles:
           input:
           - data_key: vessel
@@ -1972,12 +5453,13 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel
+        placeholder_keys:
+          vessel: unilabos_resources
         result: {}
         schema:
-          description: ROS Action StopStir 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 current_status:
                   type: string
@@ -1989,16 +5471,85 @@ workstation:
               title: StopStir_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 vessel:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
               required:
               - vessel
               title: StopStir_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 message:
                   type: string
@@ -2069,12 +5620,14 @@ workstation:
             data_type: resource
             handler_key: ToVesselOut
             label: To Vessel
+        placeholder_keys:
+          from_vessel: unilabos_nodes
+          to_vessel: unilabos_nodes
         result: {}
         schema:
-          description: ROS Action Transfer 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 current_status:
                   type: string
@@ -2089,7 +5642,6 @@ workstation:
               title: Transfer_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 amount:
                   type: string
@@ -2127,7 +5679,6 @@ workstation:
               title: Transfer_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 message:
                   type: string
@@ -2159,15 +5710,57 @@ workstation:
           vessel: vessel
           volume: volume
         goal_default:
-          filtrate_vessel: ''
+          event: ''
+          filtrate_vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          mass: ''
           repeats: 0
+          repeats_spec: ''
           solvent: ''
           stir: false
           stir_speed: 0.0
           temp: 0.0
-          time: 0.0
-          vessel: ''
-          volume: 0.0
+          time: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          volume: ''
+          volume_spec: ''
         handles:
           input:
           - data_key: vessel
@@ -2180,8 +5773,8 @@ workstation:
             data_type: resource
             handler_key: solvent
             label: Solvent
-          - data_key: vessel
-            data_source: executor
+          - data_key: filtrate_vessel
+            data_source: handle
             data_type: resource
             handler_key: filtrate_vessel
             label: Filtrate Vessel
@@ -2191,17 +5784,19 @@ workstation:
             data_type: resource
             handler_key: VesselOut
             label: Vessel Out
-          - data_key: vessel
+          - data_key: filtrate_vessel
             data_source: executor
             data_type: resource
             handler_key: filtrate_vessel_out
             label: Filtrate Vessel
+        placeholder_keys:
+          filtrate_vessel: unilabos_resources
+          vessel: unilabos_resources
         result: {}
         schema:
-          description: ROS Action WashSolid 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 progress:
                   type: number
@@ -2213,14 +5808,90 @@ workstation:
               title: WashSolid_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
+                event:
+                  type: string
                 filtrate_vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
+                mass:
                   type: string
                 repeats:
                   maximum: 2147483647
                   minimum: -2147483648
                   type: integer
+                repeats_spec:
+                  type: string
                 solvent:
                   type: string
                 stir:
@@ -2230,11 +5901,84 @@ workstation:
                 temp:
                   type: number
                 time:
-                  type: number
-                vessel:
                   type: string
+                vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
                 volume:
-                  type: number
+                  type: string
+                volume_spec:
+                  type: string
               required:
               - vessel
               - solvent
@@ -2245,10 +5989,13 @@ workstation:
               - stir_speed
               - time
               - repeats
+              - volume_spec
+              - repeats_spec
+              - mass
+              - event
               title: WashSolid_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 message:
                   type: string
@@ -2276,17 +6023,14 @@ workstation:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand create_ros_action_server 的参数schema
+          description: create_ros_action_server的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand create_ros_action_server 的参数schema
               properties:
                 action_name:
-                  description: '参数: action_name'
                   type: string
                 action_value_mapping:
-                  description: '参数: action_value_mapping'
                   type: string
               required:
               - action_name
@@ -2295,7 +6039,7 @@ workstation:
             result: {}
           required:
           - goal
-          title: create_ros_action_server 命令参数
+          title: create_ros_action_server参数
           type: object
         type: UniLabJsonCommand
       auto-execute_single_action:
@@ -2308,20 +6052,16 @@ workstation:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand execute_single_action 的参数schema
+          description: execute_single_action的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand execute_single_action 的参数schema
               properties:
                 action_kwargs:
-                  description: '参数: action_kwargs'
                   type: string
                 action_name:
-                  description: '参数: action_name'
                   type: string
                 device_id:
-                  description: '参数: device_id'
                   type: string
               required:
               - device_id
@@ -2331,7 +6071,7 @@ workstation:
             result: {}
           required:
           - goal
-          title: execute_single_action 命令参数
+          title: execute_single_action参数
           type: object
         type: UniLabJsonCommandAsync
       auto-initialize_device:
@@ -2343,17 +6083,14 @@ workstation:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand initialize_device 的参数schema
+          description: initialize_device的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand initialize_device 的参数schema
               properties:
                 device_config:
-                  description: '参数: device_config'
                   type: string
                 device_id:
-                  description: '参数: device_id'
                   type: string
               required:
               - device_id
@@ -2362,50 +6099,35 @@ workstation:
             result: {}
           required:
           - goal
-          title: initialize_device 命令参数
+          title: initialize_device参数
           type: object
         type: UniLabJsonCommand
     module: unilabos.ros.nodes.presets.protocol_node:ROS2ProtocolNode
     status_types: {}
     type: ros2
+  config_info: []
   description: Workstation
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          args:
-            description: '参数: args'
-            type: string
-          children:
-            description: '参数: children'
-            type: object
-          device_id:
-            description: '参数: device_id'
-            type: string
-          kwargs:
-            description: '参数: kwargs'
-            type: string
-          protocol_type:
-            description: '参数: protocol_type'
-            type: string
-          resource_tracker:
-            description: '参数: resource_tracker'
-            type: string
-        required:
-        - device_id
-        - children
-        - protocol_type
-        - resource_tracker
-        - args
-        - kwargs
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        children:
+          type: object
+        device_id:
+          type: string
+        protocol_type:
+          type: string
+        resource_tracker:
+          type: string
+      required:
+      - device_id
+      - children
+      - protocol_type
+      - resource_tracker
+      type: object
+    data:
+      properties: {}
+      required: []
+      type: object
+  version: 1.0.0

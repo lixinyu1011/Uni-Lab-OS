@@ -1,4 +1,6 @@
 liquid_handler:
+  category:
+  - liquid_handler
   class:
     action_value_mappings:
       add_liquid:
@@ -86,18 +88,19 @@ liquid_handler:
           use_channels:
           - 0
         handles: []
+        placeholder_keys:
+          reagent_sources: unilabos_resources
+          targets: unilabos_resources
         result: {}
         schema:
-          description: ROS Action LiquidHandlerAdd 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerAdd_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 asp_vols:
                   items:
@@ -333,7 +336,6 @@ liquid_handler:
               title: LiquidHandlerAdd_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -400,16 +402,14 @@ liquid_handler:
         result:
           name: name
         schema:
-          description: ROS Action LiquidHandlerAspirate 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerAspirate_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 blow_out_air_volume:
                   items:
@@ -538,7 +538,6 @@ liquid_handler:
               title: LiquidHandlerAspirate_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -554,102 +553,6 @@ liquid_handler:
           title: LiquidHandlerAspirate
           type: object
         type: LiquidHandlerAspirate
-      auto-add_liquid:
-        feedback: {}
-        goal: {}
-        goal_default:
-          asp_vols: null
-          blow_out_air_volume: null
-          delays: null
-          dis_vols: null
-          flow_rates: null
-          is_96_well: false
-          liquid_height: null
-          mix_liquid_height: null
-          mix_rate: null
-          mix_time: null
-          mix_vol: null
-          none_keys: []
-          offsets: null
-          reagent_sources: null
-          spread: wide
-          targets: null
-          use_channels: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand add_liquid 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand add_liquid 的参数schema
-              properties:
-                asp_vols:
-                  description: '参数: asp_vols'
-                  type: string
-                blow_out_air_volume:
-                  description: '参数: blow_out_air_volume'
-                  type: string
-                delays:
-                  description: '参数: delays'
-                  type: string
-                dis_vols:
-                  description: '参数: dis_vols'
-                  type: string
-                flow_rates:
-                  description: '参数: flow_rates'
-                  type: string
-                is_96_well:
-                  default: false
-                  description: '参数: is_96_well'
-                  type: boolean
-                liquid_height:
-                  description: '参数: liquid_height'
-                  type: string
-                mix_liquid_height:
-                  description: '参数: mix_liquid_height'
-                  type: string
-                mix_rate:
-                  description: '参数: mix_rate'
-                  type: string
-                mix_time:
-                  description: '参数: mix_time'
-                  type: string
-                mix_vol:
-                  description: '参数: mix_vol'
-                  type: string
-                none_keys:
-                  default: []
-                  description: '参数: none_keys'
-                  type: string
-                offsets:
-                  description: '参数: offsets'
-                  type: string
-                reagent_sources:
-                  description: '参数: reagent_sources'
-                  type: string
-                spread:
-                  default: wide
-                  description: '参数: spread'
-                  type: string
-                targets:
-                  description: '参数: targets'
-                  type: string
-                use_channels:
-                  description: '参数: use_channels'
-                  type: string
-              required:
-              - asp_vols
-              - dis_vols
-              - reagent_sources
-              - targets
-              type: object
-            result: {}
-          required:
-          - goal
-          title: add_liquid 命令参数
-          type: object
-        type: UniLabJsonCommandAsync
       auto-create_protocol:
         feedback: {}
         goal: {}
@@ -664,33 +567,25 @@ liquid_handler:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand create_protocol 的参数schema
+          description: 创建实验协议函数。用于建立新的液体处理实验协议，定义协议名称、描述、版本、作者、日期等基本信息。该函数支持协议模板化管理，便于实验流程的标准化和重复性。适用于实验设计、方法开发、标准操作程序建立等需要协议管理的应用场景。
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand create_protocol 的参数schema
               properties:
                 none_keys:
                   default: []
-                  description: '参数: none_keys'
                   type: string
                 protocol_author:
-                  description: '参数: protocol_author'
                   type: string
                 protocol_date:
-                  description: '参数: protocol_date'
                   type: string
                 protocol_description:
-                  description: '参数: protocol_description'
                   type: string
                 protocol_name:
-                  description: '参数: protocol_name'
                   type: string
                 protocol_type:
-                  description: '参数: protocol_type'
                   type: string
                 protocol_version:
-                  description: '参数: protocol_version'
                   type: string
               required:
               - protocol_name
@@ -703,7 +598,7 @@ liquid_handler:
             result: {}
           required:
           - goal
-          title: create_protocol 命令参数
+          title: create_protocol参数
           type: object
         type: UniLabJsonCommandAsync
       auto-custom_delay:
@@ -715,25 +610,22 @@ liquid_handler:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand custom_delay 的参数schema
+          description: 自定义延时函数。在实验流程中插入可配置的等待时间，用于满足特定的反应时间、孵育时间或设备稳定时间要求。支持自定义延时消息和秒数设置，提供流程控制和时间管理功能。适用于酶反应等待、温度平衡、样品孵育等需要时间控制的实验步骤。
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand custom_delay 的参数schema
               properties:
                 msg:
-                  description: '参数: msg'
                   type: string
                 seconds:
                   default: 0
-                  description: '参数: seconds'
                   type: string
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: custom_delay 命令参数
+          title: custom_delay参数
           type: object
         type: UniLabJsonCommandAsync
       auto-iter_tips:
@@ -744,14 +636,12 @@ liquid_handler:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand iter_tips 的参数schema
+          description: 吸头迭代函数。用于自动管理和切换吸头架中的吸头，实现批量实验中的吸头自动分配和追踪。该函数监控吸头使用状态，自动切换到下一个可用吸头位置，确保实验流程的连续性。适用于高通量实验、批量处理、自动化流水线等需要大量吸头管理的应用场景。
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand iter_tips 的参数schema
               properties:
                 tip_racks:
-                  description: '参数: tip_racks'
                   type: string
               required:
               - tip_racks
@@ -759,174 +649,9 @@ liquid_handler:
             result: {}
           required:
           - goal
-          title: iter_tips 命令参数
+          title: iter_tips参数
           type: object
         type: UniLabJsonCommand
-      auto-mix:
-        feedback: {}
-        goal: {}
-        goal_default:
-          height_to_bottom: null
-          mix_rate: null
-          mix_time: null
-          mix_vol: null
-          none_keys: []
-          offsets: null
-          targets: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand mix 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand mix 的参数schema
-              properties:
-                height_to_bottom:
-                  description: '参数: height_to_bottom'
-                  type: string
-                mix_rate:
-                  description: '参数: mix_rate'
-                  type: string
-                mix_time:
-                  description: '参数: mix_time'
-                  type: integer
-                mix_vol:
-                  description: '参数: mix_vol'
-                  type: string
-                none_keys:
-                  default: []
-                  description: '参数: none_keys'
-                  type: string
-                offsets:
-                  description: '参数: offsets'
-                  type: string
-                targets:
-                  description: '参数: targets'
-                  type: string
-              required:
-              - targets
-              type: object
-            result: {}
-          required:
-          - goal
-          title: mix 命令参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-move_to:
-        feedback: {}
-        goal: {}
-        goal_default:
-          channel: 0
-          dis_to_top: 0
-          well: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand move_to 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand move_to 的参数schema
-              properties:
-                channel:
-                  default: 0
-                  description: '参数: channel'
-                  type: integer
-                dis_to_top:
-                  default: 0
-                  description: '参数: dis_to_top'
-                  type: number
-                well:
-                  description: '参数: well'
-                  type: string
-              required:
-              - well
-              type: object
-            result: {}
-          required:
-          - goal
-          title: move_to 命令参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-remove_liquid:
-        feedback: {}
-        goal: {}
-        goal_default:
-          blow_out_air_volume: null
-          delays: null
-          flow_rates: null
-          is_96_well: false
-          liquid_height: null
-          none_keys: []
-          offsets: null
-          sources: null
-          spread: wide
-          top: null
-          use_channels: null
-          vols: null
-          waste_liquid: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand remove_liquid 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand remove_liquid 的参数schema
-              properties:
-                blow_out_air_volume:
-                  description: '参数: blow_out_air_volume'
-                  type: string
-                delays:
-                  description: '参数: delays'
-                  type: string
-                flow_rates:
-                  description: '参数: flow_rates'
-                  type: string
-                is_96_well:
-                  default: false
-                  description: '参数: is_96_well'
-                  type: string
-                liquid_height:
-                  description: '参数: liquid_height'
-                  type: string
-                none_keys:
-                  default: []
-                  description: '参数: none_keys'
-                  type: string
-                offsets:
-                  description: '参数: offsets'
-                  type: string
-                sources:
-                  description: '参数: sources'
-                  type: string
-                spread:
-                  default: wide
-                  description: '参数: spread'
-                  type: string
-                top:
-                  description: '参数: top'
-                  type: string
-                use_channels:
-                  description: '参数: use_channels'
-                  type: string
-                vols:
-                  description: '参数: vols'
-                  type: string
-                waste_liquid:
-                  description: '参数: waste_liquid'
-                  type: string
-              required:
-              - vols
-              - sources
-              type: object
-            result: {}
-          required:
-          - goal
-          title: remove_liquid 命令参数
-          type: object
-        type: UniLabJsonCommandAsync
       auto-set_tiprack:
         feedback: {}
         goal: {}
@@ -935,14 +660,12 @@ liquid_handler:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand set_tiprack 的参数schema
+          description: 吸头架设置函数。用于配置和初始化液体处理系统的吸头架信息，包括吸头架位置、类型、容量等参数。该函数建立吸头资源管理系统，为后续的吸头选择和使用提供基础配置。适用于系统初始化、吸头架更换、实验配置等需要吸头资源管理的操作场景。
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand set_tiprack 的参数schema
               properties:
                 tip_racks:
-                  description: '参数: tip_racks'
                   type: string
               required:
               - tip_racks
@@ -950,7 +673,7 @@ liquid_handler:
             result: {}
           required:
           - goal
-          title: set_tiprack 命令参数
+          title: set_tiprack参数
           type: object
         type: UniLabJsonCommand
       auto-touch_tip:
@@ -961,14 +684,12 @@ liquid_handler:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand touch_tip 的参数schema
+          description: 吸头碰触函数。控制移液器吸头轻触容器边缘或底部，用于去除吸头外壁附着的液滴，提高移液精度和减少污染。该函数支持多目标位置操作，可配置碰触参数和位置偏移。适用于精密移液、减少液体残留、防止交叉污染等需要提高移液质量的实验操作。
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand touch_tip 的参数schema
               properties:
                 targets:
-                  description: '参数: targets'
                   type: string
               required:
               - targets
@@ -976,122 +697,7 @@ liquid_handler:
             result: {}
           required:
           - goal
-          title: touch_tip 命令参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-transfer_liquid:
-        feedback: {}
-        goal: {}
-        goal_default:
-          asp_flow_rates: null
-          asp_vols: null
-          blow_out_air_volume: null
-          delays: null
-          dis_flow_rates: null
-          dis_vols: null
-          is_96_well: false
-          liquid_height: null
-          mix_liquid_height: null
-          mix_rate: null
-          mix_stage: none
-          mix_times: null
-          mix_vol: null
-          none_keys: []
-          offsets: null
-          sources: null
-          spread: wide
-          targets: null
-          tip_racks: null
-          touch_tip: false
-          use_channels: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand transfer_liquid 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand transfer_liquid 的参数schema
-              properties:
-                asp_flow_rates:
-                  description: '参数: asp_flow_rates'
-                  type: string
-                asp_vols:
-                  description: '参数: asp_vols'
-                  type: string
-                blow_out_air_volume:
-                  description: '参数: blow_out_air_volume'
-                  type: string
-                delays:
-                  description: '参数: delays'
-                  type: string
-                dis_flow_rates:
-                  description: '参数: dis_flow_rates'
-                  type: string
-                dis_vols:
-                  description: '参数: dis_vols'
-                  type: string
-                is_96_well:
-                  default: false
-                  description: '参数: is_96_well'
-                  type: boolean
-                liquid_height:
-                  description: '参数: liquid_height'
-                  type: string
-                mix_liquid_height:
-                  description: '参数: mix_liquid_height'
-                  type: string
-                mix_rate:
-                  description: '参数: mix_rate'
-                  type: string
-                mix_stage:
-                  default: none
-                  description: '参数: mix_stage'
-                  type: string
-                mix_times:
-                  description: '参数: mix_times'
-                  type: string
-                mix_vol:
-                  description: '参数: mix_vol'
-                  type: string
-                none_keys:
-                  default: []
-                  description: '参数: none_keys'
-                  type: string
-                offsets:
-                  description: '参数: offsets'
-                  type: string
-                sources:
-                  description: '参数: sources'
-                  type: string
-                spread:
-                  default: wide
-                  description: '参数: spread'
-                  type: string
-                targets:
-                  description: '参数: targets'
-                  type: string
-                tip_racks:
-                  description: '参数: tip_racks'
-                  type: string
-                touch_tip:
-                  default: false
-                  description: '参数: touch_tip'
-                  type: boolean
-                use_channels:
-                  description: '参数: use_channels'
-                  type: string
-              required:
-              - sources
-              - targets
-              - tip_racks
-              - asp_vols
-              - dis_vols
-              type: object
-            result: {}
-          required:
-          - goal
-          title: transfer_liquid 命令参数
+          title: touch_tip参数
           type: object
         type: UniLabJsonCommandAsync
       discard_tips:
@@ -1105,16 +711,14 @@ liquid_handler:
         result:
           name: name
         schema:
-          description: ROS Action LiquidHandlerDiscardTips 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerDiscardTips_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 use_channels:
                   items:
@@ -1127,7 +731,6 @@ liquid_handler:
               title: LiquidHandlerDiscardTips_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -1191,16 +794,14 @@ liquid_handler:
         result:
           name: name
         schema:
-          description: ROS Action LiquidHandlerDispense 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerDispense_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 blow_out_air_volume:
                   items:
@@ -1326,7 +927,6 @@ liquid_handler:
               title: LiquidHandlerDispense_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -1381,16 +981,14 @@ liquid_handler:
         result:
           name: name
         schema:
-          description: ROS Action LiquidHandlerDropTips 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerDropTips_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 allow_nonzero_volume:
                   type: boolean
@@ -1499,7 +1097,6 @@ liquid_handler:
               title: LiquidHandlerDropTips_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -1551,16 +1148,14 @@ liquid_handler:
         result:
           name: name
         schema:
-          description: ROS Action LiquidHandlerDropTips96 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerDropTips96_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 allow_nonzero_volume:
                   type: boolean
@@ -1658,7 +1253,6 @@ liquid_handler:
               title: LiquidHandlerDropTips96_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -1718,16 +1312,14 @@ liquid_handler:
         handles: []
         result: {}
         schema:
-          description: ROS Action LiquidHandlerMix 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerMix_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 height_to_bottom:
                   type: number
@@ -1847,7 +1439,6 @@ liquid_handler:
               title: LiquidHandlerMix_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -1938,16 +1529,14 @@ liquid_handler:
         result:
           name: name
         schema:
-          description: ROS Action LiquidHandlerMoveLid 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerMoveLid_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 destination_offset:
                   properties:
@@ -2163,7 +1752,6 @@ liquid_handler:
               title: LiquidHandlerMoveLid_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -2258,16 +1846,14 @@ liquid_handler:
         result:
           name: name
         schema:
-          description: ROS Action LiquidHandlerMovePlate 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerMovePlate_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 destination_offset:
                   properties:
@@ -2498,7 +2084,6 @@ liquid_handler:
               title: LiquidHandlerMovePlate_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -2573,16 +2158,14 @@ liquid_handler:
         result:
           name: name
         schema:
-          description: ROS Action LiquidHandlerMoveResource 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerMoveResource_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 destination_offset:
                   properties:
@@ -2739,7 +2322,6 @@ liquid_handler:
               title: LiquidHandlerMoveResource_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -2787,16 +2369,14 @@ liquid_handler:
         handles: []
         result: {}
         schema:
-          description: ROS Action LiquidHandlerMoveTo 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerMoveTo_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 channel:
                   maximum: 2147483647
@@ -2884,7 +2464,6 @@ liquid_handler:
               title: LiquidHandlerMoveTo_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -2937,16 +2516,14 @@ liquid_handler:
         result:
           name: name
         schema:
-          description: ROS Action LiquidHandlerPickUpTips 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerPickUpTips_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 offsets:
                   items:
@@ -3052,7 +2629,6 @@ liquid_handler:
               title: LiquidHandlerPickUpTips_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -3102,16 +2678,14 @@ liquid_handler:
         result:
           name: name
         schema:
-          description: ROS Action LiquidHandlerPickUpTips96 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerPickUpTips96_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 offset:
                   properties:
@@ -3206,7 +2780,6 @@ liquid_handler:
               title: LiquidHandlerPickUpTips96_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -3304,16 +2877,14 @@ liquid_handler:
         handles: []
         result: {}
         schema:
-          description: ROS Action LiquidHandlerRemove 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerRemove_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 blow_out_air_volume:
                   items:
@@ -3536,7 +3107,336 @@ liquid_handler:
               title: LiquidHandlerRemove_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: LiquidHandlerRemove_Result
+              type: object
+          required:
+          - goal
+          title: LiquidHandlerRemove
+          type: object
+        type: LiquidHandlerRemove
+      remove_liquid:
+        feedback: {}
+        goal:
+          blow_out_air_volume: blow_out_air_volume
+          delays: delays
+          flow_rates: flow_rates
+          is_96_well: is_96_well
+          liquid_height: liquid_height
+          none_keys: none_keys
+          offsets: offsets
+          sources: sources
+          spread: spread
+          top: top
+          use_channels: use_channels
+          vols: vols
+          waste_liquid: waste_liquid
+        goal_default:
+          blow_out_air_volume:
+          - 0.0
+          delays:
+          - 0
+          flow_rates:
+          - 0.0
+          is_96_well: false
+          liquid_height:
+          - 0.0
+          none_keys:
+          - ''
+          offsets:
+          - x: 0.0
+            y: 0.0
+            z: 0.0
+          sources:
+          - category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          spread: ''
+          top:
+          - 0.0
+          use_channels:
+          - 0
+          vols:
+          - 0.0
+          waste_liquid:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+        handles: []
+        placeholder_keys:
+          sources: unilabos_resources
+          waste_liquid: unilabos_resources
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback:
+              properties: {}
+              required: []
+              title: LiquidHandlerRemove_Feedback
+              type: object
+            goal:
+              properties:
+                blow_out_air_volume:
+                  items:
+                    type: number
+                  type: array
+                delays:
+                  items:
+                    maximum: 2147483647
+                    minimum: -2147483648
+                    type: integer
+                  type: array
+                flow_rates:
+                  items:
+                    type: number
+                  type: array
+                is_96_well:
+                  type: boolean
+                liquid_height:
+                  items:
+                    type: number
+                  type: array
+                none_keys:
+                  items:
+                    type: string
+                  type: array
+                offsets:
+                  items:
+                    properties:
+                      x:
+                        type: number
+                      y:
+                        type: number
+                      z:
+                        type: number
+                    required:
+                    - x
+                    - y
+                    - z
+                    title: Point
+                    type: object
+                  type: array
+                sources:
+                  items:
+                    properties:
+                      category:
+                        type: string
+                      children:
+                        items:
+                          type: string
+                        type: array
+                      config:
+                        type: string
+                      data:
+                        type: string
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      parent:
+                        type: string
+                      pose:
+                        properties:
+                          orientation:
+                            properties:
+                              w:
+                                type: number
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            - w
+                            title: Quaternion
+                            type: object
+                          position:
+                            properties:
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            title: Point
+                            type: object
+                        required:
+                        - position
+                        - orientation
+                        title: Pose
+                        type: object
+                      sample_id:
+                        type: string
+                      type:
+                        type: string
+                    required:
+                    - id
+                    - name
+                    - sample_id
+                    - children
+                    - parent
+                    - type
+                    - category
+                    - pose
+                    - config
+                    - data
+                    title: Resource
+                    type: object
+                  type: array
+                spread:
+                  type: string
+                top:
+                  items:
+                    type: number
+                  type: array
+                use_channels:
+                  items:
+                    maximum: 2147483647
+                    minimum: -2147483648
+                    type: integer
+                  type: array
+                vols:
+                  items:
+                    type: number
+                  type: array
+                waste_liquid:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
+              required:
+              - vols
+              - sources
+              - waste_liquid
+              - use_channels
+              - flow_rates
+              - offsets
+              - liquid_height
+              - blow_out_air_volume
+              - spread
+              - delays
+              - is_96_well
+              - top
+              - none_keys
+              title: LiquidHandlerRemove_Goal
+              type: object
+            result:
               properties:
                 return_info:
                   type: string
@@ -3565,16 +3465,14 @@ liquid_handler:
         result:
           name: name
         schema:
-          description: ROS Action LiquidHandlerReturnTips 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerReturnTips_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 allow_nonzero_volume:
                   type: boolean
@@ -3590,7 +3488,6 @@ liquid_handler:
               title: LiquidHandlerReturnTips_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -3616,16 +3513,14 @@ liquid_handler:
         result:
           name: name
         schema:
-          description: ROS Action LiquidHandlerReturnTips96 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerReturnTips96_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 allow_nonzero_volume:
                   type: boolean
@@ -3634,7 +3529,6 @@ liquid_handler:
               title: LiquidHandlerReturnTips96_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -3706,16 +3600,14 @@ liquid_handler:
         result:
           name: name
         schema:
-          description: ROS Action LiquidHandlerStamp 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerStamp_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 aspiration_flow_rate:
                   type: number
@@ -3878,7 +3770,6 @@ liquid_handler:
               title: LiquidHandlerStamp_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -3904,456 +3795,90 @@ liquid_handler:
           target_vols: target_vols
           targets: targets
         goal_default:
-          asp_flow_rates:
-          - 0.0
-          asp_vols:
-          - 0.0
-          blow_out_air_volume:
-          - 0.0
-          delays:
-          - 0
-          dis_flow_rates:
-          - 0.0
-          dis_vols:
-          - 0.0
-          is_96_well: false
-          liquid_height:
-          - 0.0
-          mix_liquid_height: 0.0
-          mix_rate: 0
-          mix_stage: ''
-          mix_times:
-          - 0
-          mix_vol: 0
-          none_keys:
-          - ''
-          offsets:
-          - x: 0.0
-            y: 0.0
-            z: 0.0
-          sources:
-          - category: ''
-            children: []
-            config: ''
-            data: ''
-            id: ''
-            name: ''
-            parent: ''
-            pose:
-              orientation:
-                w: 1.0
-                x: 0.0
-                y: 0.0
-                z: 0.0
-              position:
-                x: 0.0
-                y: 0.0
-                z: 0.0
-            sample_id: ''
-            type: ''
-          spread: ''
-          targets:
-          - category: ''
-            children: []
-            config: ''
-            data: ''
-            id: ''
-            name: ''
-            parent: ''
-            pose:
-              orientation:
-                w: 1.0
-                x: 0.0
-                y: 0.0
-                z: 0.0
-              position:
-                x: 0.0
-                y: 0.0
-                z: 0.0
-            sample_id: ''
-            type: ''
-          tip_racks:
-          - category: ''
-            children: []
-            config: ''
-            data: ''
-            id: ''
-            name: ''
-            parent: ''
-            pose:
-              orientation:
-                w: 1.0
-                x: 0.0
-                y: 0.0
-                z: 0.0
-              position:
-                x: 0.0
-                y: 0.0
-                z: 0.0
-            sample_id: ''
-            type: ''
-          touch_tip: false
-          use_channels:
-          - 0
+          amount: ''
+          from_vessel: ''
+          rinsing_repeats: 0
+          rinsing_solvent: ''
+          rinsing_volume: 0.0
+          solid: false
+          time: 0.0
+          to_vessel: ''
+          viscous: false
+          volume: 0.0
         handles: []
         schema:
-          description: ROS Action LiquidHandlerTransfer 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
-              properties: {}
-              required: []
-              title: LiquidHandlerTransfer_Feedback
+              properties:
+                current_status:
+                  type: string
+                progress:
+                  type: number
+                transferred_volume:
+                  type: number
+              required:
+              - progress
+              - transferred_volume
+              - current_status
+              title: Transfer_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
-                asp_flow_rates:
-                  items:
-                    type: number
-                  type: array
-                asp_vols:
-                  items:
-                    type: number
-                  type: array
-                blow_out_air_volume:
-                  items:
-                    type: number
-                  type: array
-                delays:
-                  items:
-                    maximum: 2147483647
-                    minimum: -2147483648
-                    type: integer
-                  type: array
-                dis_flow_rates:
-                  items:
-                    type: number
-                  type: array
-                dis_vols:
-                  items:
-                    type: number
-                  type: array
-                is_96_well:
-                  type: boolean
-                liquid_height:
-                  items:
-                    type: number
-                  type: array
-                mix_liquid_height:
+                amount:
+                  type: string
+                from_vessel:
+                  type: string
+                rinsing_repeats:
+                  maximum: 2147483647
+                  minimum: -2147483648
+                  type: integer
+                rinsing_solvent:
+                  type: string
+                rinsing_volume:
                   type: number
-                mix_rate:
-                  maximum: 2147483647
-                  minimum: -2147483648
-                  type: integer
-                mix_stage:
-                  type: string
-                mix_times:
-                  items:
-                    maximum: 2147483647
-                    minimum: -2147483648
-                    type: integer
-                  type: array
-                mix_vol:
-                  maximum: 2147483647
-                  minimum: -2147483648
-                  type: integer
-                none_keys:
-                  items:
-                    type: string
-                  type: array
-                offsets:
-                  items:
-                    properties:
-                      x:
-                        type: number
-                      y:
-                        type: number
-                      z:
-                        type: number
-                    required:
-                    - x
-                    - y
-                    - z
-                    title: Point
-                    type: object
-                  type: array
-                sources:
-                  items:
-                    properties:
-                      category:
-                        type: string
-                      children:
-                        items:
-                          type: string
-                        type: array
-                      config:
-                        type: string
-                      data:
-                        type: string
-                      id:
-                        type: string
-                      name:
-                        type: string
-                      parent:
-                        type: string
-                      pose:
-                        properties:
-                          orientation:
-                            properties:
-                              w:
-                                type: number
-                              x:
-                                type: number
-                              y:
-                                type: number
-                              z:
-                                type: number
-                            required:
-                            - x
-                            - y
-                            - z
-                            - w
-                            title: Quaternion
-                            type: object
-                          position:
-                            properties:
-                              x:
-                                type: number
-                              y:
-                                type: number
-                              z:
-                                type: number
-                            required:
-                            - x
-                            - y
-                            - z
-                            title: Point
-                            type: object
-                        required:
-                        - position
-                        - orientation
-                        title: Pose
-                        type: object
-                      sample_id:
-                        type: string
-                      type:
-                        type: string
-                    required:
-                    - id
-                    - name
-                    - sample_id
-                    - children
-                    - parent
-                    - type
-                    - category
-                    - pose
-                    - config
-                    - data
-                    title: Resource
-                    type: object
-                  type: array
-                spread:
-                  type: string
-                targets:
-                  items:
-                    properties:
-                      category:
-                        type: string
-                      children:
-                        items:
-                          type: string
-                        type: array
-                      config:
-                        type: string
-                      data:
-                        type: string
-                      id:
-                        type: string
-                      name:
-                        type: string
-                      parent:
-                        type: string
-                      pose:
-                        properties:
-                          orientation:
-                            properties:
-                              w:
-                                type: number
-                              x:
-                                type: number
-                              y:
-                                type: number
-                              z:
-                                type: number
-                            required:
-                            - x
-                            - y
-                            - z
-                            - w
-                            title: Quaternion
-                            type: object
-                          position:
-                            properties:
-                              x:
-                                type: number
-                              y:
-                                type: number
-                              z:
-                                type: number
-                            required:
-                            - x
-                            - y
-                            - z
-                            title: Point
-                            type: object
-                        required:
-                        - position
-                        - orientation
-                        title: Pose
-                        type: object
-                      sample_id:
-                        type: string
-                      type:
-                        type: string
-                    required:
-                    - id
-                    - name
-                    - sample_id
-                    - children
-                    - parent
-                    - type
-                    - category
-                    - pose
-                    - config
-                    - data
-                    title: Resource
-                    type: object
-                  type: array
-                tip_racks:
-                  items:
-                    properties:
-                      category:
-                        type: string
-                      children:
-                        items:
-                          type: string
-                        type: array
-                      config:
-                        type: string
-                      data:
-                        type: string
-                      id:
-                        type: string
-                      name:
-                        type: string
-                      parent:
-                        type: string
-                      pose:
-                        properties:
-                          orientation:
-                            properties:
-                              w:
-                                type: number
-                              x:
-                                type: number
-                              y:
-                                type: number
-                              z:
-                                type: number
-                            required:
-                            - x
-                            - y
-                            - z
-                            - w
-                            title: Quaternion
-                            type: object
-                          position:
-                            properties:
-                              x:
-                                type: number
-                              y:
-                                type: number
-                              z:
-                                type: number
-                            required:
-                            - x
-                            - y
-                            - z
-                            title: Point
-                            type: object
-                        required:
-                        - position
-                        - orientation
-                        title: Pose
-                        type: object
-                      sample_id:
-                        type: string
-                      type:
-                        type: string
-                    required:
-                    - id
-                    - name
-                    - sample_id
-                    - children
-                    - parent
-                    - type
-                    - category
-                    - pose
-                    - config
-                    - data
-                    title: Resource
-                    type: object
-                  type: array
-                touch_tip:
+                solid:
                   type: boolean
-                use_channels:
-                  items:
-                    maximum: 2147483647
-                    minimum: -2147483648
-                    type: integer
-                  type: array
+                time:
+                  type: number
+                to_vessel:
+                  type: string
+                viscous:
+                  type: boolean
+                volume:
+                  type: number
               required:
-              - asp_vols
-              - dis_vols
-              - sources
-              - targets
-              - tip_racks
-              - use_channels
-              - asp_flow_rates
-              - dis_flow_rates
-              - offsets
-              - touch_tip
-              - liquid_height
-              - blow_out_air_volume
-              - spread
-              - is_96_well
-              - mix_stage
-              - mix_times
-              - mix_vol
-              - mix_rate
-              - mix_liquid_height
-              - delays
-              - none_keys
-              title: LiquidHandlerTransfer_Goal
+              - from_vessel
+              - to_vessel
+              - volume
+              - amount
+              - time
+              - viscous
+              - rinsing_solvent
+              - rinsing_volume
+              - rinsing_repeats
+              - solid
+              title: Transfer_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
+                message:
+                  type: string
                 return_info:
                   type: string
                 success:
                   type: boolean
               required:
-              - return_info
               - success
-              title: LiquidHandlerTransfer_Result
+              - message
+              - return_info
+              title: Transfer_Result
               type: object
           required:
           - goal
-          title: LiquidHandlerTransfer
+          title: Transfer
           type: object
-        type: LiquidHandlerTransfer
+        type: Transfer
       transfer_liquid:
         feedback: {}
         goal:
@@ -4471,18 +3996,20 @@ liquid_handler:
           use_channels:
           - 0
         handles: []
+        placeholder_keys:
+          sources: unilabos_resources
+          targets: unilabos_resources
+          tip_racks: unilabos_resources
         result: {}
         schema:
-          description: ROS Action LiquidHandlerTransfer 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerTransfer_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 asp_flow_rates:
                   items:
@@ -4814,7 +4341,6 @@ liquid_handler:
               title: LiquidHandlerTransfer_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -4833,6 +4359,7 @@ liquid_handler:
     module: unilabos.devices.liquid_handling.liquid_handler_abstract:LiquidHandlerAbstract
     status_types: {}
     type: python
+  config_info: []
   description: Liquid handler device controlled by pylabrobot
   handles:
     input:
@@ -4851,86 +4378,32 @@ liquid_handler:
       label: Liquid Output
   icon: icon_yiyezhan.webp
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          backend:
-            description: '参数: backend'
-            type: string
-          deck:
-            description: '参数: deck'
-            type: string
-        required:
-        - backend
-        - deck
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        backend:
+          type: string
+        channel_num:
+          default: 8
+          type: integer
+        deck:
+          type: string
+        simulator:
+          default: false
+          type: boolean
+      required:
+      - backend
+      - deck
+      type: object
+    data:
+      properties: {}
+      required: []
+      type: object
+  version: 1.0.0
 liquid_handler.biomek:
+  category:
+  - liquid_handler
   class:
     action_value_mappings:
-      auto-create_protocol:
-        feedback: {}
-        goal: {}
-        goal_default:
-          none_keys: []
-          protocol_author: null
-          protocol_date: null
-          protocol_description: null
-          protocol_name: null
-          protocol_type: null
-          protocol_version: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand create_protocol 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand create_protocol 的参数schema
-              properties:
-                none_keys:
-                  default: []
-                  description: '参数: none_keys'
-                  type: array
-                protocol_author:
-                  description: '参数: protocol_author'
-                  type: string
-                protocol_date:
-                  description: '参数: protocol_date'
-                  type: string
-                protocol_description:
-                  description: '参数: protocol_description'
-                  type: string
-                protocol_name:
-                  description: '参数: protocol_name'
-                  type: string
-                protocol_type:
-                  description: '参数: protocol_type'
-                  type: string
-                protocol_version:
-                  description: '参数: protocol_version'
-                  type: string
-              required:
-              - protocol_name
-              - protocol_description
-              - protocol_version
-              - protocol_author
-              - protocol_date
-              - protocol_type
-              type: object
-            result: {}
-          required:
-          - goal
-          title: create_protocol 命令参数
-          type: object
-        type: UniLabJsonCommand
       auto-create_resource:
         feedback: {}
         goal: {}
@@ -4946,35 +4419,26 @@ liquid_handler.biomek:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand create_resource 的参数schema
+          description: create_resource的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand create_resource 的参数schema
               properties:
                 bind_location:
-                  description: '参数: bind_location'
                   type: object
                 bind_parent_id:
-                  description: '参数: bind_parent_id'
                   type: string
                 liquid_input_slot:
-                  description: '参数: liquid_input_slot'
                   type: array
                 liquid_type:
-                  description: '参数: liquid_type'
                   type: array
                 liquid_volume:
-                  description: '参数: liquid_volume'
                   type: array
                 resource_tracker:
-                  description: '参数: resource_tracker'
                   type: string
                 resources:
-                  description: '参数: resources'
                   type: array
                 slot_on_deck:
-                  description: '参数: slot_on_deck'
                   type: integer
               required:
               - resource_tracker
@@ -4989,33 +4453,7 @@ liquid_handler.biomek:
             result: {}
           required:
           - goal
-          title: create_resource 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-incubation_biomek:
-        feedback: {}
-        goal: {}
-        goal_default:
-          time: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand incubation_biomek 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand incubation_biomek 的参数schema
-              properties:
-                time:
-                  description: '参数: time'
-                  type: integer
-              required:
-              - time
-              type: object
-            result: {}
-          required:
-          - goal
-          title: incubation_biomek 命令参数
+          title: create_resource参数
           type: object
         type: UniLabJsonCommand
       auto-instrument_setup_biomek:
@@ -5032,32 +4470,24 @@ liquid_handler.biomek:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand instrument_setup_biomek 的参数schema
+          description: instrument_setup_biomek的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand instrument_setup_biomek 的参数schema
               properties:
                 class_name:
-                  description: '参数: class_name'
                   type: string
                 id:
-                  description: '参数: id'
                   type: string
                 liquid_input_wells:
-                  description: '参数: liquid_input_wells'
                   type: array
                 liquid_type:
-                  description: '参数: liquid_type'
                   type: array
                 liquid_volume:
-                  description: '参数: liquid_volume'
                   type: array
                 parent:
-                  description: '参数: parent'
                   type: string
                 slot_on_deck:
-                  description: '参数: slot_on_deck'
                   type: string
               required:
               - id
@@ -5071,256 +4501,7 @@ liquid_handler.biomek:
             result: {}
           required:
           - goal
-          title: instrument_setup_biomek 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-move_biomek:
-        feedback: {}
-        goal: {}
-        goal_default:
-          source: null
-          target: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand move_biomek 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand move_biomek 的参数schema
-              properties:
-                source:
-                  description: '参数: source'
-                  type: string
-                target:
-                  description: '参数: target'
-                  type: string
-              required:
-              - source
-              - target
-              type: object
-            result: {}
-          required:
-          - goal
-          title: move_biomek 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-oscillation_biomek:
-        feedback: {}
-        goal: {}
-        goal_default:
-          rpm: null
-          time: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand oscillation_biomek 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand oscillation_biomek 的参数schema
-              properties:
-                rpm:
-                  description: '参数: rpm'
-                  type: integer
-                time:
-                  description: '参数: time'
-                  type: integer
-              required:
-              - rpm
-              - time
-              type: object
-            result: {}
-          required:
-          - goal
-          title: oscillation_biomek 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-run_protocol:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand run_protocol 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand run_protocol 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: run_protocol 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-transfer_biomek:
-        feedback: {}
-        goal: {}
-        goal_default:
-          aspirate_techniques: null
-          dispense_techniques: null
-          source: null
-          target: null
-          tip_rack: null
-          volume: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand transfer_biomek 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand transfer_biomek 的参数schema
-              properties:
-                aspirate_techniques:
-                  description: '参数: aspirate_techniques'
-                  type: string
-                dispense_techniques:
-                  description: '参数: dispense_techniques'
-                  type: string
-                source:
-                  description: '参数: source'
-                  type: string
-                target:
-                  description: '参数: target'
-                  type: string
-                tip_rack:
-                  description: '参数: tip_rack'
-                  type: string
-                volume:
-                  description: '参数: volume'
-                  type: number
-              required:
-              - source
-              - target
-              - tip_rack
-              - volume
-              - aspirate_techniques
-              - dispense_techniques
-              type: object
-            result: {}
-          required:
-          - goal
-          title: transfer_biomek 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-transfer_liquid:
-        feedback: {}
-        goal: {}
-        goal_default:
-          asp_flow_rates: null
-          asp_vols: null
-          blow_out_air_volume: null
-          delays: null
-          dis_flow_rates: null
-          dis_vols: null
-          is_96_well: false
-          liquid_height: null
-          mix_liquid_height: null
-          mix_rate: null
-          mix_stage: none
-          mix_times: null
-          mix_vol: null
-          none_keys: []
-          offsets: null
-          sources: null
-          spread: wide
-          targets: null
-          tip_racks: null
-          touch_tip: false
-          use_channels: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand transfer_liquid 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand transfer_liquid 的参数schema
-              properties:
-                asp_flow_rates:
-                  description: '参数: asp_flow_rates'
-                  type: string
-                asp_vols:
-                  description: '参数: asp_vols'
-                  type: string
-                blow_out_air_volume:
-                  description: '参数: blow_out_air_volume'
-                  type: string
-                delays:
-                  description: '参数: delays'
-                  type: string
-                dis_flow_rates:
-                  description: '参数: dis_flow_rates'
-                  type: string
-                dis_vols:
-                  description: '参数: dis_vols'
-                  type: string
-                is_96_well:
-                  default: false
-                  description: '参数: is_96_well'
-                  type: boolean
-                liquid_height:
-                  description: '参数: liquid_height'
-                  type: string
-                mix_liquid_height:
-                  description: '参数: mix_liquid_height'
-                  type: string
-                mix_rate:
-                  description: '参数: mix_rate'
-                  type: string
-                mix_stage:
-                  default: none
-                  description: '参数: mix_stage'
-                  type: string
-                mix_times:
-                  description: '参数: mix_times'
-                  type: string
-                mix_vol:
-                  description: '参数: mix_vol'
-                  type: string
-                none_keys:
-                  default: []
-                  description: '参数: none_keys'
-                  type: array
-                offsets:
-                  description: '参数: offsets'
-                  type: string
-                sources:
-                  description: '参数: sources'
-                  type: string
-                spread:
-                  default: wide
-                  description: '参数: spread'
-                  type: string
-                targets:
-                  description: '参数: targets'
-                  type: string
-                tip_racks:
-                  description: '参数: tip_racks'
-                  type: string
-                touch_tip:
-                  default: false
-                  description: '参数: touch_tip'
-                  type: boolean
-                use_channels:
-                  description: '参数: use_channels'
-                  type: string
-              required:
-              - sources
-              - targets
-              - tip_racks
-              - asp_vols
-              - dis_vols
-              type: object
-            result: {}
-          required:
-          - goal
-          title: transfer_liquid 命令参数
+          title: instrument_setup_biomek参数
           type: object
         type: UniLabJsonCommand
       create_protocol:
@@ -5345,16 +4526,14 @@ liquid_handler.biomek:
         handles: []
         result: {}
         schema:
-          description: ROS Action LiquidHandlerProtocolCreation 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerProtocolCreation_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 none_keys:
                   items:
@@ -5383,7 +4562,6 @@ liquid_handler.biomek:
               title: LiquidHandlerProtocolCreation_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -5417,16 +4595,14 @@ liquid_handler.biomek:
             label: plate
         result: {}
         schema:
-          description: ROS Action LiquidHandlerIncubateBiomek 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerIncubateBiomek_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 time:
                   maximum: 2147483647
@@ -5437,7 +4613,6 @@ liquid_handler.biomek:
               title: LiquidHandlerIncubateBiomek_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -5477,16 +4652,14 @@ liquid_handler.biomek:
         result:
           name: name
         schema:
-          description: ROS Action LiquidHandlerMoveBiomek 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerMoveBiomek_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 sources:
                   type: string
@@ -5498,7 +4671,6 @@ liquid_handler.biomek:
               title: LiquidHandlerMoveBiomek_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -5537,16 +4709,14 @@ liquid_handler.biomek:
             label: plate
         result: {}
         schema:
-          description: ROS Action LiquidHandlerOscillateBiomek 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerOscillateBiomek_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 rpm:
                   maximum: 2147483647
@@ -5562,7 +4732,6 @@ liquid_handler.biomek:
               title: LiquidHandlerOscillateBiomek_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -5585,22 +4754,19 @@ liquid_handler.biomek:
         handles: []
         result: {}
         schema:
-          description: ROS Action EmptyIn 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: EmptyIn_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties: {}
               required: []
               title: EmptyIn_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -5659,16 +4825,14 @@ liquid_handler.biomek:
             label: targets
         result: {}
         schema:
-          description: ROS Action LiquidHandlerTransferBiomek 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerTransferBiomek_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 aspirate_technique:
                   type: string
@@ -5692,7 +4856,6 @@ liquid_handler.biomek:
               title: LiquidHandlerTransferBiomek_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -5839,18 +5002,20 @@ liquid_handler.biomek:
             handler_key: liquid-output
             io_type: source
             label: Liquid Output
+        placeholder_keys:
+          sources: unilabos_resources
+          targets: unilabos_resources
+          tip_racks: unilabos_resources
         result: {}
         schema:
-          description: ROS Action LiquidHandlerTransfer 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: LiquidHandlerTransfer_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 asp_flow_rates:
                   items:
@@ -6182,7 +5347,6 @@ liquid_handler.biomek:
               title: LiquidHandlerTransfer_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -6202,74 +5366,2738 @@ liquid_handler.biomek:
     status_types:
       success: String
     type: python
+  config_info: []
   description: Biomek液体处理器设备，基于pylabrobot控制
   handles: []
   icon: icon_yiyezhan.webp
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          args:
-            description: '参数: args'
-            type: string
-          kwargs:
-            description: '参数: kwargs'
-            type: string
-        required:
-        - args
-        - kwargs
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
-liquid_handler.revvity:
+    config:
+      properties: {}
+      required: []
+      type: object
+    data:
+      properties:
+        success:
+          type: string
+      required:
+      - success
+      type: object
+  version: 1.0.0
+liquid_handler.prcxi:
+  category:
+  - liquid_handler
   class:
     action_value_mappings:
-      auto-run:
+      add_liquid:
+        feedback: {}
+        goal:
+          asp_vols: asp_vols
+          blow_out_air_volume: blow_out_air_volume
+          dis_vols: dis_vols
+          flow_rates: flow_rates
+          is_96_well: is_96_well
+          liquid_height: liquid_height
+          mix_liquid_height: mix_liquid_height
+          mix_rate: mix_rate
+          mix_time: mix_time
+          mix_vol: mix_vol
+          none_keys: none_keys
+          offsets: offsets
+          reagent_sources: reagent_sources
+          spread: spread
+          targets: targets
+          use_channels: use_channels
+        goal_default:
+          asp_vols:
+          - 0.0
+          blow_out_air_volume:
+          - 0.0
+          dis_vols:
+          - 0.0
+          flow_rates:
+          - 0.0
+          is_96_well: false
+          liquid_height:
+          - 0.0
+          mix_liquid_height: 0.0
+          mix_rate: 0
+          mix_time: 0
+          mix_vol: 0
+          none_keys:
+          - ''
+          offsets:
+          - x: 0.0
+            y: 0.0
+            z: 0.0
+          reagent_sources:
+          - category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          spread: ''
+          targets:
+          - category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          use_channels:
+          - 0
+        handles: []
+        placeholder_keys:
+          reagent_sources: unilabos_resources
+          targets: unilabos_resources
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback:
+              properties: {}
+              required: []
+              title: LiquidHandlerAdd_Feedback
+              type: object
+            goal:
+              properties:
+                asp_vols:
+                  items:
+                    type: number
+                  type: array
+                blow_out_air_volume:
+                  items:
+                    type: number
+                  type: array
+                dis_vols:
+                  items:
+                    type: number
+                  type: array
+                flow_rates:
+                  items:
+                    type: number
+                  type: array
+                is_96_well:
+                  type: boolean
+                liquid_height:
+                  items:
+                    type: number
+                  type: array
+                mix_liquid_height:
+                  type: number
+                mix_rate:
+                  maximum: 2147483647
+                  minimum: -2147483648
+                  type: integer
+                mix_time:
+                  maximum: 2147483647
+                  minimum: -2147483648
+                  type: integer
+                mix_vol:
+                  maximum: 2147483647
+                  minimum: -2147483648
+                  type: integer
+                none_keys:
+                  items:
+                    type: string
+                  type: array
+                offsets:
+                  items:
+                    properties:
+                      x:
+                        type: number
+                      y:
+                        type: number
+                      z:
+                        type: number
+                    required:
+                    - x
+                    - y
+                    - z
+                    title: Point
+                    type: object
+                  type: array
+                reagent_sources:
+                  items:
+                    properties:
+                      category:
+                        type: string
+                      children:
+                        items:
+                          type: string
+                        type: array
+                      config:
+                        type: string
+                      data:
+                        type: string
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      parent:
+                        type: string
+                      pose:
+                        properties:
+                          orientation:
+                            properties:
+                              w:
+                                type: number
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            - w
+                            title: Quaternion
+                            type: object
+                          position:
+                            properties:
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            title: Point
+                            type: object
+                        required:
+                        - position
+                        - orientation
+                        title: Pose
+                        type: object
+                      sample_id:
+                        type: string
+                      type:
+                        type: string
+                    required:
+                    - id
+                    - name
+                    - sample_id
+                    - children
+                    - parent
+                    - type
+                    - category
+                    - pose
+                    - config
+                    - data
+                    title: Resource
+                    type: object
+                  type: array
+                spread:
+                  type: string
+                targets:
+                  items:
+                    properties:
+                      category:
+                        type: string
+                      children:
+                        items:
+                          type: string
+                        type: array
+                      config:
+                        type: string
+                      data:
+                        type: string
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      parent:
+                        type: string
+                      pose:
+                        properties:
+                          orientation:
+                            properties:
+                              w:
+                                type: number
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            - w
+                            title: Quaternion
+                            type: object
+                          position:
+                            properties:
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            title: Point
+                            type: object
+                        required:
+                        - position
+                        - orientation
+                        title: Pose
+                        type: object
+                      sample_id:
+                        type: string
+                      type:
+                        type: string
+                    required:
+                    - id
+                    - name
+                    - sample_id
+                    - children
+                    - parent
+                    - type
+                    - category
+                    - pose
+                    - config
+                    - data
+                    title: Resource
+                    type: object
+                  type: array
+                use_channels:
+                  items:
+                    maximum: 2147483647
+                    minimum: -2147483648
+                    type: integer
+                  type: array
+              required:
+              - asp_vols
+              - dis_vols
+              - reagent_sources
+              - targets
+              - use_channels
+              - flow_rates
+              - offsets
+              - liquid_height
+              - blow_out_air_volume
+              - spread
+              - is_96_well
+              - mix_time
+              - mix_vol
+              - mix_rate
+              - mix_liquid_height
+              - none_keys
+              title: LiquidHandlerAdd_Goal
+              type: object
+            result:
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: LiquidHandlerAdd_Result
+              type: object
+          required:
+          - goal
+          title: LiquidHandlerAdd
+          type: object
+        type: LiquidHandlerAdd
+      aspirate:
+        feedback: {}
+        goal:
+          blow_out_air_volume: blow_out_air_volume
+          end_delay: end_delay
+          flow_rates: flow_rates
+          liquid_height: liquid_height
+          offsets: offsets
+          resources: resources
+          use_channels: use_channels
+          vols: vols
+        goal_default:
+          blow_out_air_volume:
+          - 0.0
+          flow_rates:
+          - 0.0
+          liquid_height:
+          - 0.0
+          offsets:
+          - x: 0.0
+            y: 0.0
+            z: 0.0
+          resources:
+          - category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          spread: ''
+          use_channels:
+          - 0
+          vols:
+          - 0.0
+        handles: []
+        placeholder_keys:
+          resources: unilabos_resources
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback:
+              properties: {}
+              required: []
+              title: LiquidHandlerAspirate_Feedback
+              type: object
+            goal:
+              properties:
+                blow_out_air_volume:
+                  items:
+                    type: number
+                  type: array
+                flow_rates:
+                  items:
+                    type: number
+                  type: array
+                liquid_height:
+                  items:
+                    type: number
+                  type: array
+                offsets:
+                  items:
+                    properties:
+                      x:
+                        type: number
+                      y:
+                        type: number
+                      z:
+                        type: number
+                    required:
+                    - x
+                    - y
+                    - z
+                    title: Point
+                    type: object
+                  type: array
+                resources:
+                  items:
+                    properties:
+                      category:
+                        type: string
+                      children:
+                        items:
+                          type: string
+                        type: array
+                      config:
+                        type: string
+                      data:
+                        type: string
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      parent:
+                        type: string
+                      pose:
+                        properties:
+                          orientation:
+                            properties:
+                              w:
+                                type: number
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            - w
+                            title: Quaternion
+                            type: object
+                          position:
+                            properties:
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            title: Point
+                            type: object
+                        required:
+                        - position
+                        - orientation
+                        title: Pose
+                        type: object
+                      sample_id:
+                        type: string
+                      type:
+                        type: string
+                    required:
+                    - id
+                    - name
+                    - sample_id
+                    - children
+                    - parent
+                    - type
+                    - category
+                    - pose
+                    - config
+                    - data
+                    title: Resource
+                    type: object
+                  type: array
+                spread:
+                  type: string
+                use_channels:
+                  items:
+                    maximum: 2147483647
+                    minimum: -2147483648
+                    type: integer
+                  type: array
+                vols:
+                  items:
+                    type: number
+                  type: array
+              required:
+              - resources
+              - vols
+              - use_channels
+              - flow_rates
+              - offsets
+              - liquid_height
+              - blow_out_air_volume
+              - spread
+              title: LiquidHandlerAspirate_Goal
+              type: object
+            result:
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: LiquidHandlerAspirate_Result
+              type: object
+          required:
+          - goal
+          title: LiquidHandlerAspirate
+          type: object
+        type: LiquidHandlerAspirate
+      auto-create_protocol:
         feedback: {}
         goal: {}
         goal_default:
-          file_path: null
-          params: null
-          resource:
-            AichemecoHiwo:
-              id: AichemecoHiwo
+          none_keys: []
+          protocol_author: ''
+          protocol_date: ''
+          protocol_description: ''
+          protocol_name: ''
+          protocol_type: ''
+          protocol_version: ''
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand run 的参数schema
+          description: create_protocol的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand run 的参数schema
               properties:
-                file_path:
-                  description: '参数: file_path'
+                none_keys:
+                  default: []
+                  type: array
+                protocol_author:
+                  default: ''
                   type: string
-                params:
-                  description: '参数: params'
+                protocol_date:
+                  default: ''
                   type: string
-                resource:
-                  default:
-                    AichemecoHiwo:
-                      id: AichemecoHiwo
-                  description: '参数: resource'
-                  type: object
-              required:
-              - file_path
-              - params
+                protocol_description:
+                  default: ''
+                  type: string
+                protocol_name:
+                  default: ''
+                  type: string
+                protocol_type:
+                  default: ''
+                  type: string
+                protocol_version:
+                  default: ''
+                  type: string
+              required: []
               type: object
             result: {}
           required:
           - goal
-          title: run 命令参数
+          title: create_protocol参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-custom_delay:
+        feedback: {}
+        goal: {}
+        goal_default:
+          msg: null
+          seconds: 0
+        handles: []
+        result: {}
+        schema:
+          description: custom_delay的参数schema
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                msg:
+                  type: string
+                seconds:
+                  default: 0
+                  type: string
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: custom_delay参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-discard_tips:
+        feedback: {}
+        goal: {}
+        goal_default:
+          allow_nonzero_volume: true
+          offsets: null
+          use_channels: null
+        handles: []
+        result: {}
+        schema:
+          description: discard_tips的参数schema
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                allow_nonzero_volume:
+                  default: true
+                  type: boolean
+                offsets:
+                  type: string
+                use_channels:
+                  type: string
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: discard_tips参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-iter_tips:
+        feedback: {}
+        goal: {}
+        goal_default:
+          tip_racks: null
+        handles: []
+        result: {}
+        schema:
+          description: iter_tips的参数schema
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                tip_racks:
+                  type: string
+              required:
+              - tip_racks
+              type: object
+            result: {}
+          required:
+          - goal
+          title: iter_tips参数
           type: object
         type: UniLabJsonCommand
+      auto-move_to:
+        feedback: {}
+        goal: {}
+        goal_default:
+          channel: 0
+          dis_to_top: 0
+          well: null
+        handles: []
+        result: {}
+        schema:
+          description: move_to的参数schema
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                channel:
+                  default: 0
+                  type: integer
+                dis_to_top:
+                  default: 0
+                  type: number
+                well:
+                  type: string
+              required:
+              - well
+              type: object
+            result: {}
+          required:
+          - goal
+          title: move_to参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-run_protocol:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: run_protocol的参数schema
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: run_protocol参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-touch_tip:
+        feedback: {}
+        goal: {}
+        goal_default:
+          targets: null
+        handles: []
+        result: {}
+        schema:
+          description: touch_tip的参数schema
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                targets:
+                  type: string
+              required:
+              - targets
+              type: object
+            result: {}
+          required:
+          - goal
+          title: touch_tip参数
+          type: object
+        type: UniLabJsonCommandAsync
+      dispense:
+        feedback: {}
+        goal:
+          blow_out_air_volume: blow_out_air_volume
+          flow_rates: flow_rates
+          offsets: offsets
+          resources: resources
+          spread: spread
+          use_channels: use_channels
+          vols: vols
+        goal_default:
+          blow_out_air_volume:
+          - 0
+          flow_rates:
+          - 0.0
+          offsets:
+          - x: 0.0
+            y: 0.0
+            z: 0.0
+          resources:
+          - category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          spread: ''
+          use_channels:
+          - 0
+          vols:
+          - 0.0
+        handles: []
+        placeholder_keys:
+          resources: unilabos_resources
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback:
+              properties: {}
+              required: []
+              title: LiquidHandlerDispense_Feedback
+              type: object
+            goal:
+              properties:
+                blow_out_air_volume:
+                  items:
+                    maximum: 2147483647
+                    minimum: -2147483648
+                    type: integer
+                  type: array
+                flow_rates:
+                  items:
+                    type: number
+                  type: array
+                offsets:
+                  items:
+                    properties:
+                      x:
+                        type: number
+                      y:
+                        type: number
+                      z:
+                        type: number
+                    required:
+                    - x
+                    - y
+                    - z
+                    title: Point
+                    type: object
+                  type: array
+                resources:
+                  items:
+                    properties:
+                      category:
+                        type: string
+                      children:
+                        items:
+                          type: string
+                        type: array
+                      config:
+                        type: string
+                      data:
+                        type: string
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      parent:
+                        type: string
+                      pose:
+                        properties:
+                          orientation:
+                            properties:
+                              w:
+                                type: number
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            - w
+                            title: Quaternion
+                            type: object
+                          position:
+                            properties:
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            title: Point
+                            type: object
+                        required:
+                        - position
+                        - orientation
+                        title: Pose
+                        type: object
+                      sample_id:
+                        type: string
+                      type:
+                        type: string
+                    required:
+                    - id
+                    - name
+                    - sample_id
+                    - children
+                    - parent
+                    - type
+                    - category
+                    - pose
+                    - config
+                    - data
+                    title: Resource
+                    type: object
+                  type: array
+                spread:
+                  type: string
+                use_channels:
+                  items:
+                    maximum: 2147483647
+                    minimum: -2147483648
+                    type: integer
+                  type: array
+                vols:
+                  items:
+                    type: number
+                  type: array
+              required:
+              - resources
+              - vols
+              - use_channels
+              - flow_rates
+              - offsets
+              - blow_out_air_volume
+              - spread
+              title: LiquidHandlerDispense_Goal
+              type: object
+            result:
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: LiquidHandlerDispense_Result
+              type: object
+          required:
+          - goal
+          title: LiquidHandlerDispense
+          type: object
+        type: LiquidHandlerDispense
+      drop_tips:
+        feedback: {}
+        goal: {}
+        goal_default:
+          allow_nonzero_volume: false
+          offsets:
+          - x: 0.0
+            y: 0.0
+            z: 0.0
+          tip_spots:
+          - category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          use_channels:
+          - 0
+        handles: []
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback:
+              properties: {}
+              required: []
+              title: LiquidHandlerDropTips_Feedback
+              type: object
+            goal:
+              properties:
+                allow_nonzero_volume:
+                  type: boolean
+                offsets:
+                  items:
+                    properties:
+                      x:
+                        type: number
+                      y:
+                        type: number
+                      z:
+                        type: number
+                    required:
+                    - x
+                    - y
+                    - z
+                    title: Point
+                    type: object
+                  type: array
+                tip_spots:
+                  items:
+                    properties:
+                      category:
+                        type: string
+                      children:
+                        items:
+                          type: string
+                        type: array
+                      config:
+                        type: string
+                      data:
+                        type: string
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      parent:
+                        type: string
+                      pose:
+                        properties:
+                          orientation:
+                            properties:
+                              w:
+                                type: number
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            - w
+                            title: Quaternion
+                            type: object
+                          position:
+                            properties:
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            title: Point
+                            type: object
+                        required:
+                        - position
+                        - orientation
+                        title: Pose
+                        type: object
+                      sample_id:
+                        type: string
+                      type:
+                        type: string
+                    required:
+                    - id
+                    - name
+                    - sample_id
+                    - children
+                    - parent
+                    - type
+                    - category
+                    - pose
+                    - config
+                    - data
+                    title: Resource
+                    type: object
+                  type: array
+                use_channels:
+                  items:
+                    maximum: 2147483647
+                    minimum: -2147483648
+                    type: integer
+                  type: array
+              required:
+              - tip_spots
+              - use_channels
+              - offsets
+              - allow_nonzero_volume
+              title: LiquidHandlerDropTips_Goal
+              type: object
+            result:
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: LiquidHandlerDropTips_Result
+              type: object
+          required:
+          - goal
+          title: LiquidHandlerDropTips
+          type: object
+        type: LiquidHandlerDropTips
+      mix:
+        feedback: {}
+        goal:
+          height_to_bottom: height_to_bottom
+          mix_rate: mix_rate
+          mix_time: mix_time
+          mix_vol: mix_vol
+          none_keys: none_keys
+          offsets: offsets
+          targets: targets
+        goal_default:
+          height_to_bottom: 0.0
+          mix_rate: 0.0
+          mix_time: 0
+          mix_vol: 0
+          none_keys:
+          - ''
+          offsets:
+          - x: 0.0
+            y: 0.0
+            z: 0.0
+          targets:
+          - category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+        handles: []
+        placeholder_keys:
+          targets: unilabos_resources
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback:
+              properties: {}
+              required: []
+              title: LiquidHandlerMix_Feedback
+              type: object
+            goal:
+              properties:
+                height_to_bottom:
+                  type: number
+                mix_rate:
+                  type: number
+                mix_time:
+                  maximum: 2147483647
+                  minimum: -2147483648
+                  type: integer
+                mix_vol:
+                  maximum: 2147483647
+                  minimum: -2147483648
+                  type: integer
+                none_keys:
+                  items:
+                    type: string
+                  type: array
+                offsets:
+                  items:
+                    properties:
+                      x:
+                        type: number
+                      y:
+                        type: number
+                      z:
+                        type: number
+                    required:
+                    - x
+                    - y
+                    - z
+                    title: Point
+                    type: object
+                  type: array
+                targets:
+                  items:
+                    properties:
+                      category:
+                        type: string
+                      children:
+                        items:
+                          type: string
+                        type: array
+                      config:
+                        type: string
+                      data:
+                        type: string
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      parent:
+                        type: string
+                      pose:
+                        properties:
+                          orientation:
+                            properties:
+                              w:
+                                type: number
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            - w
+                            title: Quaternion
+                            type: object
+                          position:
+                            properties:
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            title: Point
+                            type: object
+                        required:
+                        - position
+                        - orientation
+                        title: Pose
+                        type: object
+                      sample_id:
+                        type: string
+                      type:
+                        type: string
+                    required:
+                    - id
+                    - name
+                    - sample_id
+                    - children
+                    - parent
+                    - type
+                    - category
+                    - pose
+                    - config
+                    - data
+                    title: Resource
+                    type: object
+                  type: array
+              required:
+              - targets
+              - mix_time
+              - mix_vol
+              - height_to_bottom
+              - offsets
+              - mix_rate
+              - none_keys
+              title: LiquidHandlerMix_Goal
+              type: object
+            result:
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: LiquidHandlerMix_Result
+              type: object
+          required:
+          - goal
+          title: LiquidHandlerMix
+          type: object
+        type: LiquidHandlerMix
+      pick_up_tips:
+        feedback: {}
+        goal:
+          offsets: offsets
+          tip_spots: tip_spots
+          use_channels: use_channels
+        goal_default:
+          offsets:
+          - x: 0.0
+            y: 0.0
+            z: 0.0
+          tip_spots:
+          - category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          use_channels:
+          - 0
+        handles: []
+        placeholder_keys:
+          tip_spots: unilabos_resources
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback:
+              properties: {}
+              required: []
+              title: LiquidHandlerPickUpTips_Feedback
+              type: object
+            goal:
+              properties:
+                offsets:
+                  items:
+                    properties:
+                      x:
+                        type: number
+                      y:
+                        type: number
+                      z:
+                        type: number
+                    required:
+                    - x
+                    - y
+                    - z
+                    title: Point
+                    type: object
+                  type: array
+                tip_spots:
+                  items:
+                    properties:
+                      category:
+                        type: string
+                      children:
+                        items:
+                          type: string
+                        type: array
+                      config:
+                        type: string
+                      data:
+                        type: string
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      parent:
+                        type: string
+                      pose:
+                        properties:
+                          orientation:
+                            properties:
+                              w:
+                                type: number
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            - w
+                            title: Quaternion
+                            type: object
+                          position:
+                            properties:
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            title: Point
+                            type: object
+                        required:
+                        - position
+                        - orientation
+                        title: Pose
+                        type: object
+                      sample_id:
+                        type: string
+                      type:
+                        type: string
+                    required:
+                    - id
+                    - name
+                    - sample_id
+                    - children
+                    - parent
+                    - type
+                    - category
+                    - pose
+                    - config
+                    - data
+                    title: Resource
+                    type: object
+                  type: array
+                use_channels:
+                  items:
+                    maximum: 2147483647
+                    minimum: -2147483648
+                    type: integer
+                  type: array
+              required:
+              - tip_spots
+              - use_channels
+              - offsets
+              title: LiquidHandlerPickUpTips_Goal
+              type: object
+            result:
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: LiquidHandlerPickUpTips_Result
+              type: object
+          required:
+          - goal
+          title: LiquidHandlerPickUpTips
+          type: object
+        type: LiquidHandlerPickUpTips
+      remove_liquid:
+        feedback: {}
+        goal:
+          blow_out_air_volume: blow_out_air_volume
+          delays: delays
+          flow_rates: flow_rates
+          is_96_well: is_96_well
+          liquid_height: liquid_height
+          none_keys: none_keys
+          offsets: offsets
+          sources: sources
+          spread: spread
+          top: top
+          use_channels: use_channels
+          vols: vols
+          waste_liquid: waste_liquid
+        goal_default:
+          blow_out_air_volume:
+          - 0.0
+          delays:
+          - 0
+          flow_rates:
+          - 0.0
+          is_96_well: false
+          liquid_height:
+          - 0.0
+          none_keys:
+          - ''
+          offsets:
+          - x: 0.0
+            y: 0.0
+            z: 0.0
+          sources:
+          - category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          spread: ''
+          top:
+          - 0.0
+          use_channels:
+          - 0
+          vols:
+          - 0.0
+          waste_liquid:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+        handles: []
+        placeholder_keys:
+          sources: unilabos_resources
+          waste_liquid: unilabos_resources
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback:
+              properties: {}
+              required: []
+              title: LiquidHandlerRemove_Feedback
+              type: object
+            goal:
+              properties:
+                blow_out_air_volume:
+                  items:
+                    type: number
+                  type: array
+                delays:
+                  items:
+                    maximum: 2147483647
+                    minimum: -2147483648
+                    type: integer
+                  type: array
+                flow_rates:
+                  items:
+                    type: number
+                  type: array
+                is_96_well:
+                  type: boolean
+                liquid_height:
+                  items:
+                    type: number
+                  type: array
+                none_keys:
+                  items:
+                    type: string
+                  type: array
+                offsets:
+                  items:
+                    properties:
+                      x:
+                        type: number
+                      y:
+                        type: number
+                      z:
+                        type: number
+                    required:
+                    - x
+                    - y
+                    - z
+                    title: Point
+                    type: object
+                  type: array
+                sources:
+                  items:
+                    properties:
+                      category:
+                        type: string
+                      children:
+                        items:
+                          type: string
+                        type: array
+                      config:
+                        type: string
+                      data:
+                        type: string
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      parent:
+                        type: string
+                      pose:
+                        properties:
+                          orientation:
+                            properties:
+                              w:
+                                type: number
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            - w
+                            title: Quaternion
+                            type: object
+                          position:
+                            properties:
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            title: Point
+                            type: object
+                        required:
+                        - position
+                        - orientation
+                        title: Pose
+                        type: object
+                      sample_id:
+                        type: string
+                      type:
+                        type: string
+                    required:
+                    - id
+                    - name
+                    - sample_id
+                    - children
+                    - parent
+                    - type
+                    - category
+                    - pose
+                    - config
+                    - data
+                    title: Resource
+                    type: object
+                  type: array
+                spread:
+                  type: string
+                top:
+                  items:
+                    type: number
+                  type: array
+                use_channels:
+                  items:
+                    maximum: 2147483647
+                    minimum: -2147483648
+                    type: integer
+                  type: array
+                vols:
+                  items:
+                    type: number
+                  type: array
+                waste_liquid:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
+              required:
+              - vols
+              - sources
+              - waste_liquid
+              - use_channels
+              - flow_rates
+              - offsets
+              - liquid_height
+              - blow_out_air_volume
+              - spread
+              - delays
+              - is_96_well
+              - top
+              - none_keys
+              title: LiquidHandlerRemove_Goal
+              type: object
+            result:
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: LiquidHandlerRemove_Result
+              type: object
+          required:
+          - goal
+          title: LiquidHandlerRemove
+          type: object
+        type: LiquidHandlerRemove
+      set_liquid:
+        feedback: {}
+        goal:
+          liquid_names: liquid_names
+          volumes: volumes
+          wells: wells
+        goal_default:
+          liquid_names:
+          - ''
+          volumes:
+          - 0.0
+          wells:
+          - category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+        handles: []
+        placeholder_keys:
+          wells: unilabos_resources
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback:
+              properties: {}
+              required: []
+              title: LiquidHandlerSetLiquid_Feedback
+              type: object
+            goal:
+              properties:
+                liquid_names:
+                  items:
+                    type: string
+                  type: array
+                volumes:
+                  items:
+                    type: number
+                  type: array
+                wells:
+                  items:
+                    properties:
+                      category:
+                        type: string
+                      children:
+                        items:
+                          type: string
+                        type: array
+                      config:
+                        type: string
+                      data:
+                        type: string
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      parent:
+                        type: string
+                      pose:
+                        properties:
+                          orientation:
+                            properties:
+                              w:
+                                type: number
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            - w
+                            title: Quaternion
+                            type: object
+                          position:
+                            properties:
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            title: Point
+                            type: object
+                        required:
+                        - position
+                        - orientation
+                        title: Pose
+                        type: object
+                      sample_id:
+                        type: string
+                      type:
+                        type: string
+                    required:
+                    - id
+                    - name
+                    - sample_id
+                    - children
+                    - parent
+                    - type
+                    - category
+                    - pose
+                    - config
+                    - data
+                    title: Resource
+                    type: object
+                  type: array
+              required:
+              - wells
+              - liquid_names
+              - volumes
+              title: LiquidHandlerSetLiquid_Goal
+              type: object
+            result:
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: LiquidHandlerSetLiquid_Result
+              type: object
+          required:
+          - goal
+          title: LiquidHandlerSetLiquid
+          type: object
+        type: LiquidHandlerSetLiquid
+      set_tiprack:
+        feedback: {}
+        goal:
+          tip_racks: tip_racks
+        goal_default:
+          tip_racks:
+          - category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+        handles: []
+        placeholder_keys:
+          tip_racks: unilabos_resources
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback:
+              properties: {}
+              required: []
+              title: LiquidHandlerSetTipRack_Feedback
+              type: object
+            goal:
+              properties:
+                tip_racks:
+                  items:
+                    properties:
+                      category:
+                        type: string
+                      children:
+                        items:
+                          type: string
+                        type: array
+                      config:
+                        type: string
+                      data:
+                        type: string
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      parent:
+                        type: string
+                      pose:
+                        properties:
+                          orientation:
+                            properties:
+                              w:
+                                type: number
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            - w
+                            title: Quaternion
+                            type: object
+                          position:
+                            properties:
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            title: Point
+                            type: object
+                        required:
+                        - position
+                        - orientation
+                        title: Pose
+                        type: object
+                      sample_id:
+                        type: string
+                      type:
+                        type: string
+                    required:
+                    - id
+                    - name
+                    - sample_id
+                    - children
+                    - parent
+                    - type
+                    - category
+                    - pose
+                    - config
+                    - data
+                    title: Resource
+                    type: object
+                  type: array
+              required:
+              - tip_racks
+              title: LiquidHandlerSetTipRack_Goal
+              type: object
+            result:
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: LiquidHandlerSetTipRack_Result
+              type: object
+          required:
+          - goal
+          title: LiquidHandlerSetTipRack
+          type: object
+        type: LiquidHandlerSetTipRack
+      transfer:
+        goal:
+          aspiration_flow_rate: aspiration_flow_rate
+          dispense_flow_rates: dispense_flow_rates
+          ratios: ratios
+          source: source
+          source_vol: source_vol
+          target_vols: target_vols
+          targets: targets
+        goal_default:
+          amount: ''
+          from_vessel: ''
+          rinsing_repeats: 0
+          rinsing_solvent: ''
+          rinsing_volume: 0.0
+          solid: false
+          time: 0.0
+          to_vessel: ''
+          viscous: false
+          volume: 0.0
+        handles: []
+        schema:
+          description: ''
+          properties:
+            feedback:
+              properties:
+                current_status:
+                  type: string
+                progress:
+                  type: number
+                transferred_volume:
+                  type: number
+              required:
+              - progress
+              - transferred_volume
+              - current_status
+              title: Transfer_Feedback
+              type: object
+            goal:
+              properties:
+                amount:
+                  type: string
+                from_vessel:
+                  type: string
+                rinsing_repeats:
+                  maximum: 2147483647
+                  minimum: -2147483648
+                  type: integer
+                rinsing_solvent:
+                  type: string
+                rinsing_volume:
+                  type: number
+                solid:
+                  type: boolean
+                time:
+                  type: number
+                to_vessel:
+                  type: string
+                viscous:
+                  type: boolean
+                volume:
+                  type: number
+              required:
+              - from_vessel
+              - to_vessel
+              - volume
+              - amount
+              - time
+              - viscous
+              - rinsing_solvent
+              - rinsing_volume
+              - rinsing_repeats
+              - solid
+              title: Transfer_Goal
+              type: object
+            result:
+              properties:
+                message:
+                  type: string
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - success
+              - message
+              - return_info
+              title: Transfer_Result
+              type: object
+          required:
+          - goal
+          title: Transfer
+          type: object
+        type: Transfer
+      transfer_liquid:
+        feedback: {}
+        goal:
+          asp_flow_rates: asp_flow_rates
+          asp_vols: asp_vols
+          blow_out_air_volume: blow_out_air_volume
+          delays: delays
+          dis_flow_rates: dis_flow_rates
+          dis_vols: dis_vols
+          is_96_well: is_96_well
+          liquid_height: liquid_height
+          mix_liquid_height: mix_liquid_height
+          mix_rate: mix_rate
+          mix_stage: mix_stage
+          mix_times: mix_times
+          mix_vol: mix_vol
+          none_keys: none_keys
+          offsets: offsets
+          sources: sources
+          spread: spread
+          targets: targets
+          tip_racks: tip_racks
+          touch_tip: touch_tip
+          use_channels: use_channels
+        goal_default:
+          asp_flow_rates:
+          - 0.0
+          asp_vols:
+          - 0.0
+          blow_out_air_volume:
+          - 0.0
+          delays:
+          - 0
+          dis_flow_rates:
+          - 0.0
+          dis_vols:
+          - 0.0
+          is_96_well: false
+          liquid_height:
+          - 0.0
+          mix_liquid_height: 0.0
+          mix_rate: 0
+          mix_stage: ''
+          mix_times:
+          - 0
+          mix_vol: 0
+          none_keys:
+          - ''
+          offsets:
+          - x: 0.0
+            y: 0.0
+            z: 0.0
+          sources:
+          - category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          spread: ''
+          targets:
+          - category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          tip_racks:
+          - category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          touch_tip: false
+          use_channels:
+          - 0
+        handles: []
+        placeholder_keys:
+          sources: unilabos_resources
+          targets: unilabos_resources
+          tip_racks: unilabos_resources
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback:
+              properties: {}
+              required: []
+              title: LiquidHandlerTransfer_Feedback
+              type: object
+            goal:
+              properties:
+                asp_flow_rates:
+                  items:
+                    type: number
+                  type: array
+                asp_vols:
+                  items:
+                    type: number
+                  type: array
+                blow_out_air_volume:
+                  items:
+                    type: number
+                  type: array
+                delays:
+                  items:
+                    maximum: 2147483647
+                    minimum: -2147483648
+                    type: integer
+                  type: array
+                dis_flow_rates:
+                  items:
+                    type: number
+                  type: array
+                dis_vols:
+                  items:
+                    type: number
+                  type: array
+                is_96_well:
+                  type: boolean
+                liquid_height:
+                  items:
+                    type: number
+                  type: array
+                mix_liquid_height:
+                  type: number
+                mix_rate:
+                  maximum: 2147483647
+                  minimum: -2147483648
+                  type: integer
+                mix_stage:
+                  type: string
+                mix_times:
+                  items:
+                    maximum: 2147483647
+                    minimum: -2147483648
+                    type: integer
+                  type: array
+                mix_vol:
+                  maximum: 2147483647
+                  minimum: -2147483648
+                  type: integer
+                none_keys:
+                  items:
+                    type: string
+                  type: array
+                offsets:
+                  items:
+                    properties:
+                      x:
+                        type: number
+                      y:
+                        type: number
+                      z:
+                        type: number
+                    required:
+                    - x
+                    - y
+                    - z
+                    title: Point
+                    type: object
+                  type: array
+                sources:
+                  items:
+                    properties:
+                      category:
+                        type: string
+                      children:
+                        items:
+                          type: string
+                        type: array
+                      config:
+                        type: string
+                      data:
+                        type: string
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      parent:
+                        type: string
+                      pose:
+                        properties:
+                          orientation:
+                            properties:
+                              w:
+                                type: number
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            - w
+                            title: Quaternion
+                            type: object
+                          position:
+                            properties:
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            title: Point
+                            type: object
+                        required:
+                        - position
+                        - orientation
+                        title: Pose
+                        type: object
+                      sample_id:
+                        type: string
+                      type:
+                        type: string
+                    required:
+                    - id
+                    - name
+                    - sample_id
+                    - children
+                    - parent
+                    - type
+                    - category
+                    - pose
+                    - config
+                    - data
+                    title: Resource
+                    type: object
+                  type: array
+                spread:
+                  type: string
+                targets:
+                  items:
+                    properties:
+                      category:
+                        type: string
+                      children:
+                        items:
+                          type: string
+                        type: array
+                      config:
+                        type: string
+                      data:
+                        type: string
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      parent:
+                        type: string
+                      pose:
+                        properties:
+                          orientation:
+                            properties:
+                              w:
+                                type: number
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            - w
+                            title: Quaternion
+                            type: object
+                          position:
+                            properties:
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            title: Point
+                            type: object
+                        required:
+                        - position
+                        - orientation
+                        title: Pose
+                        type: object
+                      sample_id:
+                        type: string
+                      type:
+                        type: string
+                    required:
+                    - id
+                    - name
+                    - sample_id
+                    - children
+                    - parent
+                    - type
+                    - category
+                    - pose
+                    - config
+                    - data
+                    title: Resource
+                    type: object
+                  type: array
+                tip_racks:
+                  items:
+                    properties:
+                      category:
+                        type: string
+                      children:
+                        items:
+                          type: string
+                        type: array
+                      config:
+                        type: string
+                      data:
+                        type: string
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      parent:
+                        type: string
+                      pose:
+                        properties:
+                          orientation:
+                            properties:
+                              w:
+                                type: number
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            - w
+                            title: Quaternion
+                            type: object
+                          position:
+                            properties:
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            title: Point
+                            type: object
+                        required:
+                        - position
+                        - orientation
+                        title: Pose
+                        type: object
+                      sample_id:
+                        type: string
+                      type:
+                        type: string
+                    required:
+                    - id
+                    - name
+                    - sample_id
+                    - children
+                    - parent
+                    - type
+                    - category
+                    - pose
+                    - config
+                    - data
+                    title: Resource
+                    type: object
+                  type: array
+                touch_tip:
+                  type: boolean
+                use_channels:
+                  items:
+                    maximum: 2147483647
+                    minimum: -2147483648
+                    type: integer
+                  type: array
+              required:
+              - asp_vols
+              - dis_vols
+              - sources
+              - targets
+              - tip_racks
+              - use_channels
+              - asp_flow_rates
+              - dis_flow_rates
+              - offsets
+              - touch_tip
+              - liquid_height
+              - blow_out_air_volume
+              - spread
+              - is_96_well
+              - mix_stage
+              - mix_times
+              - mix_vol
+              - mix_rate
+              - mix_liquid_height
+              - delays
+              - none_keys
+              title: LiquidHandlerTransfer_Goal
+              type: object
+            result:
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: LiquidHandlerTransfer_Result
+              type: object
+          required:
+          - goal
+          title: LiquidHandlerTransfer
+          type: object
+        type: LiquidHandlerTransfer
+    module: unilabos.devices.liquid_handling.prcxi.prcxi:PRCXI9300Handler
+    status_types:
+      reset_ok: bool
+    type: python
+  config_info: []
+  description: prcxi液体处理器设备，基于pylabrobot控制
+  handles: []
+  icon: icon_yiyezhan.webp
+  init_param_schema:
+    config:
+      properties:
+        axis:
+          default: Left
+          type: string
+        channel_num:
+          default: 8
+          type: string
+        debug:
+          default: false
+          type: string
+        deck:
+          type: string
+        host:
+          type: string
+        matrix_id:
+          default: ''
+          type: string
+        port:
+          type: integer
+        setup:
+          default: true
+          type: string
+        simulator:
+          default: false
+          type: string
+        timeout:
+          type: number
+      required:
+      - deck
+      - host
+      - port
+      - timeout
+      type: object
+    data:
+      properties:
+        reset_ok:
+          type: boolean
+      required:
+      - reset_ok
+      type: object
+  version: 1.0.0
+liquid_handler.revvity:
+  category:
+  - liquid_handler
+  class:
+    action_value_mappings:
       run:
         feedback:
           status: status
@@ -6304,10 +8132,9 @@ liquid_handler.revvity:
         result:
           success: success
         schema:
-          description: ROS Action WorkStationRun 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 gantt:
                   type: string
@@ -6319,7 +8146,6 @@ liquid_handler.revvity:
               title: WorkStationRun_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 params:
                   type: string
@@ -6405,7 +8231,6 @@ liquid_handler.revvity:
               title: WorkStationRun_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -6426,20 +8251,23 @@ liquid_handler.revvity:
       status: str
       success: bool
     type: python
+  config_info: []
   description: ''
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties: {}
-        required: []
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties: {}
+      required: []
+      type: object
+    data:
+      properties:
+        status:
+          type: string
+        success:
+          type: boolean
+      required:
+      - success
+      - status
+      type: object
+  version: 1.0.0

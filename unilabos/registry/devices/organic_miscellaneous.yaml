@@ -1,4 +1,6 @@
 rotavap.one:
+  category:
+  - organic_miscellaneous
   class:
     action_value_mappings:
       auto-cmd_write:
@@ -9,14 +11,12 @@ rotavap.one:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand cmd_write 的参数schema
+          description: cmd_write的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand cmd_write 的参数schema
               properties:
                 cmd:
-                  description: '参数: cmd'
                   type: string
               required:
               - cmd
@@ -24,7 +24,7 @@ rotavap.one:
             result: {}
           required:
           - goal
-          title: cmd_write 命令参数
+          title: cmd_write参数
           type: object
         type: UniLabJsonCommand
       auto-main_loop:
@@ -34,18 +34,17 @@ rotavap.one:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand main_loop 的参数schema
+          description: main_loop的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand main_loop 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: main_loop 命令参数
+          title: main_loop参数
           type: object
         type: UniLabJsonCommand
       auto-set_pump_time:
@@ -56,14 +55,12 @@ rotavap.one:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand set_pump_time 的参数schema
+          description: set_pump_time的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand set_pump_time 的参数schema
               properties:
                 time:
-                  description: '参数: time'
                   type: string
               required:
               - time
@@ -71,7 +68,7 @@ rotavap.one:
             result: {}
           required:
           - goal
-          title: set_pump_time 命令参数
+          title: set_pump_time参数
           type: object
         type: UniLabJsonCommand
       auto-set_rotate_time:
@@ -82,14 +79,12 @@ rotavap.one:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand set_rotate_time 的参数schema
+          description: set_rotate_time的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand set_rotate_time 的参数schema
               properties:
                 time:
-                  description: '参数: time'
                   type: string
               required:
               - time
@@ -97,33 +92,7 @@ rotavap.one:
             result: {}
           required:
           - goal
-          title: set_rotate_time 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-set_timer:
-        feedback: {}
-        goal: {}
-        goal_default:
-          command: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand set_timer 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand set_timer 的参数schema
-              properties:
-                command:
-                  description: '参数: command'
-                  type: string
-              required:
-              - command
-              type: object
-            result: {}
-          required:
-          - goal
-          title: set_timer 命令参数
+          title: set_rotate_time参数
           type: object
         type: UniLabJsonCommand
       set_timer:
@@ -136,10 +105,9 @@ rotavap.one:
         result:
           success: success
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -148,7 +116,6 @@ rotavap.one:
               title: SendCmd_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 command:
                   type: string
@@ -157,7 +124,6 @@ rotavap.one:
               title: SendCmd_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -176,32 +142,29 @@ rotavap.one:
     module: unilabos.devices.rotavap.rotavap_one:RotavapOne
     status_types: {}
     type: python
-  description: Rotavap device
+  config_info: []
+  description: 旋转蒸发仪设备，用于有机化学实验中的溶剂回收和浓缩操作。该设备通过串口通信控制，集成旋转和真空泵功能，支持定时控制和自动化操作。具备旋转速度调节、真空度控制、温度管理等功能，实现高效的溶剂蒸发和回收。适用于有机合成、天然产物提取、药物制备等需要溶剂去除和浓缩的实验室应用场景。
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          port:
-            description: '参数: port'
-            type: string
-          rate:
-            default: 9600
-            description: '参数: rate'
-            type: integer
-        required:
-        - port
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        port:
+          type: string
+        rate:
+          default: 9600
+          type: string
+      required:
+      - port
+      type: object
+    data:
+      properties: {}
+      required: []
+      type: object
+  version: 1.0.0
 separator.homemade:
+  category:
+  - organic_miscellaneous
   class:
     action_value_mappings:
       auto-read_sensor_loop:
@@ -211,54 +174,17 @@ separator.homemade:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand read_sensor_loop 的参数schema
+          description: read_sensor_loop的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand read_sensor_loop 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: read_sensor_loop 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-stir:
-        feedback: {}
-        goal: {}
-        goal_default:
-          settling_time: 10
-          stir_speed: 300
-          stir_time: 10
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand stir 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand stir 的参数schema
-              properties:
-                settling_time:
-                  default: 10
-                  description: '参数: settling_time'
-                  type: number
-                stir_speed:
-                  default: 300
-                  description: '参数: stir_speed'
-                  type: number
-                stir_time:
-                  default: 10
-                  description: '参数: stir_time'
-                  type: number
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: stir 命令参数
+          title: read_sensor_loop参数
           type: object
         type: UniLabJsonCommand
       auto-valve_open:
@@ -270,17 +196,14 @@ separator.homemade:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand valve_open 的参数schema
+          description: valve_open的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand valve_open 的参数schema
               properties:
                 condition:
-                  description: '参数: condition'
                   type: string
                 value:
-                  description: '参数: value'
                   type: string
               required:
               - condition
@@ -289,33 +212,7 @@ separator.homemade:
             result: {}
           required:
           - goal
-          title: valve_open 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-valve_open_cmd:
-        feedback: {}
-        goal: {}
-        goal_default:
-          command: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand valve_open_cmd 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand valve_open_cmd 的参数schema
-              properties:
-                command:
-                  description: '参数: command'
-                  type: string
-              required:
-              - command
-              type: object
-            result: {}
-          required:
-          - goal
-          title: valve_open_cmd 命令参数
+          title: valve_open参数
           type: object
         type: UniLabJsonCommand
       auto-write:
@@ -326,14 +223,12 @@ separator.homemade:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand write 的参数schema
+          description: write的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand write 的参数schema
               properties:
                 data:
-                  description: '参数: data'
                   type: string
               required:
               - data
@@ -341,7 +236,7 @@ separator.homemade:
             result: {}
           required:
           - goal
-          title: write 命令参数
+          title: write参数
           type: object
         type: UniLabJsonCommand
       stir:
@@ -352,17 +247,39 @@ separator.homemade:
           stir_speed: stir_speed
           stir_time: stir_time,
         goal_default:
-          settling_time: 0.0
+          event: ''
+          settling_time: ''
           stir_speed: 0.0
           stir_time: 0.0
+          time: ''
+          time_spec: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
         handles: []
         result:
           success: success
         schema:
-          description: ROS Action Stir 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -371,30 +288,114 @@ separator.homemade:
               title: Stir_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
+                event:
+                  type: string
                 settling_time:
-                  type: number
+                  type: string
                 stir_speed:
                   type: number
                 stir_time:
                   type: number
+                time:
+                  type: string
+                time_spec:
+                  type: string
+                vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
               required:
+              - vessel
+              - time
+              - event
+              - time_spec
               - stir_time
               - stir_speed
               - settling_time
               title: Stir_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
+                message:
+                  type: string
                 return_info:
                   type: string
                 success:
                   type: boolean
               required:
-              - return_info
               - success
+              - message
+              - return_info
               title: Stir_Result
               type: object
           required:
@@ -410,13 +411,12 @@ separator.homemade:
         goal_default:
           command: ''
         handles: []
-        result":
+        result:
           success: success
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -425,7 +425,6 @@ separator.homemade:
               title: SendCmd_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 command:
                   type: string
@@ -434,7 +433,6 @@ separator.homemade:
               title: SendCmd_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -453,36 +451,29 @@ separator.homemade:
     module: unilabos.devices.separator.homemade_grbl_conductivity:SeparatorController
     status_types: {}
     type: python
-  description: Separator device with homemade grbl controller
+  config_info: []
+  description: 液-液分离器设备，基于自制Grbl控制器的自动化分离系统。该设备集成搅拌、沉降、阀门控制和电导率传感器，通过串口通信实现精确的分离操作控制。支持自动搅拌、分层沉降、基于传感器反馈的智能分液等功能。适用于有机化学中的萃取分离、相分离、液-液提取等需要精确分离控制的实验应用。
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          baudrate_executor:
-            default: 115200
-            description: '参数: baudrate_executor'
-            type: integer
-          baudrate_sensor:
-            default: 115200
-            description: '参数: baudrate_sensor'
-            type: integer
-          port_executor:
-            description: '参数: port_executor'
-            type: string
-          port_sensor:
-            description: '参数: port_sensor'
-            type: string
-        required:
-        - port_executor
-        - port_sensor
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        baudrate_executor:
+          default: 115200
+          type: integer
+        baudrate_sensor:
+          default: 115200
+          type: integer
+        port_executor:
+          type: string
+        port_sensor:
+          type: string
+      required:
+      - port_executor
+      - port_sensor
+      type: object
+    data:
+      properties: {}
+      required: []
+      type: object
+  version: 1.0.0

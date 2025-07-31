@@ -1,47 +1,8 @@
 virtual_centrifuge:
+  category:
+  - virtual_device
   class:
     action_value_mappings:
-      auto-centrifuge:
-        feedback: {}
-        goal: {}
-        goal_default:
-          speed: null
-          temp: 25.0
-          time: null
-          vessel: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand centrifuge 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand centrifuge 的参数schema
-              properties:
-                speed:
-                  description: '参数: speed'
-                  type: number
-                temp:
-                  default: 25.0
-                  description: '参数: temp'
-                  type: number
-                time:
-                  description: '参数: time'
-                  type: number
-                vessel:
-                  description: '参数: vessel'
-                  type: string
-              required:
-              - vessel
-              - speed
-              - time
-              type: object
-            result: {}
-          required:
-          - goal
-          title: centrifuge 命令参数
-          type: object
-        type: UniLabJsonCommandAsync
       auto-cleanup:
         feedback: {}
         goal: {}
@@ -49,18 +10,17 @@ virtual_centrifuge:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand cleanup 的参数schema
+          description: cleanup的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand cleanup 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: cleanup 命令参数
+          title: cleanup参数
           type: object
         type: UniLabJsonCommandAsync
       auto-initialize:
@@ -70,18 +30,17 @@ virtual_centrifuge:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand initialize 的参数schema
+          description: initialize的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand initialize 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: initialize 命令参数
+          title: initialize参数
           type: object
         type: UniLabJsonCommandAsync
       centrifuge:
@@ -99,16 +58,34 @@ virtual_centrifuge:
           speed: 0.0
           temp: 0.0
           time: 0.0
-          vessel: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
         handles: []
         result:
           message: message
           success: success
         schema:
-          description: ROS Action Centrifuge 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 current_speed:
                   type: number
@@ -126,7 +103,6 @@ virtual_centrifuge:
               title: Centrifuge_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 speed:
                   type: number
@@ -135,7 +111,78 @@ virtual_centrifuge:
                 time:
                   type: number
                 vessel:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
               required:
               - vessel
               - speed
@@ -144,7 +191,6 @@ virtual_centrifuge:
               title: Centrifuge_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 message:
                   type: string
@@ -178,6 +224,7 @@ virtual_centrifuge:
       target_temp: float
       time_remaining: float
     type: python
+  config_info: []
   description: Virtual Centrifuge for CentrifugeProtocol Testing
   handles:
   - data_key: vessel
@@ -190,30 +237,58 @@ virtual_centrifuge:
     side: NORTH
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          config:
-            description: '参数: config'
-            type: string
-          device_id:
-            description: '参数: device_id'
-            type: string
-          kwargs:
-            description: '参数: kwargs'
-            type: string
-        required:
-        - kwargs
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        config:
+          type: string
+        device_id:
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        centrifuge_state:
+          type: string
+        current_speed:
+          type: number
+        current_temp:
+          type: number
+        max_speed:
+          type: number
+        max_temp:
+          type: number
+        message:
+          type: string
+        min_temp:
+          type: number
+        progress:
+          type: number
+        status:
+          type: string
+        target_speed:
+          type: number
+        target_temp:
+          type: number
+        time_remaining:
+          type: number
+      required:
+      - status
+      - centrifuge_state
+      - current_speed
+      - target_speed
+      - current_temp
+      - target_temp
+      - max_speed
+      - max_temp
+      - min_temp
+      - time_remaining
+      - progress
+      - message
+      type: object
+  version: 1.0.0
 virtual_column:
+  category:
+  - virtual_device
   class:
     action_value_mappings:
       auto-cleanup:
@@ -223,18 +298,17 @@ virtual_column:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand cleanup 的参数schema
+          description: cleanup的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand cleanup 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: cleanup 命令参数
+          title: cleanup参数
           type: object
         type: UniLabJsonCommandAsync
       auto-initialize:
@@ -244,54 +318,17 @@ virtual_column:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand initialize 的参数schema
+          description: initialize的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand initialize 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: initialize 命令参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-run_column:
-        feedback: {}
-        goal: {}
-        goal_default:
-          column: null
-          from_vessel: null
-          to_vessel: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand run_column 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand run_column 的参数schema
-              properties:
-                column:
-                  description: '参数: column'
-                  type: string
-                from_vessel:
-                  description: '参数: from_vessel'
-                  type: string
-                to_vessel:
-                  description: '参数: to_vessel'
-                  type: string
-              required:
-              - from_vessel
-              - to_vessel
-              - column
-              type: object
-            result: {}
-          required:
-          - goal
-          title: run_column 命令参数
+          title: initialize参数
           type: object
         type: UniLabJsonCommandAsync
       run_column:
@@ -305,18 +342,61 @@ virtual_column:
           to_vessel: to_vessel
         goal_default:
           column: ''
-          from_vessel: ''
-          to_vessel: ''
+          from_vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          pct1: ''
+          pct2: ''
+          ratio: ''
+          rf: ''
+          solvent1: ''
+          solvent2: ''
+          to_vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
         handles: []
         result:
           message: current_status
           return_info: current_status
           success: success
         schema:
-          description: ROS Action RunColumn 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 progress:
                   type: number
@@ -328,22 +408,180 @@ virtual_column:
               title: RunColumn_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 column:
                   type: string
                 from_vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
+                pct1:
+                  type: string
+                pct2:
+                  type: string
+                ratio:
+                  type: string
+                rf:
+                  type: string
+                solvent1:
+                  type: string
+                solvent2:
                   type: string
                 to_vessel:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
               required:
               - from_vessel
               - to_vessel
               - column
+              - rf
+              - pct1
+              - pct2
+              - solvent1
+              - solvent2
+              - ratio
               title: RunColumn_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 message:
                   type: string
@@ -368,12 +606,15 @@ virtual_column:
       column_length: float
       column_state: str
       current_flow_rate: float
+      current_phase: str
       current_status: str
+      final_volume: float
       max_flow_rate: float
       processed_volume: float
       progress: float
       status: str
     type: python
+  config_info: []
   description: Virtual Column Chromatography Device for RunColumn Protocol Testing
   handles:
   - data_key: from_vessel
@@ -394,30 +635,55 @@ virtual_column:
     side: EAST
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          config:
-            description: '参数: config'
-            type: object
-          device_id:
-            description: '参数: device_id'
-            type: string
-          kwargs:
-            description: '参数: kwargs'
-            type: string
-        required:
-        - kwargs
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        config:
+          type: object
+        device_id:
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        column_diameter:
+          type: number
+        column_length:
+          type: number
+        column_state:
+          type: string
+        current_flow_rate:
+          type: number
+        current_phase:
+          type: string
+        current_status:
+          type: string
+        final_volume:
+          type: number
+        max_flow_rate:
+          type: number
+        processed_volume:
+          type: number
+        progress:
+          type: number
+        status:
+          type: string
+      required:
+      - status
+      - column_state
+      - current_flow_rate
+      - max_flow_rate
+      - column_length
+      - column_diameter
+      - processed_volume
+      - progress
+      - current_status
+      - current_phase
+      - final_volume
+      type: object
+  version: 1.0.0
 virtual_filter:
+  category:
+  - virtual_device
   class:
     action_value_mappings:
       auto-cleanup:
@@ -427,74 +693,17 @@ virtual_filter:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand cleanup 的参数schema
+          description: cleanup的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand cleanup 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: cleanup 命令参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-filter:
-        feedback: {}
-        goal: {}
-        goal_default:
-          continue_heatchill: false
-          filtrate_vessel: ''
-          stir: false
-          stir_speed: 300.0
-          temp: 25.0
-          vessel: null
-          volume: 0.0
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand filter 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand filter 的参数schema
-              properties:
-                continue_heatchill:
-                  default: false
-                  description: '参数: continue_heatchill'
-                  type: boolean
-                filtrate_vessel:
-                  default: ''
-                  description: '参数: filtrate_vessel'
-                  type: string
-                stir:
-                  default: false
-                  description: '参数: stir'
-                  type: boolean
-                stir_speed:
-                  default: 300.0
-                  description: '参数: stir_speed'
-                  type: number
-                temp:
-                  default: 25.0
-                  description: '参数: temp'
-                  type: number
-                vessel:
-                  description: '参数: vessel'
-                  type: string
-                volume:
-                  default: 0.0
-                  description: '参数: volume'
-                  type: number
-              required:
-              - vessel
-              type: object
-            result: {}
-          required:
-          - goal
-          title: filter 命令参数
+          title: cleanup参数
           type: object
         type: UniLabJsonCommandAsync
       auto-initialize:
@@ -504,18 +713,17 @@ virtual_filter:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand initialize 的参数schema
+          description: initialize的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand initialize 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: initialize 命令参数
+          title: initialize参数
           type: object
         type: UniLabJsonCommandAsync
       filter:
@@ -534,11 +742,49 @@ virtual_filter:
           volume: volume
         goal_default:
           continue_heatchill: false
-          filtrate_vessel: ''
+          filtrate_vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
           stir: false
           stir_speed: 0.0
           temp: 0.0
-          vessel: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
           volume: 0.0
         handles: []
         result:
@@ -546,10 +792,9 @@ virtual_filter:
           return_info: message
           success: success
         schema:
-          description: ROS Action Filter 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 current_status:
                   type: string
@@ -567,12 +812,82 @@ virtual_filter:
               title: Filter_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 continue_heatchill:
                   type: boolean
                 filtrate_vessel:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
                 stir:
                   type: boolean
                 stir_speed:
@@ -580,7 +895,78 @@ virtual_filter:
                 temp:
                   type: number
                 vessel:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
                 volume:
                   type: number
               required:
@@ -594,7 +980,6 @@ virtual_filter:
               title: Filter_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 message:
                   type: string
@@ -625,6 +1010,7 @@ virtual_filter:
       progress: float
       status: str
     type: python
+  config_info: []
   description: Virtual Filter for FilterProtocol Testing
   handles:
   - data_key: vessel_in
@@ -653,30 +1039,49 @@ virtual_filter:
     side: EAST
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          config:
-            description: '参数: config'
-            type: string
-          device_id:
-            description: '参数: device_id'
-            type: string
-          kwargs:
-            description: '参数: kwargs'
-            type: string
-        required:
-        - kwargs
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        config:
+          type: string
+        device_id:
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        current_status:
+          type: string
+        current_temp:
+          type: number
+        filtered_volume:
+          type: number
+        max_stir_speed:
+          type: number
+        max_temp:
+          type: number
+        max_volume:
+          type: number
+        message:
+          type: string
+        progress:
+          type: number
+        status:
+          type: string
+      required:
+      - status
+      - progress
+      - current_temp
+      - filtered_volume
+      - current_status
+      - message
+      - max_temp
+      - max_stir_speed
+      - max_volume
+      type: object
+  version: 1.0.0
 virtual_gas_source:
+  category:
+  - virtual_device
   class:
     action_value_mappings:
       auto-cleanup:
@@ -686,41 +1091,19 @@ virtual_gas_source:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand cleanup 的参数schema
+          description: cleanup的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand cleanup 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: cleanup 命令参数
+          title: cleanup参数
           type: object
         type: UniLabJsonCommandAsync
-      auto-close:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand close 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand close 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: close 命令参数
-          type: object
-        type: UniLabJsonCommand
       auto-initialize:
         feedback: {}
         goal: {}
@@ -728,18 +1111,17 @@ virtual_gas_source:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand initialize 的参数schema
+          description: initialize的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand initialize 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: initialize 命令参数
+          title: initialize参数
           type: object
         type: UniLabJsonCommandAsync
       auto-is_closed:
@@ -749,18 +1131,17 @@ virtual_gas_source:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand is_closed 的参数schema
+          description: is_closed的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand is_closed 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: is_closed 命令参数
+          title: is_closed参数
           type: object
         type: UniLabJsonCommand
       auto-is_open:
@@ -770,65 +1151,17 @@ virtual_gas_source:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand is_open 的参数schema
+          description: is_open的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand is_open 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: is_open 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-open:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand open 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand open 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: open 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-set_status:
-        feedback: {}
-        goal: {}
-        goal_default:
-          string: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand set_status 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand set_status 的参数schema
-              properties:
-                string:
-                  description: '参数: string'
-                  type: string
-              required:
-              - string
-              type: object
-            result: {}
-          required:
-          - goal
-          title: set_status 命令参数
+          title: is_open参数
           type: object
         type: UniLabJsonCommand
       close:
@@ -838,22 +1171,19 @@ virtual_gas_source:
         handles: []
         result: {}
         schema:
-          description: ROS Action EmptyIn 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: EmptyIn_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties: {}
               required: []
               title: EmptyIn_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -873,22 +1203,19 @@ virtual_gas_source:
         handles: []
         result: {}
         schema:
-          description: ROS Action EmptyIn 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: EmptyIn_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties: {}
               required: []
               title: EmptyIn_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -910,16 +1237,14 @@ virtual_gas_source:
         handles: []
         result: {}
         schema:
-          description: ROS Action StrSingleInput 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: StrSingleInput_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 string:
                   type: string
@@ -928,7 +1253,6 @@ virtual_gas_source:
               title: StrSingleInput_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -948,6 +1272,7 @@ virtual_gas_source:
     status_types:
       status: str
     type: python
+  config_info: []
   description: Virtual gas source
   handles:
   - data_key: fluid_out
@@ -960,30 +1285,25 @@ virtual_gas_source:
     side: SOUTH
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          config:
-            description: '参数: config'
-            type: string
-          device_id:
-            description: '参数: device_id'
-            type: string
-          kwargs:
-            description: '参数: kwargs'
-            type: string
-        required:
-        - kwargs
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        config:
+          type: string
+        device_id:
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        status:
+          type: string
+      required:
+      - status
+      type: object
+  version: 1.0.0
 virtual_heatchill:
+  category:
+  - virtual_device
   class:
     action_value_mappings:
       auto-cleanup:
@@ -993,131 +1313,17 @@ virtual_heatchill:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand cleanup 的参数schema
+          description: cleanup的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand cleanup 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: cleanup 命令参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-heat_chill:
-        feedback: {}
-        goal: {}
-        goal_default:
-          purpose: null
-          stir: null
-          stir_speed: null
-          temp: null
-          time: null
-          vessel: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand heat_chill 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand heat_chill 的参数schema
-              properties:
-                purpose:
-                  description: '参数: purpose'
-                  type: string
-                stir:
-                  description: '参数: stir'
-                  type: boolean
-                stir_speed:
-                  description: '参数: stir_speed'
-                  type: number
-                temp:
-                  description: '参数: temp'
-                  type: number
-                time:
-                  description: '参数: time'
-                  type: number
-                vessel:
-                  description: '参数: vessel'
-                  type: string
-              required:
-              - vessel
-              - temp
-              - time
-              - stir
-              - stir_speed
-              - purpose
-              type: object
-            result: {}
-          required:
-          - goal
-          title: heat_chill 命令参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-heat_chill_start:
-        feedback: {}
-        goal: {}
-        goal_default:
-          purpose: null
-          temp: null
-          vessel: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand heat_chill_start 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand heat_chill_start 的参数schema
-              properties:
-                purpose:
-                  description: '参数: purpose'
-                  type: string
-                temp:
-                  description: '参数: temp'
-                  type: number
-                vessel:
-                  description: '参数: vessel'
-                  type: string
-              required:
-              - vessel
-              - temp
-              - purpose
-              type: object
-            result: {}
-          required:
-          - goal
-          title: heat_chill_start 命令参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-heat_chill_stop:
-        feedback: {}
-        goal: {}
-        goal_default:
-          vessel: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand heat_chill_stop 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand heat_chill_stop 的参数schema
-              properties:
-                vessel:
-                  description: '参数: vessel'
-                  type: string
-              required:
-              - vessel
-              type: object
-            result: {}
-          required:
-          - goal
-          title: heat_chill_stop 命令参数
+          title: cleanup参数
           type: object
         type: UniLabJsonCommandAsync
       auto-initialize:
@@ -1127,18 +1333,17 @@ virtual_heatchill:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand initialize 的参数schema
+          description: initialize的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand initialize 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: initialize 命令参数
+          title: initialize参数
           type: object
         type: UniLabJsonCommandAsync
       heat_chill:
@@ -1152,20 +1357,42 @@ virtual_heatchill:
           time: time
           vessel: vessel
         goal_default:
+          pressure: ''
           purpose: ''
+          reflux_solvent: ''
           stir: false
           stir_speed: 0.0
           temp: 0.0
-          time: 0.0
-          vessel: ''
+          temp_spec: ''
+          time: ''
+          time_spec: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
         handles: []
         result:
           success: success
         schema:
-          description: ROS Action HeatChill 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -1174,9 +1401,12 @@ virtual_heatchill:
               title: HeatChill_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
+                pressure:
+                  type: string
                 purpose:
+                  type: string
+                reflux_solvent:
                   type: string
                 stir:
                   type: boolean
@@ -1184,29 +1414,110 @@ virtual_heatchill:
                   type: number
                 temp:
                   type: number
-                time:
-                  type: number
-                vessel:
+                temp_spec:
                   type: string
+                time:
+                  type: string
+                time_spec:
+                  type: string
+                vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
               required:
               - vessel
               - temp
               - time
+              - temp_spec
+              - time_spec
+              - pressure
+              - reflux_solvent
               - stir
               - stir_speed
               - purpose
               title: HeatChill_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
+                message:
+                  type: string
                 return_info:
                   type: string
                 success:
                   type: boolean
               required:
-              - return_info
               - success
+              - message
+              - return_info
               title: HeatChill_Result
               type: object
           required:
@@ -1224,15 +1535,33 @@ virtual_heatchill:
         goal_default:
           purpose: ''
           temp: 0.0
-          vessel: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
         handles: []
         result:
           success: success
         schema:
-          description: ROS Action HeatChillStart 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -1241,14 +1570,84 @@ virtual_heatchill:
               title: HeatChillStart_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 purpose:
                   type: string
                 temp:
                   type: number
                 vessel:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
               required:
               - vessel
               - temp
@@ -1256,7 +1655,6 @@ virtual_heatchill:
               title: HeatChillStart_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -1278,15 +1676,33 @@ virtual_heatchill:
         goal:
           vessel: vessel
         goal_default:
-          vessel: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
         handles: []
         result:
           success: success
         schema:
-          description: ROS Action HeatChillStop 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -1295,16 +1711,85 @@ virtual_heatchill:
               title: HeatChillStop_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 vessel:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
               required:
               - vessel
               title: HeatChillStop_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -1323,11 +1808,16 @@ virtual_heatchill:
     module: unilabos.devices.virtual.virtual_heatchill:VirtualHeatChill
     status_types:
       is_stirring: bool
+      max_stir_speed: float
+      max_temp: float
+      min_temp: float
       operation_mode: str
+      progress: float
       remaining_time: float
       status: str
       stir_speed: float
     type: python
+  config_info: []
   description: Virtual HeatChill for HeatChillProtocol Testing
   handles:
   - data_key: vessel
@@ -1340,30 +1830,49 @@ virtual_heatchill:
     side: NORTH
   icon: Heater.webp
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          config:
-            description: '参数: config'
-            type: object
-          device_id:
-            description: '参数: device_id'
-            type: string
-          kwargs:
-            description: '参数: kwargs'
-            type: string
-        required:
-        - kwargs
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        config:
+          type: object
+        device_id:
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        is_stirring:
+          type: boolean
+        max_stir_speed:
+          type: number
+        max_temp:
+          type: number
+        min_temp:
+          type: number
+        operation_mode:
+          type: string
+        progress:
+          type: number
+        remaining_time:
+          type: number
+        status:
+          type: string
+        stir_speed:
+          type: number
+      required:
+      - status
+      - operation_mode
+      - is_stirring
+      - stir_speed
+      - remaining_time
+      - progress
+      - max_temp
+      - min_temp
+      - max_stir_speed
+      type: object
+  version: 1.0.0
 virtual_multiway_valve:
+  category:
+  - virtual_device
   class:
     action_value_mappings:
       auto-close:
@@ -1373,18 +1882,17 @@ virtual_multiway_valve:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand close 的参数schema
+          description: close的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand close 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: close 命令参数
+          title: close参数
           type: object
         type: UniLabJsonCommand
       auto-is_at_port:
@@ -1395,14 +1903,12 @@ virtual_multiway_valve:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand is_at_port 的参数schema
+          description: is_at_port的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand is_at_port 的参数schema
               properties:
                 port_number:
-                  description: '参数: port_number'
                   type: integer
               required:
               - port_number
@@ -1410,7 +1916,7 @@ virtual_multiway_valve:
             result: {}
           required:
           - goal
-          title: is_at_port 命令参数
+          title: is_at_port参数
           type: object
         type: UniLabJsonCommand
       auto-is_at_position:
@@ -1421,14 +1927,12 @@ virtual_multiway_valve:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand is_at_position 的参数schema
+          description: is_at_position的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand is_at_position 的参数schema
               properties:
                 position:
-                  description: '参数: position'
                   type: integer
               required:
               - position
@@ -1436,7 +1940,7 @@ virtual_multiway_valve:
             result: {}
           required:
           - goal
-          title: is_at_position 命令参数
+          title: is_at_position参数
           type: object
         type: UniLabJsonCommand
       auto-is_at_pump_position:
@@ -1446,18 +1950,17 @@ virtual_multiway_valve:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand is_at_pump_position 的参数schema
+          description: is_at_pump_position的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand is_at_pump_position 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: is_at_pump_position 命令参数
+          title: is_at_pump_position参数
           type: object
         type: UniLabJsonCommand
       auto-open:
@@ -1467,18 +1970,17 @@ virtual_multiway_valve:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand open 的参数schema
+          description: ''
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand open 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: open 命令参数
+          title: open参数
           type: object
         type: UniLabJsonCommand
       auto-reset:
@@ -1488,44 +1990,17 @@ virtual_multiway_valve:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand reset 的参数schema
+          description: reset的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand reset 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: reset 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-set_position:
-        feedback: {}
-        goal: {}
-        goal_default:
-          command: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand set_position 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand set_position 的参数schema
-              properties:
-                command:
-                  description: '参数: command'
-                  type: string
-              required:
-              - command
-              type: object
-            result: {}
-          required:
-          - goal
-          title: set_position 命令参数
+          title: reset参数
           type: object
         type: UniLabJsonCommand
       auto-set_to_port:
@@ -1536,14 +2011,12 @@ virtual_multiway_valve:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand set_to_port 的参数schema
+          description: set_to_port的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand set_to_port 的参数schema
               properties:
                 port_number:
-                  description: '参数: port_number'
                   type: integer
               required:
               - port_number
@@ -1551,7 +2024,7 @@ virtual_multiway_valve:
             result: {}
           required:
           - goal
-          title: set_to_port 命令参数
+          title: set_to_port参数
           type: object
         type: UniLabJsonCommand
       auto-set_to_pump_position:
@@ -1561,44 +2034,17 @@ virtual_multiway_valve:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand set_to_pump_position 的参数schema
+          description: set_to_pump_position的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand set_to_pump_position 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: set_to_pump_position 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-set_valve_position:
-        feedback: {}
-        goal: {}
-        goal_default:
-          command: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand set_valve_position 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand set_valve_position 的参数schema
-              properties:
-                command:
-                  description: '参数: command'
-                  type: string
-              required:
-              - command
-              type: object
-            result: {}
-          required:
-          - goal
-          title: set_valve_position 命令参数
+          title: set_to_pump_position参数
           type: object
         type: UniLabJsonCommand
       auto-switch_between_pump_and_port:
@@ -1609,14 +2055,12 @@ virtual_multiway_valve:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand switch_between_pump_and_port 的参数schema
+          description: switch_between_pump_and_port的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand switch_between_pump_and_port 的参数schema
               properties:
                 port_number:
-                  description: '参数: port_number'
                   type: integer
               required:
               - port_number
@@ -1624,7 +2068,7 @@ virtual_multiway_valve:
             result: {}
           required:
           - goal
-          title: switch_between_pump_and_port 命令参数
+          title: switch_between_pump_and_port参数
           type: object
         type: UniLabJsonCommand
       set_position:
@@ -1637,10 +2081,9 @@ virtual_multiway_valve:
         result:
           success: success
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -1649,7 +2092,6 @@ virtual_multiway_valve:
               title: SendCmd_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 command:
                   type: string
@@ -1658,7 +2100,6 @@ virtual_multiway_valve:
               title: SendCmd_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -1684,10 +2125,9 @@ virtual_multiway_valve:
         result:
           success: success
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -1696,7 +2136,6 @@ virtual_multiway_valve:
               title: SendCmd_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 command:
                   type: string
@@ -1705,7 +2144,6 @@ virtual_multiway_valve:
               title: SendCmd_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -1734,6 +2172,7 @@ virtual_multiway_valve:
       valve_position: int
       valve_state: str
     type: python
+  config_info: []
   description: Virtual 8-Way Valve for flow direction control
   handles:
   - data_key: fluid_in
@@ -1748,90 +2187,116 @@ virtual_multiway_valve:
     data_source: executor
     data_type: fluid
     description: 八通阀门端口1
-    handler_key: 1
+    handler_key: '1'
     io_type: source
-    label: 1
+    label: '1'
     side: NORTH
   - data_key: fluid_port_2
     data_source: executor
     data_type: fluid
     description: 八通阀门端口2
-    handler_key: 2
+    handler_key: '2'
     io_type: source
-    label: 2
+    label: '2'
     side: EAST
   - data_key: fluid_port_3
     data_source: executor
     data_type: fluid
     description: 八通阀门端口3
-    handler_key: 3
+    handler_key: '3'
     io_type: source
-    label: 3
+    label: '3'
     side: EAST
   - data_key: fluid_port_4
     data_source: executor
     data_type: fluid
     description: 八通阀门端口4
-    handler_key: 4
+    handler_key: '4'
     io_type: source
-    label: 4
+    label: '4'
     side: SOUTH
   - data_key: fluid_port_5
     data_source: executor
     data_type: fluid
     description: 八通阀门端口5
-    handler_key: 5
+    handler_key: '5'
     io_type: source
-    label: 5
+    label: '5'
     side: SOUTH
   - data_key: fluid_port_6
     data_source: executor
     data_type: fluid
     description: 八通阀门端口6
-    handler_key: 6
+    handler_key: '6'
     io_type: source
-    label: 6
+    label: '6'
     side: WEST
   - data_key: fluid_port_7
     data_source: executor
     data_type: fluid
     description: 八通阀门端口7
-    handler_key: 7
+    handler_key: '7'
     io_type: source
-    label: 7
+    label: '7'
     side: WEST
   - data_key: fluid_port_8
     data_source: executor
     data_type: fluid
     description: 八通阀门端口8
-    handler_key: 8
+    handler_key: '8'
     io_type: source
-    label: 8
+    label: '8'
     side: NORTH
   icon: EightPipeline.webp
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          port:
-            default: VIRTUAL
-            description: '参数: port'
-            type: string
-          positions:
-            default: 8
-            description: '参数: positions'
-            type: integer
-        required: []
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        port:
+          default: VIRTUAL
+          type: string
+        positions:
+          default: 8
+          type: integer
+      required: []
+      type: object
+    data:
+      properties:
+        available_ports:
+          type: object
+        available_positions:
+          type: array
+        current_port:
+          type: string
+        current_position:
+          type: integer
+        flow_path:
+          type: string
+        info:
+          type: object
+        status:
+          type: string
+        target_position:
+          type: integer
+        valve_position:
+          type: integer
+        valve_state:
+          type: string
+      required:
+      - status
+      - valve_state
+      - current_position
+      - target_position
+      - current_port
+      - valve_position
+      - available_positions
+      - available_ports
+      - flow_path
+      - info
+      type: object
+  version: 1.0.0
 virtual_pump:
+  category:
+  - virtual_device
   class:
     action_value_mappings:
       auto-clean_vessel:
@@ -1846,27 +2311,21 @@ virtual_pump:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand clean_vessel 的参数schema
+          description: clean_vessel的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand clean_vessel 的参数schema
               properties:
                 repeats:
                   default: 1
-                  description: '参数: repeats'
                   type: integer
                 solvent:
-                  description: '参数: solvent'
                   type: string
                 temp:
-                  description: '参数: temp'
                   type: number
                 vessel:
-                  description: '参数: vessel'
                   type: string
                 volume:
-                  description: '参数: volume'
                   type: number
               required:
               - vessel
@@ -1877,7 +2336,7 @@ virtual_pump:
             result: {}
           required:
           - goal
-          title: clean_vessel 命令参数
+          title: clean_vessel参数
           type: object
         type: UniLabJsonCommandAsync
       auto-cleanup:
@@ -1887,18 +2346,17 @@ virtual_pump:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand cleanup 的参数schema
+          description: cleanup的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand cleanup 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: cleanup 命令参数
+          title: cleanup参数
           type: object
         type: UniLabJsonCommandAsync
       auto-initialize:
@@ -1908,89 +2366,17 @@ virtual_pump:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand initialize 的参数schema
+          description: initialize的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand initialize 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: initialize 命令参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-transfer:
-        feedback: {}
-        goal: {}
-        goal_default:
-          amount: ''
-          from_vessel: null
-          rinsing_repeats: 0
-          rinsing_solvent: ''
-          rinsing_volume: 0.0
-          solid: false
-          time: 0.0
-          to_vessel: null
-          viscous: false
-          volume: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand transfer 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand transfer 的参数schema
-              properties:
-                amount:
-                  default: ''
-                  description: '参数: amount'
-                  type: string
-                from_vessel:
-                  description: '参数: from_vessel'
-                  type: string
-                rinsing_repeats:
-                  default: 0
-                  description: '参数: rinsing_repeats'
-                  type: integer
-                rinsing_solvent:
-                  default: ''
-                  description: '参数: rinsing_solvent'
-                  type: string
-                rinsing_volume:
-                  default: 0.0
-                  description: '参数: rinsing_volume'
-                  type: number
-                solid:
-                  default: false
-                  description: '参数: solid'
-                  type: boolean
-                time:
-                  default: 0.0
-                  description: '参数: time'
-                  type: number
-                to_vessel:
-                  description: '参数: to_vessel'
-                  type: string
-                viscous:
-                  default: false
-                  description: '参数: viscous'
-                  type: boolean
-                volume:
-                  description: '参数: volume'
-                  type: number
-              required:
-              - from_vessel
-              - to_vessel
-              - volume
-              type: object
-            result: {}
-          required:
-          - goal
-          title: transfer 命令参数
+          title: initialize参数
           type: object
         type: UniLabJsonCommandAsync
       set_valve_position:
@@ -2004,16 +2390,14 @@ virtual_pump:
         result:
           success: success
         schema:
-          description: ROS Action FloatSingleInput 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: FloatSingleInput_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 float_in:
                   type: number
@@ -2022,7 +2406,6 @@ virtual_pump:
               title: FloatSingleInput_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -2054,23 +2437,65 @@ virtual_pump:
           volume: volume
         goal_default:
           amount: ''
-          from_vessel: ''
+          event: ''
+          flowrate: 0.0
+          from_vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          rate_spec: ''
           rinsing_repeats: 0
           rinsing_solvent: ''
           rinsing_volume: 0.0
           solid: false
+          through: ''
           time: 0.0
-          to_vessel: ''
+          to_vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          transfer_flowrate: 0.0
           viscous: false
           volume: 0.0
         handles: []
         result:
           success: success
         schema:
-          description: ROS Action PumpTransfer 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 current_device:
                   type: string
@@ -2114,11 +2539,87 @@ virtual_pump:
               title: PumpTransfer_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 amount:
                   type: string
+                event:
+                  type: string
+                flowrate:
+                  type: number
                 from_vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
+                rate_spec:
                   type: string
                 rinsing_repeats:
                   maximum: 2147483647
@@ -2130,10 +2631,85 @@ virtual_pump:
                   type: number
                 solid:
                   type: boolean
+                through:
+                  type: string
                 time:
                   type: number
                 to_vessel:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
+                transfer_flowrate:
+                  type: number
                 viscous:
                   type: boolean
                 volume:
@@ -2149,10 +2725,14 @@ virtual_pump:
               - rinsing_volume
               - rinsing_repeats
               - solid
+              - flowrate
+              - transfer_flowrate
+              - rate_spec
+              - event
+              - through
               title: PumpTransfer_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -2181,6 +2761,7 @@ virtual_pump:
       transferred_volume: float
       valve_position: int
     type: python
+  config_info: []
   description: Virtual Pump for PumpTransferProtocol Testing
   handles:
   - data_key: fluid_in
@@ -2192,30 +2773,52 @@ virtual_pump:
     label: pumpio
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          config:
-            description: '参数: config'
-            type: object
-          device_id:
-            description: '参数: device_id'
-            type: string
-          kwargs:
-            description: '参数: kwargs'
-            type: string
-        required:
-        - kwargs
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        config:
+          type: object
+        device_id:
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        current_status:
+          type: string
+        current_volume:
+          type: number
+        from_vessel:
+          type: string
+        max_volume:
+          type: number
+        progress:
+          type: number
+        status:
+          type: string
+        to_vessel:
+          type: string
+        transfer_rate:
+          type: number
+        transferred_volume:
+          type: number
+        valve_position:
+          type: integer
+      required:
+      - status
+      - valve_position
+      - current_volume
+      - max_volume
+      - transfer_rate
+      - from_vessel
+      - to_vessel
+      - progress
+      - transferred_volume
+      - current_status
+      type: object
+  version: 1.0.0
 virtual_rotavap:
+  category:
+  - virtual_device
   class:
     action_value_mappings:
       auto-cleanup:
@@ -2225,64 +2828,17 @@ virtual_rotavap:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand cleanup 的参数schema
+          description: cleanup的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand cleanup 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: cleanup 命令参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-evaporate:
-        feedback: {}
-        goal: {}
-        goal_default:
-          pressure: 0.1
-          stir_speed: 100.0
-          temp: 60.0
-          time: 1800.0
-          vessel: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand evaporate 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand evaporate 的参数schema
-              properties:
-                pressure:
-                  default: 0.1
-                  description: '参数: pressure'
-                  type: number
-                stir_speed:
-                  default: 100.0
-                  description: '参数: stir_speed'
-                  type: number
-                temp:
-                  default: 60.0
-                  description: '参数: temp'
-                  type: number
-                time:
-                  default: 1800.0
-                  description: '参数: time'
-                  type: number
-                vessel:
-                  description: '参数: vessel'
-                  type: string
-              required:
-              - vessel
-              type: object
-            result: {}
-          required:
-          - goal
-          title: evaporate 命令参数
+          title: cleanup参数
           type: object
         type: UniLabJsonCommandAsync
       auto-initialize:
@@ -2292,25 +2848,22 @@ virtual_rotavap:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand initialize 的参数schema
+          description: initialize的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand initialize 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: initialize 命令参数
+          title: initialize参数
           type: object
         type: UniLabJsonCommandAsync
       evaporate:
         feedback:
-          current_temp: current_temp
-          evaporated_volume: evaporated_volume
-          progress: progress
+          current_device: current_device
           status: status
         goal:
           pressure: pressure
@@ -2320,19 +2873,38 @@ virtual_rotavap:
           vessel: vessel
         goal_default:
           pressure: 0.0
+          solvent: ''
           stir_speed: 0.0
           temp: 0.0
-          time: 0.0
-          vessel: ''
+          time: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
         handles: []
         result:
           message: message
           success: success
         schema:
-          description: ROS Action Evaporate 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 current_device:
                   type: string
@@ -2376,28 +2948,100 @@ virtual_rotavap:
               title: Evaporate_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 pressure:
                   type: number
+                solvent:
+                  type: string
                 stir_speed:
                   type: number
                 temp:
                   type: number
                 time:
-                  type: number
-                vessel:
                   type: string
+                vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
               required:
               - vessel
               - pressure
               - temp
               - time
               - stir_speed
+              - solvent
               title: Evaporate_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -2427,6 +3071,7 @@ virtual_rotavap:
       status: str
       vacuum_pressure: float
     type: python
+  config_info: []
   description: Virtual Rotary Evaporator for EvaporateProtocol Testing
   handles:
   - data_key: vessel_in
@@ -2455,30 +3100,55 @@ virtual_rotavap:
     side: EAST
   icon: Rotaryevaporator.webp
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          config:
-            description: '参数: config'
-            type: string
-          device_id:
-            description: '参数: device_id'
-            type: string
-          kwargs:
-            description: '参数: kwargs'
-            type: string
-        required:
-        - kwargs
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        config:
+          type: string
+        device_id:
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        current_temp:
+          type: number
+        evaporated_volume:
+          type: number
+        max_rotation_speed:
+          type: number
+        max_temp:
+          type: number
+        message:
+          type: string
+        progress:
+          type: number
+        remaining_time:
+          type: number
+        rotation_speed:
+          type: number
+        rotavap_state:
+          type: string
+        status:
+          type: string
+        vacuum_pressure:
+          type: number
+      required:
+      - status
+      - rotavap_state
+      - current_temp
+      - rotation_speed
+      - vacuum_pressure
+      - evaporated_volume
+      - progress
+      - message
+      - max_temp
+      - max_rotation_speed
+      - remaining_time
+      type: object
+  version: 1.0.0
 virtual_separator:
+  category:
+  - virtual_device
   class:
     action_value_mappings:
       auto-cleanup:
@@ -2488,18 +3158,17 @@ virtual_separator:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand cleanup 的参数schema
+          description: cleanup的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand cleanup 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: cleanup 命令参数
+          title: cleanup参数
           type: object
         type: UniLabJsonCommandAsync
       auto-initialize:
@@ -2509,104 +3178,17 @@ virtual_separator:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand initialize 的参数schema
+          description: initialize的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand initialize 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: initialize 命令参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-separate:
-        feedback: {}
-        goal: {}
-        goal_default:
-          from_vessel: null
-          product_phase: null
-          purpose: null
-          repeats: 1
-          separation_vessel: null
-          settling_time: 300.0
-          solvent: ''
-          solvent_volume: 50.0
-          stir_speed: 300.0
-          stir_time: 30.0
-          through: ''
-          to_vessel: null
-          waste_phase_to_vessel: ''
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand separate 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand separate 的参数schema
-              properties:
-                from_vessel:
-                  description: '参数: from_vessel'
-                  type: string
-                product_phase:
-                  description: '参数: product_phase'
-                  type: string
-                purpose:
-                  description: '参数: purpose'
-                  type: string
-                repeats:
-                  default: 1
-                  description: '参数: repeats'
-                  type: integer
-                separation_vessel:
-                  description: '参数: separation_vessel'
-                  type: string
-                settling_time:
-                  default: 300.0
-                  description: '参数: settling_time'
-                  type: number
-                solvent:
-                  default: ''
-                  description: '参数: solvent'
-                  type: string
-                solvent_volume:
-                  default: 50.0
-                  description: '参数: solvent_volume'
-                  type: number
-                stir_speed:
-                  default: 300.0
-                  description: '参数: stir_speed'
-                  type: number
-                stir_time:
-                  default: 30.0
-                  description: '参数: stir_time'
-                  type: number
-                through:
-                  default: ''
-                  description: '参数: through'
-                  type: string
-                to_vessel:
-                  description: '参数: to_vessel'
-                  type: string
-                waste_phase_to_vessel:
-                  default: ''
-                  description: '参数: waste_phase_to_vessel'
-                  type: string
-              required:
-              - purpose
-              - product_phase
-              - from_vessel
-              - separation_vessel
-              - to_vessel
-              type: object
-            result: {}
-          required:
-          - goal
-          title: separate 命令参数
+          title: initialize参数
           type: object
         type: UniLabJsonCommandAsync
       separate:
@@ -2628,77 +3210,324 @@ virtual_separator:
           to_vessel: to_vessel
           waste_phase_to_vessel: waste_phase_to_vessel
         goal_default:
-          from_vessel: ''
+          from_vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
           product_phase: ''
+          product_vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
           purpose: ''
           repeats: 0
-          separation_vessel: ''
+          separation_vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
           settling_time: 0.0
           solvent: ''
-          solvent_volume: 0.0
+          solvent_volume: ''
           stir_speed: 0.0
           stir_time: 0.0
           through: ''
-          to_vessel: ''
-          waste_phase_to_vessel: ''
+          to_vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          volume: ''
+          waste_phase_to_vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          waste_vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
         handles: []
         result:
           message: message
           success: success
         schema:
-          description: ROS Action Separate 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
-                current_device:
-                  type: string
+                progress:
+                  type: number
                 status:
                   type: string
-                time_remaining:
-                  properties:
-                    nanosec:
-                      maximum: 4294967295
-                      minimum: 0
-                      type: integer
-                    sec:
-                      maximum: 2147483647
-                      minimum: -2147483648
-                      type: integer
-                  required:
-                  - sec
-                  - nanosec
-                  title: Duration
-                  type: object
-                time_spent:
-                  properties:
-                    nanosec:
-                      maximum: 4294967295
-                      minimum: 0
-                      type: integer
-                    sec:
-                      maximum: 2147483647
-                      minimum: -2147483648
-                      type: integer
-                  required:
-                  - sec
-                  - nanosec
-                  title: Duration
-                  type: object
               required:
               - status
-              - current_device
-              - time_spent
-              - time_remaining
+              - progress
               title: Separate_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 from_vessel:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
                 product_phase:
                   type: string
+                product_vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
                 purpose:
                   type: string
                 repeats:
@@ -2706,13 +3535,84 @@ virtual_separator:
                   minimum: -2147483648
                   type: integer
                 separation_vessel:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
                 settling_time:
                   type: number
                 solvent:
                   type: string
                 solvent_volume:
-                  type: number
+                  type: string
                 stir_speed:
                   type: number
                 stir_time:
@@ -2720,18 +3620,312 @@ virtual_separator:
                 through:
                   type: string
                 to_vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
+                vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
+                volume:
                   type: string
                 waste_phase_to_vessel:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
+                waste_vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
               required:
+              - vessel
               - purpose
               - product_phase
               - from_vessel
               - separation_vessel
               - to_vessel
               - waste_phase_to_vessel
+              - product_vessel
+              - waste_vessel
               - solvent
               - solvent_volume
+              - volume
               - through
               - repeats
               - stir_time
@@ -2740,15 +3934,17 @@ virtual_separator:
               title: Separate_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
+                message:
+                  type: string
                 return_info:
                   type: string
                 success:
                   type: boolean
               required:
-              - return_info
               - success
+              - message
+              - return_info
               title: Separate_Result
               type: object
           required:
@@ -2768,6 +3964,7 @@ virtual_separator:
       stir_speed: float
       volume: float
     type: python
+  config_info: []
   description: Virtual Separator for SeparateProtocol Testing
   handles:
   - data_key: from_vessel
@@ -2804,30 +4001,49 @@ virtual_separator:
     side: WEST
   icon: Separator.webp
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          config:
-            description: '参数: config'
-            type: string
-          device_id:
-            description: '参数: device_id'
-            type: string
-          kwargs:
-            description: '参数: kwargs'
-            type: string
-        required:
-        - kwargs
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        config:
+          type: string
+        device_id:
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        has_phases:
+          type: boolean
+        message:
+          type: string
+        phase_separation:
+          type: boolean
+        progress:
+          type: number
+        separator_state:
+          type: string
+        settling_time:
+          type: number
+        status:
+          type: string
+        stir_speed:
+          type: number
+        volume:
+          type: number
+      required:
+      - status
+      - separator_state
+      - volume
+      - has_phases
+      - phase_separation
+      - stir_speed
+      - settling_time
+      - progress
+      - message
+      type: object
+  version: 1.0.0
 virtual_solenoid_valve:
+  category:
+  - virtual_device
   class:
     action_value_mappings:
       auto-cleanup:
@@ -2837,39 +4053,17 @@ virtual_solenoid_valve:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand cleanup 的参数schema
+          description: cleanup的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand cleanup 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: cleanup 命令参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-close:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand close 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand close 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: close 命令参数
+          title: cleanup参数
           type: object
         type: UniLabJsonCommandAsync
       auto-initialize:
@@ -2879,18 +4073,17 @@ virtual_solenoid_valve:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand initialize 的参数schema
+          description: initialize的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand initialize 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: initialize 命令参数
+          title: initialize参数
           type: object
         type: UniLabJsonCommandAsync
       auto-is_closed:
@@ -2900,41 +4093,19 @@ virtual_solenoid_valve:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand is_closed 的参数schema
+          description: is_closed的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand is_closed 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: is_closed 命令参数
+          title: is_closed参数
           type: object
         type: UniLabJsonCommand
-      auto-open:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand open 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand open 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: open 命令参数
-          type: object
-        type: UniLabJsonCommandAsync
       auto-reset:
         feedback: {}
         goal: {}
@@ -2942,69 +4113,17 @@ virtual_solenoid_valve:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand reset 的参数schema
+          description: reset的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand reset 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: reset 命令参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-set_state:
-        feedback: {}
-        goal: {}
-        goal_default:
-          command: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand set_state 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand set_state 的参数schema
-              properties:
-                command:
-                  description: '参数: command'
-                  type: string
-              required:
-              - command
-              type: object
-            result: {}
-          required:
-          - goal
-          title: set_state 命令参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-set_valve_position:
-        feedback: {}
-        goal: {}
-        goal_default:
-          command: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand set_valve_position 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand set_valve_position 的参数schema
-              properties:
-                command:
-                  description: '参数: command'
-                  type: string
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: set_valve_position 命令参数
+          title: reset参数
           type: object
         type: UniLabJsonCommandAsync
       auto-toggle:
@@ -3014,146 +4133,110 @@ virtual_solenoid_valve:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand toggle 的参数schema
+          description: toggle的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand toggle 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: toggle 命令参数
+          title: toggle参数
           type: object
         type: UniLabJsonCommand
       close:
         feedback: {}
         goal:
           command: CLOSED
-        goal_default:
-          command: ''
+        goal_default: {}
         handles: []
         result:
           success: success
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
-              properties:
-                status:
-                  type: string
-              required:
-              - status
-              title: SendCmd_Feedback
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
-              properties:
-                command:
-                  type: string
-              required:
-              - command
-              title: SendCmd_Goal
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
-                success:
-                  type: boolean
               required:
               - return_info
-              - success
-              title: SendCmd_Result
+              title: EmptyIn_Result
               type: object
           required:
           - goal
-          title: SendCmd
+          title: EmptyIn
           type: object
-        type: SendCmd
+        type: EmptyIn
       open:
         feedback: {}
-        goal:
-          command: OPEN
-        goal_default:
-          command: ''
+        goal: {}
+        goal_default: {}
         handles: []
-        result:
-          success: success
+        result: {}
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
-              properties:
-                status:
-                  type: string
-              required:
-              - status
-              title: SendCmd_Feedback
+              properties: {}
+              required: []
+              title: EmptyIn_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
-              properties:
-                command:
-                  type: string
-              required:
-              - command
-              title: SendCmd_Goal
+              properties: {}
+              required: []
+              title: EmptyIn_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
-                success:
-                  type: boolean
               required:
               - return_info
-              - success
-              title: SendCmd_Result
+              title: EmptyIn_Result
               type: object
           required:
           - goal
-          title: SendCmd
+          title: EmptyIn
           type: object
-        type: SendCmd
-      set_state:
+        type: EmptyIn
+      set_status:
         feedback: {}
         goal:
-          command: command
+          string: string
         goal_default:
-          command: ''
+          string: ''
         handles: []
-        result:
-          success: success
+        result: {}
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
-              properties:
-                status:
-                  type: string
-              required:
-              - status
-              title: SendCmd_Feedback
+              properties: {}
+              required: []
+              title: StrSingleInput_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
-                command:
+                string:
                   type: string
               required:
-              - command
-              title: SendCmd_Goal
+              - string
+              title: StrSingleInput_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -3162,13 +4245,13 @@ virtual_solenoid_valve:
               required:
               - return_info
               - success
-              title: SendCmd_Result
+              title: StrSingleInput_Result
               type: object
           required:
           - goal
-          title: SendCmd
+          title: StrSingleInput
           type: object
-        type: SendCmd
+        type: StrSingleInput
       set_valve_position:
         feedback: {}
         goal:
@@ -3177,12 +4260,13 @@ virtual_solenoid_valve:
           command: ''
         handles: []
         result:
+          message: message
           success: success
+          valve_position: valve_position
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -3191,7 +4275,6 @@ virtual_solenoid_valve:
               title: SendCmd_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 command:
                   type: string
@@ -3200,7 +4283,6 @@ virtual_solenoid_valve:
               title: SendCmd_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -3224,6 +4306,7 @@ virtual_solenoid_valve:
       valve_position: str
       valve_state: str
     type: python
+  config_info: []
   description: Virtual Solenoid Valve for simple on/off flow control
   handles:
   - data_key: fluid_port_in
@@ -3244,30 +4327,420 @@ virtual_solenoid_valve:
     side: SOUTH
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          config:
-            description: '参数: config'
-            type: object
-          device_id:
-            description: '参数: device_id'
-            type: string
-          kwargs:
-            description: '参数: kwargs'
-            type: string
-        required:
-        - kwargs
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        config:
+          type: object
+        device_id:
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        is_open:
+          type: boolean
+        state:
+          type: object
+        status:
+          type: string
+        valve_position:
+          type: string
+        valve_state:
+          type: string
+      required:
+      - status
+      - valve_state
+      - is_open
+      - valve_position
+      - state
+      type: object
+  version: 1.0.0
+virtual_solid_dispenser:
+  category:
+  - virtual_device
+  class:
+    action_value_mappings:
+      add_solid:
+        feedback:
+          current_status: status
+          progress: progress
+        goal:
+          equiv: equiv
+          event: event
+          mass: mass
+          mol: mol
+          purpose: purpose
+          rate_spec: rate_spec
+          ratio: ratio
+          reagent: reagent
+          vessel: vessel
+        goal_default:
+          amount: ''
+          equiv: ''
+          event: ''
+          mass: ''
+          mol: ''
+          purpose: ''
+          rate_spec: ''
+          ratio: ''
+          reagent: ''
+          stir: false
+          stir_speed: 0.0
+          time: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+          viscous: false
+          volume: ''
+        handles: []
+        result:
+          message: message
+          return_info: return_info
+          success: success
+        schema:
+          description: ''
+          properties:
+            feedback:
+              properties:
+                current_status:
+                  type: string
+                progress:
+                  type: number
+              required:
+              - progress
+              - current_status
+              title: Add_Feedback
+              type: object
+            goal:
+              properties:
+                amount:
+                  type: string
+                equiv:
+                  type: string
+                event:
+                  type: string
+                mass:
+                  type: string
+                mol:
+                  type: string
+                purpose:
+                  type: string
+                rate_spec:
+                  type: string
+                ratio:
+                  type: string
+                reagent:
+                  type: string
+                stir:
+                  type: boolean
+                stir_speed:
+                  type: number
+                time:
+                  type: string
+                vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
+                viscous:
+                  type: boolean
+                volume:
+                  type: string
+              required:
+              - vessel
+              - reagent
+              - volume
+              - mass
+              - amount
+              - time
+              - stir
+              - stir_speed
+              - viscous
+              - purpose
+              - event
+              - mol
+              - rate_spec
+              - equiv
+              - ratio
+              title: Add_Goal
+              type: object
+            result:
+              properties:
+                message:
+                  type: string
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - success
+              - message
+              - return_info
+              title: Add_Result
+              type: object
+          required:
+          - goal
+          title: Add
+          type: object
+        type: Add
+      auto-cleanup:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: cleanup的参数schema
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: cleanup参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-find_solid_reagent_bottle:
+        feedback: {}
+        goal: {}
+        goal_default:
+          reagent_name: null
+        handles: []
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                reagent_name:
+                  type: string
+              required:
+              - reagent_name
+              type: object
+            result: {}
+          required:
+          - goal
+          title: find_solid_reagent_bottle参数
+          type: object
+        type: UniLabJsonCommand
+      auto-initialize:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: initialize的参数schema
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: initialize参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-parse_mass_string:
+        feedback: {}
+        goal: {}
+        goal_default:
+          mass_str: null
+        handles: []
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                mass_str:
+                  type: string
+              required:
+              - mass_str
+              type: object
+            result: {}
+          required:
+          - goal
+          title: parse_mass_string参数
+          type: object
+        type: UniLabJsonCommand
+      auto-parse_mol_string:
+        feedback: {}
+        goal: {}
+        goal_default:
+          mol_str: null
+        handles: []
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                mol_str:
+                  type: string
+              required:
+              - mol_str
+              type: object
+            result: {}
+          required:
+          - goal
+          title: parse_mol_string参数
+          type: object
+        type: UniLabJsonCommand
+    module: unilabos.devices.virtual.virtual_solid_dispenser:VirtualSolidDispenser
+    status_types:
+      current_reagent: str
+      device_info: dict
+      dispensed_amount: float
+      status: str
+      total_operations: int
+    type: python
+  config_info: []
+  description: Virtual Solid Dispenser for Add Protocol Testing - supports mass and
+    molar additions
+  handles:
+  - data_key: solid_out
+    data_source: executor
+    data_type: resource
+    description: 固体试剂输出口
+    handler_key: SolidOut
+    io_type: source
+    label: SolidOut
+    side: SOUTH
+  - data_key: solid_in
+    data_source: handle
+    data_type: resource
+    description: 固体试剂输入口（连接试剂瓶）
+    handler_key: SolidIn
+    io_type: target
+    label: SolidIn
+    side: NORTH
+  icon: ''
+  init_param_schema:
+    config:
+      properties:
+        config:
+          type: object
+        device_id:
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        current_reagent:
+          type: string
+        device_info:
+          type: object
+        dispensed_amount:
+          type: number
+        status:
+          type: string
+        total_operations:
+          type: integer
+      required:
+      - status
+      - current_reagent
+      - dispensed_amount
+      - total_operations
+      - device_info
+      type: object
+  version: 1.0.0
 virtual_stirrer:
+  category:
+  - virtual_device
   class:
     action_value_mappings:
       auto-cleanup:
@@ -3277,18 +4750,17 @@ virtual_stirrer:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand cleanup 的参数schema
+          description: cleanup的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand cleanup 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: cleanup 命令参数
+          title: cleanup参数
           type: object
         type: UniLabJsonCommandAsync
       auto-initialize:
@@ -3298,116 +4770,17 @@ virtual_stirrer:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand initialize 的参数schema
+          description: initialize的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand initialize 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: initialize 命令参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-start_stir:
-        feedback: {}
-        goal: {}
-        goal_default:
-          purpose: null
-          stir_speed: null
-          vessel: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand start_stir 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand start_stir 的参数schema
-              properties:
-                purpose:
-                  description: '参数: purpose'
-                  type: string
-                stir_speed:
-                  description: '参数: stir_speed'
-                  type: number
-                vessel:
-                  description: '参数: vessel'
-                  type: string
-              required:
-              - vessel
-              - stir_speed
-              - purpose
-              type: object
-            result: {}
-          required:
-          - goal
-          title: start_stir 命令参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-stir:
-        feedback: {}
-        goal: {}
-        goal_default:
-          settling_time: null
-          stir_speed: null
-          stir_time: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand stir 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand stir 的参数schema
-              properties:
-                settling_time:
-                  description: '参数: settling_time'
-                  type: number
-                stir_speed:
-                  description: '参数: stir_speed'
-                  type: number
-                stir_time:
-                  description: '参数: stir_time'
-                  type: number
-              required:
-              - stir_time
-              - stir_speed
-              - settling_time
-              type: object
-            result: {}
-          required:
-          - goal
-          title: stir 命令参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-stop_stir:
-        feedback: {}
-        goal: {}
-        goal_default:
-          vessel: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand stop_stir 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand stop_stir 的参数schema
-              properties:
-                vessel:
-                  description: '参数: vessel'
-                  type: string
-              required:
-              - vessel
-              type: object
-            result: {}
-          required:
-          - goal
-          title: stop_stir 命令参数
+          title: initialize参数
           type: object
         type: UniLabJsonCommandAsync
       start_stir:
@@ -3420,15 +4793,33 @@ virtual_stirrer:
         goal_default:
           purpose: ''
           stir_speed: 0.0
-          vessel: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
         handles: []
         result:
           success: success
         schema:
-          description: ROS Action StartStir 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 current_speed:
                   type: number
@@ -3443,14 +4834,84 @@ virtual_stirrer:
               title: StartStir_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 purpose:
                   type: string
                 stir_speed:
                   type: number
                 vessel:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
               required:
               - vessel
               - stir_speed
@@ -3458,7 +4919,6 @@ virtual_stirrer:
               title: StartStir_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 message:
                   type: string
@@ -3485,17 +4945,39 @@ virtual_stirrer:
           stir_speed: stir_speed
           stir_time: stir_time
         goal_default:
-          settling_time: 0.0
+          event: ''
+          settling_time: ''
           stir_speed: 0.0
           stir_time: 0.0
+          time: ''
+          time_spec: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
         handles: []
         result:
           success: success
         schema:
-          description: ROS Action Stir 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -3504,30 +4986,114 @@ virtual_stirrer:
               title: Stir_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
+                event:
+                  type: string
                 settling_time:
-                  type: number
+                  type: string
                 stir_speed:
                   type: number
                 stir_time:
                   type: number
+                time:
+                  type: string
+                time_spec:
+                  type: string
+                vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
               required:
+              - vessel
+              - time
+              - event
+              - time_spec
               - stir_time
               - stir_speed
               - settling_time
               title: Stir_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
+                message:
+                  type: string
                 return_info:
                   type: string
                 success:
                   type: boolean
               required:
-              - return_info
               - success
+              - message
+              - return_info
               title: Stir_Result
               type: object
           required:
@@ -3541,15 +5107,33 @@ virtual_stirrer:
         goal:
           vessel: vessel
         goal_default:
-          vessel: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
         handles: []
         result:
           success: success
         schema:
-          description: ROS Action StopStir 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 current_status:
                   type: string
@@ -3561,16 +5145,85 @@ virtual_stirrer:
               title: StopStir_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 vessel:
-                  type: string
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
               required:
               - vessel
               title: StopStir_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 message:
                   type: string
@@ -3593,11 +5246,15 @@ virtual_stirrer:
     status_types:
       current_speed: float
       current_vessel: str
+      device_info: dict
       is_stirring: bool
+      max_speed: float
+      min_speed: float
       operation_mode: str
       remaining_time: float
       status: str
     type: python
+  config_info: []
   description: Virtual Stirrer for StirProtocol Testing
   handles:
   - data_key: vessel
@@ -3610,30 +5267,49 @@ virtual_stirrer:
     side: NORTH
   icon: Stirrer.webp
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          config:
-            description: '参数: config'
-            type: object
-          device_id:
-            description: '参数: device_id'
-            type: string
-          kwargs:
-            description: '参数: kwargs'
-            type: string
-        required:
-        - kwargs
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        config:
+          type: object
+        device_id:
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        current_speed:
+          type: number
+        current_vessel:
+          type: string
+        device_info:
+          type: object
+        is_stirring:
+          type: boolean
+        max_speed:
+          type: number
+        min_speed:
+          type: number
+        operation_mode:
+          type: string
+        remaining_time:
+          type: number
+        status:
+          type: string
+      required:
+      - status
+      - operation_mode
+      - current_vessel
+      - current_speed
+      - is_stirring
+      - remaining_time
+      - max_speed
+      - min_speed
+      - device_info
+      type: object
+  version: 1.0.0
 virtual_transfer_pump:
+  category:
+  - virtual_device
   class:
     action_value_mappings:
       auto-aspirate:
@@ -3645,17 +5321,14 @@ virtual_transfer_pump:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand aspirate 的参数schema
+          description: aspirate的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand aspirate 的参数schema
               properties:
                 velocity:
-                  description: '参数: velocity'
                   type: number
                 volume:
-                  description: '参数: volume'
                   type: number
               required:
               - volume
@@ -3663,7 +5336,7 @@ virtual_transfer_pump:
             result: {}
           required:
           - goal
-          title: aspirate 命令参数
+          title: aspirate参数
           type: object
         type: UniLabJsonCommandAsync
       auto-cleanup:
@@ -3673,18 +5346,17 @@ virtual_transfer_pump:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand cleanup 的参数schema
+          description: cleanup的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand cleanup 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: cleanup 命令参数
+          title: cleanup参数
           type: object
         type: UniLabJsonCommandAsync
       auto-dispense:
@@ -3696,17 +5368,14 @@ virtual_transfer_pump:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand dispense 的参数schema
+          description: dispense的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand dispense 的参数schema
               properties:
                 velocity:
-                  description: '参数: velocity'
                   type: number
                 volume:
-                  description: '参数: volume'
                   type: number
               required:
               - volume
@@ -3714,7 +5383,7 @@ virtual_transfer_pump:
             result: {}
           required:
           - goal
-          title: dispense 命令参数
+          title: dispense参数
           type: object
         type: UniLabJsonCommandAsync
       auto-empty_syringe:
@@ -3725,21 +5394,19 @@ virtual_transfer_pump:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand empty_syringe 的参数schema
+          description: empty_syringe的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand empty_syringe 的参数schema
               properties:
                 velocity:
-                  description: '参数: velocity'
                   type: number
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: empty_syringe 命令参数
+          title: empty_syringe参数
           type: object
         type: UniLabJsonCommandAsync
       auto-fill_syringe:
@@ -3750,21 +5417,19 @@ virtual_transfer_pump:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand fill_syringe 的参数schema
+          description: fill_syringe的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand fill_syringe 的参数schema
               properties:
                 velocity:
-                  description: '参数: velocity'
                   type: number
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: fill_syringe 命令参数
+          title: fill_syringe参数
           type: object
         type: UniLabJsonCommandAsync
       auto-initialize:
@@ -3774,18 +5439,17 @@ virtual_transfer_pump:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand initialize 的参数schema
+          description: initialize的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand initialize 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: initialize 命令参数
+          title: initialize参数
           type: object
         type: UniLabJsonCommandAsync
       auto-is_empty:
@@ -3795,18 +5459,17 @@ virtual_transfer_pump:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand is_empty 的参数schema
+          description: is_empty的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand is_empty 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: is_empty 命令参数
+          title: is_empty参数
           type: object
         type: UniLabJsonCommand
       auto-is_full:
@@ -3816,18 +5479,17 @@ virtual_transfer_pump:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand is_full 的参数schema
+          description: is_full的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand is_full 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: is_full 命令参数
+          title: is_full参数
           type: object
         type: UniLabJsonCommand
       auto-pull_plunger:
@@ -3839,17 +5501,14 @@ virtual_transfer_pump:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand pull_plunger 的参数schema
+          description: pull_plunger的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand pull_plunger 的参数schema
               properties:
                 velocity:
-                  description: '参数: velocity'
                   type: number
                 volume:
-                  description: '参数: volume'
                   type: number
               required:
               - volume
@@ -3857,7 +5516,7 @@ virtual_transfer_pump:
             result: {}
           required:
           - goal
-          title: pull_plunger 命令参数
+          title: pull_plunger参数
           type: object
         type: UniLabJsonCommandAsync
       auto-push_plunger:
@@ -3869,17 +5528,14 @@ virtual_transfer_pump:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand push_plunger 的参数schema
+          description: push_plunger的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand push_plunger 的参数schema
               properties:
                 velocity:
-                  description: '参数: velocity'
                   type: number
                 volume:
-                  description: '参数: volume'
                   type: number
               required:
               - volume
@@ -3887,7 +5543,7 @@ virtual_transfer_pump:
             result: {}
           required:
           - goal
-          title: push_plunger 命令参数
+          title: push_plunger参数
           type: object
         type: UniLabJsonCommandAsync
       auto-set_max_velocity:
@@ -3898,14 +5554,12 @@ virtual_transfer_pump:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand set_max_velocity 的参数schema
+          description: set_max_velocity的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand set_max_velocity 的参数schema
               properties:
                 velocity:
-                  description: '参数: velocity'
                   type: number
               required:
               - velocity
@@ -3913,39 +5567,9 @@ virtual_transfer_pump:
             result: {}
           required:
           - goal
-          title: set_max_velocity 命令参数
+          title: set_max_velocity参数
           type: object
         type: UniLabJsonCommand
-      auto-set_position:
-        feedback: {}
-        goal: {}
-        goal_default:
-          max_velocity: null
-          position: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand set_position 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand set_position 的参数schema
-              properties:
-                max_velocity:
-                  description: '参数: max_velocity'
-                  type: number
-                position:
-                  description: '参数: position'
-                  type: number
-              required:
-              - position
-              type: object
-            result: {}
-          required:
-          - goal
-          title: set_position 命令参数
-          type: object
-        type: UniLabJsonCommandAsync
       auto-stop_operation:
         feedback: {}
         goal: {}
@@ -3953,52 +5577,17 @@ virtual_transfer_pump:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand stop_operation 的参数schema
+          description: stop_operation的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand stop_operation 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: stop_operation 命令参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-transfer:
-        feedback: {}
-        goal: {}
-        goal_default:
-          aspirate_velocity: null
-          dispense_velocity: null
-          volume: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand transfer 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand transfer 的参数schema
-              properties:
-                aspirate_velocity:
-                  description: '参数: aspirate_velocity'
-                  type: number
-                dispense_velocity:
-                  description: '参数: dispense_velocity'
-                  type: number
-                volume:
-                  description: '参数: volume'
-                  type: number
-              required:
-              - volume
-              type: object
-            result: {}
-          required:
-          - goal
-          title: transfer 命令参数
+          title: stop_operation参数
           type: object
         type: UniLabJsonCommandAsync
       set_position:
@@ -4017,10 +5606,9 @@ virtual_transfer_pump:
           message: message
           success: success
         schema:
-          description: ROS Action SetPumpPosition 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 current_position:
                   type: number
@@ -4035,7 +5623,6 @@ virtual_transfer_pump:
               title: SetPumpPosition_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 max_velocity:
                   type: number
@@ -4047,7 +5634,6 @@ virtual_transfer_pump:
               title: SetPumpPosition_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 message:
                   type: string
@@ -4098,10 +5684,9 @@ virtual_transfer_pump:
           message: message
           success: success
         schema:
-          description: ROS Action Transfer 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 current_status:
                   type: string
@@ -4116,7 +5701,6 @@ virtual_transfer_pump:
               title: Transfer_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 amount:
                   type: string
@@ -4154,7 +5738,6 @@ virtual_transfer_pump:
               title: Transfer_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 message:
                   type: string
@@ -4183,6 +5766,7 @@ virtual_transfer_pump:
       status: str
       transfer_rate: float
     type: python
+  config_info: []
   description: Virtual Transfer Pump for TransferProtocol Testing (Syringe-style)
   handles:
   - data_key: fluid_port
@@ -4195,30 +5779,43 @@ virtual_transfer_pump:
     side: SOUTH
   icon: Pump.webp
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          config:
-            description: '参数: config'
-            type: object
-          device_id:
-            description: '参数: device_id'
-            type: string
-          kwargs:
-            description: '参数: kwargs'
-            type: string
-        required:
-        - kwargs
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        config:
+          type: object
+        device_id:
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        current_volume:
+          type: number
+        max_velocity:
+          type: number
+        position:
+          type: number
+        pump_info:
+          type: object
+        remaining_capacity:
+          type: number
+        status:
+          type: string
+        transfer_rate:
+          type: number
+      required:
+      - status
+      - position
+      - current_volume
+      - max_velocity
+      - transfer_rate
+      - remaining_capacity
+      - pump_info
+      type: object
+  version: 1.0.0
 virtual_vacuum_pump:
+  category:
+  - virtual_device
   class:
     action_value_mappings:
       auto-cleanup:
@@ -4228,41 +5825,19 @@ virtual_vacuum_pump:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand cleanup 的参数schema
+          description: cleanup的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand cleanup 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: cleanup 命令参数
+          title: cleanup参数
           type: object
         type: UniLabJsonCommandAsync
-      auto-close:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand close 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand close 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: close 命令参数
-          type: object
-        type: UniLabJsonCommand
       auto-initialize:
         feedback: {}
         goal: {}
@@ -4270,18 +5845,17 @@ virtual_vacuum_pump:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand initialize 的参数schema
+          description: initialize的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand initialize 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: initialize 命令参数
+          title: initialize参数
           type: object
         type: UniLabJsonCommandAsync
       auto-is_closed:
@@ -4291,18 +5865,17 @@ virtual_vacuum_pump:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand is_closed 的参数schema
+          description: is_closed的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand is_closed 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: is_closed 命令参数
+          title: is_closed参数
           type: object
         type: UniLabJsonCommand
       auto-is_open:
@@ -4312,65 +5885,17 @@ virtual_vacuum_pump:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand is_open 的参数schema
+          description: is_open的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand is_open 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: is_open 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-open:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand open 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand open 的参数schema
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: open 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-set_status:
-        feedback: {}
-        goal: {}
-        goal_default:
-          string: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand set_status 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand set_status 的参数schema
-              properties:
-                string:
-                  description: '参数: string'
-                  type: string
-              required:
-              - string
-              type: object
-            result: {}
-          required:
-          - goal
-          title: set_status 命令参数
+          title: is_open参数
           type: object
         type: UniLabJsonCommand
       close:
@@ -4380,22 +5905,19 @@ virtual_vacuum_pump:
         handles: []
         result: {}
         schema:
-          description: ROS Action EmptyIn 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: EmptyIn_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties: {}
               required: []
               title: EmptyIn_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -4415,22 +5937,19 @@ virtual_vacuum_pump:
         handles: []
         result: {}
         schema:
-          description: ROS Action EmptyIn 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: EmptyIn_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties: {}
               required: []
               title: EmptyIn_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -4452,16 +5971,14 @@ virtual_vacuum_pump:
         handles: []
         result: {}
         schema:
-          description: ROS Action StrSingleInput 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties: {}
               required: []
               title: StrSingleInput_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 string:
                   type: string
@@ -4470,7 +5987,6 @@ virtual_vacuum_pump:
               title: StrSingleInput_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -4490,6 +6006,7 @@ virtual_vacuum_pump:
     status_types:
       status: str
     type: python
+  config_info: []
   description: Virtual vacuum pump
   handles:
   - data_key: fluid_in
@@ -4502,26 +6019,19 @@ virtual_vacuum_pump:
     side: SOUTH
   icon: Vacuum.webp
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          config:
-            description: '参数: config'
-            type: string
-          device_id:
-            description: '参数: device_id'
-            type: string
-          kwargs:
-            description: '参数: kwargs'
-            type: string
-        required:
-        - kwargs
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        config:
+          type: string
+        device_id:
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        status:
+          type: string
+      required:
+      - status
+      type: object
+  version: 1.0.0

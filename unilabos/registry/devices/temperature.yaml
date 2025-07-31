@@ -1,4 +1,6 @@
 chiller:
+  category:
+  - temperature
   class:
     action_value_mappings:
       auto-build_modbus_frame:
@@ -12,23 +14,18 @@ chiller:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand build_modbus_frame 的参数schema
+          description: build_modbus_frame的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand build_modbus_frame 的参数schema
               properties:
                 device_address:
-                  description: '参数: device_address'
                   type: integer
                 function_code:
-                  description: '参数: function_code'
                   type: integer
                 register_address:
-                  description: '参数: register_address'
                   type: integer
                 value:
-                  description: '参数: value'
                   type: integer
               required:
               - device_address
@@ -39,7 +36,7 @@ chiller:
             result: {}
           required:
           - goal
-          title: build_modbus_frame 命令参数
+          title: build_modbus_frame参数
           type: object
         type: UniLabJsonCommand
       auto-convert_temperature_to_modbus_value:
@@ -51,18 +48,15 @@ chiller:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand convert_temperature_to_modbus_value 的参数schema
+          description: convert_temperature_to_modbus_value的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand convert_temperature_to_modbus_value 的参数schema
               properties:
                 decimal_points:
                   default: 1
-                  description: '参数: decimal_points'
                   type: integer
                 temperature:
-                  description: '参数: temperature'
                   type: number
               required:
               - temperature
@@ -70,7 +64,7 @@ chiller:
             result: {}
           required:
           - goal
-          title: convert_temperature_to_modbus_value 命令参数
+          title: convert_temperature_to_modbus_value参数
           type: object
         type: UniLabJsonCommand
       auto-modbus_crc:
@@ -81,14 +75,12 @@ chiller:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand modbus_crc 的参数schema
+          description: modbus_crc的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand modbus_crc 的参数schema
               properties:
                 data:
-                  description: '参数: data'
                   type: string
               required:
               - data
@@ -96,33 +88,7 @@ chiller:
             result: {}
           required:
           - goal
-          title: modbus_crc 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-set_temperature:
-        feedback: {}
-        goal: {}
-        goal_default:
-          command: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand set_temperature 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand set_temperature 的参数schema
-              properties:
-                command:
-                  description: '参数: command'
-                  type: string
-              required:
-              - command
-              type: object
-            result: {}
-          required:
-          - goal
-          title: set_temperature 命令参数
+          title: modbus_crc参数
           type: object
         type: UniLabJsonCommand
       auto-stop:
@@ -132,18 +98,17 @@ chiller:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand stop 的参数schema
+          description: stop的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand stop 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: stop 命令参数
+          title: stop参数
           type: object
         type: UniLabJsonCommand
       set_temperature:
@@ -156,10 +121,9 @@ chiller:
         result:
           success: success
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -168,7 +132,6 @@ chiller:
               title: SendCmd_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 command:
                   type: string
@@ -177,7 +140,6 @@ chiller:
               title: SendCmd_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -196,32 +158,29 @@ chiller:
     module: unilabos.devices.temperature.chiller:Chiller
     status_types: {}
     type: python
-  description: Chiller
+  config_info: []
+  description: 实验室制冷设备，用于精确的温度控制和冷却操作。该设备通过Modbus RTU协议与控制系统通信，支持精确的温度设定和监控。具备快速降温、恒温控制和温度保持功能，广泛应用于需要低温环境的化学反应、样品保存、结晶操作等实验场景。提供稳定可靠的冷却性能，确保实验过程的温度精度。
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          port:
-            description: '参数: port'
-            type: string
-          rate:
-            default: 9600
-            description: '参数: rate'
-            type: integer
-        required:
-        - port
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        port:
+          type: string
+        rate:
+          default: 9600
+          type: string
+      required:
+      - port
+      type: object
+    data:
+      properties: {}
+      required: []
+      type: object
+  version: 1.0.0
 heaterstirrer.dalong:
+  category:
+  - temperature
   class:
     action_value_mappings:
       auto-close:
@@ -231,69 +190,17 @@ heaterstirrer.dalong:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand close 的参数schema
+          description: close的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand close 的参数schema
               properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: close 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-heatchill:
-        feedback: {}
-        goal: {}
-        goal_default:
-          purpose: reaction
-          stir: true
-          stir_speed: 300
-          temp: null
-          time: 3600
-          vessel: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand heatchill 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand heatchill 的参数schema
-              properties:
-                purpose:
-                  default: reaction
-                  description: '参数: purpose'
-                  type: string
-                stir:
-                  default: true
-                  description: '参数: stir'
-                  type: boolean
-                stir_speed:
-                  default: 300
-                  description: '参数: stir_speed'
-                  type: number
-                temp:
-                  description: '参数: temp'
-                  type: number
-                time:
-                  default: 3600
-                  description: '参数: time'
-                  type: number
-                vessel:
-                  description: '参数: vessel'
-                  type: string
-              required:
-              - vessel
-              - temp
-              type: object
-            result: {}
-          required:
-          - goal
-          title: heatchill 命令参数
+          title: close参数
           type: object
         type: UniLabJsonCommand
       auto-set_stir_speed:
@@ -304,14 +211,12 @@ heaterstirrer.dalong:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand set_stir_speed 的参数schema
+          description: set_stir_speed的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand set_stir_speed 的参数schema
               properties:
                 speed:
-                  description: '参数: speed'
                   type: number
               required:
               - speed
@@ -319,7 +224,7 @@ heaterstirrer.dalong:
             result: {}
           required:
           - goal
-          title: set_stir_speed 命令参数
+          title: set_stir_speed参数
           type: object
         type: UniLabJsonCommand
       auto-set_temp_inner:
@@ -331,18 +236,15 @@ heaterstirrer.dalong:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand set_temp_inner 的参数schema
+          description: set_temp_inner的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand set_temp_inner 的参数schema
               properties:
                 temp:
-                  description: '参数: temp'
                   type: number
                 type:
                   default: warning
-                  description: '参数: type'
                   type: string
               required:
               - temp
@@ -350,59 +252,7 @@ heaterstirrer.dalong:
             result: {}
           required:
           - goal
-          title: set_temp_inner 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-set_temp_target:
-        feedback: {}
-        goal: {}
-        goal_default:
-          temp: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand set_temp_target 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand set_temp_target 的参数schema
-              properties:
-                temp:
-                  description: '参数: temp'
-                  type: string
-              required:
-              - temp
-              type: object
-            result: {}
-          required:
-          - goal
-          title: set_temp_target 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-set_temp_warning:
-        feedback: {}
-        goal: {}
-        goal_default:
-          temp: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand set_temp_warning 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand set_temp_warning 的参数schema
-              properties:
-                temp:
-                  description: '参数: temp'
-                  type: string
-              required:
-              - temp
-              type: object
-            result: {}
-          required:
-          - goal
-          title: set_temp_warning 命令参数
+          title: set_temp_inner参数
           type: object
         type: UniLabJsonCommand
       heatchill:
@@ -414,20 +264,42 @@ heaterstirrer.dalong:
           time: time
           vessel: vessel
         goal_default:
+          pressure: ''
           purpose: ''
+          reflux_solvent: ''
           stir: false
           stir_speed: 0.0
           temp: 0.0
-          time: 0.0
-          vessel: ''
+          temp_spec: ''
+          time: ''
+          time_spec: ''
+          vessel:
+            category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
         handles: []
         result:
           success: success
         schema:
-          description: ROS Action HeatChill 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -436,9 +308,12 @@ heaterstirrer.dalong:
               title: HeatChill_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
+                pressure:
+                  type: string
                 purpose:
+                  type: string
+                reflux_solvent:
                   type: string
                 stir:
                   type: boolean
@@ -446,29 +321,110 @@ heaterstirrer.dalong:
                   type: number
                 temp:
                   type: number
-                time:
-                  type: number
-                vessel:
+                temp_spec:
                   type: string
+                time:
+                  type: string
+                time_spec:
+                  type: string
+                vessel:
+                  properties:
+                    category:
+                      type: string
+                    children:
+                      items:
+                        type: string
+                      type: array
+                    config:
+                      type: string
+                    data:
+                      type: string
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    parent:
+                      type: string
+                    pose:
+                      properties:
+                        orientation:
+                          properties:
+                            w:
+                              type: number
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          - w
+                          title: Quaternion
+                          type: object
+                        position:
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                            z:
+                              type: number
+                          required:
+                          - x
+                          - y
+                          - z
+                          title: Point
+                          type: object
+                      required:
+                      - position
+                      - orientation
+                      title: Pose
+                      type: object
+                    sample_id:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - id
+                  - name
+                  - sample_id
+                  - children
+                  - parent
+                  - type
+                  - category
+                  - pose
+                  - config
+                  - data
+                  title: Resource
+                  type: object
               required:
               - vessel
               - temp
               - time
+              - temp_spec
+              - time_spec
+              - pressure
+              - reflux_solvent
               - stir
               - stir_speed
               - purpose
               title: HeatChill_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
+                message:
+                  type: string
                 return_info:
                   type: string
                 success:
                   type: boolean
               required:
-              - return_info
               - success
+              - message
+              - return_info
               title: HeatChill_Result
               type: object
           required:
@@ -486,10 +442,9 @@ heaterstirrer.dalong:
         result:
           success: success
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -498,7 +453,6 @@ heaterstirrer.dalong:
               title: SendCmd_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 command:
                   type: string
@@ -507,7 +461,6 @@ heaterstirrer.dalong:
               title: SendCmd_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -533,10 +486,9 @@ heaterstirrer.dalong:
         result:
           success: success
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -545,7 +497,6 @@ heaterstirrer.dalong:
               title: SendCmd_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 command:
                   type: string
@@ -554,7 +505,6 @@ heaterstirrer.dalong:
               title: SendCmd_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -578,36 +528,47 @@ heaterstirrer.dalong:
       temp_target: float
       temp_warning: float
     type: python
-  description: DaLong heater stirrer
+  config_info: []
+  description: 大龙加热搅拌器，集成加热和搅拌双重功能的实验室设备。该设备通过串口通信控制，支持精确的温度调节、搅拌速度控制和安全保护功能。具备实时温度监测、目标温度设定、安全温度报警等特性。适用于化学合成、样品制备、反应控制等需要同时进行加热和搅拌的实验操作，提供稳定均匀的反应环境。
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          baudrate:
-            default: 9600
-            description: '参数: baudrate'
-            type: integer
-          port:
-            default: COM6
-            description: '参数: port'
-            type: string
-          temp_warning:
-            default: 50.0
-            description: '参数: temp_warning'
-            type: number
-        required: []
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        baudrate:
+          default: 9600
+          type: integer
+        port:
+          default: COM6
+          type: string
+        temp_warning:
+          default: 50.0
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        status:
+          type: string
+        stir_speed:
+          type: number
+        temp:
+          type: number
+        temp_target:
+          type: number
+        temp_warning:
+          type: number
+      required:
+      - status
+      - stir_speed
+      - temp
+      - temp_warning
+      - temp_target
+      type: object
+  version: 1.0.0
 tempsensor:
+  category:
+  - temperature
   class:
     action_value_mappings:
       auto-build_modbus_request:
@@ -621,23 +582,18 @@ tempsensor:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand build_modbus_request 的参数schema
+          description: build_modbus_request的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand build_modbus_request 的参数schema
               properties:
                 device_id:
-                  description: '参数: device_id'
                   type: string
                 function_code:
-                  description: '参数: function_code'
                   type: string
                 register_address:
-                  description: '参数: register_address'
                   type: string
                 register_count:
-                  description: '参数: register_count'
                   type: string
               required:
               - device_id
@@ -648,7 +604,7 @@ tempsensor:
             result: {}
           required:
           - goal
-          title: build_modbus_request 命令参数
+          title: build_modbus_request参数
           type: object
         type: UniLabJsonCommand
       auto-calculate_crc:
@@ -659,14 +615,12 @@ tempsensor:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand calculate_crc 的参数schema
+          description: calculate_crc的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand calculate_crc 的参数schema
               properties:
                 data:
-                  description: '参数: data'
                   type: string
               required:
               - data
@@ -674,7 +628,7 @@ tempsensor:
             result: {}
           required:
           - goal
-          title: calculate_crc 命令参数
+          title: calculate_crc参数
           type: object
         type: UniLabJsonCommand
       auto-read_modbus_response:
@@ -685,14 +639,12 @@ tempsensor:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand read_modbus_response 的参数schema
+          description: read_modbus_response的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand read_modbus_response 的参数schema
               properties:
                 response:
-                  description: '参数: response'
                   type: string
               required:
               - response
@@ -700,7 +652,7 @@ tempsensor:
             result: {}
           required:
           - goal
-          title: read_modbus_response 命令参数
+          title: read_modbus_response参数
           type: object
         type: UniLabJsonCommand
       auto-send_prototype_command:
@@ -711,14 +663,12 @@ tempsensor:
         handles: []
         result: {}
         schema:
-          description: UniLabJsonCommand send_prototype_command 的参数schema
+          description: send_prototype_command的参数schema
           properties:
             feedback: {}
             goal:
-              description: UniLabJsonCommand send_prototype_command 的参数schema
               properties:
                 command:
-                  description: '参数: command'
                   type: string
               required:
               - command
@@ -726,33 +676,7 @@ tempsensor:
             result: {}
           required:
           - goal
-          title: send_prototype_command 命令参数
-          type: object
-        type: UniLabJsonCommand
-      auto-set_warning:
-        feedback: {}
-        goal: {}
-        goal_default:
-          command: null
-        handles: []
-        result: {}
-        schema:
-          description: UniLabJsonCommand set_warning 的参数schema
-          properties:
-            feedback: {}
-            goal:
-              description: UniLabJsonCommand set_warning 的参数schema
-              properties:
-                command:
-                  description: '参数: command'
-                  type: string
-              required:
-              - command
-              type: object
-            result: {}
-          required:
-          - goal
-          title: set_warning 命令参数
+          title: send_prototype_command参数
           type: object
         type: UniLabJsonCommand
       set_warning:
@@ -765,10 +689,9 @@ tempsensor:
         result:
           success: success
         schema:
-          description: ROS Action SendCmd 的 JSON Schema
+          description: ''
           properties:
             feedback:
-              description: Action 反馈 - 执行过程中从服务器发送到客户端
               properties:
                 status:
                   type: string
@@ -777,7 +700,6 @@ tempsensor:
               title: SendCmd_Feedback
               type: object
             goal:
-              description: Action 目标 - 从客户端发送到服务器
               properties:
                 command:
                   type: string
@@ -786,7 +708,6 @@ tempsensor:
               title: SendCmd_Goal
               type: object
             result:
-              description: Action 结果 - 完成后从服务器发送到客户端
               properties:
                 return_info:
                   type: string
@@ -806,36 +727,32 @@ tempsensor:
     status_types:
       value: float
     type: python
-  description: Temperature sensor
+  config_info: []
+  description: 高精度温度传感器设备，用于实验室环境和设备的温度监测。该传感器通过Modbus RTU协议与控制系统通信，提供实时准确的温度数据。具备高精度测量、报警温度设定、数据稳定性好等特点。适用于反应器监控、环境温度监测、设备保护等需要精确温度测量的实验场景，为实验安全和数据可靠性提供保障。
   handles: []
   icon: ''
   init_param_schema:
-    description: UniLabJsonCommand __init__ 的参数schema
-    properties:
-      feedback: {}
-      goal:
-        description: UniLabJsonCommand __init__ 的参数schema
-        properties:
-          address:
-            description: '参数: address'
-            type: string
-          baudrate:
-            default: 9600
-            description: '参数: baudrate'
-            type: integer
-          port:
-            description: '参数: port'
-            type: string
-          warning:
-            description: '参数: warning'
-            type: string
-        required:
-        - port
-        - warning
-        - address
-        type: object
-      result: {}
-    required:
-    - goal
-    title: __init__ 命令参数
-    type: object
+    config:
+      properties:
+        address:
+          type: string
+        baudrate:
+          default: 9600
+          type: string
+        port:
+          type: string
+        warning:
+          type: string
+      required:
+      - port
+      - warning
+      - address
+      type: object
+    data:
+      properties:
+        value:
+          type: number
+      required:
+      - value
+      type: object
+  version: 1.0.0

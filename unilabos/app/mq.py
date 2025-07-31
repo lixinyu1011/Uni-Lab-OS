@@ -56,6 +56,10 @@ class MQTTClient:
                     payload_json["data"] = {}
                 if "action" in payload_json:
                     payload_json["data"]["action"] = payload_json.pop("action")
+                if "action_type" in payload_json:
+                    payload_json["data"]["action_type"] = payload_json.pop("action_type")
+                if "action_args" in payload_json:
+                    payload_json["data"]["action_args"] = payload_json.pop("action_args")
                 if "action_kwargs" in payload_json:
                     payload_json["data"]["action_kwargs"] = payload_json.pop("action_kwargs")
                 job_req = JobAddReq.model_validate(payload_json)
@@ -159,10 +163,10 @@ class MQTTClient:
         # status = device_status.get(device_id, {})
         if self.mqtt_disable:
             return
-        status = {"data": device_status.get(device_id, {}), "device_id": device_id}
+        status = {"data": device_status.get(device_id, {}), "device_id": device_id, "timestamp": time.time()}
         address = f"labs/{MQConfig.lab_id}/devices/"
         self.client.publish(address, json.dumps(status), qos=2)
-        logger.debug(f"Device status published: address: {address}, {status}")
+        logger.info(f"Device {device_id} status published: address: {address}, {status}")
 
     def publish_job_status(self, feedback_data: dict, job_id: str, status: str, return_info: Optional[str] = None):
         if self.mqtt_disable:

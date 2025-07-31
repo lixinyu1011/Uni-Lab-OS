@@ -84,7 +84,11 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
                 self.communication_node_id_to_instance[device_id] = d
                 continue
 
+        for device_id, device_config in self.children.items():
+            if device_config.get("type", "device") != "device":
+                continue
             # 设置硬件接口代理
+            d = self.sub_devices[device_id]
             if d:
                 hardware_interface = d.ros_node_instance._hardware_interface
                 if (
@@ -107,6 +111,8 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
                             f"添加了{read}方法(来源：{name} {communicate_hardware_info['write']}) \n    "
                             f"添加了{write}方法(来源：{name} {communicate_hardware_info['read']})"
                         )
+
+        self.lab_logger().info(f"ROS2ProtocolNode {device_id} initialized with protocols: {self.protocol_names}")
 
     def _setup_protocol_names(self, protocol_type):
         # 处理协议类型
@@ -134,7 +140,7 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
         if d is not None and hasattr(d, "ros_node_instance"):
             node = d.ros_node_instance
             for action_name, action_mapping in node._action_value_mappings.items():
-                if action_name.startswith("auto-"):
+                if action_name.startswith("auto-") or str(action_mapping.get("type", "")).startswith("UniLabJsonCommand"):
                     continue
                 action_id = f"/devices/{device_id_abs}/{action_name}"
                 if action_id not in self._action_clients:
@@ -182,7 +188,13 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
                 # 从目标消息中提取参数, 并调用Protocol生成器(根据设备连接图)生成action步骤
                 goal = goal_handle.request
                 protocol_kwargs = convert_from_ros_msg_with_mapping(goal, action_value_mapping["goal"])
+                
+                # # 🔧 添加调试信息
+                # print(f"🔍 转换后的 protocol_kwargs: {protocol_kwargs}")
+                # print(f"🔍 vessel 在转换后: {protocol_kwargs.get('vessel', 'NOT_FOUND')}")
 
+                # # 🔧 完全禁用Host查询，直接使用转换后的数据
+                # print(f"🔧 跳过Host查询，直接使用转换后的数据")
                 # 向Host查询物料当前状态
                 for k, v in goal.get_fields_and_field_types().items():
                     if v in ["unilabos_msgs/Resource", "sequence<unilabos_msgs/Resource>"]:
@@ -197,11 +209,14 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
                             [convert_from_ros_msg(rs) for rs in response.resources]
                         )
 
+                self.lab_logger().info(f"🔍 最终传递给协议的 protocol_kwargs: {protocol_kwargs}")
+                self.lab_logger().info(f"🔍 最终的 vessel: {protocol_kwargs.get('vessel', 'NOT_FOUND')}")
+
                 from unilabos.resources.graphio import physical_setup_graph
 
                 self.lab_logger().info(f"Working on physical setup: {physical_setup_graph}")
                 protocol_steps = protocol_steps_generator(G=physical_setup_graph, **protocol_kwargs)
-
+                
                 self.lab_logger().info(f"Goal received: {protocol_kwargs}, running steps: \n{protocol_steps}")
 
                 time_start = time.time()
@@ -211,7 +226,7 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
                 # 逐步执行工作流
                 step_results = []
                 for i, action in enumerate(protocol_steps):
-                    self.get_logger().info(f"Running step {i + 1}: {action}")
+                    # self.get_logger().info(f"Running step {i + 1}: {action}")
                     if isinstance(action, dict):
                         # 如果是单个动作，直接执行
                         if action["action_name"] == "wait":
@@ -287,7 +302,7 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
                         serialize_result_info(execution_error, execution_success, protocol_return_value),
                     )
 
-            self.lab_logger().info(f"协议 {protocol_name} 完成并返回结果")
+            self.lab_logger().info(f"🤩🤩🤩🤩🤩🤩协议 {protocol_name} 完成并返回结果😎😎😎😎😎😎")
             return result
 
         return execute_protocol
@@ -309,7 +324,7 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
         action_client = self._action_clients[action_id]
         goal_msg = convert_to_ros_msg(action_client._action_type.Goal(), action_kwargs)
 
-        self.lab_logger().info(f"发送动作请求到: {action_id}")
+        ##### self.lab_logger().info(f"发送动作请求到: {action_id}")
         action_client.wait_for_server()
 
         # 等待动作完成
@@ -321,7 +336,7 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
             return None
 
         result_future = await handle.get_result_async()
-        self.lab_logger().info(f"动作完成: {action_name}")
+        ##### self.lab_logger().info(f"动作完成: {action_name}")
 
         return result_future.result
 
