@@ -7,6 +7,10 @@ source:
   target_directory: unilabos
 
 build:
+  python:
+    entry_points:
+     - unilab = unilabos.app.main:main
+     - unilab-register = unilabos.app.register:main
   script:
   - set PIP_NO_INDEX=
   - if: win
@@ -14,13 +18,13 @@ build:
     - copy %RECIPE_DIR%\..\MANIFEST.in %SRC_DIR%
     - copy %RECIPE_DIR%\..\setup.cfg %SRC_DIR%
     - copy %RECIPE_DIR%\..\setup.py %SRC_DIR%
-    - python -m pip install %SRC_DIR%
+    - call %PYTHON% -m pip install %SRC_DIR%
   - if: unix
     then:
     - cp $RECIPE_DIR/../MANIFEST.in $SRC_DIR
     - cp $RECIPE_DIR/../setup.cfg $SRC_DIR
     - cp $RECIPE_DIR/../setup.py $SRC_DIR
-    - python -m pip install $SRC_DIR
+    - $PYTHON -m pip install $SRC_DIR
 
 
 requirements:
