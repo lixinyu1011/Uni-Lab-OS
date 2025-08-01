@@ -75,20 +75,10 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
-      - name: Login to Anaconda with API token
-        if: github.event.inputs.upload_to_anaconda == 'true' || (github.ref == 'refs/heads/main' && github.event_name != 'pull_request')
-        run: |
-          anaconda login --token ${{ secrets.ANACONDA_API_TOKEN }}
-
       - name: Upload to Anaconda.org (uni-lab organization)
-        if: github.event.inputs.upload_to_anaconda == 'true' || (github.ref == 'refs/heads/main' && github.event_name != 'pull_request')
+        if: github.event.inputs.upload_to_anaconda == 'true'
         run: |
           for package in $(find ./output -name "*.conda"); do
             echo "Uploading $package to uni-lab organization..."
-            anaconda upload --user uni-lab --force "$package"
+            anaconda -t ${{ secrets.ANACONDA_API_TOKEN }} upload --user uni-lab --force "$package"
           done
-
-      - name: Logout from Anaconda
-        if: always() && (github.event.inputs.upload_to_anaconda == 'true' || (github.ref == 'refs/heads/main' && github.event_name != 'pull_request'))
-        run: |
-          anaconda logout || true

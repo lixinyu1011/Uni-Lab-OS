@@ -34,20 +34,14 @@ Detailed documentation can be found at:
 
 ## Quick Start
 
-1. Configure Conda Environment
-
 Uni-Lab-OS recommends using `mamba` for environment management. Choose the appropriate environment file for your operating system:
 
 ```bash
 # Create new environment
-mamba create -n unilab unilab -c unilab -c robostack -c robostack-staging -c conda-forge
-
-# Or update existing environment
-# Where `[YOUR_OS]` can be `win64`, `linux-64`, `osx-64`, or `osx-arm64`.
-conda env update --file unilabos-[YOUR_OS].yml -n environment_name
+mamba create -n unilab uni-lab::unilabos -c robostack-staging -c conda-forge
 ```
 
-2. Install Uni-Lab-OS:
+## Install Dev Uni-Lab-OS
 
 ```bash
 # Clone the repository

@@ -10,8 +10,6 @@ build:
   noarch: python
   script:
   - set PIP_NO_INDEX=
-#  - python -m pip install paho-mqtt opentrons_shared_data
-#  - python -m pip install git+https://github.com/Xuwznln/pylabrobot.git
   - if: win
     then:
     - copy %RECIPE_DIR%\..\MANIFEST.in %SRC_DIR%
