@@ -122,20 +122,10 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
-      - name: Login to Anaconda with API token
-        if: steps.should_build.outputs.should_build == 'true' && (github.event.inputs.upload_to_anaconda == 'true')
-        run: |
-          anaconda login -t ${{ secrets.ANACONDA_API_TOKEN }}
-
       - name: Upload to Anaconda.org (unilab organization)
-        if: steps.should_build.outputs.should_build == 'true' && (github.event.inputs.upload_to_anaconda == 'true')
+        if: steps.should_build.outputs.should_build == 'true' && github.event.inputs.upload_to_anaconda == 'true'
         run: |
           for package in $(find ./output -name "*.conda"); do
             echo "Uploading $package to unilab organization..."
-            anaconda upload --user uni-lab --force "$package"
+            anaconda upload -t ${{ secrets.ANACONDA_API_TOKEN }} --user uni-lab --force "$package"
           done
-
-      - name: Logout from Anaconda
-        if: always() && steps.should_build.outputs.should_build == 'true' && (github.event.inputs.upload_to_anaconda == 'true')
-        run: |
-          anaconda logout || true
