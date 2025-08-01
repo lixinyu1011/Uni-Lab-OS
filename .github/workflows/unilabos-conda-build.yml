@@ -80,5 +80,5 @@ jobs:
         run: |
           for package in $(find ./output -name "*.conda"); do
             echo "Uploading $package to uni-lab organization..."
-            anaconda upload -t ${{ secrets.ANACONDA_API_TOKEN }} --user uni-lab --force "$package"
+            anaconda -t ${{ secrets.ANACONDA_API_TOKEN }} upload --user uni-lab --force "$package"
           done
