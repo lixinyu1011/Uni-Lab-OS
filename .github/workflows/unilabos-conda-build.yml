@@ -116,7 +116,7 @@ jobs:
           retention-days: 30
 
       - name: Upload to Anaconda.org (uni-lab organization)
-        if: steps.should_build.outputs.should_build == 'true' && (github.event.inputs.upload_to_anaconda == 'true' || (github.ref == 'refs/heads/main' && github.event_name != 'pull_request'))
+        if: github.event.inputs.upload_to_anaconda == 'true'
         run: |
           for package in $(find ./output -name "*.conda"); do
             echo "Uploading $package to uni-lab organization..."
