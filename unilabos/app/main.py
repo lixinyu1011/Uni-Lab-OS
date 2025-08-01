@@ -24,7 +24,7 @@ from unilabos.utils.banner_print import print_status, print_unilab_banner
 
 def load_config_from_file(config_path, override_labid=None):
     if config_path is None:
-        config_path = os.environ.get("UNILABOS.BASICCONFIG.CONFIG_PATH", None)
+        config_path = os.environ.get("UNILABOS_BASICCONFIG_CONFIG_PATH", None)
     if config_path:
         if not os.path.exists(config_path):
             print_status(f"配置文件 {config_path} 不存在", "error")
@@ -126,7 +126,7 @@ def parse_args():
         "--labid",
         type=str,
         default="",
-        help="实验室唯一ID，也可通过环境变量 UNILABOS.MQCONFIG.LABID 设置或传入--config设置",
+        help="实验室唯一ID，也可通过环境变量 UNILABOS_MQCONFIG_LABID 设置或传入--config设置",
     )
     return parser
 
