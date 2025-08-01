@@ -74,11 +74,6 @@ set(action_files
   "action/LiquidHandlerMoveBiomek.action"
   "action/LiquidHandlerOscillateBiomek.action"
 
-  "action/LiquidHandlerTransferBiomek.action"
-  "action/LiquidHandlerIncubateBiomek.action"
-  "action/LiquidHandlerMoveBiomek.action"
-  "action/LiquidHandlerOscillateBiomek.action"
-
   "action/LiquidHandlerAdd.action"
   "action/LiquidHandlerMix.action"
   "action/LiquidHandlerMoveTo.action"

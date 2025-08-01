@@ -319,7 +319,6 @@ mock_chiller:
     module: unilabos.devices.mock.mock_chiller:MockChiller
     status_types:
       current_temperature: float
-      get_status_info: dict
       is_cooling: bool
       is_heating: bool
       purpose: str
@@ -738,7 +737,6 @@ mock_filter:
       filtered_volume: float
       filtrate_vessel: str
       flow_rate: float
-      get_status_info: dict
       is_filtering: bool
       pressure_drop: float
       progress: float
@@ -1360,7 +1358,6 @@ mock_heater:
     module: unilabos.devices.mock.mock_heater:MockHeater
     status_types:
       current_temperature: float
-      get_status_info: dict
       heating_power: float
       is_heating: bool
       max_temperature: float
@@ -1882,7 +1879,6 @@ mock_pump:
       current_device: str
       flow_rate: float
       from_vessel: str
-      get_status_info: dict
       is_solid: bool
       is_viscous: bool
       max_flow_rate: float
@@ -2303,7 +2299,6 @@ mock_rotavap:
         type: EmptyIn
     module: unilabos.devices.mock.mock_rotavap:MockRotavap
     status_types:
-      get_status_info: dict
       pump_state: str
       pump_time: float
       rotate_speed: float
@@ -3249,7 +3244,6 @@ mock_separator:
     status_types:
       current_device: str
       from_vessel: str
-      get_status_info: dict
       product_phase: str
       purpose: str
       repeats: int
@@ -3504,7 +3498,6 @@ mock_solenoid_valve:
         type: StrSingleInput
     module: unilabos.devices.mock.mock_solenoid_valve:MockSolenoidValve
     status_types:
-      get_valve_status: str
       status: str
       valve_status: str
     type: python
@@ -3767,7 +3760,6 @@ mock_stirrer:
         type: EmptyIn
     module: unilabos.devices.mock.mock_stirrer:MockStirrer
     status_types:
-      get_status_info: dict
       heating_power: float
       heating_state: str
       max_stir_speed: float
@@ -4301,7 +4293,6 @@ mock_stirrer_new:
         type: StopStir
     module: unilabos.devices.mock.mock_stirrer_new:MockStirrer_new
     status_types:
-      get_status_info: dict
       max_stir_speed: float
       progress: float
       purpose: str
@@ -4638,7 +4629,6 @@ mock_vacuum:
         type: EmptyIn
     module: unilabos.devices.mock.mock_vacuum:MockVacuum
     status_types:
-      get_status_info: dict
       max_pump_speed: float
       power_state: str
       pump_efficiency: float

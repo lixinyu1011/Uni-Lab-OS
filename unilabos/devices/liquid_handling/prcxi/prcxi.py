@@ -135,9 +135,6 @@ class PRCXI9300Handler(LiquidHandlerAbstract):
     def set_liquid(self, wells: list[Well], liquid_names: list[str], volumes: list[float]):
         return super().set_liquid(wells, liquid_names, volumes)
 
-    def set_liquid(self, wells: list[Well], liquid_names: list[str], volumes: list[float]):
-        return super().set_liquid(wells, liquid_names, volumes)
-
     async def create_protocol(
         self,
         protocol_name: str = "",
