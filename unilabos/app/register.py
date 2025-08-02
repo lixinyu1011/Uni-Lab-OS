@@ -18,6 +18,11 @@ def register_devices_and_resources(mqtt_client, lab_registry):
         mqtt_client.publish_registry(device_info["id"], device_info, False)
         logger.debug(f"[UniLab Register] 注册设备: {device_info['id']}")
 
+    # # 注册资源信息
+    # for resource_info in lab_registry.obtain_registry_resource_info():
+    #     mqtt_client.publish_registry(resource_info["id"], resource_info, False)
+    #     logger.debug(f"[UniLab Register] 注册资源: {resource_info['id']}")
+
     # 注册资源信息 - 使用HTTP方式
     from unilabos.app.web.client import http_client
 

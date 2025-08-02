@@ -56,7 +56,6 @@ cmake \
     -DPYTHON_EXECUTABLE=$PYTHON_EXECUTABLE \
     -DPython_EXECUTABLE=$PYTHON_EXECUTABLE \
     -DPython3_EXECUTABLE=$PYTHON_EXECUTABLE \
-    -DPython3_FIND_STRATEGY=LOCATION \
     -DPKG_CONFIG_EXECUTABLE=$PKG_CONFIG_EXECUTABLE \
     -DPYTHON_INSTALL_DIR=$FIXED_SP_DIR \
     -DSETUPTOOLS_DEB_LAYOUT=OFF \
@@ -68,4 +67,4 @@ cmake \
     --compile-no-warning-as-error \
     $SRC_DIR/src
 
-cmake --build . --config Release --target install
+cmake --build . --config Release --target install -j8
