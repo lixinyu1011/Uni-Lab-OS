@@ -1,6 +1,6 @@
-laiyu_add_solid:
+solid_dispenser.laiyu:
   category:
-  - laiyu_add_solid
+  - solid_dispenser
   class:
     action_value_mappings:
       add_powder_tube:

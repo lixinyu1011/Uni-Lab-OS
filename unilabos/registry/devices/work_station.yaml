@@ -1262,6 +1262,11 @@ workstation:
             data_type: resource
             handler_key: solvent
             label: Solvent
+          - data_key: reagent
+            data_source: handle
+            data_type: resource
+            handler_key: reagent
+            label: Reagent
           output:
           - data_key: vessel
             data_source: executor

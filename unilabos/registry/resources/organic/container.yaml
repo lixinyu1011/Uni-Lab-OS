@@ -28,7 +28,7 @@ container:
     handler_key: bind
     io_type: target
     label: bind
-    side: SOUTH
+    side: WEST
   icon: Flask.webp
   init_param_schema: {}
   registry_type: resource

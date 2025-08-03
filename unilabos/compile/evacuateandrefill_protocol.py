@@ -3,6 +3,7 @@ import logging
 import uuid
 import sys
 from typing import List, Dict, Any, Optional
+from .utils.vessel_parser import get_vessel
 from .pump_protocol import generate_pump_protocol_with_rinsing, generate_pump_protocol
 
 # 设置日志
@@ -288,16 +289,7 @@ def generate_evacuateandrefill_protocol(
     """
     
     # 🔧 核心修改：从字典中提取容器ID
-    # 统一处理vessel参数
-    if isinstance(vessel, dict):
-        if "id" not in vessel:
-            vessel_id = list(vessel.values())[0].get("id", "")
-        else:
-            vessel_id = vessel.get("id", "")
-        vessel_data = vessel.get("data", {})
-    else:
-        vessel_id = str(vessel)
-        vessel_data = G.nodes[vessel_id].get("data", {}) if vessel_id in G.nodes() else {}
+    vessel_id, vessel_data = get_vessel(vessel)
     
     # 硬编码重复次数为 3
     repeats = 3

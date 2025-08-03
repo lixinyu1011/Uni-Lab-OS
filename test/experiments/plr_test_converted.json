@@ -1,8 +1,8 @@
 {
     "nodes": [
         {
-            "id": "PLR_STATION",
-            "name": "PLR_LH_TEST",
+            "id": "liquid_handler",
+            "name": "liquid_handler",
             "parent": null,
             "type": "device",
             "class": "liquid_handler",
@@ -37,7 +37,7 @@
                 "tip_rack",
                 "plate_well"
             ],
-            "parent": "PLR_STATION",
+            "parent": "liquid_handler",
             "type": "deck",
             "class": "OTDeck",
             "position": {
@@ -9650,7 +9650,7 @@
             "children": [],
             "parent": null,
             "type": "device",
-            "class": "moveit.arm_slider",
+            "class": "robotic_arm.SCARA_with_slider.virtual",
             "position": {
                 "x": -500,
                 "y": 1000,

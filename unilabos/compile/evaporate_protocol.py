@@ -2,6 +2,7 @@ from typing import List, Dict, Any, Optional, Union
 import networkx as nx
 import logging
 import re
+from .utils.vessel_parser import get_vessel
 
 logger = logging.getLogger(__name__)
 
@@ -201,16 +202,7 @@ def generate_evaporate_protocol(
     """
     
     # 🔧 核心修改：从字典中提取容器ID
-    # 统一处理vessel参数
-    if isinstance(vessel, dict):
-        if "id" not in vessel:
-            vessel_id = list(vessel.values())[0].get("id", "")
-        else:
-            vessel_id = vessel.get("id", "")
-        vessel_data = vessel.get("data", {})
-    else:
-        vessel_id = str(vessel)
-        vessel_data = G.nodes[vessel_id].get("data", {}) if vessel_id in G.nodes() else {}
+    vessel_id, vessel_data = get_vessel(vessel)
     
     debug_print("🌟" * 20)
     debug_print("🌪️ 开始生成蒸发协议（支持单位和体积运算）✨")
