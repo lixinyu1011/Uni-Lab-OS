@@ -1,10 +1,11 @@
+import collections
 import copy
 import json
 import threading
 import time
 import traceback
 import uuid
-from typing import Optional, Dict, Any, List, ClassVar, Set
+from typing import Optional, Dict, Any, List, ClassVar, Set, Union
 
 from action_msgs.msg import GoalStatus
 from geometry_msgs.msg import Point
@@ -38,6 +39,7 @@ from unilabos.ros.msgs.message_converter import (
 from unilabos.ros.nodes.base_device_node import BaseROS2DeviceNode, ROS2DeviceNode, DeviceNodeResourceTracker
 from unilabos.ros.nodes.presets.controller_node import ControllerNode
 from unilabos.utils.exception import DeviceClassInvalid
+from unilabos.utils.type_check import serialize_result_info
 
 
 class HostNode(BaseROS2DeviceNode):
@@ -254,7 +256,7 @@ class HostNode(BaseROS2DeviceNode):
         检测ROS2网络中的所有设备节点，并为它们创建ActionClient
         同时检测设备离线情况
         """
-        self.lab_logger().debug("[Host Node] Discovering devices in the network...")
+        self.lab_logger().trace("[Host Node] Discovering devices in the network...")
 
         # 获取当前所有设备
         nodes_and_names = self.get_node_names_and_namespaces()
@@ -303,7 +305,7 @@ class HostNode(BaseROS2DeviceNode):
 
         # 更新在线设备列表
         self._online_devices = current_devices
-        self.lab_logger().debug(f"[Host Node] Total online devices: {len(self._online_devices)}")
+        self.lab_logger().trace(f"[Host Node] Total online devices: {len(self._online_devices)}")
 
     def _discovery_devices_callback(self) -> None:
         """
@@ -335,7 +337,7 @@ class HostNode(BaseROS2DeviceNode):
                     self._action_clients[action_id] = ActionClient(
                         self, action_type, action_id, callback_group=self.callback_group
                     )
-                    self.lab_logger().debug(f"[Host Node] Created ActionClient (Discovery): {action_id}")
+                    self.lab_logger().trace(f"[Host Node] Created ActionClient (Discovery): {action_id}")
                     action_name = action_id[len(namespace) + 1 :]
                     edge_device_id = namespace[9:]
                     # from unilabos.app.mq import mqtt_client
@@ -349,9 +351,9 @@ class HostNode(BaseROS2DeviceNode):
                 except Exception as e:
                     self.lab_logger().error(f"[Host Node] Failed to create ActionClient for {action_id}: {str(e)}")
 
-    def create_resource_detailed(
+    async def create_resource_detailed(
         self,
-        resources: list["Resource"],
+        resources: list[Union[list["Resource"], "Resource"]],
         device_ids: list[str],
         bind_parent_ids: list[str],
         bind_locations: list[Point],
@@ -391,26 +393,28 @@ class HostNode(BaseROS2DeviceNode):
                 },
                 ensure_ascii=False,
             )
-            response = sclient.call(request)
+            response = await sclient.call_async(request)
             responses.append(response)
         return responses
 
-    def create_resource(
+    async def create_resource(
         self,
         device_id: str,
         res_id: str,
         class_name: str,
         parent: str,
         bind_locations: Point,
-        liquid_input_slot: list[int],
-        liquid_type: list[str],
-        liquid_volume: list[int],
-        slot_on_deck: str,
+        liquid_input_slot: list[int] = [],
+        liquid_type: list[str] = [],
+        liquid_volume: list[int] = [],
+        slot_on_deck: str = "",
     ):
+        # 暂不支持多对同名父子同时存在
         res_creation_input = {
-            "name": res_id,
+            "id": res_id.split("/")[-1],
+            "name": res_id.split("/")[-1],
             "class": class_name,
-            "parent": parent,
+            "parent": parent.split("/")[-1],
             "position": {
                 "x": bind_locations.x,
                 "y": bind_locations.y,
@@ -418,16 +422,22 @@ class HostNode(BaseROS2DeviceNode):
             },
         }
         if len(liquid_input_slot) and liquid_input_slot[0] == -1:  # 目前container只逐个创建
-            res_creation_input.update({
-                "data": {
-                    "liquid_type": liquid_type[0] if liquid_type else None,
-                    "liquid_volume": liquid_volume[0] if liquid_volume else None,
+            res_creation_input.update(
+                {
+                    "data": {
+                        "liquids": [{
+                        "liquid_type": liquid_type[0] if liquid_type else None,
+                        "liquid_volume": liquid_volume[0] if liquid_volume else None,
+                        }]
+                    }
                 }
-            })
+            )
         init_new_res = initialize_resource(res_creation_input)  # flatten的格式
-        resources = init_new_res  # initialize_resource已经返回list[dict]
+        if len(init_new_res) > 1:  # 一个物料，多个子节点
+            init_new_res = [init_new_res]
+        resources: List[Resource] | List[List[Resource]] = init_new_res  # initialize_resource已经返回list[dict]
         device_ids = [device_id]
-        bind_parent_id = [parent]
+        bind_parent_id = [res_creation_input["parent"]]
         bind_location = [bind_locations]
         other_calling_param = [
             json.dumps(
@@ -441,7 +451,9 @@ class HostNode(BaseROS2DeviceNode):
             )
         ]
 
-        return self.create_resource_detailed(resources, device_ids, bind_parent_id, bind_location, other_calling_param)
+        response = await self.create_resource_detailed(resources, device_ids, bind_parent_id, bind_location, other_calling_param)
+
+        return response
 
     def initialize_device(self, device_id: str, device_config: Dict[str, Any]) -> None:
         """
@@ -476,7 +488,7 @@ class HostNode(BaseROS2DeviceNode):
             if action_id not in self._action_clients:
                 action_type = action_value_mapping["type"]
                 self._action_clients[action_id] = ActionClient(self, action_type, action_id)
-                self.lab_logger().debug(
+                self.lab_logger().trace(
                     f"[Host Node] Created ActionClient (Local): {action_id}"
                 )  # 子设备再创建用的是Discover发现的
                 # from unilabos.app.mq import mqtt_client
@@ -521,7 +533,7 @@ class HostNode(BaseROS2DeviceNode):
                         self.device_status_timestamps[device_id] = {}
 
                     # 默认初始化属性值为 None
-                    self.device_status[device_id][property_name] = None
+                    self.device_status[device_id] = collections.defaultdict()
                     self.device_status_timestamps[device_id][property_name] = 0  # 初始化时间戳
 
                     # 动态创建订阅
@@ -539,7 +551,7 @@ class HostNode(BaseROS2DeviceNode):
                             )
                             # 标记为已订阅
                             self._subscribed_topics.add(topic)
-                            self.lab_logger().debug(f"[Host Node] Subscribed to new topic: {topic}")
+                            self.lab_logger().trace(f"[Host Node] Subscribed to new topic: {topic}")
                     except (NameError, SyntaxError) as e:
                         self.lab_logger().error(f"[Host Node] Failed to create subscription for topic {topic}: {e}")
 
@@ -557,10 +569,15 @@ class HostNode(BaseROS2DeviceNode):
         # 更新设备状态字典
         if hasattr(msg, "data"):
             bChange = False
+            bCreate = False
             if isinstance(msg.data, (float, int, str)):
-                if self.device_status[device_id][property_name] != msg.data:
+                if property_name not in self.device_status[device_id]:
+                    bCreate = True
                     bChange = True
-                self.device_status[device_id][property_name] = msg.data
+                    self.device_status[device_id][property_name] = msg.data
+                elif self.device_status[device_id][property_name] != msg.data:
+                    bChange = True
+                    self.device_status[device_id][property_name] = msg.data
                 # 更新时间戳
                 self.device_status_timestamps[device_id][property_name] = time.time()
             else:
@@ -573,9 +590,14 @@ class HostNode(BaseROS2DeviceNode):
                 for bridge in self.bridges:
                     if hasattr(bridge, "publish_device_status"):
                         bridge.publish_device_status(self.device_status, device_id, property_name)
-                        self.lab_logger().debug(
-                           f"[Host Node] Status updated: {device_id}.{property_name} = {msg.data}"
-                        )
+                        if bCreate:
+                            self.lab_logger().trace(
+                                f"Status created: {device_id}.{property_name} = {msg.data}"
+                            )
+                        else:
+                            self.lab_logger().debug(
+                               f"Status updated: {device_id}.{property_name} = {msg.data}"
+                            )
 
     def send_goal(
         self,
@@ -667,20 +689,34 @@ class HostNode(BaseROS2DeviceNode):
         result_msg = future.result().result
         result_data = convert_from_ros_msg(result_msg)
         status = "success"
-        try:
-            ret = json.loads(result_data.get("return_info", "{}"))  # 确保返回信息是有效的JSON
-            suc = ret.get("suc", False)
-            if not suc:
+        return_info_str = result_data.get("return_info")
+
+        if return_info_str is not None:
+            try:
+                ret = json.loads(return_info_str)
+                suc = ret.get("suc", False)
+                if not suc:
+                    status = "failed"
+            except json.JSONDecodeError:
                 status = "failed"
-        except json.JSONDecodeError:
-            status = "failed"
-        self.lab_logger().info(f"[Host Node] Result for {action_id} ({uuid_str}): success")
+        else:
+            # 无 return_info 字段时，回退到 success 字段（若存在）
+            suc_field = result_data.get("success")
+            if isinstance(suc_field, bool):
+                status = "success" if suc_field else "failed"
+                return_info_str = serialize_result_info("", suc_field, result_data)
+            else:
+                # 最保守的回退：标记失败并返回空JSON
+                status = "failed"
+                return_info_str = serialize_result_info("缺少return_info", False, result_data)
+
+        self.lab_logger().info(f"[Host Node] Result for {action_id} ({uuid_str}): {status}")
         self.lab_logger().debug(f"[Host Node] Result data: {result_data}")
 
         if uuid_str:
             for bridge in self.bridges:
                 if hasattr(bridge, "publish_job_status"):
-                    bridge.publish_job_status(result_data, uuid_str, status, result_data.get("return_info", "{}"))
+                    bridge.publish_job_status(result_data, uuid_str, status, return_info_str)
 
     def cancel_goal(self, goal_uuid: str) -> None:
         """取消目标"""
@@ -809,10 +845,19 @@ class HostNode(BaseROS2DeviceNode):
             success = bool(r)
 
         response.success = success
+
+        if success:
+            from unilabos.resources.graphio import physical_setup_graph
+            for resource in resources:
+                if resource.get("id") not in physical_setup_graph.nodes:
+                    physical_setup_graph.add_node(resource["id"], **resource)
+                else:
+                    physical_setup_graph.nodes[resource["id"]]["data"].update(resource["data"])
+
         self.lab_logger().info(f"[Host Node-Resource] Add request completed, success: {success}")
         return response
 
-    def _resource_get_callback(self, request, response):
+    def _resource_get_callback(self, request: ResourceGet.Request, response: ResourceGet.Response):
         """
         获取资源回调
 

@@ -1,6 +1,6 @@
-laiyu_add_solid:
+solid_dispenser.laiyu:
   category:
-  - laiyu_add_solid
+  - solid_dispenser
   class:
     action_value_mappings:
       add_powder_tube:
@@ -353,7 +353,7 @@ laiyu_add_solid:
           title: EmptyIn
           type: object
         type: EmptyIn
-    module: unilabos.devices.laiyu_add_solid.laiyu:Laiyu
+    module: unilabos.devices.powder_dispense.laiyu:Laiyu
     status_types:
       status: str
     type: python

@@ -1,30 +1,14 @@
 import networkx as nx
 import logging
 from typing import List, Dict, Any, Union
+from .utils.vessel_parser import get_vessel
 from .pump_protocol import generate_pump_protocol_with_rinsing
 
 logger = logging.getLogger(__name__)
 
 def debug_print(message):
     """调试输出"""
-    print(f"[ADJUST_PH] {message}", flush=True)
     logger.info(f"[ADJUST_PH] {message}")
-
-# 🆕 创建进度日志动作
-def create_action_log(message: str, emoji: str = "📝") -> Dict[str, Any]:
-    """创建一个动作日志"""
-    full_message = f"{emoji} {message}"
-    debug_print(full_message)
-    logger.info(full_message)
-    print(f"[ACTION] {full_message}", flush=True)
-    
-    return {
-        "action_name": "wait",
-        "action_kwargs": {
-            "time": 0.1,
-            "log_message": full_message
-        }
-    }
 
 def find_acid_base_vessel(G: nx.DiGraph, reagent: str) -> str:
     """
@@ -235,16 +219,7 @@ def generate_adjust_ph_protocol(
         List[Dict[str, Any]]: 动作序列
     """
     
-    # 统一处理vessel参数
-    if isinstance(vessel, dict):
-        if "id" not in vessel:
-            vessel_id = list(vessel.values())[0].get("id", "")
-        else:
-            vessel_id = vessel.get("id", "")
-        vessel_data = vessel.get("data", {})
-    else:
-        vessel_id = str(vessel)
-        vessel_data = G.nodes[vessel_id].get("data", {}) if vessel_id in G.nodes() else {}
+    vessel_id, vessel_data = get_vessel(vessel)
     
     if not vessel_id:
         debug_print(f"❌ vessel 参数无效，必须包含id字段或直接提供容器ID. vessel: {vessel}")

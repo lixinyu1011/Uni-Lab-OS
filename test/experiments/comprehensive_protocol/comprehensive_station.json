@@ -49,7 +49,6 @@
             "config": {
                 "protocol_type": [
                     "AddProtocol",
-                    "TransferProtocol",
                     "StartStirProtocol",
                     "StopStirProtocol",
                     "StirProtocol",
@@ -171,12 +170,15 @@
                 "z": 0
             },
             "config": {
-                "volume": 1000.0,
-                "reagent": "DMF"
+                "max_volume": 1000.0
             },
             "data": {
-                "current_volume": 1000.0,
-                "reagent_name": "DMF"
+                "liquids": [
+                    {
+                        "liquid_type": "DMF",
+                        "liquid_volume": 1000.0
+                    }
+                ]
             }
         },
         {
@@ -192,12 +194,15 @@
                 "z": 0
             },
             "config": {
-                "volume": 1000.0,
-                "reagent": "ethyl_acetate"
+                "max_volume": 1000.0
             },
             "data": {
-                "current_volume": 1000.0,
-                "reagent_name": "ethyl_acetate"
+                "liquids": [
+                    {
+                        "liquid_type": "ethyl_acetate",
+                        "liquid_volume": 1000.0
+                    }
+                ]
             }
         },
         {
@@ -213,12 +218,15 @@
                 "z": 0
             },
             "config": {
-                "volume": 1000.0,
-                "reagent": "hexane"
+                "max_volume": 1000.0
             },
             "data": {
-                "current_volume": 1000.0,
-                "reagent_name": "hexane"
+                "liquids": [
+                    {
+                        "liquid_type": "hexane",
+                        "liquid_volume": 1000.0
+                    }
+                ]
             }
         },
         {
@@ -234,12 +242,15 @@
                 "z": 0
             },
             "config": {
-                "volume": 1000.0,
-                "reagent": "methanol"
+                "max_volume": 1000.0
             },
             "data": {
-                "current_volume": 1000.0,
-                "reagent_name": "methanol"
+                "liquids": [
+                    {
+                        "liquid_type": "methanol",
+                        "liquid_volume": 1000.0
+                    }
+                ]
             }
         },
         {
@@ -255,12 +266,15 @@
                 "z": 0
             },
             "config": {
-                "volume": 1000.0,
-                "reagent": "water"
+                "max_volume": 1000.0
             },
             "data": {
-                "current_volume": 1000.0,
-                "reagent_name": "water"
+                "liquids": [
+                    {
+                        "liquid_type": "water",
+                        "liquid_volume": 1000.0
+                    }
+                ]
             }
         },
         {
@@ -320,15 +334,15 @@
                 "z": 0
             },
             "config": {
-                "volume": 500.0,
+                "max_volume": 500.0,
                 "max_temp": 200.0,
                 "min_temp": -20.0,
                 "has_stirrer": true,
                 "has_heater": true
             },
             "data": {
-                "current_volume": 0.0,
-                "current_temp": 25.0
+                "liquids": [
+                ]
             }
         },
         {
@@ -405,10 +419,11 @@
                 "z": 0
             },
             "config": {
-                "volume": 2000.0
+                "max_volume": 2000.0
             },
             "data": {
-                "current_volume": 0.0
+                "liquids": [
+                ]
             }
         },
         {
@@ -424,10 +439,11 @@
                 "z": 0
             },
             "config": {
-                "volume": 2000.0
+                "max_volume": 2000.0
             },
             "data": {
-                "current_volume": 0.0
+                "liquids": [
+                ]
             }
         },
         {
@@ -633,10 +649,11 @@
                 "z": 0
             },
             "config": {
-                "volume": 250.0
+                "max_volume": 250.0
             },
             "data": {
-                "current_volume": 0.0
+                "liquids": [
+                ]
             }
         },
         {
@@ -652,10 +669,11 @@
                 "z": 0
             },
             "config": {
-                "volume": 250.0
+                "max_volume": 250.0
             },
             "data": {
-                "current_volume": 0.0
+                "liquids": [
+                ]
             }
         },
         {
@@ -671,10 +689,11 @@
                 "z": 0
             },
             "config": {
-                "volume": 250.0
+                "max_volume": 250.0
             },
             "data": {
-                "current_volume": 0.0
+                "liquids": [
+                ]
             }
         },
         {
@@ -713,7 +732,7 @@
                 "z": 0
             },
             "config": {
-                "volume": 500.0,
+                "max_volume": 500.0,
                 "reagent": "sodium_chloride",
                 "physical_state": "solid"
             },
@@ -1077,7 +1096,7 @@
             "target": "solid_dispenser_1",
             "type": "resource",
             "port": {
-                "solid_reagent_bottle_1": "top",
+                "solid_reagent_bottle_1": "bottom",
                 "solid_dispenser_1": "SolidIn"
             }
         },
@@ -1087,7 +1106,7 @@
             "target": "solid_dispenser_1",
             "type": "resource",
             "port": {
-                "solid_reagent_bottle_2": "top",
+                "solid_reagent_bottle_2": "bottom",
                 "solid_dispenser_1": "SolidIn"
             }
         },
@@ -1097,7 +1116,7 @@
             "target": "solid_dispenser_1",
             "type": "resource",
             "port": {
-                "solid_reagent_bottle_3": "top",
+                "solid_reagent_bottle_3": "bottom",
                 "solid_dispenser_1": "SolidIn"
             }
         }

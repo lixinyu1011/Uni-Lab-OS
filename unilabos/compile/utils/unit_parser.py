@@ -4,108 +4,12 @@
 """
 
 import re
-import logging
 from typing import Union
 
-logger = logging.getLogger(__name__)
+from .logger_util import debug_print
 
-def debug_print(message, prefix="[UNIT_PARSER]"):
-    """调试输出"""
-    print(f"{prefix} {message}", flush=True)
-    logger.info(f"{prefix} {message}")
 
-def parse_time_with_units(time_input: Union[str, float, int], default_unit: str = "s") -> float:
-    """
-    解析带单位的时间输入
-    
-    Args:
-        time_input: 时间输入（如 "30 min", "1 h", "300", "?", 60.0）
-        default_unit: 默认单位（默认为秒）
-    
-    Returns:
-        float: 时间（秒）
-    """
-    if not time_input:
-        return 0.0
-    
-    # 处理数值输入
-    if isinstance(time_input, (int, float)):
-        result = float(time_input)
-        debug_print(f"数值时间输入: {time_input} → {result}s（默认单位）")
-        return result
-    
-    # 处理字符串输入
-    time_str = str(time_input).lower().strip()
-    debug_print(f"解析时间字符串: '{time_str}'")
-    
-    # 处理特殊值
-    if time_str in ['?', 'unknown', 'tbd', 'to be determined']:
-        default_time = 300.0  # 5分钟默认值
-        debug_print(f"检测到未知时间，使用默认值: {default_time}s")
-        return default_time
-    
-    # 如果是纯数字，使用默认单位
-    try:
-        value = float(time_str)
-        if default_unit == "s":
-            result = value
-        elif default_unit in ["min", "minute"]:
-            result = value * 60.0
-        elif default_unit in ["h", "hour"]:
-            result = value * 3600.0
-        else:
-            result = value  # 默认秒
-        debug_print(f"纯数字输入: {time_str} → {result}s（单位: {default_unit}）")
-        return result
-    except ValueError:
-        pass
-    
-    # 使用正则表达式匹配数字和单位
-    pattern = r'(\d+\.?\d*)\s*([a-z]*)'
-    match = re.match(pattern, time_str)
-    
-    if not match:
-        debug_print(f"⚠️ 无法解析时间: '{time_str}'，使用默认值: 60s")
-        return 60.0
-    
-    value = float(match.group(1))
-    unit = match.group(2) or default_unit
-    
-    # 单位转换映射
-    unit_multipliers = {
-        # 秒
-        's': 1.0,
-        'sec': 1.0,
-        'second': 1.0,
-        'seconds': 1.0,
-        
-        # 分钟
-        'm': 60.0,
-        'min': 60.0,
-        'mins': 60.0,
-        'minute': 60.0,
-        'minutes': 60.0,
-        
-        # 小时
-        'h': 3600.0,
-        'hr': 3600.0,
-        'hrs': 3600.0,
-        'hour': 3600.0,
-        'hours': 3600.0,
-        
-        # 天
-        'd': 86400.0,
-        'day': 86400.0,
-        'days': 86400.0,
-    }
-    
-    multiplier = unit_multipliers.get(unit, 1.0)
-    result = value * multiplier
-    
-    debug_print(f"时间解析: '{time_str}' → {value} {unit} → {result}s")
-    return result
-
-def parse_volume_with_units(volume_input: Union[str, float, int], default_unit: str = "mL") -> float:
+def parse_volume_input(volume_input: Union[str, float, int], default_unit: str = "mL") -> float:
     """
     解析带单位的体积输入
     
@@ -175,6 +79,111 @@ def parse_volume_with_units(volume_input: Union[str, float, int], default_unit: 
     debug_print(f"体积解析: '{volume_str}' → {value} {unit} → {volume}mL")
     return volume
 
+
+def parse_mass_input(mass_input: Union[str, float]) -> float:
+    """
+    解析质量输入，支持带单位的字符串
+
+    Args:
+        mass_input: 质量输入（如 "19.3 g", "4.5 g", 2.5）
+
+    Returns:
+        float: 质量（克）
+    """
+    if isinstance(mass_input, (int, float)):
+        debug_print(f"⚖️ 质量输入为数值: {mass_input}g")
+        return float(mass_input)
+
+    if not mass_input or not str(mass_input).strip():
+        debug_print(f"⚠️ 质量输入为空，返回0.0g")
+        return 0.0
+
+    mass_str = str(mass_input).lower().strip()
+    debug_print(f"🔍 解析质量输入: '{mass_str}'")
+
+    # 移除空格并提取数字和单位
+    mass_clean = re.sub(r'\s+', '', mass_str)
+
+    # 匹配数字和单位的正则表达式
+    match = re.match(r'([0-9]*\.?[0-9]+)\s*(g|mg|kg|gram|milligram|kilogram)?', mass_clean)
+
+    if not match:
+        debug_print(f"❌ 无法解析质量: '{mass_str}'，返回0.0g")
+        return 0.0
+
+    value = float(match.group(1))
+    unit = match.group(2) or 'g'  # 默认单位为克
+
+    # 转换为克
+    if unit in ['mg', 'milligram']:
+        mass = value / 1000.0  # mg -> g
+        debug_print(f"🔄 质量转换: {value}mg → {mass}g")
+    elif unit in ['kg', 'kilogram']:
+        mass = value * 1000.0  # kg -> g
+        debug_print(f"🔄 质量转换: {value}kg → {mass}g")
+    else:  # g, gram 或默认
+        mass = value  # 已经是g
+        debug_print(f"✅ 质量已为g: {mass}g")
+
+    return mass
+
+
+def parse_time_input(time_input: Union[str, float]) -> float:
+    """
+    解析时间输入，支持带单位的字符串
+
+    Args:
+        time_input: 时间输入（如 "1 h", "20 min", "30 s", 60.0）
+
+    Returns:
+        float: 时间（秒）
+    """
+    if isinstance(time_input, (int, float)):
+        debug_print(f"⏱️ 时间输入为数值: {time_input}秒")
+        return float(time_input)
+
+    if not time_input or not str(time_input).strip():
+        debug_print(f"⚠️ 时间输入为空，返回0秒")
+        return 0.0
+
+    time_str = str(time_input).lower().strip()
+    debug_print(f"🔍 解析时间输入: '{time_str}'")
+
+    # 处理未知时间
+    if time_str in ['?', 'unknown', 'tbd']:
+        default_time = 60.0  # 默认1分钟
+        debug_print(f"❓ 检测到未知时间，使用默认值: {default_time}s (1分钟) ⏰")
+        return default_time
+
+    # 移除空格并提取数字和单位
+    time_clean = re.sub(r'\s+', '', time_str)
+
+    # 匹配数字和单位的正则表达式
+    match = re.match(r'([0-9]*\.?[0-9]+)\s*(s|sec|second|min|minute|h|hr|hour|d|day)?', time_clean)
+
+    if not match:
+        debug_print(f"❌ 无法解析时间: '{time_str}'，返回0s")
+        return 0.0
+
+    value = float(match.group(1))
+    unit = match.group(2) or 's'  # 默认单位为秒
+
+    # 转换为秒
+    if unit in ['m', 'min', 'minute', 'mins', 'minutes']:
+        time_sec = value * 60.0  # min -> s
+        debug_print(f"🔄 时间转换: {value}分钟 → {time_sec}秒")
+    elif unit in ['h', 'hr', 'hour', 'hrs', 'hours']:
+        time_sec = value * 3600.0  # h -> s
+        debug_print(f"🔄 时间转换: {value}小时 → {time_sec}秒")
+    elif unit in ['d', 'day', 'days']:
+        time_sec = value * 86400.0  # d -> s
+        debug_print(f"🔄 时间转换: {value}天 → {time_sec}秒")
+    else:  # s, sec, second 或默认
+        time_sec = value  # 已经是s
+        debug_print(f"✅ 时间已为秒: {time_sec}秒")
+
+    return time_sec
+
 # 测试函数
 def test_unit_parser():
     """测试单位解析功能"""
@@ -187,7 +196,7 @@ def test_unit_parser():
     
     print("\n时间解析测试:")
     for time_input in time_tests:
-        result = parse_time_with_units(time_input)
+        result = parse_time_input(time_input)
         print(f"  {time_input} → {result}s ({result/60:.1f}min)")
     
     # 测试体积解析
@@ -197,7 +206,7 @@ def test_unit_parser():
     
     print("\n体积解析测试:")
     for volume_input in volume_tests:
-        result = parse_volume_with_units(volume_input)
+        result = parse_volume_input(volume_input)
         print(f"  {volume_input} → {result}mL")
     
     print("\n✅ 测试完成")

@@ -52,7 +52,7 @@ def main(
     visual: str = "disable",
     resources_mesh_config: dict = {},
     rclpy_init_args: List[str] = ["--log-level", "debug"],
-    discovery_interval: float = 5.0,
+    discovery_interval: float = 15.0,
 ) -> None:
     """主函数"""
 

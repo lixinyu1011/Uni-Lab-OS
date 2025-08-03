@@ -96,6 +96,11 @@ def parse_args():
         help="启动unilab时同时报送注册表信息",
     )
     parser.add_argument(
+        "--use_remote_resource",
+        action="store_true",
+        help="启动unilab时使用远程资源启动",
+    )
+    parser.add_argument(
         "--config",
         type=str,
         default=None,
@@ -171,6 +176,8 @@ def main():
                     "error",
                 )
                 os._exit(1)
+    elif config_path and os.path.exists(config_path):
+        working_dir = os.path.dirname(config_path)
     elif os.path.exists(working_dir) and os.path.exists(os.path.join(working_dir, "local_config.py")):
         config_path = os.path.join(working_dir, "local_config.py")
     elif not config_path and (
@@ -192,6 +199,16 @@ def main():
     # 加载配置文件
     print_status(f"当前工作目录为 {working_dir}", "info")
     load_config_from_file(config_path, args_dict["labid"])
+
+    if args_dict["use_remote_resource"]:
+        print_status("使用远程资源启动", "info")
+        from unilabos.app.web import http_client
+        res = http_client.resource_get("host_node", False)
+        if str(res.get("code", 0)) == "0" and len(res.get("data", [])) > 0:
+            print_status("远程资源已存在，使用云端物料！", "info")
+            args_dict["graph"] = None
+        else:
+            print_status("远程资源不存在，本地将进行首次上报！", "info")
 
     # 设置BasicConfig参数
     BasicConfig.working_dir = working_dir
@@ -220,7 +237,7 @@ def main():
     print_unilab_banner(args_dict)
 
     # 注册表
-    build_registry(args_dict["registry_path"])
+    build_registry(args_dict["registry_path"], False, args_dict["upload_registry"])
     if args_dict["graph"] is None:
         request_startup_json = http_client.request_startup_json()
         if not request_startup_json:

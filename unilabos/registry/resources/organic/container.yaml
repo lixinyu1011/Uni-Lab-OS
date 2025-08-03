@@ -4,9 +4,7 @@ container:
   class:
     module: unilabos.resources.container:RegularContainer
     type: unilabos
-  config_info: []
   description: regular organic container
-  file_path: C:/Users/10230/PycharmProjects/Uni-Lab-OS/unilabos/registry/resources/organic/container.yaml
   handles:
   - data_key: fluid_in
     data_source: handle
@@ -28,7 +26,7 @@ container:
     handler_key: bind
     io_type: target
     label: bind
-    side: SOUTH
+    side: WEST
   icon: Flask.webp
   init_param_schema: {}
   registry_type: resource

@@ -321,7 +321,7 @@ class VirtualStirrer:
             "min_speed": self._min_speed
         }
         
-        self.logger.debug(f"📊 设备信息: 模式={self.operation_mode}, 速度={self.current_speed} RPM, 搅拌={self.is_stirring}")
+        # self.logger.debug(f"📊 设备信息: 模式={self.operation_mode}, 速度={self.current_speed} RPM, 搅拌={self.is_stirring}")
         return info
     
     def __str__(self):

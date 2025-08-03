@@ -24,11 +24,12 @@ DEFAULT_PATHS = [Path(__file__).absolute().parent]
 class Registry:
     def __init__(self, registry_paths=None):
         import ctypes
-
         try:
             import unilabos_msgs
         except ImportError:
-            logger.error("[UniLab Registry] unilabos_msgs模块未找到，请确保已根据官方文档安装unilabos_msgs包。")
+            logger.error(
+                "[UniLab Registry] unilabos_msgs模块未找到，请确保已根据官方文档安装unilabos_msgs包。"
+            )
             sys.exit(1)
         try:
             ctypes.CDLL(str(Path(unilabos_msgs.__file__).parent / "unilabos_msgs_s__rosidl_typesupport_c.pyd"))
@@ -218,7 +219,7 @@ class Registry:
                         yaml.dump(complete_data, f, allow_unicode=True, default_flow_style=False, Dumper=NoAliasDumper)
 
                 self.resource_type_registry.update(data)
-                logger.trace(  # type: ignore
+                logger.trace(
                     f"[UniLab Registry] Resource-{current_resource_number} File-{i+1}/{len(files)} "
                     + f"Add {list(data.keys())}"
                 )
@@ -405,7 +406,7 @@ class Registry:
         devices_path = abs_path / "devices"
         device_comms_path = abs_path / "device_comms"
         files = list(devices_path.glob("*.yaml")) + list(device_comms_path.glob("*.yaml"))
-        logger.trace(  # type: ignore
+        logger.trace(
             f"[UniLab Registry] devices: {devices_path.exists()}, device_comms: {device_comms_path.exists()}, "
             + f"total: {len(files)}"
         )
@@ -522,12 +523,6 @@ class Registry:
                         for action_name, action_config in device_config["class"]["action_value_mappings"].items():
                             if "handles" not in action_config:
                                 action_config["handles"] = {}
-                            elif isinstance(action_config["handles"], list):
-                                if len(action_config["handles"]):
-                                    logger.error(f"设备{device_id} {action_name} 的handles配置错误，应该是字典类型")
-                                    continue
-                                else:
-                                    action_config["handles"] = {}
                             if "type" in action_config:
                                 action_type_str: str = action_config["type"]
                                 # 通过Json发放指令，而不是通过特殊的ros action进行处理

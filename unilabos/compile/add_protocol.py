@@ -1,313 +1,24 @@
+from functools import partial
+
 import networkx as nx
 import re
 import logging
 from typing import List, Dict, Any, Union
+
+from .utils.unit_parser import parse_volume_input, parse_mass_input, parse_time_input
+from .utils.vessel_parser import get_vessel, find_solid_dispenser, find_connected_stirrer, find_reagent_vessel
+from .utils.logger_util import action_log
 from .pump_protocol import generate_pump_protocol_with_rinsing
 
 logger = logging.getLogger(__name__)
 
 def debug_print(message):
     """调试输出"""
-    print(f"[ADD] {message}", flush=True)
     logger.info(f"[ADD] {message}")
 
-def parse_volume_input(volume_input: Union[str, float]) -> float:
-    """
-    解析体积输入，支持带单位的字符串
-    
-    Args:
-        volume_input: 体积输入（如 "2.7 mL", "2.67 mL", "?", 10.0）
-    
-    Returns:
-        float: 体积（毫升）
-    """
-    if isinstance(volume_input, (int, float)):
-        debug_print(f"📏 体积输入为数值: {volume_input}")
-        return float(volume_input)
-    
-    if not volume_input or not str(volume_input).strip():
-        debug_print(f"⚠️ 体积输入为空，返回0.0mL")
-        return 0.0
-    
-    volume_str = str(volume_input).lower().strip()
-    debug_print(f"🔍 解析体积输入: '{volume_str}'")
-    
-    # 处理未知体积
-    if volume_str in ['?', 'unknown', 'tbd', 'to be determined']:
-        default_volume = 10.0  # 默认10mL
-        debug_print(f"❓ 检测到未知体积，使用默认值: {default_volume}mL 🎯")
-        return default_volume
-    
-    # 移除空格并提取数字和单位
-    volume_clean = re.sub(r'\s+', '', volume_str)
-    
-    # 匹配数字和单位的正则表达式
-    match = re.match(r'([0-9]*\.?[0-9]+)\s*(ml|l|μl|ul|microliter|milliliter|liter)?', volume_clean)
-    
-    if not match:
-        debug_print(f"❌ 无法解析体积: '{volume_str}'，使用默认值10mL")
-        return 10.0
-    
-    value = float(match.group(1))
-    unit = match.group(2) or 'ml'  # 默认单位为毫升
-    
-    # 转换为毫升
-    if unit in ['l', 'liter']:
-        volume = value * 1000.0  # L -> mL
-        debug_print(f"🔄 体积转换: {value}L → {volume}mL")
-    elif unit in ['μl', 'ul', 'microliter']:
-        volume = value / 1000.0  # μL -> mL
-        debug_print(f"🔄 体积转换: {value}μL → {volume}mL")
-    else:  # ml, milliliter 或默认
-        volume = value  # 已经是mL
-        debug_print(f"✅ 体积已为mL: {volume}mL")
-    
-    return volume
-
-def parse_mass_input(mass_input: Union[str, float]) -> float:
-    """
-    解析质量输入，支持带单位的字符串
-    
-    Args:
-        mass_input: 质量输入（如 "19.3 g", "4.5 g", 2.5）
-    
-    Returns:
-        float: 质量（克）
-    """
-    if isinstance(mass_input, (int, float)):
-        debug_print(f"⚖️ 质量输入为数值: {mass_input}g")
-        return float(mass_input)
-    
-    if not mass_input or not str(mass_input).strip():
-        debug_print(f"⚠️ 质量输入为空，返回0.0g")
-        return 0.0
-    
-    mass_str = str(mass_input).lower().strip()
-    debug_print(f"🔍 解析质量输入: '{mass_str}'")
-    
-    # 移除空格并提取数字和单位
-    mass_clean = re.sub(r'\s+', '', mass_str)
-    
-    # 匹配数字和单位的正则表达式
-    match = re.match(r'([0-9]*\.?[0-9]+)\s*(g|mg|kg|gram|milligram|kilogram)?', mass_clean)
-    
-    if not match:
-        debug_print(f"❌ 无法解析质量: '{mass_str}'，返回0.0g")
-        return 0.0
-    
-    value = float(match.group(1))
-    unit = match.group(2) or 'g'  # 默认单位为克
-    
-    # 转换为克
-    if unit in ['mg', 'milligram']:
-        mass = value / 1000.0  # mg -> g
-        debug_print(f"🔄 质量转换: {value}mg → {mass}g")
-    elif unit in ['kg', 'kilogram']:
-        mass = value * 1000.0  # kg -> g
-        debug_print(f"🔄 质量转换: {value}kg → {mass}g")
-    else:  # g, gram 或默认
-        mass = value  # 已经是g
-        debug_print(f"✅ 质量已为g: {mass}g")
-    
-    return mass
-
-def parse_time_input(time_input: Union[str, float]) -> float:
-    """
-    解析时间输入，支持带单位的字符串
-    
-    Args:
-        time_input: 时间输入（如 "1 h", "20 min", "30 s", 60.0）
-    
-    Returns:
-        float: 时间（秒）
-    """
-    if isinstance(time_input, (int, float)):
-        debug_print(f"⏱️ 时间输入为数值: {time_input}秒")
-        return float(time_input)
-    
-    if not time_input or not str(time_input).strip():
-        debug_print(f"⚠️ 时间输入为空，返回0秒")
-        return 0.0
-    
-    time_str = str(time_input).lower().strip()
-    debug_print(f"🔍 解析时间输入: '{time_str}'")
-    
-    # 处理未知时间
-    if time_str in ['?', 'unknown', 'tbd']:
-        default_time = 60.0  # 默认1分钟
-        debug_print(f"❓ 检测到未知时间，使用默认值: {default_time}s (1分钟) ⏰")
-        return default_time
-    
-    # 移除空格并提取数字和单位
-    time_clean = re.sub(r'\s+', '', time_str)
-    
-    # 匹配数字和单位的正则表达式
-    match = re.match(r'([0-9]*\.?[0-9]+)\s*(s|sec|second|min|minute|h|hr|hour|d|day)?', time_clean)
-    
-    if not match:
-        debug_print(f"❌ 无法解析时间: '{time_str}'，返回0s")
-        return 0.0
-    
-    value = float(match.group(1))
-    unit = match.group(2) or 's'  # 默认单位为秒
-    
-    # 转换为秒
-    if unit in ['min', 'minute']:
-        time_sec = value * 60.0  # min -> s
-        debug_print(f"🔄 时间转换: {value}分钟 → {time_sec}秒")
-    elif unit in ['h', 'hr', 'hour']:
-        time_sec = value * 3600.0  # h -> s
-        debug_print(f"🔄 时间转换: {value}小时 → {time_sec}秒")
-    elif unit in ['d', 'day']:
-        time_sec = value * 86400.0  # d -> s
-        debug_print(f"🔄 时间转换: {value}天 → {time_sec}秒")
-    else:  # s, sec, second 或默认
-        time_sec = value  # 已经是s
-        debug_print(f"✅ 时间已为秒: {time_sec}秒")
-    
-    return time_sec
-
-def find_reagent_vessel(G: nx.DiGraph, reagent: str) -> str:
-    """增强版试剂容器查找，支持固体和液体"""
-    debug_print(f"🔍 开始查找试剂 '{reagent}' 的容器...")
-    
-    # 🔧 方法1：直接搜索 data.reagent_name 和 config.reagent
-    debug_print(f"📋 方法1: 搜索reagent字段...")
-    for node in G.nodes():
-        node_data = G.nodes[node].get('data', {})
-        node_type = G.nodes[node].get('type', '')
-        config_data = G.nodes[node].get('config', {})
-        
-        # 只搜索容器类型的节点
-        if node_type == 'container':
-            reagent_name = node_data.get('reagent_name', '').lower()
-            config_reagent = config_data.get('reagent', '').lower()
-            
-            # 精确匹配
-            if reagent_name == reagent.lower() or config_reagent == reagent.lower():
-                debug_print(f"✅ 通过reagent字段精确匹配到容器: {node} 🎯")
-                return node
-            
-            # 模糊匹配
-            if (reagent.lower() in reagent_name and reagent_name) or \
-               (reagent.lower() in config_reagent and config_reagent):
-                debug_print(f"✅ 通过reagent字段模糊匹配到容器: {node} 🔍")
-                return node
-    
-    # 🔧 方法2：常见的容器命名规则
-    debug_print(f"📋 方法2: 使用命名规则查找...")
-    reagent_clean = reagent.lower().replace(' ', '_').replace('-', '_')
-    possible_names = [
-        reagent_clean,
-        f"flask_{reagent_clean}",
-        f"bottle_{reagent_clean}",
-        f"vessel_{reagent_clean}", 
-        f"{reagent_clean}_flask",
-        f"{reagent_clean}_bottle",
-        f"reagent_{reagent_clean}",
-        f"reagent_bottle_{reagent_clean}",
-        f"solid_reagent_bottle_{reagent_clean}",
-        f"reagent_bottle_1",  # 通用试剂瓶
-        f"reagent_bottle_2",
-        f"reagent_bottle_3"
-    ]
-    
-    debug_print(f"🔍 尝试的容器名称: {possible_names[:5]}... (共{len(possible_names)}个)")
-    
-    for name in possible_names:
-        if name in G.nodes():
-            node_type = G.nodes[name].get('type', '')
-            if node_type == 'container':
-                debug_print(f"✅ 通过命名规则找到容器: {name} 📝")
-                return name
-    
-    # 🔧 方法3：节点名称模糊匹配
-    debug_print(f"📋 方法3: 节点名称模糊匹配...")
-    for node_id in G.nodes():
-        node_data = G.nodes[node_id]
-        if node_data.get('type') == 'container':
-            # 检查节点名称是否包含试剂名称
-            if reagent_clean in node_id.lower():
-                debug_print(f"✅ 通过节点名称模糊匹配到容器: {node_id} 🔍")
-                return node_id
-            
-            # 检查液体类型匹配
-            vessel_data = node_data.get('data', {})
-            liquids = vessel_data.get('liquid', [])
-            for liquid in liquids:
-                if isinstance(liquid, dict):
-                    liquid_type = liquid.get('liquid_type') or liquid.get('name', '')
-                    if liquid_type.lower() == reagent.lower():
-                        debug_print(f"✅ 通过液体类型匹配到容器: {node_id} 💧")
-                        return node_id
-    
-    # 🔧 方法4：使用第一个试剂瓶作为备选
-    debug_print(f"📋 方法4: 查找备选试剂瓶...")
-    for node_id in G.nodes():
-        node_data = G.nodes[node_id]
-        if (node_data.get('type') == 'container' and 
-            ('reagent' in node_id.lower() or 'bottle' in node_id.lower())):
-            debug_print(f"⚠️ 未找到专用容器，使用备选试剂瓶: {node_id} 🔄")
-            return node_id
-    
-    debug_print(f"❌ 所有方法都失败了，无法找到容器!")
-    raise ValueError(f"找不到试剂 '{reagent}' 对应的容器")
-
-def find_connected_stirrer(G: nx.DiGraph, vessel: str) -> str:
-    """查找连接到指定容器的搅拌器"""
-    debug_print(f"🔍 查找连接到容器 '{vessel}' 的搅拌器...")
-    
-    stirrer_nodes = []
-    for node in G.nodes():
-        node_class = G.nodes[node].get('class', '').lower()
-        if 'stirrer' in node_class:
-            stirrer_nodes.append(node)
-            debug_print(f"📋 发现搅拌器: {node}")
-    
-    debug_print(f"📊 共找到 {len(stirrer_nodes)} 个搅拌器")
-    
-    # 查找连接到容器的搅拌器
-    for stirrer in stirrer_nodes:
-        if G.has_edge(stirrer, vessel) or G.has_edge(vessel, stirrer):
-            debug_print(f"✅ 找到连接的搅拌器: {stirrer} 🔗")
-            return stirrer
-    
-    # 返回第一个搅拌器
-    if stirrer_nodes:
-        debug_print(f"⚠️ 未找到直接连接的搅拌器，使用第一个: {stirrer_nodes[0]} 🔄")
-        return stirrer_nodes[0]
-    
-    debug_print(f"❌ 未找到任何搅拌器")
-    return ""
-
-def find_solid_dispenser(G: nx.DiGraph) -> str:
-    """查找固体加样器"""
-    debug_print(f"🔍 查找固体加样器...")
-    
-    for node in G.nodes():
-        node_class = G.nodes[node].get('class', '').lower()
-        if 'solid_dispenser' in node_class or 'dispenser' in node_class:
-            debug_print(f"✅ 找到固体加样器: {node} 🥄")
-            return node
-    
-    debug_print(f"❌ 未找到固体加样器")
-    return ""
 
 # 🆕 创建进度日志动作
-def create_action_log(message: str, emoji: str = "📝") -> Dict[str, Any]:
-    """创建一个动作日志"""
-    full_message = f"{emoji} {message}"
-    debug_print(full_message)
-    logger.info(full_message)
-    print(f"[ACTION] {full_message}", flush=True)
-    
-    return {
-        "action_name": "wait",
-        "action_kwargs": {
-            "time": 0.1,
-            "log_message": full_message
-        }
-    }
+create_action_log = partial(action_log, prefix="[ADD]")
 
 def generate_add_protocol(
     G: nx.DiGraph,
@@ -346,16 +57,7 @@ def generate_add_protocol(
     """
 
     # 🔧 核心修改：从字典中提取容器ID
-    # 统一处理vessel参数
-    if isinstance(vessel, dict):
-        if "id" not in vessel:
-            vessel_id = list(vessel.values())[0].get("id", "")
-        else:
-            vessel_id = vessel.get("id", "")
-        vessel_data = vessel.get("data", {})
-    else:
-        vessel_id = str(vessel)
-        vessel_data = G.nodes[vessel_id].get("data", {}) if vessel_id in G.nodes() else {}
+    vessel_id, vessel_data = get_vessel(vessel)
     
     # 🔧 修改：更新容器的液体体积（假设有 liquid_volume 字段）
     if "data" in vessel and "liquid_volume" in vessel["data"]:
@@ -406,12 +108,7 @@ def generate_add_protocol(
     final_time = parse_time_input(time)
     
     debug_print(f"📊 解析结果:")
-    debug_print(f"  📏 体积: {final_volume}mL")
-    debug_print(f"  ⚖️ 质量: {final_mass}g")
-    debug_print(f"  ⏱️ 时间: {final_time}s")
-    debug_print(f"  🧬 摩尔: '{mol}'")
-    debug_print(f"  🎯 事件: '{event}'")
-    debug_print(f"  ⚡ 速率: '{rate_spec}'")
+    debug_print(f"  体积: {final_volume}mL, 质量: {final_mass}g, 时间: {final_time}s, 摩尔: '{mol}', 事件: '{event}', 速率: '{rate_spec}'")
     
     # === 判断添加类型 ===
     debug_print("🔍 步骤3: 判断添加类型...")

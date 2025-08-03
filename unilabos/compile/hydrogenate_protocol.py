@@ -1,5 +1,6 @@
 import networkx as nx
 from typing import List, Dict, Any, Optional
+from .utils.vessel_parser import get_vessel
 
 
 def parse_temperature(temp_str: str) -> float:
@@ -170,16 +171,7 @@ def generate_hydrogenate_protocol(
     """
     
     # 🔧 核心修改：从字典中提取容器ID
-    # 统一处理vessel参数
-    if isinstance(vessel, dict):
-        if "id" not in vessel:
-            vessel_id = list(vessel.values())[0].get("id", "")
-        else:
-            vessel_id = vessel.get("id", "")
-        vessel_data = vessel.get("data", {})
-    else:
-        vessel_id = str(vessel)
-        vessel_data = G.nodes[vessel_id].get("data", {}) if vessel_id in G.nodes() else {}
+    vessel_id, vessel_data = get_vessel(vessel)
     
     action_sequence = []
     

@@ -1,8 +1,12 @@
+import json
 import time
 import traceback
+from pprint import pprint, saferepr, pformat
 from typing import Union
 
 import rclpy
+from rosidl_runtime_py import message_to_ordereddict
+
 from unilabos.messages import *  # type: ignore  # protocol names
 from rclpy.action import ActionServer, ActionClient
 from rclpy.action.server import ServerGoalHandle
@@ -88,6 +92,9 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
             if device_config.get("type", "device") != "device":
                 continue
             # 设置硬件接口代理
+            if device_id not in self.sub_devices:
+                self.lab_logger().error(f"[Protocol Node] {device_id} 还没有正确初始化，跳过...")
+                continue
             d = self.sub_devices[device_id]
             if d:
                 hardware_interface = d.ros_node_instance._hardware_interface
@@ -139,6 +146,7 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
         # 为子设备的每个动作创建动作客户端
         if d is not None and hasattr(d, "ros_node_instance"):
             node = d.ros_node_instance
+            node.resource_tracker = self.resource_tracker  # 站内应当共享资源跟踪器
             for action_name, action_mapping in node._action_value_mappings.items():
                 if action_name.startswith("auto-") or str(action_mapping.get("type", "")).startswith("UniLabJsonCommand"):
                     continue
@@ -151,7 +159,7 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
                     except Exception as ex:
                         self.lab_logger().error(f"创建动作客户端失败: {action_id}, 错误: {ex}")
                         continue
-                    self.lab_logger().debug(f"为子设备 {device_id} 创建动作客户端: {action_name}")
+                    self.lab_logger().trace(f"为子设备 {device_id} 创建动作客户端: {action_name}")
         return d
 
     def create_ros_action_server(self, action_name, action_value_mapping):
@@ -171,7 +179,7 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
             callback_group=ReentrantCallbackGroup(),
         )
 
-        self.lab_logger().debug(f"发布动作: {action_name}, 类型: {str_action_type}")
+        self.lab_logger().trace(f"发布动作: {action_name}, 类型: {str_action_type}")
 
     def _create_protocol_execute_callback(self, protocol_name, protocol_steps_generator):
         async def execute_protocol(goal_handle: ServerGoalHandle):
@@ -182,6 +190,7 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
             protocol_return_value = None
             self.get_logger().info(f"Executing {protocol_name} action...")
             action_value_mapping = self._action_value_mappings[protocol_name]
+            step_results = []
             try:
                 print("+" * 30)
                 print(protocol_steps_generator)
@@ -209,22 +218,26 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
                             [convert_from_ros_msg(rs) for rs in response.resources]
                         )
 
-                self.lab_logger().info(f"🔍 最终传递给协议的 protocol_kwargs: {protocol_kwargs}")
                 self.lab_logger().info(f"🔍 最终的 vessel: {protocol_kwargs.get('vessel', 'NOT_FOUND')}")
 
                 from unilabos.resources.graphio import physical_setup_graph
 
                 self.lab_logger().info(f"Working on physical setup: {physical_setup_graph}")
                 protocol_steps = protocol_steps_generator(G=physical_setup_graph, **protocol_kwargs)
-                
-                self.lab_logger().info(f"Goal received: {protocol_kwargs}, running steps: \n{protocol_steps}")
+                logs = []
+                for step in protocol_steps:
+                    if isinstance(step, dict) and "log_message" in step.get("action_kwargs", {}):
+                        logs.append(step)
+                    elif isinstance(step, list):
+                        logs.append(step)
+                self.lab_logger().info(f"Goal received: {protocol_kwargs}, running steps: "
+                                       f"{json.dumps(logs, indent=4, ensure_ascii=False)}")
 
                 time_start = time.time()
                 time_overall = 100
                 self._busy = True
 
                 # 逐步执行工作流
-                step_results = []
                 for i, action in enumerate(protocol_steps):
                     # self.get_logger().info(f"Running step {i + 1}: {action}")
                     if isinstance(action, dict):
@@ -235,6 +248,9 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
                         else:
                             result = await self.execute_single_action(**action)
                             step_results.append({"step": i + 1, "action": action["action_name"], "result": result})
+                            ret_info = json.loads(getattr(result, "return_info", "{}"))
+                            if not ret_info.get("suc", False):
+                                raise RuntimeError(f"Step {i + 1} failed.")
                     elif isinstance(action, list):
                         # 如果是并行动作，同时执行
                         actions = action
@@ -272,11 +288,10 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
 
             except Exception as e:
                 # 捕获并记录错误信息
-                execution_error = traceback.format_exc()
+                str_step_results = [{k: dict(message_to_ordereddict(v)) if k == "result" and hasattr(v, "SLOT_TYPES") else v for k, v in i.items()} for i in step_results]
+                execution_error = f"{traceback.format_exc()}\n\nStep Result: {pformat(str_step_results)}"
                 execution_success = False
-                error(f"协议 {protocol_name} 执行失败")
-                error(traceback.format_exc())
-                self.lab_logger().error(f"协议执行出错: {str(e)}")
+                self.lab_logger().error(f"协议 {protocol_name} 执行出错: {str(e)} \n{traceback.format_exc()}")
 
                 # 设置动作失败
                 goal_handle.abort()
@@ -302,7 +317,7 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
                         serialize_result_info(execution_error, execution_success, protocol_return_value),
                     )
 
-            self.lab_logger().info(f"🤩🤩🤩🤩🤩🤩协议 {protocol_name} 完成并返回结果😎😎😎😎😎😎")
+            self.lab_logger().info(f"协议 {protocol_name} 完成并返回结果")
             return result
 
         return execute_protocol

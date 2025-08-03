@@ -67,8 +67,8 @@ class VirtualHeatChill:
         self.logger.info(f"✅ 温控设备 {self.device_id} 清理完成 💤")
         return True
     
-    async def heat_chill(self, vessel: str, temp: float, time, stir: bool, 
-                        stir_speed: float, purpose: str) -> bool:
+    async def heat_chill(self, temp: float, time, stir: bool,
+                        stir_speed: float, purpose: str, vessel: dict = {}) -> bool:
         """Execute heat chill action - 🔧 修复：确保参数类型正确"""
         
         # 🔧 关键修复：确保所有参数类型正确
@@ -77,7 +77,6 @@ class VirtualHeatChill:
             time_value = float(time)  # 强制转换为浮点数
             stir_speed = float(stir_speed)
             stir = bool(stir)
-            vessel = str(vessel)
             purpose = str(purpose)
         except (ValueError, TypeError) as e:
             error_msg = f"参数类型转换错误: temp={temp}({type(temp)}), time={time}({type(time)}), error={str(e)}"
@@ -102,8 +101,7 @@ class VirtualHeatChill:
             operation_mode = "Maintaining"
             status_action = "保温"
         
-        self.logger.info(f"🌡️ 开始温控操作: {vessel} → {temp}°C {temp_emoji}")
-        self.logger.info(f"  🥽 容器: {vessel}")
+        self.logger.info(f"🌡️ 开始温控操作: {temp}°C {temp_emoji}")
         self.logger.info(f"  🎯 目标温度: {temp}°C {temp_emoji}")
         self.logger.info(f"  ⏰ 持续时间: {time_value}s")
         self.logger.info(f"  🌪️ 搅拌: {stir} ({stir_speed} RPM)")
@@ -147,7 +145,7 @@ class VirtualHeatChill:
         stir_info = f" | 🌪️ 搅拌: {stir_speed} RPM" if stir else ""
         
         self.data.update({
-            "status": f"{temp_emoji} 运行中: {status_action} {vessel} 至 {temp}°C | ⏰ 剩余: {total_time:.0f}s{stir_info}",
+            "status": f"{temp_emoji} 运行中: {status_action} 至 {temp}°C | ⏰ 剩余: {total_time:.0f}s{stir_info}",
             "operation_mode": operation_mode,
             "is_stirring": stir,
             "stir_speed": stir_speed if stir else 0.0,
@@ -165,7 +163,7 @@ class VirtualHeatChill:
             # 更新剩余时间和状态
             self.data.update({
                 "remaining_time": remaining,
-                "status": f"{temp_emoji} 运行中: {status_action} {vessel} 至 {temp}°C | ⏰ 剩余: {remaining:.0f}s{stir_info}",
+                "status": f"{temp_emoji} 运行中: {status_action} 至 {temp}°C | ⏰ 剩余: {remaining:.0f}s{stir_info}",
                 "progress": progress
             })
             
@@ -185,7 +183,7 @@ class VirtualHeatChill:
         final_stir_info = f" | 🌪️ 搅拌: {stir_speed} RPM" if stir else ""
         
         self.data.update({
-            "status": f"✅ 完成: {vessel} 已达到 {temp}°C {temp_emoji} | ⏱️ 用时: {total_time:.0f}s{final_stir_info}",
+            "status": f"✅ 完成: 已达到 {temp}°C {temp_emoji} | ⏱️ 用时: {total_time:.0f}s{final_stir_info}",
             "operation_mode": "Completed",
             "remaining_time": 0.0,
             "is_stirring": False,
@@ -195,7 +193,6 @@ class VirtualHeatChill:
         
         self.logger.info(f"🎉 温控操作完成! ✨")
         self.logger.info(f"📊 操作结果:")
-        self.logger.info(f"  🥽 容器: {vessel}")
         self.logger.info(f"  🌡️ 达到温度: {temp}°C {temp_emoji}")
         self.logger.info(f"  ⏱️ 总用时: {total_time:.0f}s")
         if stir:
@@ -204,13 +201,12 @@ class VirtualHeatChill:
         
         return True
     
-    async def heat_chill_start(self, vessel: str, temp: float, purpose: str) -> bool:
+    async def heat_chill_start(self, temp: float, purpose: str, vessel: dict = {}) -> bool:
         """Start continuous heat chill 🔄"""
         
         # 🔧 添加类型转换
         try:
             temp = float(temp)
-            vessel = str(vessel)
             purpose = str(purpose)
         except (ValueError, TypeError) as e:
             error_msg = f"参数类型转换错误: {str(e)}"
@@ -235,8 +231,7 @@ class VirtualHeatChill:
             operation_mode = "Maintaining"
             status_action = "恒温保持"
         
-        self.logger.info(f"🔄 启动持续温控: {vessel} → {temp}°C {temp_emoji}")
-        self.logger.info(f"  🥽 容器: {vessel}")
+        self.logger.info(f"🔄 启动持续温控: {temp}°C {temp_emoji}")
         self.logger.info(f"  🎯 目标温度: {temp}°C {temp_emoji}")
         self.logger.info(f"  🔄 模式: {status_action}")
         self.logger.info(f"  📝 目的: {purpose}")
@@ -252,7 +247,7 @@ class VirtualHeatChill:
             return False
         
         self.data.update({
-            "status": f"🔄 启动: {status_action} {vessel} 至 {temp}°C {temp_emoji} | ♾️ 持续运行",
+            "status": f"🔄 启动: {status_action} 至 {temp}°C {temp_emoji} | ♾️ 持续运行",
             "operation_mode": operation_mode,
             "is_stirring": False,
             "stir_speed": 0.0,
@@ -262,28 +257,20 @@ class VirtualHeatChill:
         self.logger.info(f"✅ 持续温控已启动! {temp_emoji} {status_action}模式 🚀")
         return True
     
-    async def heat_chill_stop(self, vessel: str) -> bool:
+    async def heat_chill_stop(self, vessel: dict = {}) -> bool:
         """Stop heat chill 🛑"""
         
-        # 🔧 添加类型转换
-        try:
-            vessel = str(vessel)
-        except (ValueError, TypeError) as e:
-            error_msg = f"参数类型转换错误: {str(e)}"
-            self.logger.error(f"❌ {error_msg}")
-            return False
-        
-        self.logger.info(f"🛑 停止温控: {vessel}")
+        self.logger.info(f"🛑 停止温控:")
         
         self.data.update({
-            "status": f"🛑 已停止: {vessel} 温控停止",
+            "status": f"🛑 {self.device_id} 温控停止",
             "operation_mode": "Stopped",
             "is_stirring": False,
             "stir_speed": 0.0,
             "remaining_time": 0.0,
         })
         
-        self.logger.info(f"✅ 温控设备已停止 {vessel} 的温度控制 🏁")
+        self.logger.info(f"✅ 温控设备已停止 {self.device_id} 温度控制 🏁")
         return True
     
     # 状态属性

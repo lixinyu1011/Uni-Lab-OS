@@ -15,7 +15,6 @@ from .heatchill_protocol import (
     generate_heat_chill_to_temp_protocol  # 保留导入，但不注册为协议
 )
 from .stir_protocol import generate_stir_protocol, generate_start_stir_protocol, generate_stop_stir_protocol
-from .transfer_protocol import generate_transfer_protocol
 from .clean_vessel_protocol import generate_clean_vessel_protocol
 from .dissolve_protocol import generate_dissolve_protocol
 from .filter_through_protocol import generate_filter_through_protocol
@@ -54,6 +53,5 @@ action_protocol_generators = {
     StartStirProtocol: generate_start_stir_protocol,
     StirProtocol: generate_stir_protocol,
     StopStirProtocol: generate_stop_stir_protocol,
-    TransferProtocol: generate_transfer_protocol,
     WashSolidProtocol: generate_wash_solid_protocol,
 }

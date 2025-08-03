@@ -1,13 +1,13 @@
 from typing import List, Dict, Any, Optional
 import networkx as nx
 import logging
+from .utils.vessel_parser import get_vessel
 from .pump_protocol import generate_pump_protocol_with_rinsing
 
 logger = logging.getLogger(__name__)
 
 def debug_print(message):
     """调试输出"""
-    print(f"🧪 [FILTER] {message}", flush=True)
     logger.info(f"[FILTER] {message}")
 
 def find_filter_device(G: nx.DiGraph) -> str:
@@ -51,7 +51,7 @@ def validate_vessel(G: nx.DiGraph, vessel: str, vessel_type: str = "容器") -> 
 def generate_filter_protocol(
     G: nx.DiGraph,
     vessel: dict,  # 🔧 修改：从字符串改为字典类型
-    filtrate_vessel: str = "",
+    filtrate_vessel: dict = {"id": "waste"},
     **kwargs
 ) -> List[Dict[str, Any]]:
     """
@@ -68,16 +68,8 @@ def generate_filter_protocol(
     """
     
     # 🔧 核心修改：从字典中提取容器ID
-    # 统一处理vessel参数
-    if isinstance(vessel, dict):
-        if "id" not in vessel:
-            vessel_id = list(vessel.values())[0].get("id", "")
-        else:
-            vessel_id = vessel.get("id", "")
-        vessel_data = vessel.get("data", {})
-    else:
-        vessel_id = str(vessel)
-        vessel_data = G.nodes[vessel_id].get("data", {}) if vessel_id in G.nodes() else {}
+    vessel_id, vessel_data = get_vessel(vessel)
+    filtrate_vessel_id, filtrate_vessel_data = get_vessel(filtrate_vessel)
     
     debug_print("🌊" * 20)
     debug_print("🚀 开始生成过滤协议（支持体积运算）✨")
@@ -111,7 +103,7 @@ def generate_filter_protocol(
     # 验证可选参数
     debug_print("  🔍 验证可选参数...")
     if filtrate_vessel:
-        validate_vessel(G, filtrate_vessel, "滤液容器")
+        validate_vessel(G, filtrate_vessel_id, "滤液容器")
         debug_print("  🌊 模式: 过滤并收集滤液 💧")
     else:
         debug_print("  🧱 模式: 过滤并收集固体 🔬")
@@ -168,8 +160,8 @@ def generate_filter_protocol(
             # 使用pump protocol转移液体到过滤器
             transfer_actions = generate_pump_protocol_with_rinsing(
                 G=G,
-                from_vessel=vessel_id,  # 🔧 使用 vessel_id
-                to_vessel=filter_device,
+                from_vessel={"id": vessel_id},  # 🔧 使用 vessel_id
+                to_vessel={"id": filter_device},
                 volume=0.0,  # 转移所有液体
                 amount="",
                 time=0.0,
@@ -220,8 +212,8 @@ def generate_filter_protocol(
     # 构建过滤动作参数
     debug_print("  ⚙️ 构建过滤参数...")
     filter_kwargs = {
-        "vessel": filter_device,  # 过滤器设备
-        "filtrate_vessel": filtrate_vessel,  # 滤液容器（可能为空）
+        "vessel": {"id": filter_device},  # 过滤器设备
+        "filtrate_vessel": {"id": filtrate_vessel_id},  # 滤液容器（可能为空）
         "stir": kwargs.get("stir", False),
         "stir_speed": kwargs.get("stir_speed", 0.0),
         "temp": kwargs.get("temp", 25.0),
@@ -252,8 +244,8 @@ def generate_filter_protocol(
     # === 收集滤液（如果需要）===
     debug_print("📍 步骤5: 收集滤液... 💧")
     
-    if filtrate_vessel:
-        debug_print(f"  🧪 收集滤液: {filter_device} → {filtrate_vessel} 💧")
+    if filtrate_vessel_id and filtrate_vessel_id not in G.neighbors(filter_device):
+        debug_print(f"  🧪 收集滤液: {filter_device} → {filtrate_vessel_id} 💧")
         
         try:
             debug_print("  🔄 开始执行收集操作...")
@@ -282,20 +274,20 @@ def generate_filter_protocol(
                 debug_print("  🔧 更新滤液容器体积...")
                 
                 # 更新filtrate_vessel在图中的体积（如果它是节点）
-                if filtrate_vessel in G.nodes():
-                    if 'data' not in G.nodes[filtrate_vessel]:
-                        G.nodes[filtrate_vessel]['data'] = {}
+                if filtrate_vessel_id in G.nodes():
+                    if 'data' not in G.nodes[filtrate_vessel_id]:
+                        G.nodes[filtrate_vessel_id]['data'] = {}
                     
-                    current_filtrate_volume = G.nodes[filtrate_vessel]['data'].get('liquid_volume', 0.0)
+                    current_filtrate_volume = G.nodes[filtrate_vessel_id]['data'].get('liquid_volume', 0.0)
                     if isinstance(current_filtrate_volume, list):
                         if len(current_filtrate_volume) > 0:
-                            G.nodes[filtrate_vessel]['data']['liquid_volume'][0] += expected_filtrate_volume
+                            G.nodes[filtrate_vessel_id]['data']['liquid_volume'][0] += expected_filtrate_volume
                         else:
-                            G.nodes[filtrate_vessel]['data']['liquid_volume'] = [expected_filtrate_volume]
+                            G.nodes[filtrate_vessel_id]['data']['liquid_volume'] = [expected_filtrate_volume]
                     else:
-                        G.nodes[filtrate_vessel]['data']['liquid_volume'] = current_filtrate_volume + expected_filtrate_volume
+                        G.nodes[filtrate_vessel_id]['data']['liquid_volume'] = current_filtrate_volume + expected_filtrate_volume
                     
-                    debug_print(f"  📊 滤液容器 {filtrate_vessel} 体积增加 {expected_filtrate_volume:.2f}mL")
+                    debug_print(f"  📊 滤液容器 {filtrate_vessel_id} 体积增加 {expected_filtrate_volume:.2f}mL")
                 
             else:
                 debug_print("  ⚠️ 收集协议返回空序列 🤔")
@@ -360,7 +352,7 @@ def generate_filter_protocol(
     debug_print(f"📊 总动作数: {len(action_sequence)} 个 📝")
     debug_print(f"🥽 过滤容器: {vessel_id} 🧪")
     debug_print(f"🌊 过滤器设备: {filter_device} 🔧")
-    debug_print(f"💧 滤液容器: {filtrate_vessel or '无（保留固体）'} 🧱")
+    debug_print(f"💧 滤液容器: {filtrate_vessel_id or '无（保留固体）'} 🧱")
     debug_print(f"⏱️ 预计总时间: {(len(action_sequence) * 5):.0f} 秒 ⌛")
     if original_liquid_volume > 0:
         debug_print(f"📊 体积变化统计:")
@@ -372,4 +364,3 @@ def generate_filter_protocol(
     debug_print("🎊" * 20)
     
     return action_sequence
-

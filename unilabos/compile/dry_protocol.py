@@ -1,6 +1,8 @@
 import networkx as nx
 from typing import List, Dict, Any
 
+from unilabos.compile.utils.vessel_parser import get_vessel
+
 
 def find_connected_heater(G: nx.DiGraph, vessel: str) -> str:
     """
@@ -63,7 +65,7 @@ def generate_dry_protocol(
         List[Dict[str, Any]]: 动作序列
     """
     # 🔧 核心修改：从字典中提取容器ID
-    vessel_id = vessel["id"]
+    vessel_id, vessel_data = get_vessel(vessel)
     
     action_sequence = []
     

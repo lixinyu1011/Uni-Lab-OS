@@ -319,21 +319,6 @@ class VirtualSolidDispenser:
     def total_operations(self) -> int:
         return self._total_operations
     
-    def get_device_info(self) -> Dict[str, Any]:
-        """获取设备状态信息 📊"""
-        info = {
-            "device_id": self.device_id,
-            "status": self._status,
-            "current_reagent": self._current_reagent,
-            "last_dispensed_amount": self._dispensed_amount,
-            "total_operations": self._total_operations,
-            "max_capacity": self.max_capacity,
-            "precision": self.precision
-        }
-        
-        self.logger.debug(f"📊 设备信息: 状态={self._status}, 试剂={self._current_reagent}, 加样量={self._dispensed_amount:.6f}g")
-        return info
-    
     def __str__(self):
         status_emoji = "✅" if self._status == "Ready" else "🔄" if self._status == "Dispensing" else "❌" if self._status == "Error" else "🏠"
         return f"⚗️ VirtualSolidDispenser({status_emoji} {self.device_id}: {self._status}, 最后加样 {self._dispensed_amount:.3f}g)"
@@ -380,8 +365,6 @@ async def test_solid_dispenser():
         mass="150 g"  # 超过100g限制
     )
     print(f"📊 测试4结果: {result4}")
-    
-    print(f"\n📊 最终设备信息: {dispenser.get_device_info()}")
     print(f"✅ === 测试完成 === 🎉")
 
 

@@ -1,8 +1,12 @@
+from functools import partial
+
 import networkx as nx
 import logging
 import uuid
 import sys
 from typing import List, Dict, Any, Optional
+from .utils.vessel_parser import get_vessel
+from .utils.logger_util import action_log
 from .pump_protocol import generate_pump_protocol_with_rinsing, generate_pump_protocol
 
 # 设置日志
@@ -21,48 +25,17 @@ def debug_print(message):
     try:
         # 确保消息是字符串格式
         safe_message = str(message)
-        print(f"[抽真空充气] {safe_message}", flush=True)
         logger.info(f"[抽真空充气] {safe_message}")
     except UnicodeEncodeError:
         # 如果编码失败，尝试替换不支持的字符
         safe_message = str(message).encode('utf-8', errors='replace').decode('utf-8')
-        print(f"[抽真空充气] {safe_message}", flush=True)
         logger.info(f"[抽真空充气] {safe_message}")
     except Exception as e:
         # 最后的安全措施
         fallback_message = f"日志输出错误: {repr(message)}"
-        print(f"[抽真空充气] {fallback_message}", flush=True)
         logger.info(f"[抽真空充气] {fallback_message}")
 
-def create_action_log(message: str, emoji: str = "📝") -> Dict[str, Any]:
-    """创建一个动作日志 - 支持中文和emoji"""
-    try:
-        full_message = f"{emoji} {message}"
-        debug_print(full_message)
-        logger.info(full_message)
-        
-        return {
-            "action_name": "wait",
-            "action_kwargs": {
-                "time": 0.1,
-                "log_message": full_message,
-                "progress_message": full_message
-            }
-        }
-    except Exception as e:
-        # 如果emoji有问题，使用纯文本
-        safe_message = f"[日志] {message}"
-        debug_print(safe_message)
-        logger.info(safe_message)
-        
-        return {
-            "action_name": "wait", 
-            "action_kwargs": {
-                "time": 0.1,
-                "log_message": safe_message,
-                "progress_message": safe_message
-            }
-        }
+create_action_log = partial(action_log, prefix="[抽真空充气]")
 
 def find_gas_source(G: nx.DiGraph, gas: str) -> str:
     """
@@ -288,16 +261,7 @@ def generate_evacuateandrefill_protocol(
     """
     
     # 🔧 核心修改：从字典中提取容器ID
-    # 统一处理vessel参数
-    if isinstance(vessel, dict):
-        if "id" not in vessel:
-            vessel_id = list(vessel.values())[0].get("id", "")
-        else:
-            vessel_id = vessel.get("id", "")
-        vessel_data = vessel.get("data", {})
-    else:
-        vessel_id = str(vessel)
-        vessel_data = G.nodes[vessel_id].get("data", {}) if vessel_id in G.nodes() else {}
+    vessel_id, vessel_data = get_vessel(vessel)
     
     # 硬编码重复次数为 3
     repeats = 3

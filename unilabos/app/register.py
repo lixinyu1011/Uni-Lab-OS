@@ -69,7 +69,7 @@ def main():
     args = parser.parse_args()
     load_config_from_file(args.config)
     # 构建注册表
-    build_registry(args.registry, args.complete_registry)
+    build_registry(args.registry, args.complete_registry, True)
     from unilabos.app.mq import mqtt_client
 
     # 连接mqtt

@@ -14,8 +14,8 @@
             "type": "device",
             "class": "workstation",
             "position": {
-                "x": 620.6111111111111,
-                "y": 171,
+                "x": 0,
+                "y": 0,
                 "z": 0
             },
             "config": {
