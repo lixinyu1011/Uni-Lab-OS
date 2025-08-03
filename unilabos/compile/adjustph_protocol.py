@@ -1,6 +1,7 @@
 import networkx as nx
 import logging
 from typing import List, Dict, Any, Union
+from .utils.vessel_parser import get_vessel
 from .pump_protocol import generate_pump_protocol_with_rinsing
 
 logger = logging.getLogger(__name__)
@@ -235,16 +236,7 @@ def generate_adjust_ph_protocol(
         List[Dict[str, Any]]: 动作序列
     """
     
-    # 统一处理vessel参数
-    if isinstance(vessel, dict):
-        if "id" not in vessel:
-            vessel_id = list(vessel.values())[0].get("id", "")
-        else:
-            vessel_id = vessel.get("id", "")
-        vessel_data = vessel.get("data", {})
-    else:
-        vessel_id = str(vessel)
-        vessel_data = G.nodes[vessel_id].get("data", {}) if vessel_id in G.nodes() else {}
+    vessel_id, vessel_data = get_vessel(vessel)
     
     if not vessel_id:
         debug_print(f"❌ vessel 参数无效，必须包含id字段或直接提供容器ID. vessel: {vessel}")
