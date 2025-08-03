@@ -350,8 +350,6 @@ robotic_arm.SCARA_with_slider.virtual:
     mesh: arm_slider
     type: device
   version: 1.0.0
-
-
 robotic_arm.UR:
   category:
   - robot_arm
