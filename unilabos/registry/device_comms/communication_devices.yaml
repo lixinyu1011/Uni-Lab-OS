@@ -1,6 +1,6 @@
 serial:
   category:
-  - serial
+  - communication_devices
   class:
     action_value_mappings:
       auto-handle_serial_request:

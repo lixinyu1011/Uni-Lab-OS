@@ -1,6 +1,6 @@
 gas_source.mock:
   category:
-  - vacuum_and_purge
+  - gas_handler
   class:
     action_value_mappings:
       auto-is_closed:
@@ -180,6 +180,7 @@ gas_source.mock:
 vacuum_pump.mock:
   category:
   - vacuum_and_purge
+  - gas_handler
   class:
     action_value_mappings:
       auto-is_closed:
