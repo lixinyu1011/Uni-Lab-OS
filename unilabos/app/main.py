@@ -171,6 +171,8 @@ def main():
                     "error",
                 )
                 os._exit(1)
+    elif config_path and os.path.exists(config_path):
+        working_dir = os.path.dirname(config_path)
     elif os.path.exists(working_dir) and os.path.exists(os.path.join(working_dir, "local_config.py")):
         config_path = os.path.join(working_dir, "local_config.py")
     elif not config_path and (
