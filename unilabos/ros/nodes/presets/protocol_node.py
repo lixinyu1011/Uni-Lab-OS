@@ -151,7 +151,7 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
                     except Exception as ex:
                         self.lab_logger().error(f"创建动作客户端失败: {action_id}, 错误: {ex}")
                         continue
-                    self.lab_logger().debug(f"为子设备 {device_id} 创建动作客户端: {action_name}")
+                    self.lab_logger().trace(f"为子设备 {device_id} 创建动作客户端: {action_name}")
         return d
 
     def create_ros_action_server(self, action_name, action_value_mapping):
@@ -171,7 +171,7 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
             callback_group=ReentrantCallbackGroup(),
         )
 
-        self.lab_logger().debug(f"发布动作: {action_name}, 类型: {str_action_type}")
+        self.lab_logger().trace(f"发布动作: {action_name}, 类型: {str_action_type}")
 
     def _create_protocol_execute_callback(self, protocol_name, protocol_steps_generator):
         async def execute_protocol(goal_handle: ServerGoalHandle):

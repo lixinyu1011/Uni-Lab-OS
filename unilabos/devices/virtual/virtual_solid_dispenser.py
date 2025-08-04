@@ -331,7 +331,7 @@ class VirtualSolidDispenser:
             "precision": self.precision
         }
         
-        self.logger.debug(f"📊 设备信息: 状态={self._status}, 试剂={self._current_reagent}, 加样量={self._dispensed_amount:.6f}g")
+        # self.logger.debug(f"📊 设备信息: 状态={self._status}, 试剂={self._current_reagent}, 加样量={self._dispensed_amount:.6f}g")
         return info
     
     def __str__(self):

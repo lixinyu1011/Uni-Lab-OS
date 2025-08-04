@@ -7,6 +7,10 @@ import atexit
 import inspect
 from typing import Tuple, cast
 
+# 添加TRACE级别到logging模块
+TRACE_LEVEL = 5
+logging.addLevelName(TRACE_LEVEL, "TRACE")
+
 
 class CustomRecord:
     custom_stack_info: Tuple[str, int, str, str]
@@ -44,11 +48,13 @@ class ColoredFormatter(logging.Formatter):
         "GRAY": "\033[37m",  # 灰色
         "WHITE": "\033[97m",  # 白色
         "BLACK": "\033[30m",  # 黑色
+        "TRACE_LEVEL": "\033[1;90m",  # 加粗深灰色
         "DEBUG_LEVEL": "\033[1;36m",  # 加粗青色
         "INFO_LEVEL": "\033[1;32m",  # 加粗绿色
         "WARNING_LEVEL": "\033[1;33m",  # 加粗黄色
         "ERROR_LEVEL": "\033[1;31m",  # 加粗红色
         "CRITICAL_LEVEL": "\033[1;35m",  # 加粗紫色
+        "TRACE_TEXT": "\033[90m",  # 深灰色
         "DEBUG_TEXT": "\033[37m",  # 灰色
         "INFO_TEXT": "\033[97m",  # 白色
         "WARNING_TEXT": "\033[33m",  # 黄色
@@ -148,8 +154,8 @@ def configure_logger(loglevel=None):
     """配置日志记录器
 
     Args:
-        loglevel: 日志级别，可以是字符串（'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'）
-                 或logging模块的常量（如logging.DEBUG）
+        loglevel: 日志级别，可以是字符串（'TRACE', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'）
+                 或logging模块的常量（如logging.DEBUG）或TRACE_LEVEL
     """
     # 获取根日志记录器
     root_logger = logging.getLogger()
@@ -158,10 +164,13 @@ def configure_logger(loglevel=None):
     if loglevel is not None:
         if isinstance(loglevel, str):
             # 将字符串转换为logging级别
-            numeric_level = getattr(logging, loglevel.upper(), None)
-            if not isinstance(numeric_level, int):
-                print(f"警告: 无效的日志级别 '{loglevel}'，使用默认级别 DEBUG")
-                numeric_level = logging.DEBUG
+            if loglevel.upper() == "TRACE":
+                numeric_level = TRACE_LEVEL
+            else:
+                numeric_level = getattr(logging, loglevel.upper(), None)
+                if not isinstance(numeric_level, int):
+                    print(f"警告: 无效的日志级别 '{loglevel}'，使用默认级别 DEBUG")
+                    numeric_level = logging.DEBUG
         else:
             numeric_level = loglevel
         root_logger.setLevel(numeric_level)
@@ -318,9 +327,29 @@ def critical(msg, *args, stack_level=0, **kwargs):
     logger.critical(msg, *args, **kwargs)
 
 
+def trace(msg, *args, stack_level=0, **kwargs):
+    """
+    记录TRACE级别日志（比DEBUG级别更低）
+
+    Args:
+        msg: 日志消息
+        stack_level: 堆栈回溯级别，用于定位日志的实际调用位置
+        *args, **kwargs: 传递给logger.log的其他参数
+    """
+    if stack_level > 0:
+        caller_info = _get_caller_info(stack_level)
+        extra = kwargs.get("extra", {})
+        extra["custom_stack_info"] = caller_info
+        kwargs["extra"] = extra
+    logger.log(TRACE_LEVEL, msg, *args, **kwargs)
+
+
+logger.trace = trace
+
 # 测试日志输出（如果直接运行此文件）
 if __name__ == "__main__":
     print("测试不同日志级别的颜色输出:")
+    trace("这是一条跟踪日志 (TRACE级别显示为深灰色，其他文本也为深灰色)")
     debug("这是一条调试日志 (DEBUG级别显示为蓝色，其他文本为灰色)")
     info("这是一条信息日志 (INFO级别显示为绿色，其他文本为白色)")
     warning("这是一条警告日志 (WARNING级别显示为黄色，其他文本也为黄色)")

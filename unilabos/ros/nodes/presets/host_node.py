@@ -1,3 +1,4 @@
+import collections
 import copy
 import json
 import threading
@@ -254,7 +255,7 @@ class HostNode(BaseROS2DeviceNode):
         检测ROS2网络中的所有设备节点，并为它们创建ActionClient
         同时检测设备离线情况
         """
-        self.lab_logger().debug("[Host Node] Discovering devices in the network...")
+        self.lab_logger().trace("[Host Node] Discovering devices in the network...")
 
         # 获取当前所有设备
         nodes_and_names = self.get_node_names_and_namespaces()
@@ -303,7 +304,7 @@ class HostNode(BaseROS2DeviceNode):
 
         # 更新在线设备列表
         self._online_devices = current_devices
-        self.lab_logger().debug(f"[Host Node] Total online devices: {len(self._online_devices)}")
+        self.lab_logger().trace(f"[Host Node] Total online devices: {len(self._online_devices)}")
 
     def _discovery_devices_callback(self) -> None:
         """
@@ -335,7 +336,7 @@ class HostNode(BaseROS2DeviceNode):
                     self._action_clients[action_id] = ActionClient(
                         self, action_type, action_id, callback_group=self.callback_group
                     )
-                    self.lab_logger().debug(f"[Host Node] Created ActionClient (Discovery): {action_id}")
+                    self.lab_logger().trace(f"[Host Node] Created ActionClient (Discovery): {action_id}")
                     action_name = action_id[len(namespace) + 1 :]
                     edge_device_id = namespace[9:]
                     # from unilabos.app.mq import mqtt_client
@@ -476,7 +477,7 @@ class HostNode(BaseROS2DeviceNode):
             if action_id not in self._action_clients:
                 action_type = action_value_mapping["type"]
                 self._action_clients[action_id] = ActionClient(self, action_type, action_id)
-                self.lab_logger().debug(
+                self.lab_logger().trace(
                     f"[Host Node] Created ActionClient (Local): {action_id}"
                 )  # 子设备再创建用的是Discover发现的
                 # from unilabos.app.mq import mqtt_client
@@ -521,7 +522,7 @@ class HostNode(BaseROS2DeviceNode):
                         self.device_status_timestamps[device_id] = {}
 
                     # 默认初始化属性值为 None
-                    self.device_status[device_id][property_name] = None
+                    self.device_status[device_id] = collections.defaultdict()
                     self.device_status_timestamps[device_id][property_name] = 0  # 初始化时间戳
 
                     # 动态创建订阅
@@ -539,7 +540,7 @@ class HostNode(BaseROS2DeviceNode):
                             )
                             # 标记为已订阅
                             self._subscribed_topics.add(topic)
-                            self.lab_logger().debug(f"[Host Node] Subscribed to new topic: {topic}")
+                            self.lab_logger().trace(f"[Host Node] Subscribed to new topic: {topic}")
                     except (NameError, SyntaxError) as e:
                         self.lab_logger().error(f"[Host Node] Failed to create subscription for topic {topic}: {e}")
 
@@ -557,10 +558,15 @@ class HostNode(BaseROS2DeviceNode):
         # 更新设备状态字典
         if hasattr(msg, "data"):
             bChange = False
+            bCreate = False
             if isinstance(msg.data, (float, int, str)):
-                if self.device_status[device_id][property_name] != msg.data:
+                if property_name not in self.device_status[device_id]:
+                    bCreate = True
                     bChange = True
-                self.device_status[device_id][property_name] = msg.data
+                    self.device_status[device_id][property_name] = msg.data
+                elif self.device_status[device_id][property_name] != msg.data:
+                    bChange = True
+                    self.device_status[device_id][property_name] = msg.data
                 # 更新时间戳
                 self.device_status_timestamps[device_id][property_name] = time.time()
             else:
@@ -573,9 +579,14 @@ class HostNode(BaseROS2DeviceNode):
                 for bridge in self.bridges:
                     if hasattr(bridge, "publish_device_status"):
                         bridge.publish_device_status(self.device_status, device_id, property_name)
-                        self.lab_logger().debug(
-                           f"[Host Node] Status updated: {device_id}.{property_name} = {msg.data}"
-                        )
+                        if bCreate:
+                            self.lab_logger().trace(
+                                f"Status created: {device_id}.{property_name} = {msg.data}"
+                            )
+                        else:
+                            self.lab_logger().debug(
+                               f"Status updated: {device_id}.{property_name} = {msg.data}"
+                            )
 
     def send_goal(
         self,

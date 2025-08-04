@@ -152,11 +152,11 @@ class Registry:
                 }
             }
         )
-        logger.debug(f"[UniLab Registry] ----------Setup----------")
+        logger.trace(f"[UniLab Registry] ----------Setup----------")
         self.registry_paths = [Path(path).absolute() for path in self.registry_paths]
         for i, path in enumerate(self.registry_paths):
             sys_path = path.parent
-            logger.debug(f"[UniLab Registry] Path {i+1}/{len(self.registry_paths)}: {sys_path}")
+            logger.trace(f"[UniLab Registry] Path {i+1}/{len(self.registry_paths)}: {sys_path}")
             sys.path.append(str(sys_path))
             self.load_device_types(path, complete_registry)
             if BasicConfig.enable_resource_load:
@@ -215,7 +215,7 @@ class Registry:
                         yaml.dump(complete_data, f, allow_unicode=True, default_flow_style=False, Dumper=NoAliasDumper)
 
                 self.resource_type_registry.update(data)
-                logger.debug(
+                logger.trace(
                     f"[UniLab Registry] Resource-{current_resource_number} File-{i+1}/{len(files)} "
                     + f"Add {list(data.keys())}"
                 )
@@ -402,7 +402,7 @@ class Registry:
         devices_path = abs_path / "devices"
         device_comms_path = abs_path / "device_comms"
         files = list(devices_path.glob("*.yaml")) + list(device_comms_path.glob("*.yaml"))
-        logger.debug(
+        logger.trace(
             f"[UniLab Registry] devices: {devices_path.exists()}, device_comms: {device_comms_path.exists()}, "
             + f"total: {len(files)}"
         )
@@ -565,7 +565,7 @@ class Registry:
                             }
                     device_config["file_path"] = str(file.absolute()).replace("\\", "/")
                     device_config["registry_type"] = "device"
-                    logger.debug(
+                    logger.trace(
                         f"[UniLab Registry] Device-{current_device_number} File-{i+1}/{len(files)} Add {device_id} "
                         + f"[{data[device_id].get('name', '未命名设备')}]"
                     )

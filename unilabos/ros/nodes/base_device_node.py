@@ -51,7 +51,7 @@ from unilabos.ros.nodes.resource_tracker import DeviceNodeResourceTracker
 from unilabos.ros.x.rclpyx import get_event_loop
 from unilabos.ros.utils.driver_creator import ProtocolNodeCreator, PyLabRobotCreator, DeviceClassCreator
 from unilabos.utils.async_util import run_async_func
-from unilabos.utils.log import info, debug, warning, error, critical, logger
+from unilabos.utils.log import info, debug, warning, error, critical, logger, trace
 from unilabos.utils.type_check import get_type_class, TypeEncoder, serialize_result_info
 
 T = TypeVar("T")
@@ -82,6 +82,7 @@ class ROSLoggerAdapter:
         self.level_2_logger_func = {
             "info": info,
             "debug": debug,
+            "trace": trace,
             "warning": warning,
             "error": error,
             "critical": critical,
@@ -95,6 +96,10 @@ class ROSLoggerAdapter:
         ros_log_func = getattr(self.ros_logger, "debug")  # 默认发送debug，这样不会显示在控制台
         ros_log_func(msg)
         self.level_2_logger_func[level](msg, *args, stack_level=1, **kwargs)
+
+    def trace(self, msg, *args, **kwargs):
+        """记录TRACE级别日志"""
+        self._log("trace", msg, *args, **kwargs)
 
     def debug(self, msg, *args, **kwargs):
         """记录DEBUG级别日志"""
@@ -175,12 +180,12 @@ class PropertyPublisher:
         self.timer = node.create_timer(self.timer_period, self.publish_property)
         self.__loop = get_event_loop()
         str_msg_type = str(msg_type)[8:-2]
-        self.node.lab_logger().debug(f"发布属性: {name}, 类型: {str_msg_type}, 周期: {initial_period}秒")
+        self.node.lab_logger().trace(f"发布属性: {name}, 类型: {str_msg_type}, 周期: {initial_period}秒")
 
     def get_property(self):
         if asyncio.iscoroutinefunction(self.get_method):
             # 如果是异步函数，运行事件循环并等待结果
-            self.node.lab_logger().debug(f"【PropertyPublisher.get_property】获取异步属性: {self.name}")
+            self.node.lab_logger().trace(f"【PropertyPublisher.get_property】获取异步属性: {self.name}")
             loop = self.__loop
             if loop:
                 future = asyncio.run_coroutine_threadsafe(self.get_method(), loop)
@@ -191,28 +196,28 @@ class PropertyPublisher:
                 return None
         else:
             # 如果是同步函数，直接调用并返回结果
-            self.node.lab_logger().debug(f"【PropertyPublisher.get_property】获取同步属性: {self.name}")
+            self.node.lab_logger().trace(f"【PropertyPublisher.get_property】获取同步属性: {self.name}")
             self._value = self.get_method()
             return self._value
 
     async def get_property_async(self):
         try:
             # 获取异步属性值
-            self.node.lab_logger().debug(f"【PropertyPublisher.get_property_async】异步获取属性: {self.name}")
+            self.node.lab_logger().trace(f"【PropertyPublisher.get_property_async】异步获取属性: {self.name}")
             self._value = await self.get_method()
         except Exception as e:
             self.node.lab_logger().error(f"【PropertyPublisher.get_property_async】获取异步属性出错: {str(e)}")
 
     def publish_property(self):
         try:
-            self.node.lab_logger().debug(f"【PropertyPublisher.publish_property】开始发布属性: {self.name}")
+            self.node.lab_logger().trace(f"【PropertyPublisher.publish_property】开始发布属性: {self.name}")
             value = self.get_property()
             if self.print_publish:
-                self.node.lab_logger().info(f"【PropertyPublisher.publish_property】发布 {self.msg_type}: {value}")
+                self.node.lab_logger().trace(f"【PropertyPublisher.publish_property】发布 {self.msg_type}: {value}")
             if value is not None:
                 msg = convert_to_ros_msg(self.msg_type, value)
                 self.publisher_.publish(msg)
-                self.node.lab_logger().debug(f"【PropertyPublisher.publish_property】属性 {self.name} 发布成功")
+                self.node.lab_logger().trace(f"【PropertyPublisher.publish_property】属性 {self.name} 发布成功")
         except Exception as e:
             self.node.lab_logger().error(f"【PropertyPublisher.publish_property】发布属性 {self.publisher_.topic} 出错: {str(e)}\n{traceback.format_exc()}")
 
@@ -606,7 +611,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
             callback_group=ReentrantCallbackGroup(),
         )
 
-        self.lab_logger().debug(f"发布动作: {action_name}, 类型: {str_action_type}")
+        self.lab_logger().trace(f"发布动作: {action_name}, 类型: {str_action_type}")
 
     def get_real_function(self, instance, attr_name):
         if hasattr(instance.__class__, attr_name):
