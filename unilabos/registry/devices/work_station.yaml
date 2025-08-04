@@ -1803,13 +1803,13 @@ workstation:
           - data_key: vessel
             data_source: handle
             data_type: resource
-            handler_key: vessel
+            handler_key: Vessel
             label: Evaporation Vessel
           output:
           - data_key: vessel
             data_source: handle
             data_type: resource
-            handler_key: vessel_out
+            handler_key: VesselOut
             label: Evaporation Vessel
         placeholder_keys:
           vessel: unilabos_nodes
@@ -2036,7 +2036,7 @@ workstation:
           - data_key: filtrate_vessel
             data_source: handle
             data_type: resource
-            handler_key: filtrate_vessel
+            handler_key: FiltrateVessel
             label: Filtrate Vessel
           output:
           - data_key: vessel
@@ -2047,7 +2047,7 @@ workstation:
           - data_key: filtrate_vessel
             data_source: executor
             data_type: resource
-            handler_key: filtrate_out
+            handler_key: FiltrateOut
             label: Filtrate Vessel
         placeholder_keys:
           filtrate_vessel: unilabos_resources

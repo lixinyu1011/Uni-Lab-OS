@@ -2,6 +2,8 @@ import networkx as nx
 import re
 import logging
 from typing import List, Dict, Any, Union
+
+from unilabos.compile.utils.vessel_parser import get_vessel
 from .pump_protocol import generate_pump_protocol_with_rinsing
 
 logger = logging.getLogger(__name__)
@@ -446,7 +448,7 @@ def generate_dissolve_protocol(
     """
     
     # 🔧 核心修改：从字典中提取容器ID
-    vessel_id = vessel["id"]
+    vessel_id, vessel_data = get_vessel(vessel)
     
     debug_print("=" * 60)
     debug_print("🧪 开始生成溶解协议")
