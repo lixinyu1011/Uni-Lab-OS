@@ -5,7 +5,7 @@ import threading
 import time
 import traceback
 import uuid
-from typing import Optional, Dict, Any, List, ClassVar, Set
+from typing import Optional, Dict, Any, List, ClassVar, Set, Union
 
 from action_msgs.msg import GoalStatus
 from geometry_msgs.msg import Point
@@ -352,7 +352,7 @@ class HostNode(BaseROS2DeviceNode):
 
     def create_resource_detailed(
         self,
-        resources: list["Resource"],
+        resources: list[Union[list["Resource"], "Resource"]],
         device_ids: list[str],
         bind_parent_ids: list[str],
         bind_locations: list[Point],
@@ -426,7 +426,9 @@ class HostNode(BaseROS2DeviceNode):
                 }
             })
         init_new_res = initialize_resource(res_creation_input)  # flatten的格式
-        resources = init_new_res  # initialize_resource已经返回list[dict]
+        if len(init_new_res) > 1:  # 一个物料，多个子节点
+            init_new_res = [init_new_res]
+        resources: List[Resource] | List[List[Resource]] = init_new_res  # initialize_resource已经返回list[dict]
         device_ids = [device_id]
         bind_parent_id = [parent]
         bind_location = [bind_locations]
@@ -823,7 +825,7 @@ class HostNode(BaseROS2DeviceNode):
         self.lab_logger().info(f"[Host Node-Resource] Add request completed, success: {success}")
         return response
 
-    def _resource_get_callback(self, request, response):
+    def _resource_get_callback(self, request: ResourceGet.Request, response: ResourceGet.Response):
         """
         获取资源回调
 

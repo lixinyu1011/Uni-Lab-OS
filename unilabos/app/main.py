@@ -222,7 +222,7 @@ def main():
     print_unilab_banner(args_dict)
 
     # 注册表
-    build_registry(args_dict["registry_path"])
+    build_registry(args_dict["registry_path"], False, args_dict["upload_registry"])
     if args_dict["graph"] is None:
         request_startup_json = http_client.request_startup_json()
         if not request_startup_json:

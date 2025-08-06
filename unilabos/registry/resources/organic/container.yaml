@@ -4,9 +4,7 @@ container:
   class:
     module: unilabos.resources.container:RegularContainer
     type: unilabos
-  config_info: []
   description: regular organic container
-  file_path: C:/Users/10230/PycharmProjects/Uni-Lab-OS/unilabos/registry/resources/organic/container.yaml
   handles:
   - data_key: fluid_in
     data_source: handle

@@ -53,7 +53,7 @@ class Registry:
         # 其他状态变量
         # self.is_host_mode = False  # 移至BasicConfig中
 
-    def setup(self, complete_registry=False):
+    def setup(self, complete_registry=False, upload_registry=False):
         # 检查是否已调用过setup
         if self._setup_called:
             logger.critical("[UniLab Registry] setup方法已被调用过，不允许多次调用")
@@ -160,14 +160,14 @@ class Registry:
             sys.path.append(str(sys_path))
             self.load_device_types(path, complete_registry)
             if BasicConfig.enable_resource_load:
-                self.load_resource_types(path, complete_registry)
+                self.load_resource_types(path, complete_registry, upload_registry)
             else:
                 logger.warning("跳过了资源注册表加载！")
         logger.info("[UniLab Registry] 注册表设置完成")
         # 标记setup已被调用
         self._setup_called = True
 
-    def load_resource_types(self, path: os.PathLike, complete_registry: bool):
+    def load_resource_types(self, path: os.PathLike, complete_registry: bool, upload_registry: bool):
         abs_path = Path(path).absolute()
         resource_path = abs_path / "resources"
         files = list(resource_path.glob("*/*.yaml"))
@@ -194,7 +194,12 @@ class Registry:
                         resource_info["handles"] = []
                     if "init_param_schema" not in resource_info:
                         resource_info["init_param_schema"] = {}
-                    if complete_registry:
+                    if "config_info" in resource_info:
+                        del resource_info["config_info"]
+                    if "file_path" in resource_info:
+                        del resource_info["file_path"]
+                    complete_data[resource_id] = copy.deepcopy(dict(sorted(resource_info.items())))
+                    if upload_registry:
                         class_info = resource_info.get("class", {})
                         if len(class_info) and "module" in class_info:
                             if class_info.get("type") == "pylabrobot":
@@ -205,7 +210,6 @@ class Registry:
                                     res_instance = res_class(res_class.__name__)
                                     res_ulr = tree_to_list([resource_plr_to_ulab(res_instance)])
                                     resource_info["config_info"] = res_ulr
-                    complete_data[resource_id] = copy.deepcopy(dict(sorted(resource_info.items())))  # 稍后dump到文件
                     resource_info["registry_type"] = "resource"
                     resource_info["file_path"] = str(file.absolute()).replace("\\", "/")
                 complete_data = dict(sorted(complete_data.items()))
@@ -629,7 +633,7 @@ class Registry:
 lab_registry = Registry()
 
 
-def build_registry(registry_paths=None, complete_registry=False):
+def build_registry(registry_paths=None, complete_registry=False, upload_registry=False):
     """
     构建或获取Registry单例实例
 
@@ -653,6 +657,6 @@ def build_registry(registry_paths=None, complete_registry=False):
                 lab_registry.registry_paths.append(path)
 
     # 初始化注册表
-    lab_registry.setup(complete_registry)
+    lab_registry.setup(complete_registry, upload_registry)
 
     return lab_registry

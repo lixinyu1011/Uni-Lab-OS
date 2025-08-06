@@ -4,9 +4,7 @@ OTDeck:
   class:
     module: pylabrobot.resources.opentrons.deck:OTDeck
     type: pylabrobot
-  config_info: []
   description: Opentrons deck
-  file_path: C:/Users/10230/PycharmProjects/Uni-Lab-OS/unilabos/registry/resources/opentrons/deck.yaml
   handles: []
   icon: ''
   init_param_schema: {}
@@ -21,9 +19,7 @@ hplc_station:
   class:
     module: unilabos.devices.resource_container.container:DeckContainer
     type: python
-  config_info: []
   description: hplc_station deck
-  file_path: C:/Users/10230/PycharmProjects/Uni-Lab-OS/unilabos/registry/resources/opentrons/deck.yaml
   handles: []
   icon: ''
   init_param_schema: {}
