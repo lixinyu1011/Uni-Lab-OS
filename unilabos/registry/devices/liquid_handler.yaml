@@ -703,6 +703,8 @@ liquid_handler:
       discard_tips:
         feedback: {}
         goal:
+          allow_nonzero_volume: allow_nonzero_volume
+          offsets: offsets
           use_channels: use_channels
         goal_default:
           use_channels:
@@ -6016,36 +6018,6 @@ liquid_handler.prcxi:
           title: custom_delay参数
           type: object
         type: UniLabJsonCommandAsync
-      auto-discard_tips:
-        feedback: {}
-        goal: {}
-        goal_default:
-          allow_nonzero_volume: true
-          offsets: null
-          use_channels: null
-        handles: []
-        result: {}
-        schema:
-          description: discard_tips的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                allow_nonzero_volume:
-                  default: true
-                  type: boolean
-                offsets:
-                  type: string
-                use_channels:
-                  type: string
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: discard_tips参数
-          type: object
-        type: UniLabJsonCommandAsync
       auto-iter_tips:
         feedback: {}
         goal: {}
@@ -6146,6 +6118,53 @@ liquid_handler.prcxi:
           title: touch_tip参数
           type: object
         type: UniLabJsonCommandAsync
+      discard_tips:
+        feedback: {}
+        goal:
+          allow_nonzero_volume: allow_nonzero_volume
+          offsets: offsets
+          use_channels: use_channels
+        goal_default:
+          use_channels:
+          - 0
+        handles: []
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback:
+              properties: {}
+              required: []
+              title: LiquidHandlerDiscardTips_Feedback
+              type: object
+            goal:
+              properties:
+                use_channels:
+                  items:
+                    maximum: 2147483647
+                    minimum: -2147483648
+                    type: integer
+                  type: array
+              required:
+              - use_channels
+              title: LiquidHandlerDiscardTips_Goal
+              type: object
+            result:
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: LiquidHandlerDiscardTips_Result
+              type: object
+          required:
+          - goal
+          title: LiquidHandlerDiscardTips
+          type: object
+        type: LiquidHandlerDiscardTips
       dispense:
         feedback: {}
         goal:
