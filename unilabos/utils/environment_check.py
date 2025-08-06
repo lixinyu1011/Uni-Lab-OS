@@ -17,6 +17,7 @@ class EnvironmentChecker:
         # 定义必需的包及其安装名称的映射
         self.required_packages = {
             # 包导入名 : pip安装名
+            # "pymodbus.framer.FramerType": "pymodbus==3.9.2",
             "paho.mqtt": "paho-mqtt",
             "opentrons_shared_data": "opentrons_shared_data",
         }

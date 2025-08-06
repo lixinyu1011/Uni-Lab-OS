@@ -703,8 +703,6 @@ liquid_handler:
       discard_tips:
         feedback: {}
         goal:
-          allow_nonzero_volume: allow_nonzero_volume
-          offsets: offsets
           use_channels: use_channels
         goal_default:
           use_channels:
@@ -6121,8 +6119,6 @@ liquid_handler.prcxi:
       discard_tips:
         feedback: {}
         goal:
-          allow_nonzero_volume: allow_nonzero_volume
-          offsets: offsets
           use_channels: use_channels
         goal_default:
           use_channels:
