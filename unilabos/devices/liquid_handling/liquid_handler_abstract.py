@@ -138,6 +138,8 @@ class LiquidHandlerMiddleware(LiquidHandler):
         offsets: Optional[List[Coordinate]] = None,
         **backend_kwargs,
     ):
+        if not offsets or (isinstance(offsets, list) and len(offsets) != len(use_channels)):
+            offsets = [Coordinate.zero()] * len(use_channels)
         if self._simulator:
             return await self._simulate_handler.discard_tips(use_channels, allow_nonzero_volume, offsets, **backend_kwargs)
         return await super().discard_tips(use_channels, allow_nonzero_volume, offsets, **backend_kwargs)
