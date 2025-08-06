@@ -978,6 +978,8 @@ liquid_handler:
           use_channels:
           - 0
         handles: []
+        placeholder_keys:
+          tip_spots: unilabos_resources
         result:
           name: name
         schema:
@@ -6343,7 +6345,11 @@ liquid_handler.prcxi:
         type: LiquidHandlerDispense
       drop_tips:
         feedback: {}
-        goal: {}
+        goal:
+          allow_nonzero_volume: allow_nonzero_volume
+          offsets: offsets
+          tip_spots: tip_spots
+          use_channels: use_channels
         goal_default:
           allow_nonzero_volume: false
           offsets:
@@ -6373,6 +6379,8 @@ liquid_handler.prcxi:
           use_channels:
           - 0
         handles: []
+        placeholder_keys:
+          tip_spots: unilabos_resources
         result: {}
         schema:
           description: ''
