@@ -67,7 +67,7 @@ class PRCXI9300Deck(Deck):
 
 
 class PRCXI9300Container(Plate, TipRack):
-    """PRCXI 9300 的专用 Deck 类，继承自 Deck。
+    """PRCXI 9300 的专用 Container 类，继承自 Plate和TipRack。
 
     该类定义了 PRCXI 9300 的工作台布局和槽位信息。
     """

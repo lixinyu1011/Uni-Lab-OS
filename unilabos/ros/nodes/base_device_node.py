@@ -31,6 +31,7 @@ from unilabos.resources.graphio import (
     resource_plr_to_ulab,
     tree_to_list,
 )
+from unilabos.resources.plr_additional_res_reg import register
 from unilabos.ros.msgs.message_converter import (
     convert_to_ros_msg,
     convert_from_ros_msg,
@@ -941,17 +942,14 @@ class ROS2DeviceNode:
         if use_pylabrobot_creator:
             # 先对pylabrobot的子资源进行加载，不然subclass无法认出
             # 在下方对于加载Deck等Resource要手动import
-            # noinspection PyUnresolvedReferences
-            from unilabos.devices.liquid_handling.prcxi.prcxi import PRCXI9300Deck
-            # noinspection PyUnresolvedReferences
-            from unilabos.devices.liquid_handling.prcxi.prcxi import PRCXI9300Container
+            register()
             self._driver_creator = PyLabRobotCreator(
                 driver_class, children=children, resource_tracker=self.resource_tracker
             )
         else:
             from unilabos.ros.nodes.presets.protocol_node import ROS2ProtocolNode
 
-            if self._driver_class is ROS2ProtocolNode:
+            if issubclass(self._driver_class, ROS2ProtocolNode):  # 是ProtocolNode的子节点，就要调用ProtocolNodeCreator
                 self._driver_creator = ProtocolNodeCreator(driver_class, children=children, resource_tracker=self.resource_tracker)
             else:
                 self._driver_creator = DeviceClassCreator(driver_class, children=children, resource_tracker=self.resource_tracker)

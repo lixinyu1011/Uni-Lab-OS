@@ -6136,3 +6136,109 @@ workstation:
       required: []
       type: object
   version: 1.0.0
+workstation.example:
+  category:
+  - work_station
+  class:
+    action_value_mappings:
+      auto-append_resource:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: append_resource参数
+          type: object
+        type: UniLabJsonCommand
+      auto-create_resource:
+        feedback: {}
+        goal: {}
+        goal_default:
+          bind_location: null
+          bind_parent_id: null
+          liquid_input_slot: null
+          liquid_type: null
+          liquid_volume: null
+          resource_tracker: null
+          resources: null
+          slot_on_deck: null
+        handles: []
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                bind_location:
+                  type: object
+                bind_parent_id:
+                  type: string
+                liquid_input_slot:
+                  type: array
+                liquid_type:
+                  type: array
+                liquid_volume:
+                  type: array
+                resource_tracker:
+                  type: string
+                resources:
+                  type: array
+                slot_on_deck:
+                  type: integer
+              required:
+              - resource_tracker
+              - resources
+              - bind_parent_id
+              - bind_location
+              - liquid_input_slot
+              - liquid_type
+              - liquid_volume
+              - slot_on_deck
+              type: object
+            result: {}
+          required:
+          - goal
+          title: create_resource参数
+          type: object
+        type: UniLabJsonCommand
+    module: unilabos.ros.nodes.presets.workstation:WorkStationExample
+    status_types: {}
+    type: ros2
+  config_info: []
+  description: ''
+  handles: []
+  icon: ''
+  init_param_schema:
+    config:
+      properties:
+        children:
+          type: object
+        device_id:
+          type: string
+        protocol_type:
+          type: string
+        resource_tracker:
+          type: string
+      required:
+      - device_id
+      - children
+      - protocol_type
+      - resource_tracker
+      type: object
+    data:
+      properties: {}
+      required: []
+      type: object
+  version: 1.0.0
