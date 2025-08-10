@@ -39,6 +39,7 @@ from unilabos.ros.msgs.message_converter import (
 from unilabos.ros.nodes.base_device_node import BaseROS2DeviceNode, ROS2DeviceNode, DeviceNodeResourceTracker
 from unilabos.ros.nodes.presets.controller_node import ControllerNode
 from unilabos.utils.exception import DeviceClassInvalid
+from unilabos.utils.type_check import serialize_result_info
 
 
 class HostNode(BaseROS2DeviceNode):
@@ -408,10 +409,11 @@ class HostNode(BaseROS2DeviceNode):
         liquid_volume: list[int],
         slot_on_deck: str,
     ):
+        # 暂不支持多对同名父子同时存在
         res_creation_input = {
-            "name": res_id,
+            "name": res_id.split("/")[-1],
             "class": class_name,
-            "parent": parent,
+            "parent": parent.split("/")[-1],
             "position": {
                 "x": bind_locations.x,
                 "y": bind_locations.y,
@@ -419,18 +421,20 @@ class HostNode(BaseROS2DeviceNode):
             },
         }
         if len(liquid_input_slot) and liquid_input_slot[0] == -1:  # 目前container只逐个创建
-            res_creation_input.update({
-                "data": {
-                    "liquid_type": liquid_type[0] if liquid_type else None,
-                    "liquid_volume": liquid_volume[0] if liquid_volume else None,
+            res_creation_input.update(
+                {
+                    "data": {
+                        "liquid_type": liquid_type[0] if liquid_type else None,
+                        "liquid_volume": liquid_volume[0] if liquid_volume else None,
+                    }
                 }
-            })
+            )
         init_new_res = initialize_resource(res_creation_input)  # flatten的格式
         if len(init_new_res) > 1:  # 一个物料，多个子节点
             init_new_res = [init_new_res]
         resources: List[Resource] | List[List[Resource]] = init_new_res  # initialize_resource已经返回list[dict]
         device_ids = [device_id]
-        bind_parent_id = [parent]
+        bind_parent_id = [res_creation_input["parent"]]
         bind_location = [bind_locations]
         other_calling_param = [
             json.dumps(
@@ -680,20 +684,34 @@ class HostNode(BaseROS2DeviceNode):
         result_msg = future.result().result
         result_data = convert_from_ros_msg(result_msg)
         status = "success"
-        try:
-            ret = json.loads(result_data.get("return_info", "{}"))  # 确保返回信息是有效的JSON
-            suc = ret.get("suc", False)
-            if not suc:
+        return_info_str = result_data.get("return_info")
+
+        if return_info_str is not None:
+            try:
+                ret = json.loads(return_info_str)
+                suc = ret.get("suc", False)
+                if not suc:
+                    status = "failed"
+            except json.JSONDecodeError:
                 status = "failed"
-        except json.JSONDecodeError:
-            status = "failed"
-        self.lab_logger().info(f"[Host Node] Result for {action_id} ({uuid_str}): success")
+        else:
+            # 无 return_info 字段时，回退到 success 字段（若存在）
+            suc_field = result_data.get("success")
+            if isinstance(suc_field, bool):
+                status = "success" if suc_field else "failed"
+                return_info_str = serialize_result_info("", suc_field, result_data)
+            else:
+                # 最保守的回退：标记失败并返回空JSON
+                status = "failed"
+                return_info_str = serialize_result_info("缺少return_info", False, result_data)
+
+        self.lab_logger().info(f"[Host Node] Result for {action_id} ({uuid_str}): {status}")
         self.lab_logger().debug(f"[Host Node] Result data: {result_data}")
 
         if uuid_str:
             for bridge in self.bridges:
                 if hasattr(bridge, "publish_job_status"):
-                    bridge.publish_job_status(result_data, uuid_str, status, result_data.get("return_info", "{}"))
+                    bridge.publish_job_status(result_data, uuid_str, status, return_info_str)
 
     def cancel_goal(self, goal_uuid: str) -> None:
         """取消目标"""
