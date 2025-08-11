@@ -8,7 +8,6 @@ logger = logging.getLogger(__name__)
 
 def debug_print(message):
     """调试输出"""
-    print(f"🏛️ [RUN_COLUMN] {message}", flush=True)
     logger.info(f"[RUN_COLUMN] {message}")
 
 def parse_percentage(pct_str: str) -> float:

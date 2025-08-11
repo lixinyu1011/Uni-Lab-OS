@@ -3,81 +3,14 @@ import networkx as nx
 import logging
 import re
 from .utils.vessel_parser import get_vessel
+from .utils.unit_parser import parse_time_input
 
 logger = logging.getLogger(__name__)
 
 def debug_print(message):
     """调试输出"""
-    print(f"🌡️ [HEATCHILL] {message}", flush=True)
     logger.info(f"[HEATCHILL] {message}")
 
-def parse_time_input(time_input: Union[str, float, int]) -> float:
-    """
-    解析时间输入（统一函数）
-    
-    Args:
-        time_input: 时间输入（如 "30 min", "1 h", "300", "?", 60.0）
-    
-    Returns:
-        float: 时间（秒）
-    """
-    if not time_input:
-        return 300.0
-    
-    # 🔢 处理数值输入
-    if isinstance(time_input, (int, float)):
-        result = float(time_input)
-        debug_print(f"⏰ 数值时间: {time_input} → {result}s")
-        return result
-    
-    # 📝 处理字符串输入
-    time_str = str(time_input).lower().strip()
-    debug_print(f"🔍 解析时间: '{time_str}'")
-    
-    # ❓ 特殊值处理
-    special_times = {
-        '?': 300.0, 'unknown': 300.0, 'tbd': 300.0,
-        'overnight': 43200.0, 'several hours': 10800.0, 
-        'few hours': 7200.0, 'long time': 3600.0, 'short time': 300.0
-    }
-    
-    if time_str in special_times:
-        result = special_times[time_str]
-        debug_print(f"🎯 特殊时间: '{time_str}' → {result}s ({result/60:.1f}分钟)")
-        return result
-    
-    # 🔢 纯数字处理
-    try:
-        result = float(time_str)
-        debug_print(f"⏰ 纯数字: {time_str} → {result}s")
-        return result
-    except ValueError:
-        pass
-    
-    # 📐 正则表达式解析
-    pattern = r'(\d+\.?\d*)\s*([a-z]*)'
-    match = re.match(pattern, time_str)
-    
-    if not match:
-        debug_print(f"⚠️ 无法解析时间: '{time_str}'，使用默认值: 300s")
-        return 300.0
-    
-    value = float(match.group(1))
-    unit = match.group(2) or 's'
-    
-    # 📏 单位转换
-    unit_multipliers = {
-        's': 1.0, 'sec': 1.0, 'second': 1.0, 'seconds': 1.0,
-        'm': 60.0, 'min': 60.0, 'mins': 60.0, 'minute': 60.0, 'minutes': 60.0,
-        'h': 3600.0, 'hr': 3600.0, 'hrs': 3600.0, 'hour': 3600.0, 'hours': 3600.0,
-        'd': 86400.0, 'day': 86400.0, 'days': 86400.0
-    }
-    
-    multiplier = unit_multipliers.get(unit, 1.0)
-    result = value * multiplier
-    
-    debug_print(f"✅ 时间解析: '{time_str}' → {value} {unit} → {result}s ({result/60:.1f}分钟)")
-    return result
 
 def parse_temp_input(temp_input: Union[str, float], default_temp: float = 25.0) -> float:
     """
@@ -287,7 +220,6 @@ def generate_heat_chill_protocol(
         "device_id": heatchill_id,
         "action_name": "heat_chill",
         "action_kwargs": {
-            "vessel": vessel_id,  # 🔧 使用 vessel_id
             "temp": float(final_temp),
             "time": float(final_time),
             "stir": bool(stir),
@@ -321,7 +253,7 @@ def generate_heat_chill_to_temp_protocol(
     **kwargs
 ) -> List[Dict[str, Any]]:
     """生成加热到指定温度的协议（简化版）"""
-    vessel_id = vessel["id"]
+    vessel_id, _ = get_vessel(vessel)
     debug_print(f"🌡️ 生成加热到温度协议: {vessel_id} → {temp}°C")
     return generate_heat_chill_protocol(G, vessel, temp, time, **kwargs)
 
@@ -335,7 +267,7 @@ def generate_heat_chill_start_protocol(
     """生成开始加热操作的协议序列"""
     
     # 🔧 核心修改：从字典中提取容器ID
-    vessel_id = vessel["id"]
+    vessel_id, _ = get_vessel(vessel)
     
     debug_print("🔥 开始生成启动加热协议 ✨")
     debug_print(f"🥽 vessel: {vessel} (ID: {vessel_id}), 🌡️ temp: {temp}°C")
@@ -353,7 +285,6 @@ def generate_heat_chill_start_protocol(
         "device_id": heatchill_id,
         "action_name": "heat_chill_start",
         "action_kwargs": {
-            "vessel": vessel_id,  # 🔧 使用 vessel_id
             "temp": temp,
             "purpose": purpose or f"开始加热到 {temp}°C"
         }
@@ -370,7 +301,7 @@ def generate_heat_chill_stop_protocol(
     """生成停止加热操作的协议序列"""
     
     # 🔧 核心修改：从字典中提取容器ID
-    vessel_id = vessel["id"]
+    vessel_id, _ = get_vessel(vessel)
     
     debug_print("🛑 开始生成停止加热协议 ✨")
     debug_print(f"🥽 vessel: {vessel} (ID: {vessel_id})")
@@ -388,10 +319,8 @@ def generate_heat_chill_stop_protocol(
         "device_id": heatchill_id,
         "action_name": "heat_chill_stop",
         "action_kwargs": {
-            "vessel": vessel_id  # 🔧 使用 vessel_id
         }
     }]
     
     debug_print(f"✅ 停止加热协议生成完成 🎯")
     return action_sequence
-

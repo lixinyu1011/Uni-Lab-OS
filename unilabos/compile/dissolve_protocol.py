@@ -1,33 +1,22 @@
+from functools import partial
+
 import networkx as nx
 import re
 import logging
 from typing import List, Dict, Any, Union
 
-from unilabos.compile.utils.vessel_parser import get_vessel
+from .utils.vessel_parser import get_vessel
+from .utils.logger_util import action_log
 from .pump_protocol import generate_pump_protocol_with_rinsing
 
 logger = logging.getLogger(__name__)
 
 def debug_print(message):
     """调试输出"""
-    print(f"[DISSOLVE] {message}", flush=True)
     logger.info(f"[DISSOLVE] {message}")
 
 # 🆕 创建进度日志动作
-def create_action_log(message: str, emoji: str = "📝") -> Dict[str, Any]:
-    """创建一个动作日志"""
-    full_message = f"{emoji} {message}"
-    debug_print(full_message)
-    logger.info(full_message)
-    print(f"[ACTION] {full_message}", flush=True)
-    
-    return {
-        "action_name": "wait",
-        "action_kwargs": {
-            "time": 0.1,
-            "log_message": full_message
-        }
-    }
+create_action_log = partial(action_log, prefix="[DISSOLVE]")
 
 def parse_volume_input(volume_input: Union[str, float]) -> float:
     """

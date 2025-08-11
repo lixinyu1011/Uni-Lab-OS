@@ -6,6 +6,7 @@ from pylabrobot.resources import Resource as PLRResource, Plate, TipRack, Coordi
 from unilabos.ros.nodes.presets.protocol_node import ROS2ProtocolNode
 from unilabos.ros.nodes.resource_tracker import DeviceNodeResourceTracker
 
+
 class WorkStationContainer(Plate, TipRack):
     """
     WorkStation 专用 Container 类，继承自 Plate和TipRack
@@ -82,3 +83,4 @@ class WorkStationExample(ROS2ProtocolNode):
         """
         to_base_plate.assign_child_resource(from_plate, Coordinate.zero())
         pass
+

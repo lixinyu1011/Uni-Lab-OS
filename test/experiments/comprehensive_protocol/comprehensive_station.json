@@ -49,7 +49,6 @@
             "config": {
                 "protocol_type": [
                     "AddProtocol",
-                    "TransferProtocol",
                     "StartStirProtocol",
                     "StopStirProtocol",
                     "StirProtocol",
@@ -1077,7 +1076,7 @@
             "target": "solid_dispenser_1",
             "type": "resource",
             "port": {
-                "solid_reagent_bottle_1": "top",
+                "solid_reagent_bottle_1": "bottom",
                 "solid_dispenser_1": "SolidIn"
             }
         },
@@ -1087,7 +1086,7 @@
             "target": "solid_dispenser_1",
             "type": "resource",
             "port": {
-                "solid_reagent_bottle_2": "top",
+                "solid_reagent_bottle_2": "bottom",
                 "solid_dispenser_1": "SolidIn"
             }
         },
@@ -1097,7 +1096,7 @@
             "target": "solid_dispenser_1",
             "type": "resource",
             "port": {
-                "solid_reagent_bottle_3": "top",
+                "solid_reagent_bottle_3": "bottom",
                 "solid_dispenser_1": "SolidIn"
             }
         }

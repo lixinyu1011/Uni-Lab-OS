@@ -3,75 +3,14 @@ import networkx as nx
 import logging
 import re
 from .utils.vessel_parser import get_vessel
+from .utils.unit_parser import parse_time_input
 
 logger = logging.getLogger(__name__)
 
 def debug_print(message):
     """调试输出"""
-    print(f"🧪 [EVAPORATE] {message}", flush=True)
     logger.info(f"[EVAPORATE] {message}")
 
-def parse_time_input(time_input: Union[str, float]) -> float:
-    """
-    解析时间输入，支持带单位的字符串
-    
-    Args:
-        time_input: 时间输入（如 "3 min", "180", "0.5 h" 等）
-    
-    Returns:
-        float: 时间（秒）
-    """
-    if isinstance(time_input, (int, float)):
-        debug_print(f"⏱️ 时间输入为数字: {time_input}s ✨")
-        return float(time_input)  # 🔧 确保返回float
-    
-    if not time_input or not str(time_input).strip():
-        debug_print(f"⚠️ 时间输入为空，使用默认值: 180s (3分钟) 🕐")
-        return 180.0  # 默认3分钟
-    
-    time_str = str(time_input).lower().strip()
-    debug_print(f"🔍 解析时间输入: '{time_str}' 📝")
-    
-    # 处理未知时间
-    if time_str in ['?', 'unknown', 'tbd']:
-        default_time = 180.0  # 默认3分钟
-        debug_print(f"❓ 检测到未知时间，使用默认值: {default_time}s (3分钟) 🤷‍♀️")
-        return default_time
-    
-    # 移除空格并提取数字和单位
-    time_clean = re.sub(r'\s+', '', time_str)
-    
-    # 匹配数字和单位的正则表达式
-    match = re.match(r'([0-9]*\.?[0-9]+)\s*(s|sec|second|min|minute|h|hr|hour|d|day)?', time_clean)
-    
-    if not match:
-        # 如果无法解析，尝试直接转换为数字（默认秒）
-        try:
-            value = float(time_str)
-            debug_print(f"✅ 时间解析成功: {time_str} → {value}s（无单位，默认秒）⏰")
-            return float(value)  # 🔧 确保返回float
-        except ValueError:
-            debug_print(f"❌ 无法解析时间: '{time_str}'，使用默认值180s (3分钟) 😅")
-            return 180.0
-    
-    value = float(match.group(1))
-    unit = match.group(2) or 's'  # 默认单位为秒
-    
-    # 转换为秒
-    if unit in ['min', 'minute']:
-        time_sec = value * 60.0  # min -> s
-        debug_print(f"🕐 时间转换: {value} 分钟 → {time_sec}s ⏰")
-    elif unit in ['h', 'hr', 'hour']:
-        time_sec = value * 3600.0  # h -> s
-        debug_print(f"🕐 时间转换: {value} 小时 → {time_sec}s ({time_sec/60:.1f}分钟) ⏰")
-    elif unit in ['d', 'day']:
-        time_sec = value * 86400.0  # d -> s
-        debug_print(f"🕐 时间转换: {value} 天 → {time_sec}s ({time_sec/3600:.1f}小时) ⏰")
-    else:  # s, sec, second 或默认
-        time_sec = value  # 已经是s
-        debug_print(f"🕐 时间转换: {value}s → {time_sec}s (已是秒) ⏰")
-    
-    return float(time_sec)  # 🔧 确保返回float
 
 def find_rotavap_device(G: nx.DiGraph, vessel: str = None) -> Optional[str]:
     """

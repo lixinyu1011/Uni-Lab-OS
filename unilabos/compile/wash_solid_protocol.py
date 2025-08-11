@@ -3,118 +3,14 @@ import networkx as nx
 import logging
 import re
 
+from .utils.unit_parser import parse_time_input, parse_volume_input
+
 logger = logging.getLogger(__name__)
 
 def debug_print(message):
     """调试输出"""
-    print(f"🧼 [WASH_SOLID] {message}", flush=True)
     logger.info(f"[WASH_SOLID] {message}")
 
-def parse_time_input(time_input: Union[str, float, int]) -> float:
-    """统一时间解析函数（精简版）"""
-    if not time_input:
-        return 0.0
-    
-    # 🔢 处理数值输入
-    if isinstance(time_input, (int, float)):
-        result = float(time_input)
-        debug_print(f"⏰ 数值时间: {time_input} → {result}s")
-        return result
-    
-    # 📝 处理字符串输入
-    time_str = str(time_input).lower().strip()
-    
-    # ❓ 特殊值快速处理
-    special_times = {
-        '?': 60.0, 'unknown': 60.0, 'briefly': 30.0, 
-        'quickly': 45.0, 'slowly': 120.0
-    }
-    
-    if time_str in special_times:
-        result = special_times[time_str]
-        debug_print(f"🎯 特殊时间: '{time_str}' → {result}s")
-        return result
-    
-    # 🔢 数字提取（简化正则）
-    try:
-        # 提取数字
-        numbers = re.findall(r'\d+\.?\d*', time_str)
-        if numbers:
-            value = float(numbers[0])
-            
-            # 简化单位判断
-            if any(unit in time_str for unit in ['min', 'm']):
-                result = value * 60.0
-            elif any(unit in time_str for unit in ['h', 'hour']):
-                result = value * 3600.0
-            else:
-                result = value  # 默认秒
-            
-            debug_print(f"✅ 时间解析: '{time_str}' → {result}s")
-            return result
-    except:
-        pass
-    
-    debug_print(f"⚠️ 时间解析失败: '{time_str}'，使用默认60s")
-    return 60.0
-
-def parse_volume_input(volume: Union[float, str], volume_spec: str = "", mass: str = "") -> float:
-    """统一体积解析函数（精简版）"""
-    debug_print(f"💧 解析体积: volume={volume}, spec='{volume_spec}', mass='{mass}'")
-    
-    # 🎯 优先级1：volume_spec（快速映射）
-    if volume_spec:
-        spec_map = {
-            'small': 20.0, 'medium': 50.0, 'large': 100.0,
-            'minimal': 10.0, 'normal': 50.0, 'generous': 150.0
-        }
-        for key, val in spec_map.items():
-            if key in volume_spec.lower():
-                debug_print(f"🎯 规格匹配: '{volume_spec}' → {val}mL")
-                return val
-    
-    # 🧮 优先级2：mass转体积（简化：1g=1mL）
-    if mass:
-        try:
-            numbers = re.findall(r'\d+\.?\d*', mass)
-            if numbers:
-                value = float(numbers[0])
-                if 'mg' in mass.lower():
-                    result = value / 1000.0
-                elif 'kg' in mass.lower():
-                    result = value * 1000.0
-                else:
-                    result = value  # 默认g
-                debug_print(f"⚖️ 质量转换: {mass} → {result}mL")
-                return result
-        except:
-            pass
-    
-    # 📦 优先级3：volume
-    if volume:
-        if isinstance(volume, (int, float)):
-            result = float(volume)
-            debug_print(f"💧 数值体积: {volume} → {result}mL")
-            return result
-        elif isinstance(volume, str):
-            try:
-                # 提取数字
-                numbers = re.findall(r'\d+\.?\d*', volume)
-                if numbers:
-                    value = float(numbers[0])
-                    # 简化单位判断
-                    if 'l' in volume.lower() and 'ml' not in volume.lower():
-                        result = value * 1000.0  # L转mL
-                    else:
-                        result = value  # 默认mL
-                    debug_print(f"💧 字符串体积: '{volume}' → {result}mL")
-                    return result
-            except:
-                pass
-    
-    # 默认值
-    debug_print(f"⚠️ 体积解析失败，使用默认50mL")
-    return 50.0
 
 def find_solvent_source(G: nx.DiGraph, solvent: str) -> str:
     """查找溶剂源（精简版）"""

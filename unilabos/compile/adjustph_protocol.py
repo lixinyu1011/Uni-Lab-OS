@@ -8,24 +8,7 @@ logger = logging.getLogger(__name__)
 
 def debug_print(message):
     """调试输出"""
-    print(f"[ADJUST_PH] {message}", flush=True)
     logger.info(f"[ADJUST_PH] {message}")
-
-# 🆕 创建进度日志动作
-def create_action_log(message: str, emoji: str = "📝") -> Dict[str, Any]:
-    """创建一个动作日志"""
-    full_message = f"{emoji} {message}"
-    debug_print(full_message)
-    logger.info(full_message)
-    print(f"[ACTION] {full_message}", flush=True)
-    
-    return {
-        "action_name": "wait",
-        "action_kwargs": {
-            "time": 0.1,
-            "log_message": full_message
-        }
-    }
 
 def find_acid_base_vessel(G: nx.DiGraph, reagent: str) -> str:
     """

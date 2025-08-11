@@ -3,81 +3,14 @@ import networkx as nx
 import logging
 import re
 
+from .utils.unit_parser import parse_time_input
+
 logger = logging.getLogger(__name__)
 
 def debug_print(message):
     """调试输出"""
-    print(f"🌪️ [STIR] {message}", flush=True)
     logger.info(f"[STIR] {message}")
 
-def parse_time_input(time_input: Union[str, float, int], default_unit: str = "s") -> float:
-    """
-    统一的时间解析函数（精简版）
-    
-    Args:
-        time_input: 时间输入（如 "30 min", "1 h", "300", "?", 60.0）
-        default_unit: 默认单位（默认为秒）
-    
-    Returns:
-        float: 时间（秒）
-    """
-    if not time_input:
-        return 100.0  # 默认100秒
-    
-    # 🔢 处理数值输入
-    if isinstance(time_input, (int, float)):
-        result = float(time_input)
-        debug_print(f"⏰ 数值时间: {time_input} → {result}s")
-        return result
-    
-    # 📝 处理字符串输入
-    time_str = str(time_input).lower().strip()
-    debug_print(f"🔍 解析时间: '{time_str}'")
-    
-    # ❓ 特殊值处理
-    special_times = {
-        '?': 300.0, 'unknown': 300.0, 'tbd': 300.0,
-        'briefly': 30.0, 'quickly': 60.0, 'slowly': 600.0,
-        'several minutes': 300.0, 'few minutes': 180.0, 'overnight': 3600.0
-    }
-    
-    if time_str in special_times:
-        result = special_times[time_str]
-        debug_print(f"🎯 特殊时间: '{time_str}' → {result}s ({result/60:.1f}分钟)")
-        return result
-    
-    # 🔢 纯数字处理
-    try:
-        result = float(time_str)
-        debug_print(f"⏰ 纯数字: {time_str} → {result}s")
-        return result
-    except ValueError:
-        pass
-    
-    # 📐 正则表达式解析
-    pattern = r'(\d+\.?\d*)\s*([a-z]*)'
-    match = re.match(pattern, time_str)
-    
-    if not match:
-        debug_print(f"⚠️ 无法解析时间: '{time_str}'，使用默认值: 100s")
-        return 100.0
-    
-    value = float(match.group(1))
-    unit = match.group(2) or default_unit
-    
-    # 📏 单位转换
-    unit_multipliers = {
-        's': 1.0, 'sec': 1.0, 'second': 1.0, 'seconds': 1.0,
-        'm': 60.0, 'min': 60.0, 'mins': 60.0, 'minute': 60.0, 'minutes': 60.0,
-        'h': 3600.0, 'hr': 3600.0, 'hrs': 3600.0, 'hour': 3600.0, 'hours': 3600.0,
-        'd': 86400.0, 'day': 86400.0, 'days': 86400.0
-    }
-    
-    multiplier = unit_multipliers.get(unit, 1.0)
-    result = value * multiplier
-    
-    debug_print(f"✅ 时间解析: '{time_str}' → {value} {unit} → {result}s ({result/60:.1f}分钟)")
-    return result
 
 def find_connected_stirrer(G: nx.DiGraph, vessel: str = None) -> str:
     """查找与指定容器相连的搅拌设备"""

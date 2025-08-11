@@ -225,7 +225,8 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
                 self.lab_logger().info(f"Working on physical setup: {physical_setup_graph}")
                 protocol_steps = protocol_steps_generator(G=physical_setup_graph, **protocol_kwargs)
                 
-                self.lab_logger().info(f"Goal received: {protocol_kwargs}, running steps: \n{protocol_steps}")
+                self.lab_logger().info(f"Goal received: {protocol_kwargs}, running steps: "
+                                       f"{json.dumps([step for step in protocol_steps if 'log_message' not in step['action_kwargs']], indent=4)}")
 
                 time_start = time.time()
                 time_overall = 100

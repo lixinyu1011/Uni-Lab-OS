@@ -3,89 +3,14 @@ import re
 import logging
 from typing import List, Dict, Any, Tuple, Union
 from .utils.vessel_parser import get_vessel
+from .utils.unit_parser import parse_volume_input
 from .pump_protocol import generate_pump_protocol_with_rinsing
 
 logger = logging.getLogger(__name__)
 
 def debug_print(message):
     """调试输出"""
-    print(f"💎 [RECRYSTALLIZE] {message}", flush=True)
     logger.info(f"[RECRYSTALLIZE] {message}")
-
-
-def parse_volume_with_units(volume_input: Union[str, float, int], default_unit: str = "mL") -> float:
-    """
-    解析带单位的体积输入
-    
-    Args:
-        volume_input: 体积输入（如 "100 mL", "2.5 L", "500", "?", 100.0）
-        default_unit: 默认单位（默认为毫升）
-    
-    Returns:
-        float: 体积（毫升）
-    """
-    if not volume_input:
-        debug_print("⚠️ 体积输入为空，返回 0.0mL 📦")
-        return 0.0
-    
-    # 处理数值输入
-    if isinstance(volume_input, (int, float)):
-        result = float(volume_input)
-        debug_print(f"🔢 数值体积输入: {volume_input} → {result}mL（默认单位）💧")
-        return result
-    
-    # 处理字符串输入
-    volume_str = str(volume_input).lower().strip()
-    debug_print(f"🔍 解析体积字符串: '{volume_str}' 📝")
-    
-    # 处理特殊值
-    if volume_str in ['?', 'unknown', 'tbd', 'to be determined']:
-        default_volume = 50.0  # 50mL默认值
-        debug_print(f"❓ 检测到未知体积，使用默认值: {default_volume}mL 🎯")
-        return default_volume
-    
-    # 如果是纯数字，使用默认单位
-    try:
-        value = float(volume_str)
-        if default_unit.lower() in ["ml", "milliliter"]:
-            result = value
-        elif default_unit.lower() in ["l", "liter"]:
-            result = value * 1000.0
-        elif default_unit.lower() in ["μl", "ul", "microliter"]:
-            result = value / 1000.0
-        else:
-            result = value  # 默认mL
-        debug_print(f"🔢 纯数字输入: {volume_str} → {result}mL（单位: {default_unit}）📏")
-        return result
-    except ValueError:
-        pass
-    
-    # 移除空格并提取数字和单位
-    volume_clean = re.sub(r'\s+', '', volume_str)
-    
-    # 匹配数字和单位的正则表达式
-    match = re.match(r'([0-9]*\.?[0-9]+)\s*(ml|l|μl|ul|microliter|milliliter|liter)?', volume_clean)
-    
-    if not match:
-        debug_print(f"⚠️ 无法解析体积: '{volume_str}'，使用默认值: 50mL 🎯")
-        return 50.0
-    
-    value = float(match.group(1))
-    unit = match.group(2) or default_unit.lower()
-    
-    # 转换为毫升
-    if unit in ['l', 'liter']:
-        volume = value * 1000.0  # L -> mL
-        debug_print(f"📏 升转毫升: {value}L → {volume}mL 💧")
-    elif unit in ['μl', 'ul', 'microliter']:
-        volume = value / 1000.0  # μL -> mL
-        debug_print(f"📏 微升转毫升: {value}μL → {volume}mL 💧")
-    else:  # ml, milliliter 或默认
-        volume = value  # 已经是mL
-        debug_print(f"📏 毫升单位: {value}mL → {volume}mL 💧")
-    
-    debug_print(f"✅ 体积解析完成: '{volume_str}' → {volume}mL ✨")
-    return volume
 
 
 def parse_ratio(ratio_str: str) -> Tuple[float, float]:
@@ -135,131 +60,6 @@ def parse_ratio(ratio_str: str) -> Tuple[float, float]:
     except ValueError:
         debug_print(f"❌ 比例解析错误 '{ratio_str}'，使用默认比例 1:1 🎭")
         return 1.0, 1.0
-
-
-def find_solvent_vessel(G: nx.DiGraph, solvent: str) -> str:
-    """
-    查找溶剂容器
-    
-    Args:
-        G: 网络图
-        solvent: 溶剂名称
-    
-    Returns:
-        str: 溶剂容器ID
-    """
-    debug_print(f"🔍 正在查找溶剂 '{solvent}' 的容器... 🧪")
-    
-    # 构建可能的容器名称
-    possible_names = [
-        f"flask_{solvent}",
-        f"bottle_{solvent}",
-        f"reagent_{solvent}",
-        f"reagent_bottle_{solvent}",
-        f"{solvent}_flask",
-        f"{solvent}_bottle",
-        f"{solvent}",
-        f"vessel_{solvent}",
-    ]
-    
-    debug_print(f"📋 候选容器名称: {possible_names[:3]}... (共{len(possible_names)}个) 📝")
-    
-    # 第一步：通过容器名称匹配
-    debug_print("  🎯 步骤1: 精确名称匹配...")
-    for vessel_name in possible_names:
-        if vessel_name in G.nodes():
-            debug_print(f"  🎉 通过名称匹配找到容器: {vessel_name} ✨")
-            return vessel_name
-    
-    # 第二步：通过模糊匹配（节点ID和名称）
-    debug_print("  🔍 步骤2: 模糊名称匹配...")
-    for node_id in G.nodes():
-        if G.nodes[node_id].get('type') == 'container':
-            node_name = G.nodes[node_id].get('name', '').lower()
-            
-            if solvent.lower() in node_id.lower() or solvent.lower() in node_name:
-                debug_print(f"  🎉 通过模糊匹配找到容器: {node_id} (名称: {node_name}) ✨")
-                return node_id
-    
-    # 第三步：通过配置中的试剂信息匹配
-    debug_print("  🧪 步骤3: 配置试剂信息匹配...")
-    for node_id in G.nodes():
-        if G.nodes[node_id].get('type') == 'container':
-            # 检查 config 中的 reagent 字段
-            node_config = G.nodes[node_id].get('config', {})
-            config_reagent = node_config.get('reagent', '').lower()
-            
-            if config_reagent and solvent.lower() == config_reagent:
-                debug_print(f"  🎉 通过config.reagent匹配找到容器: {node_id} (试剂: {config_reagent}) ✨")
-                return node_id
-    
-    # 第四步：通过数据中的试剂信息匹配
-    debug_print("  🧪 步骤4: 数据试剂信息匹配...")
-    for node_id in G.nodes():
-        if G.nodes[node_id].get('type') == 'container':
-            vessel_data = G.nodes[node_id].get('data', {})
-            
-            # 检查 data 中的 reagent_name 字段
-            reagent_name = vessel_data.get('reagent_name', '').lower()
-            if reagent_name and solvent.lower() == reagent_name:
-                debug_print(f"  🎉 通过data.reagent_name匹配找到容器: {node_id} (试剂: {reagent_name}) ✨")
-                return node_id
-            
-            # 检查 data 中的液体信息
-            liquids = vessel_data.get('liquid', [])
-            for liquid in liquids:
-                if isinstance(liquid, dict):
-                    liquid_type = (liquid.get('liquid_type') or liquid.get('name', '')).lower()
-                    
-                    if solvent.lower() in liquid_type:
-                        debug_print(f"  🎉 通过液体类型匹配找到容器: {node_id} (液体类型: {liquid_type}) ✨")
-                        return node_id
-    
-    # 第五步：部分匹配（如果前面都没找到）
-    debug_print("  🔍 步骤5: 部分匹配...")
-    for node_id in G.nodes():
-        if G.nodes[node_id].get('type') == 'container':
-            node_config = G.nodes[node_id].get('config', {})
-            node_data = G.nodes[node_id].get('data', {})
-            node_name = G.nodes[node_id].get('name', '').lower()
-            
-            config_reagent = node_config.get('reagent', '').lower()
-            data_reagent = node_data.get('reagent_name', '').lower()
-            
-            # 检查是否包含溶剂名称
-            if (solvent.lower() in config_reagent or 
-                solvent.lower() in data_reagent or 
-                solvent.lower() in node_name or
-                solvent.lower() in node_id.lower()):
-                debug_print(f"  🎉 通过部分匹配找到容器: {node_id} ✨")
-                debug_print(f"    - 节点名称: {node_name}")
-                debug_print(f"    - 配置试剂: {config_reagent}")
-                debug_print(f"    - 数据试剂: {data_reagent}")
-                return node_id
-    
-    # 调试信息：列出所有容器
-    debug_print("  🔎 调试信息：列出所有容器...")
-    container_list = []
-    for node_id in G.nodes():
-        if G.nodes[node_id].get('type') == 'container':
-            node_config = G.nodes[node_id].get('config', {})
-            node_data = G.nodes[node_id].get('data', {})
-            node_name = G.nodes[node_id].get('name', '')
-            
-            container_info = {
-                'id': node_id,
-                'name': node_name,
-                'config_reagent': node_config.get('reagent', ''),
-                'data_reagent': node_data.get('reagent_name', '')
-            }
-            container_list.append(container_info)
-            debug_print(f"    - 容器: {node_id}, 名称: {node_name}, config试剂: {node_config.get('reagent', '')}, data试剂: {node_data.get('reagent_name', '')}")
-    
-    debug_print(f"❌ 找不到溶剂 '{solvent}' 对应的容器 😭")
-    debug_print(f"🔍 查找的溶剂: '{solvent}' (小写: '{solvent.lower()}')")
-    debug_print(f"📊 总共发现 {len(container_list)} 个容器")
-    
-    raise ValueError(f"找不到溶剂 '{solvent}' 对应的容器")
 
 
 def generate_recrystallize_protocol(
@@ -322,7 +122,7 @@ def generate_recrystallize_protocol(
     
     # 2. 解析体积（支持单位）
     debug_print("📍 步骤2: 解析体积（支持单位）... 💧")
-    final_volume = parse_volume_with_units(volume, "mL")
+    final_volume = parse_volume_input(volume, "mL")
     debug_print(f"🎯 体积解析完成: {volume} → {final_volume}mL ✨")
     
     # 3. 解析比例
@@ -574,7 +374,7 @@ def test_recrystallize_protocol():
     debug_print("💧 测试体积解析...")
     test_volumes = ["100 mL", "2.5 L", "500", "50.5", "?", "invalid"]
     for vol in test_volumes:
-        parsed = parse_volume_with_units(vol)
+        parsed = parse_volume_input(vol)
         debug_print(f"  📊 体积 '{vol}' -> {parsed}mL")
     
     # 测试比例解析

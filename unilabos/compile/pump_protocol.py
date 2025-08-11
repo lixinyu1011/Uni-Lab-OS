@@ -10,11 +10,7 @@ logger = logging.getLogger(__name__)
 
 def debug_print(message):
     """强制输出调试信息"""
-    timestamp = time_module.strftime("%H:%M:%S")
-    output = f"[{timestamp}] {message}"
-    print(output, flush=True)
-    sys.stdout.flush()
-    # 同时写入日志
+    output = f"[TRANSFER] {message}"
     logger.info(output)
 
 def get_vessel_liquid_volume(G: nx.DiGraph, vessel: str) -> float:
