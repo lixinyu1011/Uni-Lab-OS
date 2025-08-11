@@ -353,7 +353,7 @@ solid_dispenser.laiyu:
           title: EmptyIn
           type: object
         type: EmptyIn
-    module: unilabos.devices.laiyu_add_solid.laiyu:Laiyu
+    module: unilabos.devices.powder_dispense.laiyu:Laiyu
     status_types:
       status: str
     type: python

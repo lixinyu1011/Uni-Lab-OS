@@ -380,22 +380,6 @@ class VirtualTransferPump:
         """检查是否已满"""
         return self._current_volume >= (self.max_volume - 0.01)  # 允许小量误差
     
-    # 调试和状态信息
-    def get_pump_info(self) -> dict:
-        """获取泵的详细信息"""
-        return {
-            "device_id": self.device_id,
-            "status": self._status,
-            "position": self._position,
-            "current_volume": self._current_volume,
-            "max_volume": self.max_volume,
-            "max_velocity": self._max_velocity,
-            "mode": self.mode.name,
-            "is_empty": self.is_empty(),
-            "is_full": self.is_full(),
-            "remaining_capacity": self.get_remaining_capacity()
-        }
-    
     def __str__(self):
         return f"VirtualTransferPump({self.device_id}: {self._current_volume:.2f}/{self.max_volume} ml, {self._status})"
     
@@ -425,8 +409,6 @@ async def demo():
     result = await pump.set_position(0.0)
     print(f"Empty result: {result}")
     print(f"After emptying: {pump}")
-    
-    print("\nPump info:", pump.get_pump_info())
 
 
 if __name__ == "__main__":

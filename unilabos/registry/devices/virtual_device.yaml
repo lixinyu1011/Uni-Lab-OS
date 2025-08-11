@@ -2166,7 +2166,6 @@ virtual_multiway_valve:
       current_port: str
       current_position: int
       flow_path: str
-      info: dict
       status: str
       target_position: int
       valve_position: int
@@ -2279,8 +2278,6 @@ virtual_multiway_valve:
           type: integer
         flow_path:
           type: string
-        info:
-          type: object
         status:
           type: string
         target_position:
@@ -2299,529 +2296,6 @@ virtual_multiway_valve:
       - available_positions
       - available_ports
       - flow_path
-      - info
-      type: object
-  version: 1.0.0
-virtual_pump:
-  category:
-  - virtual_device
-  class:
-    action_value_mappings:
-      auto-clean_vessel:
-        feedback: {}
-        goal: {}
-        goal_default:
-          repeats: 1
-          solvent: null
-          temp: null
-          vessel: null
-          volume: null
-        handles: []
-        result: {}
-        schema:
-          description: clean_vessel的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                repeats:
-                  default: 1
-                  type: integer
-                solvent:
-                  type: string
-                temp:
-                  type: number
-                vessel:
-                  type: string
-                volume:
-                  type: number
-              required:
-              - vessel
-              - solvent
-              - volume
-              - temp
-              type: object
-            result: {}
-          required:
-          - goal
-          title: clean_vessel参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-cleanup:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: cleanup的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: cleanup参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-initialize:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: []
-        result: {}
-        schema:
-          description: initialize的参数schema
-          properties:
-            feedback: {}
-            goal:
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: initialize参数
-          type: object
-        type: UniLabJsonCommandAsync
-      set_valve_position:
-        feedback:
-          status: status
-        goal:
-          float_in: valve_position
-        goal_default:
-          float_in: 0.0
-        handles: []
-        result:
-          success: success
-        schema:
-          description: ''
-          properties:
-            feedback:
-              properties: {}
-              required: []
-              title: FloatSingleInput_Feedback
-              type: object
-            goal:
-              properties:
-                float_in:
-                  type: number
-              required:
-              - float_in
-              title: FloatSingleInput_Goal
-              type: object
-            result:
-              properties:
-                return_info:
-                  type: string
-                success:
-                  type: boolean
-              required:
-              - return_info
-              - success
-              title: FloatSingleInput_Result
-              type: object
-          required:
-          - goal
-          title: FloatSingleInput
-          type: object
-        type: FloatSingleInput
-      transfer:
-        feedback:
-          status: status
-        goal:
-          amount: amount
-          from_vessel: from_vessel
-          rinsing_repeats: rinsing_repeats
-          rinsing_solvent: rinsing_solvent
-          rinsing_volume: rinsing_volume
-          solid: solid
-          time: time
-          to_vessel: to_vessel
-          viscous: viscous
-          volume: volume
-        goal_default:
-          amount: ''
-          event: ''
-          flowrate: 0.0
-          from_vessel:
-            category: ''
-            children: []
-            config: ''
-            data: ''
-            id: ''
-            name: ''
-            parent: ''
-            pose:
-              orientation:
-                w: 1.0
-                x: 0.0
-                y: 0.0
-                z: 0.0
-              position:
-                x: 0.0
-                y: 0.0
-                z: 0.0
-            sample_id: ''
-            type: ''
-          rate_spec: ''
-          rinsing_repeats: 0
-          rinsing_solvent: ''
-          rinsing_volume: 0.0
-          solid: false
-          through: ''
-          time: 0.0
-          to_vessel:
-            category: ''
-            children: []
-            config: ''
-            data: ''
-            id: ''
-            name: ''
-            parent: ''
-            pose:
-              orientation:
-                w: 1.0
-                x: 0.0
-                y: 0.0
-                z: 0.0
-              position:
-                x: 0.0
-                y: 0.0
-                z: 0.0
-            sample_id: ''
-            type: ''
-          transfer_flowrate: 0.0
-          viscous: false
-          volume: 0.0
-        handles: []
-        result:
-          success: success
-        schema:
-          description: ''
-          properties:
-            feedback:
-              properties:
-                current_device:
-                  type: string
-                status:
-                  type: string
-                time_remaining:
-                  properties:
-                    nanosec:
-                      maximum: 4294967295
-                      minimum: 0
-                      type: integer
-                    sec:
-                      maximum: 2147483647
-                      minimum: -2147483648
-                      type: integer
-                  required:
-                  - sec
-                  - nanosec
-                  title: Duration
-                  type: object
-                time_spent:
-                  properties:
-                    nanosec:
-                      maximum: 4294967295
-                      minimum: 0
-                      type: integer
-                    sec:
-                      maximum: 2147483647
-                      minimum: -2147483648
-                      type: integer
-                  required:
-                  - sec
-                  - nanosec
-                  title: Duration
-                  type: object
-              required:
-              - status
-              - current_device
-              - time_spent
-              - time_remaining
-              title: PumpTransfer_Feedback
-              type: object
-            goal:
-              properties:
-                amount:
-                  type: string
-                event:
-                  type: string
-                flowrate:
-                  type: number
-                from_vessel:
-                  properties:
-                    category:
-                      type: string
-                    children:
-                      items:
-                        type: string
-                      type: array
-                    config:
-                      type: string
-                    data:
-                      type: string
-                    id:
-                      type: string
-                    name:
-                      type: string
-                    parent:
-                      type: string
-                    pose:
-                      properties:
-                        orientation:
-                          properties:
-                            w:
-                              type: number
-                            x:
-                              type: number
-                            y:
-                              type: number
-                            z:
-                              type: number
-                          required:
-                          - x
-                          - y
-                          - z
-                          - w
-                          title: Quaternion
-                          type: object
-                        position:
-                          properties:
-                            x:
-                              type: number
-                            y:
-                              type: number
-                            z:
-                              type: number
-                          required:
-                          - x
-                          - y
-                          - z
-                          title: Point
-                          type: object
-                      required:
-                      - position
-                      - orientation
-                      title: Pose
-                      type: object
-                    sample_id:
-                      type: string
-                    type:
-                      type: string
-                  required:
-                  - id
-                  - name
-                  - sample_id
-                  - children
-                  - parent
-                  - type
-                  - category
-                  - pose
-                  - config
-                  - data
-                  title: Resource
-                  type: object
-                rate_spec:
-                  type: string
-                rinsing_repeats:
-                  maximum: 2147483647
-                  minimum: -2147483648
-                  type: integer
-                rinsing_solvent:
-                  type: string
-                rinsing_volume:
-                  type: number
-                solid:
-                  type: boolean
-                through:
-                  type: string
-                time:
-                  type: number
-                to_vessel:
-                  properties:
-                    category:
-                      type: string
-                    children:
-                      items:
-                        type: string
-                      type: array
-                    config:
-                      type: string
-                    data:
-                      type: string
-                    id:
-                      type: string
-                    name:
-                      type: string
-                    parent:
-                      type: string
-                    pose:
-                      properties:
-                        orientation:
-                          properties:
-                            w:
-                              type: number
-                            x:
-                              type: number
-                            y:
-                              type: number
-                            z:
-                              type: number
-                          required:
-                          - x
-                          - y
-                          - z
-                          - w
-                          title: Quaternion
-                          type: object
-                        position:
-                          properties:
-                            x:
-                              type: number
-                            y:
-                              type: number
-                            z:
-                              type: number
-                          required:
-                          - x
-                          - y
-                          - z
-                          title: Point
-                          type: object
-                      required:
-                      - position
-                      - orientation
-                      title: Pose
-                      type: object
-                    sample_id:
-                      type: string
-                    type:
-                      type: string
-                  required:
-                  - id
-                  - name
-                  - sample_id
-                  - children
-                  - parent
-                  - type
-                  - category
-                  - pose
-                  - config
-                  - data
-                  title: Resource
-                  type: object
-                transfer_flowrate:
-                  type: number
-                viscous:
-                  type: boolean
-                volume:
-                  type: number
-              required:
-              - from_vessel
-              - to_vessel
-              - volume
-              - amount
-              - time
-              - viscous
-              - rinsing_solvent
-              - rinsing_volume
-              - rinsing_repeats
-              - solid
-              - flowrate
-              - transfer_flowrate
-              - rate_spec
-              - event
-              - through
-              title: PumpTransfer_Goal
-              type: object
-            result:
-              properties:
-                return_info:
-                  type: string
-                success:
-                  type: boolean
-              required:
-              - return_info
-              - success
-              title: PumpTransfer_Result
-              type: object
-          required:
-          - goal
-          title: PumpTransfer
-          type: object
-        type: PumpTransfer
-    module: unilabos.devices.virtual.virtual_pump:VirtualPump
-    status_types:
-      current_status: str
-      current_volume: float
-      from_vessel: str
-      max_volume: float
-      progress: float
-      status: str
-      to_vessel: str
-      transfer_rate: float
-      transferred_volume: float
-      valve_position: int
-    type: python
-  config_info: []
-  description: Virtual Pump for PumpTransferProtocol Testing
-  handles:
-  - data_key: fluid_in
-    data_source: handle
-    data_type: fluid
-    description: 泵的输出口
-    handler_key: pumpio
-    io_type: source
-    label: pumpio
-  icon: ''
-  init_param_schema:
-    config:
-      properties:
-        config:
-          type: object
-        device_id:
-          type: string
-      required: []
-      type: object
-    data:
-      properties:
-        current_status:
-          type: string
-        current_volume:
-          type: number
-        from_vessel:
-          type: string
-        max_volume:
-          type: number
-        progress:
-          type: number
-        status:
-          type: string
-        to_vessel:
-          type: string
-        transfer_rate:
-          type: number
-        transferred_volume:
-          type: number
-        valve_position:
-          type: integer
-      required:
-      - status
-      - valve_position
-      - current_volume
-      - max_volume
-      - transfer_rate
-      - from_vessel
-      - to_vessel
-      - progress
-      - transferred_volume
-      - current_status
       type: object
   version: 1.0.0
 virtual_rotavap:
@@ -4683,7 +4157,6 @@ virtual_solid_dispenser:
     module: unilabos.devices.virtual.virtual_solid_dispenser:VirtualSolidDispenser
     status_types:
       current_reagent: str
-      device_info: dict
       dispensed_amount: float
       status: str
       total_operations: int
@@ -4722,8 +4195,6 @@ virtual_solid_dispenser:
       properties:
         current_reagent:
           type: string
-        device_info:
-          type: object
         dispensed_amount:
           type: number
         status:
@@ -4735,7 +4206,6 @@ virtual_solid_dispenser:
       - current_reagent
       - dispensed_amount
       - total_operations
-      - device_info
       type: object
   version: 1.0.0
 virtual_stirrer:
@@ -5246,7 +4716,6 @@ virtual_stirrer:
     status_types:
       current_speed: float
       current_vessel: str
-      device_info: dict
       is_stirring: bool
       max_speed: float
       min_speed: float
@@ -5281,8 +4750,6 @@ virtual_stirrer:
           type: number
         current_vessel:
           type: string
-        device_info:
-          type: object
         is_stirring:
           type: boolean
         max_speed:
@@ -5304,7 +4771,6 @@ virtual_stirrer:
       - remaining_time
       - max_speed
       - min_speed
-      - device_info
       type: object
   version: 1.0.0
 virtual_transfer_pump:
@@ -5761,7 +5227,6 @@ virtual_transfer_pump:
       current_volume: float
       max_velocity: float
       position: float
-      pump_info: dict
       remaining_capacity: float
       status: str
       transfer_rate: float
@@ -5795,8 +5260,6 @@ virtual_transfer_pump:
           type: number
         position:
           type: number
-        pump_info:
-          type: object
         remaining_capacity:
           type: number
         status:
@@ -5810,7 +5273,6 @@ virtual_transfer_pump:
       - max_velocity
       - transfer_rate
       - remaining_capacity
-      - pump_info
       type: object
   version: 1.0.0
 virtual_vacuum_pump:

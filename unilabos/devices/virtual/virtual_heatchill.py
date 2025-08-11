@@ -68,7 +68,7 @@ class VirtualHeatChill:
         return True
     
     async def heat_chill(self, temp: float, time, stir: bool,
-                        stir_speed: float, purpose: str) -> bool:
+                        stir_speed: float, purpose: str, vessel: dict = {}) -> bool:
         """Execute heat chill action - 🔧 修复：确保参数类型正确"""
         
         # 🔧 关键修复：确保所有参数类型正确
@@ -201,7 +201,7 @@ class VirtualHeatChill:
         
         return True
     
-    async def heat_chill_start(self, temp: float, purpose: str) -> bool:
+    async def heat_chill_start(self, temp: float, purpose: str, vessel: dict = {}) -> bool:
         """Start continuous heat chill 🔄"""
         
         # 🔧 添加类型转换
@@ -257,7 +257,7 @@ class VirtualHeatChill:
         self.logger.info(f"✅ 持续温控已启动! {temp_emoji} {status_action}模式 🚀")
         return True
     
-    async def heat_chill_stop(self) -> bool:
+    async def heat_chill_stop(self, vessel: dict = {}) -> bool:
         """Stop heat chill 🛑"""
         
         self.logger.info(f"🛑 停止温控:")

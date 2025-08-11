@@ -253,24 +253,6 @@ class VirtualMultiwayValve:
         # 删除debug日志：self.logger.debug(f"🌊 当前流路: {flow_path}")
         return flow_path
 
-    def get_info(self) -> dict:
-        """获取阀门详细信息 📊"""
-        info = {
-            "port": self.port,
-            "max_positions": self.max_positions,
-            "total_positions": self.total_positions,
-            "current_position": self._current_position,
-            "current_port": self.get_current_port(),
-            "target_position": self._target_position,
-            "status": self._status,
-            "valve_state": self._valve_state,
-            "flow_path": self.get_flow_path(),
-            "position_map": self.position_map
-        }
-        
-        # 删除debug日志：self.logger.debug(f"📊 阀门信息: 位置={self._current_position}, 状态={self._status}, 端口={self.get_current_port()}")
-        return info
-
     def __str__(self):
         current_port = self.get_current_port()
         status_emoji = "✅" if self._status == "Idle" else "🔄" if self._status == "Busy" else "❌"
@@ -312,9 +294,6 @@ if __name__ == "__main__":
     # 显示所有可用位置
     print(f"\n📋 可用位置: {valve.get_available_positions()}")
     print(f"🗺️ 端口映射: {valve.get_available_ports()}")
-    
-    # 获取详细信息
-    print(f"\n📊 详细信息: {valve.get_info()}")
     
     # 测试切换功能
     print(f"\n🔄 智能切换测试:")

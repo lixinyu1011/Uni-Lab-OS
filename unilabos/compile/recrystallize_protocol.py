@@ -2,7 +2,7 @@ import networkx as nx
 import re
 import logging
 from typing import List, Dict, Any, Tuple, Union
-from .utils.vessel_parser import get_vessel
+from .utils.vessel_parser import get_vessel, find_solvent_vessel
 from .utils.unit_parser import parse_volume_input
 from .pump_protocol import generate_pump_protocol_with_rinsing
 

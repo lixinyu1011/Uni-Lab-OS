@@ -1805,6 +1805,11 @@ workstation:
             data_type: resource
             handler_key: Vessel
             label: Evaporation Vessel
+          - data_key: solvent
+            data_source: handle
+            data_type: resource
+            handler_key: solvent
+            label: Eluting Solvent
           output:
           - data_key: vessel
             data_source: handle

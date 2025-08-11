@@ -217,7 +217,6 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
                             [convert_from_ros_msg(rs) for rs in response.resources]
                         )
 
-                self.lab_logger().info(f"🔍 最终传递给协议的 protocol_kwargs: {protocol_kwargs}")
                 self.lab_logger().info(f"🔍 最终的 vessel: {protocol_kwargs.get('vessel', 'NOT_FOUND')}")
 
                 from unilabos.resources.graphio import physical_setup_graph

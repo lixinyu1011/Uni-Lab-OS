@@ -220,6 +220,7 @@ def generate_heat_chill_protocol(
         "device_id": heatchill_id,
         "action_name": "heat_chill",
         "action_kwargs": {
+            "vessel": vessel,
             "temp": float(final_temp),
             "time": float(final_time),
             "stir": bool(stir),
