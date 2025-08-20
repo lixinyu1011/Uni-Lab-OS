@@ -135,6 +135,18 @@ def parse_args():
         help="实验室唯一ID，也可通过环境变量 UNILABOS_MQCONFIG_LABID 设置或传入--config设置",
     )
     parser.add_argument(
+        "--ak",
+        type=str,
+        default="",
+        help="实验室请求的ak",
+    )
+    parser.add_argument(
+        "--sk",
+        type=str,
+        default="",
+        help="实验室请求的sk",
+    )
+    parser.add_argument(
         "--skip_env_check",
         action="store_true",
         help="跳过启动时的环境依赖检查",
@@ -211,6 +223,8 @@ def main():
             print_status("远程资源不存在，本地将进行首次上报！", "info")
 
     # 设置BasicConfig参数
+    BasicConfig.ak = args_dict.get("ak", "")
+    BasicConfig.sk = args_dict.get("sk", "")
     BasicConfig.working_dir = working_dir
     BasicConfig.is_host_mode = not args_dict.get("without_host", False)
     BasicConfig.slave_no_host = args_dict.get("slave_no_host", False)

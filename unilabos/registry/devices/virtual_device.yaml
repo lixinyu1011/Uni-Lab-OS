@@ -7,7 +7,7 @@ virtual_centrifuge:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: cleanup的参数schema
@@ -27,7 +27,7 @@ virtual_centrifuge:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: initialize的参数schema
@@ -78,7 +78,7 @@ virtual_centrifuge:
                 z: 0.0
             sample_id: ''
             type: ''
-        handles: []
+        handles: {}
         result:
           message: message
           success: success
@@ -295,7 +295,7 @@ virtual_column:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: cleanup的参数schema
@@ -315,7 +315,7 @@ virtual_column:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: initialize的参数schema
@@ -388,7 +388,7 @@ virtual_column:
                 z: 0.0
             sample_id: ''
             type: ''
-        handles: []
+        handles: {}
         result:
           message: current_status
           return_info: current_status
@@ -690,7 +690,7 @@ virtual_filter:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: cleanup的参数schema
@@ -710,7 +710,7 @@ virtual_filter:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: initialize的参数schema
@@ -786,7 +786,7 @@ virtual_filter:
             sample_id: ''
             type: ''
           volume: 0.0
-        handles: []
+        handles: {}
         result:
           message: message
           return_info: message
@@ -1088,7 +1088,7 @@ virtual_gas_source:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: cleanup的参数schema
@@ -1108,7 +1108,7 @@ virtual_gas_source:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: initialize的参数schema
@@ -1128,7 +1128,7 @@ virtual_gas_source:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: is_closed的参数schema
@@ -1148,7 +1148,7 @@ virtual_gas_source:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: is_open的参数schema
@@ -1168,7 +1168,7 @@ virtual_gas_source:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
@@ -1200,7 +1200,7 @@ virtual_gas_source:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
@@ -1234,7 +1234,7 @@ virtual_gas_source:
           string: string
         goal_default:
           string: ''
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
@@ -1310,7 +1310,7 @@ virtual_heatchill:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: cleanup的参数schema
@@ -1330,7 +1330,7 @@ virtual_heatchill:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: initialize的参数schema
@@ -1386,7 +1386,7 @@ virtual_heatchill:
                 z: 0.0
             sample_id: ''
             type: ''
-        handles: []
+        handles: {}
         result:
           success: success
         schema:
@@ -1555,7 +1555,7 @@ virtual_heatchill:
                 z: 0.0
             sample_id: ''
             type: ''
-        handles: []
+        handles: {}
         result:
           success: success
         schema:
@@ -1696,7 +1696,7 @@ virtual_heatchill:
                 z: 0.0
             sample_id: ''
             type: ''
-        handles: []
+        handles: {}
         result:
           success: success
         schema:
@@ -1879,7 +1879,7 @@ virtual_multiway_valve:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: close的参数schema
@@ -1900,7 +1900,7 @@ virtual_multiway_valve:
         goal: {}
         goal_default:
           port_number: null
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: is_at_port的参数schema
@@ -1924,7 +1924,7 @@ virtual_multiway_valve:
         goal: {}
         goal_default:
           position: null
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: is_at_position的参数schema
@@ -1947,7 +1947,7 @@ virtual_multiway_valve:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: is_at_pump_position的参数schema
@@ -1967,7 +1967,7 @@ virtual_multiway_valve:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
@@ -1987,7 +1987,7 @@ virtual_multiway_valve:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: reset的参数schema
@@ -2008,7 +2008,7 @@ virtual_multiway_valve:
         goal: {}
         goal_default:
           port_number: null
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: set_to_port的参数schema
@@ -2031,7 +2031,7 @@ virtual_multiway_valve:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: set_to_pump_position的参数schema
@@ -2052,7 +2052,7 @@ virtual_multiway_valve:
         goal: {}
         goal_default:
           port_number: null
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: switch_between_pump_and_port的参数schema
@@ -2077,7 +2077,7 @@ virtual_multiway_valve:
           command: command
         goal_default:
           command: ''
-        handles: []
+        handles: {}
         result:
           success: success
         schema:
@@ -2121,7 +2121,7 @@ virtual_multiway_valve:
           command: command
         goal_default:
           command: ''
-        handles: []
+        handles: {}
         result:
           success: success
         schema:
@@ -2299,7 +2299,7 @@ virtual_rotavap:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: cleanup的参数schema
@@ -2319,7 +2319,7 @@ virtual_rotavap:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: initialize的参数schema
@@ -2371,7 +2371,7 @@ virtual_rotavap:
                 z: 0.0
             sample_id: ''
             type: ''
-        handles: []
+        handles: {}
         result:
           message: message
           success: success
@@ -2629,7 +2629,7 @@ virtual_separator:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: cleanup的参数schema
@@ -2649,7 +2649,7 @@ virtual_separator:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: initialize的参数schema
@@ -2834,7 +2834,7 @@ virtual_separator:
                 z: 0.0
             sample_id: ''
             type: ''
-        handles: []
+        handles: {}
         result:
           message: message
           success: success
@@ -3516,7 +3516,7 @@ virtual_solenoid_valve:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: cleanup的参数schema
@@ -3536,7 +3536,7 @@ virtual_solenoid_valve:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: initialize的参数schema
@@ -3556,7 +3556,7 @@ virtual_solenoid_valve:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: is_closed的参数schema
@@ -3576,7 +3576,7 @@ virtual_solenoid_valve:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: reset的参数schema
@@ -3596,7 +3596,7 @@ virtual_solenoid_valve:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: toggle的参数schema
@@ -3617,7 +3617,7 @@ virtual_solenoid_valve:
         goal:
           command: CLOSED
         goal_default: {}
-        handles: []
+        handles: {}
         result:
           success: success
         schema:
@@ -3650,7 +3650,7 @@ virtual_solenoid_valve:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
@@ -3684,7 +3684,7 @@ virtual_solenoid_valve:
           string: string
         goal_default:
           string: ''
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
@@ -3724,7 +3724,7 @@ virtual_solenoid_valve:
           command: command
         goal_default:
           command: ''
-        handles: []
+        handles: {}
         result:
           message: message
           success: success
@@ -3871,7 +3871,7 @@ virtual_solid_dispenser:
             type: ''
           viscous: false
           volume: ''
-        handles: []
+        handles: {}
         result:
           message: message
           return_info: return_info
@@ -4034,7 +4034,7 @@ virtual_solid_dispenser:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: cleanup的参数schema
@@ -4055,7 +4055,7 @@ virtual_solid_dispenser:
         goal: {}
         goal_default:
           reagent_name: null
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
@@ -4078,7 +4078,7 @@ virtual_solid_dispenser:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: initialize的参数schema
@@ -4099,7 +4099,7 @@ virtual_solid_dispenser:
         goal: {}
         goal_default:
           mass_str: null
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
@@ -4123,7 +4123,7 @@ virtual_solid_dispenser:
         goal: {}
         goal_default:
           mol_str: null
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
@@ -4205,7 +4205,7 @@ virtual_stirrer:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: cleanup的参数schema
@@ -4225,7 +4225,7 @@ virtual_stirrer:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: initialize的参数schema
@@ -4271,7 +4271,7 @@ virtual_stirrer:
                 z: 0.0
             sample_id: ''
             type: ''
-        handles: []
+        handles: {}
         result:
           success: success
         schema:
@@ -4429,7 +4429,7 @@ virtual_stirrer:
                 z: 0.0
             sample_id: ''
             type: ''
-        handles: []
+        handles: {}
         result:
           success: success
         schema:
@@ -4585,7 +4585,7 @@ virtual_stirrer:
                 z: 0.0
             sample_id: ''
             type: ''
-        handles: []
+        handles: {}
         result:
           success: success
         schema:
@@ -4772,7 +4772,7 @@ virtual_transfer_pump:
         goal_default:
           velocity: null
           volume: null
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: aspirate的参数schema
@@ -4797,7 +4797,7 @@ virtual_transfer_pump:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: cleanup的参数schema
@@ -4819,7 +4819,7 @@ virtual_transfer_pump:
         goal_default:
           velocity: null
           volume: null
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: dispense的参数schema
@@ -4845,7 +4845,7 @@ virtual_transfer_pump:
         goal: {}
         goal_default:
           velocity: null
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: empty_syringe的参数schema
@@ -4868,7 +4868,7 @@ virtual_transfer_pump:
         goal: {}
         goal_default:
           velocity: null
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: fill_syringe的参数schema
@@ -4890,7 +4890,7 @@ virtual_transfer_pump:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: initialize的参数schema
@@ -4910,7 +4910,7 @@ virtual_transfer_pump:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: is_empty的参数schema
@@ -4930,7 +4930,7 @@ virtual_transfer_pump:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: is_full的参数schema
@@ -4952,7 +4952,7 @@ virtual_transfer_pump:
         goal_default:
           velocity: null
           volume: null
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: pull_plunger的参数schema
@@ -4979,7 +4979,7 @@ virtual_transfer_pump:
         goal_default:
           velocity: null
           volume: null
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: push_plunger的参数schema
@@ -5005,7 +5005,7 @@ virtual_transfer_pump:
         goal: {}
         goal_default:
           velocity: null
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: set_max_velocity的参数schema
@@ -5028,7 +5028,7 @@ virtual_transfer_pump:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: stop_operation的参数schema
@@ -5055,7 +5055,7 @@ virtual_transfer_pump:
         goal_default:
           max_velocity: 0.0
           position: 0.0
-        handles: []
+        handles: {}
         result:
           message: message
           success: success
@@ -5133,7 +5133,7 @@ virtual_transfer_pump:
           to_vessel: ''
           viscous: false
           volume: 0.0
-        handles: []
+        handles: {}
         result:
           message: message
           success: success
@@ -5272,7 +5272,7 @@ virtual_vacuum_pump:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: cleanup的参数schema
@@ -5292,7 +5292,7 @@ virtual_vacuum_pump:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: initialize的参数schema
@@ -5312,7 +5312,7 @@ virtual_vacuum_pump:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: is_closed的参数schema
@@ -5332,7 +5332,7 @@ virtual_vacuum_pump:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: is_open的参数schema
@@ -5352,7 +5352,7 @@ virtual_vacuum_pump:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
@@ -5384,7 +5384,7 @@ virtual_vacuum_pump:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
@@ -5418,7 +5418,7 @@ virtual_vacuum_pump:
           string: string
         goal_default:
           string: ''
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''

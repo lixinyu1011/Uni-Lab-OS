@@ -11,7 +11,7 @@ chiller:
           function_code: null
           register_address: null
           value: null
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: build_modbus_frame的参数schema
@@ -45,7 +45,7 @@ chiller:
         goal_default:
           decimal_points: 1
           temperature: null
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: convert_temperature_to_modbus_value的参数schema
@@ -72,7 +72,7 @@ chiller:
         goal: {}
         goal_default:
           data: null
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: modbus_crc的参数schema
@@ -95,7 +95,7 @@ chiller:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: stop的参数schema
@@ -117,7 +117,7 @@ chiller:
           command: command
         goal_default:
           command: ''
-        handles: []
+        handles: {}
         result:
           success: success
         schema:
@@ -187,7 +187,7 @@ heaterstirrer.dalong:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: close的参数schema
@@ -208,7 +208,7 @@ heaterstirrer.dalong:
         goal: {}
         goal_default:
           speed: null
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: set_stir_speed的参数schema
@@ -233,7 +233,7 @@ heaterstirrer.dalong:
         goal_default:
           temp: null
           type: warning
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: set_temp_inner的参数schema
@@ -293,7 +293,7 @@ heaterstirrer.dalong:
                 z: 0.0
             sample_id: ''
             type: ''
-        handles: []
+        handles: {}
         result:
           success: success
         schema:
@@ -438,7 +438,7 @@ heaterstirrer.dalong:
           command: temp
         goal_default:
           command: ''
-        handles: []
+        handles: {}
         result:
           success: success
         schema:
@@ -482,7 +482,7 @@ heaterstirrer.dalong:
           command: temp
         goal_default:
           command: ''
-        handles: []
+        handles: {}
         result:
           success: success
         schema:
@@ -579,7 +579,7 @@ tempsensor:
           function_code: null
           register_address: null
           register_count: null
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: build_modbus_request的参数schema
@@ -612,7 +612,7 @@ tempsensor:
         goal: {}
         goal_default:
           data: null
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: calculate_crc的参数schema
@@ -636,7 +636,7 @@ tempsensor:
         goal: {}
         goal_default:
           response: null
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: read_modbus_response的参数schema
@@ -660,7 +660,7 @@ tempsensor:
         goal: {}
         goal_default:
           command: null
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: send_prototype_command的参数schema
@@ -685,7 +685,7 @@ tempsensor:
           command: command
         goal_default:
           command: ''
-        handles: []
+        handles: {}
         result:
           success: success
         schema:

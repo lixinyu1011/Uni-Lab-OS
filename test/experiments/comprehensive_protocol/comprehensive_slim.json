@@ -17,7 +17,6 @@
             "config": {
                 "protocol_type": [
                     "AddProtocol",
-                    "TransferProtocol",
                     "StartStirProtocol",
                     "StopStirProtocol",
                     "StirProtocol",

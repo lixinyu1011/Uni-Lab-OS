@@ -523,6 +523,12 @@ class Registry:
                         for action_name, action_config in device_config["class"]["action_value_mappings"].items():
                             if "handles" not in action_config:
                                 action_config["handles"] = {}
+                            elif isinstance(action_config["handles"], list):
+                                if len(action_config["handles"]):
+                                    logger.error(f"设备{device_id} {action_name} 的handles配置错误，应该是字典类型")
+                                    continue
+                                else:
+                                    action_config["handles"] = {}
                             if "type" in action_config:
                                 action_type_str: str = action_config["type"]
                                 # 通过Json发放指令，而不是通过特殊的ros action进行处理

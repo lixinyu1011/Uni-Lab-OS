@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 # 定义配置变量和加载函数
+import base64
 import traceback
 import os
 import importlib.util
@@ -9,6 +10,8 @@ from unilabos.utils import logger
 
 class BasicConfig:
     ENV = "pro"  # 'test'
+    ak = ""
+    sk = ""
     working_dir = ""
     config_path = ""
     is_host_mode = True
@@ -17,6 +20,15 @@ class BasicConfig:
     machine_name = "undefined"
     vis_2d_enable = False
     enable_resource_load = True
+
+    @classmethod
+    def auth_secret(cls):
+        # base64编码
+        if not cls.ak or not cls.sk:
+            return ""
+        target = f"{cls.ak}:{cls.sk}"
+        base64_target = base64.b64encode(target.encode('utf-8')).decode('utf-8')
+        return base64_target
 
 
 # MQTT配置

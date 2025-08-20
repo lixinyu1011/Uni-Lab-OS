@@ -15,6 +15,7 @@ from unilabos.utils import logger
 
 class HTTPClient:
     """HTTP客户端，用于与远程服务器通信"""
+    backend_go = False  # 是否使用Go后端
 
     def __init__(self, remote_addr: Optional[str] = None, auth: Optional[str] = None) -> None:
         """
@@ -28,7 +29,13 @@ class HTTPClient:
         if auth is not None:
             self.auth = auth
         else:
-            self.auth = MQConfig.lab_id
+            auth_secret = BasicConfig.auth_secret()
+            if auth_secret:
+                self.auth = auth_secret
+                self.backend_go = True
+                info(f"正在使用ak sk作为授权信息 {auth_secret}")
+            else:
+                self.auth = MQConfig.lab_id
         info(f"HTTPClient 初始化完成: remote_addr={self.remote_addr}")
 
     def resource_edge_add(self, resources: List[Dict[str, Any]], database_process_later: bool) -> requests.Response:
@@ -43,7 +50,8 @@ class HTTPClient:
         """
         database_param = 1 if database_process_later else 0
         response = requests.post(
-            f"{self.remote_addr}/lab/resource/edge/batch_create/?database_process_later={database_param}",
+            f"{self.remote_addr}/lab/resource/edge/batch_create/?database_process_later={database_param}"
+            if not self.backend_go else f"{self.remote_addr}/lab/material/edge",
             json=resources,
             headers={"Authorization": f"lab {self.auth}"},
             timeout=100,
@@ -63,13 +71,15 @@ class HTTPClient:
             Response: API响应对象
         """
         response = requests.post(
-            f"{self.remote_addr}/lab/resource/?database_process_later={1 if database_process_later else 0}",
-            json=resources,
+            f"{self.remote_addr}/lab/resource/?database_process_later={1 if database_process_later else 0}" if not self.backend_go else f"{self.remote_addr}/lab/material",
+            json=resources if not self.backend_go else {"nodes": resources},
             headers={"Authorization": f"lab {self.auth}"},
             timeout=100,
         )
         if response.status_code != 200:
             logger.error(f"添加物料失败: {response.text}")
+        elif self.backend_go:
+            logger.info(f"添加物料 {response.text}")
         return response
 
     def resource_get(self, id: str, with_children: bool = False) -> Dict[str, Any]:
@@ -84,7 +94,7 @@ class HTTPClient:
             Dict: 返回的资源数据
         """
         response = requests.get(
-            f"{self.remote_addr}/lab/resource/?edge_format=1",
+            f"{self.remote_addr}/lab/resource/?edge_format=1" if not self.backend_go else f"{self.remote_addr}/lab/material",
             params={"id": id, "with_children": with_children},
             headers={"Authorization": f"lab {self.auth}"},
             timeout=20,
@@ -151,18 +161,18 @@ class HTTPClient:
             )
         return response
 
-    def resource_registry(self, registry_data: Dict[str, Any]) -> requests.Response:
+    def resource_registry(self, registry_data: Dict[str, Any] | List[Dict[str, Any]]) -> requests.Response:
         """
         注册资源到服务器
 
         Args:
-            registry_data: 注册表数据，格式为 {resource_id: resource_info}
+            registry_data: 注册表数据，格式为 {resource_id: resource_info} / [{resource_info}]
 
         Returns:
             Response: API响应对象
         """
         response = requests.post(
-            f"{self.remote_addr}/lab/registry/",
+            f"{self.remote_addr}/lab/registry/" if not self.backend_go else f"{self.remote_addr}/lab/resource",
             json=registry_data,
             headers={"Authorization": f"lab {self.auth}"},
             timeout=30,
