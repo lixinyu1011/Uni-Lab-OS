@@ -2,7 +2,7 @@ import json
 import time
 import traceback
 from pprint import pprint, saferepr, pformat
-from typing import Union
+from typing import Union, Dict, Any
 
 import rclpy
 from rosidl_runtime_py import message_to_ordereddict
@@ -56,6 +56,10 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
         self.children = children
         self.workstation_config = workstation_config or {}  # 新增：保存工作站配置
         self.communication_interfaces = self.workstation_config.get('communication_interfaces', {})  # 从工作站配置获取通信接口
+        
+        # 新增：获取工作站实例（如果存在）
+        self.workstation_instance = self.workstation_config.get('workstation_instance')
+        
         self._busy = False
         self.sub_devices = {}
         self._goals = {}
@@ -63,8 +67,11 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
         self._action_clients = {}
 
         # 初始化基类，让基类处理常规动作
+        # 如果有工作站实例，使用工作站实例作为driver_instance
+        driver_instance = self.workstation_instance if self.workstation_instance else self
+        
         super().__init__(
-            driver_instance=self,
+            driver_instance=driver_instance,
             device_id=device_id,
             status_types={},
             action_value_mappings=self.protocol_action_mappings,
@@ -80,7 +87,55 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
         # 设置硬件接口代理
         self._setup_hardware_proxies()
 
+        # 新增：如果有工作站实例，建立双向引用
+        if self.workstation_instance:
+            self.workstation_instance._protocol_node = self
+            self._setup_workstation_method_proxies()
+            self.lab_logger().info(f"ROS2ProtocolNode {device_id} 与工作站实例 {type(self.workstation_instance).__name__} 关联")
+
         self.lab_logger().info(f"ROS2ProtocolNode {device_id} initialized with protocols: {self.protocol_names}")
+
+    def _setup_workstation_method_proxies(self):
+        """设置工作站方法代理"""
+        if not self.workstation_instance:
+            return
+        
+        # 代理工作站的核心方法
+        workstation_methods = [
+            'start_workflow', 'stop_workflow', 'workflow_status', 'is_busy',
+            'process_material_change_report', 'process_step_finish_report', 
+            'process_sample_finish_report', 'process_order_finish_report',
+            'handle_external_error'
+        ]
+        
+        for method_name in workstation_methods:
+            if hasattr(self.workstation_instance, method_name):
+                # 创建代理方法
+                setattr(self, method_name, getattr(self.workstation_instance, method_name))
+                self.lab_logger().debug(f"代理工作站方法: {method_name}")
+
+    # ============ 工作站方法代理 ============
+    
+    def get_workstation_status(self) -> Dict[str, Any]:
+        """获取工作站状态"""
+        if self.workstation_instance:
+            return {
+                'workflow_status': str(self.workstation_instance.workflow_status.value),
+                'is_busy': self.workstation_instance.is_busy,
+                'workflow_runtime': self.workstation_instance.workflow_runtime,
+                'error_count': self.workstation_instance.error_count,
+                'last_error': self.workstation_instance.last_error
+            }
+        return {'status': 'no_workstation_instance'}
+
+    def delegate_to_workstation(self, method_name: str, *args, **kwargs):
+        """委托方法调用给工作站实例"""
+        if self.workstation_instance and hasattr(self.workstation_instance, method_name):
+            method = getattr(self.workstation_instance, method_name)
+            return method(*args, **kwargs)
+        else:
+            self.lab_logger().warning(f"工作站实例不存在或没有方法: {method_name}")
+            return None
 
     def _initialize_child_devices(self):
         """初始化子设备 - 重构为更清晰的方法"""

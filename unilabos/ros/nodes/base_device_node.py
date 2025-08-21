@@ -959,6 +959,12 @@ class ROS2DeviceNode:
 
         # TODO: 要在创建之前预先请求服务器是否有当前id的物料，放到resource_tracker中，让pylabrobot进行创建
         # 创建设备类实例
+        # 判断是否包含设备子节点，决定是否使用ROS2ProtocolNode
+        has_device_children = any(
+            child_config.get("type", "device") == "device" 
+            for child_config in children.values()
+        )
+
         if use_pylabrobot_creator:
             # 先对pylabrobot的子资源进行加载，不然subclass无法认出
             # 在下方对于加载Deck等Resource要手动import
@@ -968,10 +974,18 @@ class ROS2DeviceNode:
             )
         else:
             from unilabos.ros.nodes.presets.protocol_node import ROS2ProtocolNode
+            from unilabos.device_comms.workstation_base import WorkstationBase
 
-            if issubclass(self._driver_class, ROS2ProtocolNode):  # 是ProtocolNode的子节点，就要调用ProtocolNodeCreator
+            # 检查是否是WorkstationBase的子类且包含设备子节点
+            if issubclass(self._driver_class, WorkstationBase) and has_device_children:
+                # WorkstationBase + 设备子节点 -> 使用ProtocolNode作为ros_instance
+                self._use_protocol_node_ros = True
+                self._driver_creator = DeviceClassCreator(driver_class, children=children, resource_tracker=self.resource_tracker)
+            elif issubclass(self._driver_class, ROS2ProtocolNode):  # 是ProtocolNode的子节点，就要调用ProtocolNodeCreator
+                self._use_protocol_node_ros = False
                 self._driver_creator = ProtocolNodeCreator(driver_class, children=children, resource_tracker=self.resource_tracker)
             else:
+                self._use_protocol_node_ros = False
                 self._driver_creator = DeviceClassCreator(driver_class, children=children, resource_tracker=self.resource_tracker)
 
         if driver_is_ros:
@@ -985,6 +999,35 @@ class ROS2DeviceNode:
         # 创建ROS2节点
         if driver_is_ros:
             self._ros_node = self._driver_instance  # type: ignore
+        elif hasattr(self, '_use_protocol_node_ros') and self._use_protocol_node_ros:
+            # WorkstationBase + 设备子节点 -> 创建ROS2ProtocolNode作为ros_instance
+            from unilabos.ros.nodes.presets.protocol_node import ROS2ProtocolNode
+            
+            # 从children提取设备协议类型
+            protocol_types = set()
+            for child_id, child_config in children.items():
+                if child_config.get("type", "device") == "device":
+                    # 检查设备配置中的协议类型
+                    if "protocol_type" in child_config:
+                        if isinstance(child_config["protocol_type"], list):
+                            protocol_types.update(child_config["protocol_type"])
+                        else:
+                            protocol_types.add(child_config["protocol_type"])
+            
+            # 如果没有明确的协议类型，使用默认值
+            if not protocol_types:
+                protocol_types = ["default_protocol"]
+            
+            self._ros_node = ROS2ProtocolNode(
+                device_id=device_id,
+                children=children,
+                protocol_type=list(protocol_types),
+                resource_tracker=self.resource_tracker,
+                workstation_config={
+                    'workstation_instance': self._driver_instance,
+                    'deck_config': getattr(self._driver_instance, 'deck_config', {}),
+                }
+            )
         else:
             self._ros_node = BaseROS2DeviceNode(
                 driver_instance=self._driver_instance,
