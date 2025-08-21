@@ -43,6 +43,7 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
         children: dict,
         protocol_type: Union[str, list[str]],
         resource_tracker: DeviceNodeResourceTracker,
+        workstation_config: dict = None,  # 新增：工作站配置
         *args,
         **kwargs,
     ):
@@ -50,6 +51,8 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
 
         # 初始化其它属性
         self.children = children
+        self.workstation_config = workstation_config or {}  # 新增：保存工作站配置
+        self.communication_interfaces = self.workstation_config.get('communication_interfaces', {})  # 从工作站配置获取通信接口
         self._busy = False
         self.sub_devices = {}
         self._goals = {}
@@ -69,57 +72,135 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
 
         # 初始化子设备
         self.communication_node_id_to_instance = {}
+        self._initialize_child_devices()
+        
+        # 设置硬件接口代理
+        self._setup_hardware_proxies()
 
+        self.lab_logger().info(f"ROS2ProtocolNode {device_id} initialized with protocols: {self.protocol_names}")
+
+    def _initialize_child_devices(self):
+        """初始化子设备 - 重构为更清晰的方法"""
+        # 设备分类字典 - 统一管理
+        self.communication_devices = {}
+        self.logical_devices = {}
+        
         for device_id, device_config in self.children.items():
             if device_config.get("type", "device") != "device":
                 self.lab_logger().debug(
                     f"[Protocol Node] Skipping type {device_config['type']} {device_id} already existed, skipping."
                 )
                 continue
+                
             try:
                 d = self.initialize_device(device_id, device_config)
+                if d is None:
+                    continue
+
+                # 统一的设备分类逻辑
+                device_type = device_config.get("device_type", "logical")
+                
+                # 兼容旧的ID匹配方式和新的配置方式
+                if device_type == "communication" or "serial_" in device_id or "io_" in device_id:
+                    self.communication_node_id_to_instance[device_id] = d  # 保持向后兼容
+                    self.communication_devices[device_id] = d  # 新的统一方式
+                    self.lab_logger().info(f"通信设备 {device_id} 初始化并分类成功")
+                elif device_type == "logical":
+                    self.logical_devices[device_id] = d
+                    self.lab_logger().info(f"逻辑设备 {device_id} 初始化并分类成功")
+                else:
+                    # 默认作为逻辑设备处理
+                    self.logical_devices[device_id] = d
+                    self.lab_logger().info(f"设备 {device_id} 作为逻辑设备处理")
+                    
             except Exception as ex:
                 self.lab_logger().error(f"[Protocol Node] Failed to initialize device {device_id}: {ex}\n{traceback.format_exc()}")
-                d = None
-            if d is None:
-                continue
 
-            if "serial_" in device_id or "io_" in device_id:
-                self.communication_node_id_to_instance[device_id] = d
-                continue
-
+    def _setup_hardware_proxies(self):
+        """设置硬件接口代理 - 重构为独立方法，支持工作站配置"""
+        # 1. 传统的协议节点硬件代理设置
         for device_id, device_config in self.children.items():
             if device_config.get("type", "device") != "device":
                 continue
+                
             # 设置硬件接口代理
             if device_id not in self.sub_devices:
                 self.lab_logger().error(f"[Protocol Node] {device_id} 还没有正确初始化，跳过...")
                 continue
+                
             d = self.sub_devices[device_id]
             if d:
-                hardware_interface = d.ros_node_instance._hardware_interface
-                if (
-                    hasattr(d.driver_instance, hardware_interface["name"])
-                    and hasattr(d.driver_instance, hardware_interface["write"])
-                    and (hardware_interface["read"] is None or hasattr(d.driver_instance, hardware_interface["read"]))
-                ):
+                self._setup_device_hardware_proxy(device_id, d)
+        
+        # 2. 工作站配置的通信接口代理设置
+        if hasattr(self, 'communication_interfaces') and self.communication_interfaces:
+            self._setup_workstation_communication_interfaces()
 
-                    name = getattr(d.driver_instance, hardware_interface["name"])
-                    read = hardware_interface.get("read", None)
-                    write = hardware_interface.get("write", None)
+        self.lab_logger().info(f"ROS2ProtocolNode {self.device_id} initialized with protocols: {self.protocol_names}")
 
-                    # 如果硬件接口是字符串，通过通信设备提供
-                    if isinstance(name, str) and name in self.sub_devices:
-                        communicate_device = self.sub_devices[name]
-                        communicate_hardware_info = communicate_device.ros_node_instance._hardware_interface
-                        self._setup_hardware_proxy(d, self.sub_devices[name], read, write)
-                        self.lab_logger().info(
-                            f"\n通信代理：为子设备{device_id}\n    "
-                            f"添加了{read}方法(来源：{name} {communicate_hardware_info['write']}) \n    "
-                            f"添加了{write}方法(来源：{name} {communicate_hardware_info['read']})"
-                        )
+    def _setup_workstation_communication_interfaces(self):
+        """设置工作站特定的通信接口代理"""
+        for logical_device_id, logical_device in self.logical_devices.items():
+            # 检查是否有配置的通信接口
+            interface_config = getattr(self, 'communication_interfaces', {}).get(logical_device_id)
+            if not interface_config:
+                continue
+            
+            comm_device = self.communication_devices.get(interface_config.device_id)
+            if not comm_device:
+                self.lab_logger().error(f"通信设备 {interface_config.device_id} 不存在")
+                continue
+            
+            # 设置工作站级别的通信代理
+            self._setup_workstation_hardware_proxy(
+                logical_device, 
+                comm_device, 
+                interface_config
+            )
 
-        self.lab_logger().info(f"ROS2ProtocolNode {device_id} initialized with protocols: {self.protocol_names}")
+    def _setup_workstation_hardware_proxy(self, logical_device, comm_device, interface_config):
+        """为逻辑设备设置工作站级通信代理"""
+        try:
+            # 获取通信设备的读写方法
+            read_func = getattr(comm_device.driver_instance, interface_config.read_method, None)
+            write_func = getattr(comm_device.driver_instance, interface_config.write_method, None)
+            
+            if read_func:
+                setattr(logical_device.driver_instance, 'comm_read', read_func)
+            if write_func:
+                setattr(logical_device.driver_instance, 'comm_write', write_func)
+            
+            # 设置通信配置
+            setattr(logical_device.driver_instance, 'comm_config', interface_config.config)
+            setattr(logical_device.driver_instance, 'comm_protocol', interface_config.protocol_type)
+            
+            self.lab_logger().info(f"为逻辑设备 {logical_device.device_id} 设置工作站通信代理 -> {comm_device.device_id}")
+            
+        except Exception as e:
+            self.lab_logger().error(f"设置工作站通信代理失败: {e}")
+
+    def _setup_device_hardware_proxy(self, device_id: str, device):
+        """为单个设备设置硬件接口代理"""
+        hardware_interface = device.ros_node_instance._hardware_interface
+        if (
+            hasattr(device.driver_instance, hardware_interface["name"])
+            and hasattr(device.driver_instance, hardware_interface["write"])
+            and (hardware_interface["read"] is None or hasattr(device.driver_instance, hardware_interface["read"]))
+        ):
+            name = getattr(device.driver_instance, hardware_interface["name"])
+            read = hardware_interface.get("read", None)
+            write = hardware_interface.get("write", None)
+
+            # 如果硬件接口是字符串，通过通信设备提供
+            if isinstance(name, str) and name in self.sub_devices:
+                communicate_device = self.sub_devices[name]
+                communicate_hardware_info = communicate_device.ros_node_instance._hardware_interface
+                self._setup_hardware_proxy(device, self.sub_devices[name], read, write)
+                self.lab_logger().info(
+                    f"\n通信代理：为子设备{device_id}\n    "
+                    f"添加了{read}方法(来源：{name} {communicate_hardware_info['write']}) \n    "
+                    f"添加了{write}方法(来源：{name} {communicate_hardware_info['read']})"
+                )
 
     def _setup_protocol_names(self, protocol_type):
         # 处理协议类型
