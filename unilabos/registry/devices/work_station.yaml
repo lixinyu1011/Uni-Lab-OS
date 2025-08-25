@@ -6112,7 +6112,7 @@ workstation:
           title: initialize_device参数
           type: object
         type: UniLabJsonCommand
-    module: unilabos.ros.nodes.presets.protocol_node:ROS2ProtocolNode
+    module: unilabos.ros.nodes.presets.protocol_node:ROS2WorkstationNode
     status_types: {}
     type: ros2
   config_info: []

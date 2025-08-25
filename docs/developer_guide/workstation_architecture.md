@@ -6,7 +6,7 @@
 graph TB
     subgraph "工作站基础架构"
         WB[WorkstationBase]
-        WB --> |继承| RPN[ROS2ProtocolNode]
+        WB --> |继承| RPN[ROS2WorkstationNode]
         WB --> |组合| WCB[WorkstationCommunicationBase]
         WB --> |组合| MMB[MaterialManagementBase]
         WB --> |组合| WHS[WorkstationHTTPService]
@@ -73,7 +73,7 @@ classDiagram
         +get_device_status()
     }
     
-    class ROS2ProtocolNode {
+    class ROS2WorkstationNode {
         +sub_devices: Dict
         +protocol_names: List
         +execute_single_action()
@@ -131,7 +131,7 @@ classDiagram
         +_register_supported_workflows()
     }
     
-    WorkstationBase --|> ROS2ProtocolNode
+    WorkstationBase --|> ROS2WorkstationNode
     WorkstationBase *-- WorkstationCommunicationBase
     WorkstationBase *-- MaterialManagementBase
     WorkstationBase *-- WorkstationHTTPService
@@ -155,10 +155,10 @@ sequenceDiagram
     participant COMM as CommunicationModule
     participant MAT as MaterialManager
     participant HTTP as HTTPService
-    participant ROS as ROS2ProtocolNode
+    participant ROS as ROS2WorkstationNode
     
     APP->>WS: 创建工作站实例
-    WS->>ROS: 初始化ROS2ProtocolNode
+    WS->>ROS: 初始化ROS2WorkstationNode
     ROS->>ROS: 初始化子设备
     ROS->>ROS: 设置硬件接口代理
     
@@ -191,7 +191,7 @@ sequenceDiagram
     participant WS as WorkstationBase
     participant COMM as CommunicationModule
     participant MAT as MaterialManager
-    participant ROS as ROS2ProtocolNode
+    participant ROS as ROS2WorkstationNode
     participant DEV as SubDevice
     
     EXT->>WS: start_workflow(type, params)

@@ -51,7 +51,7 @@ from unilabos_msgs.msg import Resource  # type: ignore
 
 from unilabos.ros.nodes.resource_tracker import DeviceNodeResourceTracker
 from unilabos.ros.x.rclpyx import get_event_loop
-from unilabos.ros.utils.driver_creator import ProtocolNodeCreator, PyLabRobotCreator, DeviceClassCreator
+from unilabos.ros.utils.driver_creator import WorkstationNodeCreator, PyLabRobotCreator, DeviceClassCreator
 from unilabos.utils.async_util import run_async_func
 from unilabos.utils.log import info, debug, warning, error, critical, logger, trace
 from unilabos.utils.type_check import get_type_class, TypeEncoder, serialize_result_info, get_result_info_str
@@ -341,14 +341,11 @@ class BaseROS2DeviceNode(Node, Generic[T]):
             # 物料传输到对应的node节点
             rclient = self.create_client(ResourceAdd, "/resources/add")
             rclient.wait_for_service()
-            rclient2 = self.create_client(ResourceAdd, "/resources/add")
-            rclient2.wait_for_service()
             request = ResourceAdd.Request()
-            request2 = ResourceAdd.Request()
+            
             command_json = json.loads(req.command)
             namespace = command_json["namespace"]
             bind_parent_id = command_json["bind_parent_id"]
-            edge_device_id = command_json["edge_device_id"]
             location = command_json["bind_location"]
             other_calling_param = command_json["other_calling_param"]
             resources = command_json["resource"]
@@ -358,7 +355,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
             LIQUID_VOLUME = other_calling_param.pop("LIQUID_VOLUME", [])
             LIQUID_INPUT_SLOT = other_calling_param.pop("LIQUID_INPUT_SLOT", [])
             slot = other_calling_param.pop("slot", "-1")
-            resource = None
+            parent = None
             if slot != "-1":  # slot为负数的时候采用assign方法
                 other_calling_param["slot"] = slot
             # 本地拿到这个物料，可能需要先做初始化?
@@ -386,20 +383,20 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                     logger.info(f"添加物料{container_query_dict['name']}到资源跟踪器")
                 else:
                     assert len(found_resources) == 1, f"找到多个同名物料: {container_query_dict['name']}, 请检查物料系统"
-                    resource = found_resources[0]
-                    if isinstance(resource, Resource):
-                        regular_container = RegularContainer(resource.id)
-                        regular_container.ulr_resource = resource
+                    parent = found_resources[0]
+                    if isinstance(parent, Resource):
+                        regular_container = RegularContainer(parent.id)
+                        regular_container.ulr_resource = parent
                         regular_container.ulr_resource_data.update(json.loads(container_instance.data))
-                        logger.info(f"更新物料{container_query_dict['name']}的数据{resource.data} ULR")
-                    elif isinstance(resource, dict):
-                        if "data" not in resource:
-                            resource["data"] = {}
-                        resource["data"].update(json.loads(container_instance.data))
-                        request.resources[0].name = resource["name"]
-                        logger.info(f"更新物料{container_query_dict['name']}的数据{resource['data']} dict")
+                        logger.info(f"更新物料{container_query_dict['name']}的数据{parent.data} ULR")
+                    elif isinstance(parent, dict):
+                        if "data" not in parent:
+                            parent["data"] = {}
+                        parent["data"].update(json.loads(container_instance.data))
+                        request.resources[0].name = parent["name"]
+                        logger.info(f"更新物料{container_query_dict['name']}的数据{parent['data']} dict")
                     else:
-                        logger.info(f"更新物料{container_query_dict['name']}出现不支持的数据类型{type(resource)} {resource}")
+                        logger.info(f"更新物料{container_query_dict['name']}出现不支持的数据类型{type(parent)} {parent}")
             response: ResourceAdd.Response = await rclient.call_async(request)
             # 应该先add_resource了
             final_response = {
@@ -428,18 +425,16 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                 return res
             # 接下来该根据bind_parent_id进行assign了，目前只有plr可以进行assign，不然没有办法输入到物料系统中
             if bind_parent_id != self.node_name:
-                resource = self.resource_tracker.figure_resource({"name": bind_parent_id})  # 拿到父节点，进行具体assign等操作
+                parent = self.resource_tracker.figure_resource({"name": bind_parent_id})  # 拿到父节点，进行具体assign等操作
             # request.resources = [convert_to_ros_msg(Resource, resources)]
 
             try:
                 from pylabrobot.resources.resource import Resource as ResourcePLR
                 from pylabrobot.resources.deck import Deck
-                from pylabrobot.resources import Coordinate
-                from pylabrobot.resources import OTDeck
-                from pylabrobot.resources import Plate
+                from pylabrobot.resources import Coordinate, OTDeck, Plate
 
-                contain_model = not isinstance(resource, Deck)
-                if isinstance(resource, ResourcePLR):
+                contain_model = not isinstance(parent, Deck)
+                if isinstance(parent, ResourcePLR):
                     # resources.list()
                     resources_tree = dict_to_tree(copy.deepcopy({r["id"]: r for r in resources}))
                     plr_instance = resource_ulab_to_plr(resources_tree[0], contain_model)
@@ -456,20 +451,22 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                         ]
                         final_response["liquid_input_resources"] = [ROS2MessageInstance(i).get_python_dict() for i in input_wells_ulr]
                         res.response = json.dumps(final_response)
-                    if isinstance(resource, OTDeck) and "slot" in other_calling_param:
+                    if isinstance(parent, OTDeck) and "slot" in other_calling_param:
                         other_calling_param["slot"] = int(other_calling_param["slot"])
-                        resource.assign_child_at_slot(plr_instance, **other_calling_param)
+                        parent.assign_child_at_slot(plr_instance, **other_calling_param)
                     else:
                         _discard_slot = other_calling_param.pop("slot", "-1")
-                        resource.assign_child_resource(
+                        parent.assign_child_resource(
                             plr_instance,
                             Coordinate(location["x"], location["y"], location["z"]),
                             **other_calling_param,
                         )
+                    
+                    request2 = ResourceAdd.Request()
                     request2.resources = [
-                        convert_to_ros_msg(Resource, r) for r in tree_to_list([resource_plr_to_ulab(resource)])
+                        convert_to_ros_msg(Resource, r) for r in tree_to_list([resource_plr_to_ulab(parent)])
                     ]
-                    rclient2.call(request2)
+                    rclient.call(request2)
                 # 发送给ResourceMeshManager
                 action_client = ActionClient(
                     self,
@@ -959,7 +956,7 @@ class ROS2DeviceNode:
 
         # TODO: 要在创建之前预先请求服务器是否有当前id的物料，放到resource_tracker中，让pylabrobot进行创建
         # 创建设备类实例
-        # 判断是否包含设备子节点，决定是否使用ROS2ProtocolNode
+        # 判断是否包含设备子节点，决定是否使用ROS2WorkstationNode
         has_device_children = any(
             child_config.get("type", "device") == "device" 
             for child_config in children.values()
@@ -973,17 +970,17 @@ class ROS2DeviceNode:
                 driver_class, children=children, resource_tracker=self.resource_tracker
             )
         else:
-            from unilabos.ros.nodes.presets.protocol_node import ROS2ProtocolNode
-            from unilabos.device_comms.workstation_base import WorkstationBase
+            from unilabos.ros.nodes.presets.protocol_node import ROS2WorkstationNode
+            from unilabos.devices.work_station.workstation_base import WorkstationBase
 
             # 检查是否是WorkstationBase的子类且包含设备子节点
             if issubclass(self._driver_class, WorkstationBase) and has_device_children:
-                # WorkstationBase + 设备子节点 -> 使用ProtocolNode作为ros_instance
+                # WorkstationBase + 设备子节点 -> 使用WorkstationNode作为ros_instance
                 self._use_protocol_node_ros = True
                 self._driver_creator = DeviceClassCreator(driver_class, children=children, resource_tracker=self.resource_tracker)
-            elif issubclass(self._driver_class, ROS2ProtocolNode):  # 是ProtocolNode的子节点，就要调用ProtocolNodeCreator
+            elif issubclass(self._driver_class, ROS2WorkstationNode):  # 是WorkstationNode的子节点，就要调用WorkstationNodeCreator
                 self._use_protocol_node_ros = False
-                self._driver_creator = ProtocolNodeCreator(driver_class, children=children, resource_tracker=self.resource_tracker)
+                self._driver_creator = WorkstationNodeCreator(driver_class, children=children, resource_tracker=self.resource_tracker)
             else:
                 self._use_protocol_node_ros = False
                 self._driver_creator = DeviceClassCreator(driver_class, children=children, resource_tracker=self.resource_tracker)
@@ -1000,8 +997,8 @@ class ROS2DeviceNode:
         if driver_is_ros:
             self._ros_node = self._driver_instance  # type: ignore
         elif hasattr(self, '_use_protocol_node_ros') and self._use_protocol_node_ros:
-            # WorkstationBase + 设备子节点 -> 创建ROS2ProtocolNode作为ros_instance
-            from unilabos.ros.nodes.presets.protocol_node import ROS2ProtocolNode
+            # WorkstationBase + 设备子节点 -> 创建ROS2WorkstationNode作为ros_instance
+            from unilabos.ros.nodes.presets.protocol_node import ROS2WorkstationNode
             
             # 从children提取设备协议类型
             protocol_types = set()
@@ -1018,7 +1015,7 @@ class ROS2DeviceNode:
             if not protocol_types:
                 protocol_types = ["default_protocol"]
             
-            self._ros_node = ROS2ProtocolNode(
+            self._ros_node = ROS2WorkstationNode(
                 device_id=device_id,
                 children=children,
                 protocol_type=list(protocol_types),
