@@ -3,7 +3,7 @@ from typing import Union, Dict, Any, Optional
 
 from unilabos_msgs.msg import Resource
 from pylabrobot.resources import Resource as PLRResource, Plate, TipRack, Coordinate
-from unilabos.ros.nodes.presets.protocol_node import ROS2ProtocolNode
+from unilabos.ros.nodes.presets.protocol_node import ROS2WorkstationNode
 from unilabos.ros.nodes.resource_tracker import DeviceNodeResourceTracker
 
 
@@ -44,7 +44,7 @@ def get_workstation_plate_resource(name: str) -> PLRResource:  # 要给定一个
     return plate
 
 
-class WorkStationExample(ROS2ProtocolNode):
+class WorkStationExample(ROS2WorkstationNode):
     def __init__(self,
                  # 你可以在这里增加任意的参数，对应启动json填写相应的参数内容
                  device_id: str,
