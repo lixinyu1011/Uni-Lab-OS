@@ -100,7 +100,7 @@ class ROS2WorkstationNode(BaseROS2DeviceNode):
     def _setup_workstation_integration(self):
         """设置工作站集成 - 统一设备处理模式"""
         # 1. 建立协议节点引用
-        self.workstation_instance.set_protocol_node(self)
+        self.workstation_instance.set_workstation_node(self)
         
         self.lab_logger().info(f"ROS2WorkstationNode {self.device_id} 与工作站实例 {type(self.workstation_instance).__name__} 集成完成")
 
