@@ -970,19 +970,19 @@ class ROS2DeviceNode:
                 driver_class, children=children, resource_tracker=self.resource_tracker
             )
         else:
-            from unilabos.ros.nodes.presets.protocol_node import ROS2WorkstationNode
-            from unilabos.devices.work_station.workstation_base import WorkstationBase
+            from unilabos.ros.nodes.presets.workstation_node import ROS2WorkstationNode
+            from unilabos.devices.workstation.workstation_base import WorkstationBase
 
             # 检查是否是WorkstationBase的子类且包含设备子节点
             if issubclass(self._driver_class, WorkstationBase) and has_device_children:
                 # WorkstationBase + 设备子节点 -> 使用WorkstationNode作为ros_instance
-                self._use_protocol_node_ros = True
+                self._use_workstation_node_ros = True
                 self._driver_creator = DeviceClassCreator(driver_class, children=children, resource_tracker=self.resource_tracker)
             elif issubclass(self._driver_class, ROS2WorkstationNode):  # 是WorkstationNode的子节点，就要调用WorkstationNodeCreator
-                self._use_protocol_node_ros = False
+                self._use_workstation_node_ros = False
                 self._driver_creator = WorkstationNodeCreator(driver_class, children=children, resource_tracker=self.resource_tracker)
             else:
-                self._use_protocol_node_ros = False
+                self._use_workstation_node_ros = False
                 self._driver_creator = DeviceClassCreator(driver_class, children=children, resource_tracker=self.resource_tracker)
 
         if driver_is_ros:
@@ -996,9 +996,9 @@ class ROS2DeviceNode:
         # 创建ROS2节点
         if driver_is_ros:
             self._ros_node = self._driver_instance  # type: ignore
-        elif hasattr(self, '_use_protocol_node_ros') and self._use_protocol_node_ros:
+        elif hasattr(self, '_use_workstation_node_ros') and self._use_workstation_node_ros:
             # WorkstationBase + 设备子节点 -> 创建ROS2WorkstationNode作为ros_instance
-            from unilabos.ros.nodes.presets.protocol_node import ROS2WorkstationNode
+            from unilabos.ros.nodes.presets.workstation_node import ROS2WorkstationNode
             
             # 从children提取设备协议类型
             protocol_types = set()
