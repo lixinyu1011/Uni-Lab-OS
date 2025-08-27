@@ -606,12 +606,12 @@ class ProxyWorkflowExecutor(WorkflowExecutor):
         """执行代理工作流"""
         try:
             # 通过协议节点调用目标设备的工作流
-            if self.workstation._protocol_node:
-                return self.workstation._protocol_node.call_device_method(
+            if self.workstation._workstation_node:
+                return self.workstation._workstation_node.call_device_method(
                     self.device_id, 'execute_workflow', workflow_name, parameters
                 )
             else:
-                logger.error("代理模式需要protocol_node")
+                logger.error("代理模式需要workstation_node")
                 return False
                 
         except Exception as e:
@@ -621,12 +621,12 @@ class ProxyWorkflowExecutor(WorkflowExecutor):
     def stop_workflow(self, emergency: bool = False) -> bool:
         """停止代理工作流"""
         try:
-            if self.workstation._protocol_node:
-                return self.workstation._protocol_node.call_device_method(
+            if self.workstation._workstation_node:
+                return self.workstation._workstation_node.call_device_method(
                     self.device_id, 'stop_workflow', emergency
                 )
             else:
-                logger.error("代理模式需要protocol_node")
+                logger.error("代理模式需要workstation_node")
                 return False
                 
         except Exception as e:
