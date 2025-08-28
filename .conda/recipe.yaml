@@ -85,5 +85,5 @@ requirements:
 
 about:
   repository: https://github.com/dptech-corp/Uni-Lab-OS
-  license: GPL-3.0
+  license: GPL-3.0-only
   description: "Uni-Lab-OS"
