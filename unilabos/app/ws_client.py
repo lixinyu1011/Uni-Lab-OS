@@ -17,6 +17,7 @@ from urllib.parse import urlparse
 from unilabos.app.controler import job_add
 from unilabos.app.model import JobAddReq
 from unilabos.ros.nodes.presets.host_node import HostNode
+from unilabos.utils.type_check import serialize_result_info
 
 try:
     import websockets
@@ -80,8 +81,10 @@ class WebSocketClient(BaseCommunicationClient):
             scheme = "wss"
         else:
             scheme = "ws"
-        self.websocket_url = f"{scheme}://{parsed.netloc}/api/v1/lab"
-
+        if ":" in parsed.netloc:
+            self.websocket_url = f"{scheme}://{parsed.hostname}:{parsed.port + 1}/api/v1/lab"
+        else:
+            self.websocket_url = f"{scheme}://{parsed.netloc}/api/v1/lab"
         logger.debug(f"[WebSocket] URL: {self.websocket_url}")
 
     def start(self) -> None:
@@ -148,7 +151,7 @@ class WebSocketClient(BaseCommunicationClient):
                     ssl=ssl_context,
                     ping_interval=WSConfig.ping_interval,
                     ping_timeout=10,
-                    additional_headers={"Authorization": f"Bearer {BasicConfig.auth_secret()}"},
+                    additional_headers={"Authorization": f"Lab {BasicConfig.auth_secret()}"},
                 ) as websocket:
                     self.websocket = websocket
                     self.connected = True
@@ -176,6 +179,8 @@ class WebSocketClient(BaseCommunicationClient):
             elif self.reconnect_count >= WSConfig.max_reconnect_attempts:
                 logger.error("[WebSocket] Max reconnection attempts reached")
                 break
+            else:
+                self.reconnect_count -= 1
 
     async def _close_connection(self):
         """关闭WebSocket连接"""
@@ -232,10 +237,18 @@ class WebSocketClient(BaseCommunicationClient):
     async def _handle_job_start(self, data: Dict[str, Any]):
         """处理作业启动消息"""
         try:
-            job_req = JobAddReq(**data.get("job_data", {}))
-            job_add(job_req)
-            job_id = getattr(job_req, "id", "unknown")
-            logger.info(f"[WebSocket] Job started: {job_id}")
+            req = JobAddReq(**data)
+            try:
+                req.job_id = str(uuid.uuid4())
+                logger.info(f"[WebSocket] Job started: {req.job_id}")
+                HostNode.get_instance().send_goal(req.device_id, action_type=req.action_type, action_name=req.action,
+                                                  action_kwargs=req.action_args, goal_uuid=req.job_id,
+                                                  server_info=req.server_info)
+            except Exception as e:
+                for bridge in HostNode.get_instance().bridges:
+                    traceback.print_exc()
+                    if hasattr(bridge, "publish_job_status"):
+                        self.publish_job_status({}, req.job_id, "failed", serialize_result_info(traceback.format_exc(), False, {}))
         except Exception as e:
             logger.error(f"[WebSocket] Error handling job start: {str(e)}")
 

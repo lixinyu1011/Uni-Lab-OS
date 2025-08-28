@@ -56,7 +56,7 @@ class MQConfig:
 # WebSocket配置
 class WSConfig:
     reconnect_interval = 5  # 重连间隔（秒）
-    max_reconnect_attempts = 10  # 最大重连次数
+    max_reconnect_attempts = 999  # 最大重连次数
     ping_interval = 30  # ping间隔（秒）
 
 
@@ -96,7 +96,7 @@ def _update_config_from_module(module, override_labid: Optional[str]):
                         setattr(obj, attr, getattr(getattr(module, name), attr))
     # 更新OSS认证
     if len(OSSUploadConfig.authorization) == 0:
-        OSSUploadConfig.authorization = f"lab {MQConfig.lab_id}"
+        OSSUploadConfig.authorization = f"Lab {MQConfig.lab_id}"
     # 对 ca_file cert_file key_file 进行初始化
     if override_labid:
         MQConfig.lab_id = override_labid

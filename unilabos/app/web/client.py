@@ -53,7 +53,7 @@ class HTTPClient:
             f"{self.remote_addr}/lab/resource/edge/batch_create/?database_process_later={database_param}"
             if not self.backend_go else f"{self.remote_addr}/lab/material/edge",
             json=resources,
-            headers={"Authorization": f"lab {self.auth}"},
+            headers={"Authorization": f"{'lab' if not self.backend_go else 'Lab'} {self.auth}"},
             timeout=100,
         )
         if response.status_code != 200 and response.status_code != 201:
@@ -73,7 +73,7 @@ class HTTPClient:
         response = requests.post(
             f"{self.remote_addr}/lab/resource/?database_process_later={1 if database_process_later else 0}" if not self.backend_go else f"{self.remote_addr}/lab/material",
             json=resources if not self.backend_go else {"nodes": resources},
-            headers={"Authorization": f"lab {self.auth}"},
+            headers={"Authorization": f"{'lab' if not self.backend_go else 'Lab'} {self.auth}"},
             timeout=100,
         )
         if response.status_code != 200:
@@ -96,7 +96,7 @@ class HTTPClient:
         response = requests.get(
             f"{self.remote_addr}/lab/resource/?edge_format=1" if not self.backend_go else f"{self.remote_addr}/lab/material",
             params={"id": id, "with_children": with_children},
-            headers={"Authorization": f"lab {self.auth}"},
+            headers={"Authorization": f"{'lab' if not self.backend_go else 'Lab'} {self.auth}"},
             timeout=20,
         )
         return response.json()
@@ -114,7 +114,7 @@ class HTTPClient:
         response = requests.delete(
             f"{self.remote_addr}/lab/resource/batch_delete/",
             params={"id": id},
-            headers={"Authorization": f"lab {self.auth}"},
+            headers={"Authorization": f"{'lab' if not self.backend_go else 'Lab'} {self.auth}"},
             timeout=20,
         )
         return response
@@ -132,7 +132,7 @@ class HTTPClient:
         response = requests.patch(
             f"{self.remote_addr}/lab/resource/batch_update/?edge_format=1",
             json=resources,
-            headers={"Authorization": f"lab {self.auth}"},
+            headers={"Authorization": f"{'lab' if not self.backend_go else 'Lab'} {self.auth}"},
             timeout=100,
         )
         return response
@@ -156,7 +156,7 @@ class HTTPClient:
             response = requests.post(
                 f"{self.remote_addr}/api/account/file_upload/{scene}",
                 files=files,
-                headers={"Authorization": f"lab {self.auth}"},
+                headers={"Authorization": f"{'lab' if not self.backend_go else 'Lab'} {self.auth}"},
                 timeout=30,  # 上传文件可能需要更长的超时时间
             )
         return response
@@ -174,7 +174,7 @@ class HTTPClient:
         response = requests.post(
             f"{self.remote_addr}/lab/registry/" if not self.backend_go else f"{self.remote_addr}/lab/resource",
             json=registry_data,
-            headers={"Authorization": f"lab {self.auth}"},
+            headers={"Authorization": f"{'lab' if not self.backend_go else 'Lab'} {self.auth}"},
             timeout=30,
         )
         if response.status_code not in [200, 201]:
@@ -193,7 +193,7 @@ class HTTPClient:
         """
         response = requests.get(
             f"{self.remote_addr}/lab/resource/graph_info/",
-            headers={"Authorization": f"lab {self.auth}"},
+            headers={"Authorization": f"{'lab' if not self.backend_go else 'Lab'} {self.auth}"},
             timeout=(3, 30),
         )
         if response.status_code != 200:

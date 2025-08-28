@@ -50,10 +50,14 @@ class Resp(BaseModel):
 
 class JobAddReq(BaseModel):
     device_id: str = Field(examples=["Gripper"], description="device id")
-    data: dict = Field(examples=[{"position": 30, "torque": 5, "action": "push_to"}])
+    action: str = Field(examples=["_execute_driver_command_async"], description="action name", default="")
+    action_type: str = Field(examples=["unilabos_msgs.action._str_single_input.StrSingleInput"], description="action name", default="")
+    action_args: dict = Field(examples=[{'string': 'string'}], description="action name", default="")
     job_id: str = Field(examples=["job_id"], description="goal uuid")
     node_id: str = Field(examples=["node_id"], description="node uuid")
     server_info: dict = Field(examples=[{"send_timestamp": 1717000000.0}], description="server info")
+
+    data: dict = Field(examples=[{"position": 30, "torque": 5, "action": "push_to"}], default={})
 
 
 class JobStepFinishReq(BaseModel):
