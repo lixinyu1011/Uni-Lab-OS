@@ -5,6 +5,7 @@ import base64
 import traceback
 import os
 import importlib.util
+from typing import Optional
 from unilabos.utils import logger
 
 
@@ -20,6 +21,8 @@ class BasicConfig:
     machine_name = "undefined"
     vis_2d_enable = False
     enable_resource_load = True
+    # 通信协议配置
+    communication_protocol = "mqtt"  # 支持: "mqtt", "websocket"
 
     @classmethod
     def auth_secret(cls):
@@ -27,7 +30,7 @@ class BasicConfig:
         if not cls.ak or not cls.sk:
             return ""
         target = f"{cls.ak}:{cls.sk}"
-        base64_target = base64.b64encode(target.encode('utf-8')).decode('utf-8')
+        base64_target = base64.b64encode(target.encode("utf-8")).decode("utf-8")
         return base64_target
 
 
@@ -48,6 +51,13 @@ class MQConfig:
     ca_file = ""  # 相对config.py所在目录的路径
     cert_file = ""  # 相对config.py所在目录的路径
     key_file = ""  # 相对config.py所在目录的路径
+
+
+# WebSocket配置
+class WSConfig:
+    reconnect_interval = 5  # 重连间隔（秒）
+    max_reconnect_attempts = 10  # 最大重连次数
+    ping_interval = 30  # ping间隔（秒）
 
 
 # OSS上传配置
@@ -77,7 +87,7 @@ class ROSConfig:
     ]
 
 
-def _update_config_from_module(module, override_labid: str):
+def _update_config_from_module(module, override_labid: Optional[str]):
     for name, obj in globals().items():
         if isinstance(obj, type) and name.endswith("Config"):
             if hasattr(module, name) and isinstance(getattr(module, name), type):
@@ -169,7 +179,6 @@ def _update_config_from_env():
             logger.info(f"[ENV] 设置 {matched_cls.__name__}.{matched_field} = {value}")
         except Exception as e:
             logger.warning(f"[ENV] 解析环境变量 {env_key} 失败: {e}")
-
 
 
 def load_config(config_path=None, override_labid=None):

@@ -61,7 +61,7 @@ requirements:
   - uvicorn
   - gradio
   - flask
-  - websocket
+  - websockets
   - ipython
   - jupyter
   - jupyros

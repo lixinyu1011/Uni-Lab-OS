@@ -152,11 +152,15 @@ class HostNode(BaseROS2DeviceNode):
         self.device_status = {}  # 用来存储设备状态
         self.device_status_timestamps = {}  # 用来存储设备状态最后更新时间
         if BasicConfig.upload_registry:
-            from unilabos.app.mq import mqtt_client
-            register_devices_and_resources(mqtt_client, lab_registry)
+            from unilabos.app.communication import get_communication_client
+
+            comm_client = get_communication_client()
+            register_devices_and_resources(comm_client, lab_registry)
         else:
-            self.lab_logger().warning("本次启动注册表不报送云端，如果您需要联网调试，请使用unilab-register命令进行单独报送，或者在启动命令增加--upload_registry")
-        time.sleep(1) # 等待MQTT连接稳定
+            self.lab_logger().warning(
+                "本次启动注册表不报送云端，如果您需要联网调试，请使用unilab-register命令进行单独报送，或者在启动命令增加--upload_registry"
+            )
+        time.sleep(1)  # 等待通信连接稳定
         # 首次发现网络中的设备
         self._discover_devices()
 
@@ -214,6 +218,7 @@ class HostNode(BaseROS2DeviceNode):
             for bridge in self.bridges:
                 if hasattr(bridge, "resource_add"):
                     from unilabos.app.web.client import HTTPClient
+
                     client: HTTPClient = bridge
                     resource_start_time = time.time()
                     resource_add_res = client.resource_add(add_schema(resource_with_parent_name), False)
@@ -340,9 +345,10 @@ class HostNode(BaseROS2DeviceNode):
                     self.lab_logger().trace(f"[Host Node] Created ActionClient (Discovery): {action_id}")
                     action_name = action_id[len(namespace) + 1 :]
                     edge_device_id = namespace[9:]
-                    # from unilabos.app.mq import mqtt_client
+                    # from unilabos.app.comm_factory import get_communication_client
+                    # comm_client = get_communication_client()
                     # info_with_schema = ros_action_to_json_schema(action_type)
-                    # mqtt_client.publish_actions(action_name, {
+                    # comm_client.publish_actions(action_name, {
                     #     "device_id": edge_device_id,
                     #     "device_type": "",
                     #     "action_name": action_name,
@@ -365,7 +371,9 @@ class HostNode(BaseROS2DeviceNode):
         ):
             # 这里要求device_id传入必须是edge_device_id
             if device_id not in self.devices_names:
-                self.lab_logger().error(f"[Host Node] Device {device_id} not found in devices_names. Create resource failed.")
+                self.lab_logger().error(
+                    f"[Host Node] Device {device_id} not found in devices_names. Create resource failed."
+                )
                 raise ValueError(f"[Host Node] Device {device_id} not found in devices_names. Create resource failed.")
 
             device_key = f"{self.devices_names[device_id]}/{device_id}"
@@ -425,10 +433,12 @@ class HostNode(BaseROS2DeviceNode):
             res_creation_input.update(
                 {
                     "data": {
-                        "liquids": [{
-                        "liquid_type": liquid_type[0] if liquid_type else None,
-                        "liquid_volume": liquid_volume[0] if liquid_volume else None,
-                        }]
+                        "liquids": [
+                            {
+                                "liquid_type": liquid_type[0] if liquid_type else None,
+                                "liquid_volume": liquid_volume[0] if liquid_volume else None,
+                            }
+                        ]
                     }
                 }
             )
@@ -451,7 +461,9 @@ class HostNode(BaseROS2DeviceNode):
             )
         ]
 
-        response = await self.create_resource_detailed(resources, device_ids, bind_parent_id, bind_location, other_calling_param)
+        response = await self.create_resource_detailed(
+            resources, device_ids, bind_parent_id, bind_location, other_calling_param
+        )
 
         return response
 
@@ -482,7 +494,9 @@ class HostNode(BaseROS2DeviceNode):
         self.devices_instances[device_id] = d
         # noinspection PyProtectedMember
         for action_name, action_value_mapping in d._ros_node._action_value_mappings.items():
-            if action_name.startswith("auto-") or str(action_value_mapping.get("type", "")).startswith("UniLabJsonCommand"):
+            if action_name.startswith("auto-") or str(action_value_mapping.get("type", "")).startswith(
+                "UniLabJsonCommand"
+            ):
                 continue
             action_id = f"/devices/{device_id}/{action_name}"
             if action_id not in self._action_clients:
@@ -491,9 +505,10 @@ class HostNode(BaseROS2DeviceNode):
                 self.lab_logger().trace(
                     f"[Host Node] Created ActionClient (Local): {action_id}"
                 )  # 子设备再创建用的是Discover发现的
-                # from unilabos.app.mq import mqtt_client
+                # from unilabos.app.comm_factory import get_communication_client
+                # comm_client = get_communication_client()
                 # info_with_schema = ros_action_to_json_schema(action_type)
-                # mqtt_client.publish_actions(action_name, {
+                # comm_client.publish_actions(action_name, {
                 #     "device_id": device_id,
                 #     "device_type": device_config["class"],
                 #     "action_name": action_name,
@@ -591,13 +606,9 @@ class HostNode(BaseROS2DeviceNode):
                     if hasattr(bridge, "publish_device_status"):
                         bridge.publish_device_status(self.device_status, device_id, property_name)
                         if bCreate:
-                            self.lab_logger().trace(
-                                f"Status created: {device_id}.{property_name} = {msg.data}"
-                            )
+                            self.lab_logger().trace(f"Status created: {device_id}.{property_name} = {msg.data}")
                         else:
-                            self.lab_logger().debug(
-                               f"Status updated: {device_id}.{property_name} = {msg.data}"
-                            )
+                            self.lab_logger().debug(f"Status updated: {device_id}.{property_name} = {msg.data}")
 
     def send_goal(
         self,
@@ -624,10 +635,12 @@ class HostNode(BaseROS2DeviceNode):
                 action_name = action_name[5:]
             action_id = f"/devices/{device_id}/_execute_driver_command"
             action_kwargs = {
-                "string": json.dumps({
-                    "function_name": action_name,
-                    "function_args": action_kwargs,
-                })
+                "string": json.dumps(
+                    {
+                        "function_name": action_name,
+                        "function_args": action_kwargs,
+                    }
+                )
             }
             if action_type.startswith("UniLabJsonCommandAsync"):
                 action_id = f"/devices/{device_id}/_execute_driver_command_async"
@@ -802,7 +815,7 @@ class HostNode(BaseROS2DeviceNode):
         """
         self.lab_logger().info(f"[Host Node] Node info update request received: {request}")
         try:
-            from unilabos.app.mq import mqtt_client
+            from unilabos.app.communication import get_communication_client
 
             info = json.loads(request.command)
             if "SYNC_SLAVE_NODE_INFO" in info:
@@ -811,9 +824,10 @@ class HostNode(BaseROS2DeviceNode):
                 edge_device_id = info["edge_device_id"]
                 self.device_machine_names[edge_device_id] = machine_name
             else:
+                comm_client = get_communication_client()
                 registry_config = info["registry_config"]
                 for device_config in registry_config:
-                    mqtt_client.publish_registry(device_config["id"], device_config)
+                    comm_client.publish_registry(device_config["id"], device_config)
             self.lab_logger().debug(f"[Host Node] Node info update: {info}")
             response.response = "OK"
         except Exception as e:
@@ -840,6 +854,7 @@ class HostNode(BaseROS2DeviceNode):
         success = False
         if len(self.bridges) > 0:  # 边的提交待定
             from unilabos.app.web.client import HTTPClient
+
             client: HTTPClient = self.bridges[-1]
             r = client.resource_add(add_schema(resources), False)
             success = bool(r)
@@ -848,6 +863,7 @@ class HostNode(BaseROS2DeviceNode):
 
         if success:
             from unilabos.resources.graphio import physical_setup_graph
+
             for resource in resources:
                 if resource.get("id") not in physical_setup_graph.nodes:
                     physical_setup_graph.add_node(resource["id"], **resource)
@@ -988,9 +1004,10 @@ class HostNode(BaseROS2DeviceNode):
             send_timestamp = time.time()
 
             # 发送ping
-            from unilabos.app.mq import mqtt_client
+            from unilabos.app.communication import get_communication_client
 
-            mqtt_client.send_ping(ping_id, send_timestamp)
+            comm_client = get_communication_client()
+            comm_client.send_ping(ping_id, send_timestamp)
 
             # 等待pong响应
             timeout = 10.0

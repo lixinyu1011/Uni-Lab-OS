@@ -35,8 +35,7 @@ dependencies:
   - uvicorn
   - gradio
   - flask
-  - websocket
-  - paho-mqtt
+  - websockets
   # Notebook
   - ipython
   - jupyter

@@ -12,6 +12,7 @@ class MQConfig:
     cert_file = "./lab.crt"
     key_file = "./lab.key"
 
+
 # HTTP配置
 class HTTPConfig:
     remote_addr = "https://uni-lab.bohrium.com/api/v1"

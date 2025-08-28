@@ -10,7 +10,6 @@ from copy import deepcopy
 
 import yaml
 
-from unilabos.resources.graphio import modify_to_backend_format
 
 # 首先添加项目根目录到路径
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -20,6 +19,7 @@ if unilabos_dir not in sys.path:
 
 from unilabos.config.config import load_config, BasicConfig
 from unilabos.utils.banner_print import print_status, print_unilab_banner
+from unilabos.resources.graphio import modify_to_backend_format
 
 
 def load_config_from_file(config_path, override_labid=None):
@@ -147,6 +147,11 @@ def parse_args():
         help="实验室请求的sk",
     )
     parser.add_argument(
+        "--websocket",
+        action="store_true",
+        help="使用websocket而非mqtt作为通信协议",
+    )
+    parser.add_argument(
         "--skip_env_check",
         action="store_true",
         help="跳过启动时的环境依赖检查",
@@ -179,7 +184,7 @@ def main():
     else:
         working_dir = os.path.abspath(os.path.join(os.getcwd(), "unilabos_data"))
     if args_dict.get("working_dir"):
-        working_dir = args_dict.get("working_dir")
+        working_dir = args_dict.get("working_dir", "")
         if config_path and not os.path.exists(config_path):
             config_path = os.path.join(working_dir, "local_config.py")
             if not os.path.exists(config_path):
@@ -215,6 +220,7 @@ def main():
     if args_dict["use_remote_resource"]:
         print_status("使用远程资源启动", "info")
         from unilabos.app.web import http_client
+
         res = http_client.resource_get("host_node", False)
         if str(res.get("code", 0)) == "0" and len(res.get("data", [])) > 0:
             print_status("远程资源已存在，使用云端物料！", "info")
@@ -229,6 +235,7 @@ def main():
     BasicConfig.is_host_mode = not args_dict.get("without_host", False)
     BasicConfig.slave_no_host = args_dict.get("slave_no_host", False)
     BasicConfig.upload_registry = args_dict.get("upload_registry", False)
+    BasicConfig.communication_protocol = "websocket" if args_dict.get("websocket", False) else "mqtt"
     machine_name = os.popen("hostname").read().strip()
     machine_name = "".join([c if c.isalnum() or c == "_" else "_" for c in machine_name])
     BasicConfig.machine_name = machine_name
@@ -241,7 +248,7 @@ def main():
         dict_to_nested_dict,
         initialize_resources,
     )
-    from unilabos.app.mq import mqtt_client
+    from unilabos.app.communication import get_communication_client
     from unilabos.registry.registry import build_registry
     from unilabos.app.backend import start_backend
     from unilabos.app.web import http_client
@@ -289,19 +296,22 @@ def main():
 
     args_dict["bridges"] = []
 
+    # 获取通信客户端（根据配置选择MQTT或WebSocket）
+    comm_client = get_communication_client()
+
     if "mqtt" in args_dict["app_bridges"]:
-        args_dict["bridges"].append(mqtt_client)
+        args_dict["bridges"].append(comm_client)
     if "fastapi" in args_dict["app_bridges"]:
         args_dict["bridges"].append(http_client)
     if "mqtt" in args_dict["app_bridges"]:
 
         def _exit(signum, frame):
-            mqtt_client.stop()
+            comm_client.stop()
             sys.exit(0)
 
         signal.signal(signal.SIGINT, _exit)
         signal.signal(signal.SIGTERM, _exit)
-        mqtt_client.start()
+        comm_client.start()
     args_dict["resources_mesh_config"] = {}
     args_dict["resources_edge_config"] = resource_edge_info
     # web visiualize 2D

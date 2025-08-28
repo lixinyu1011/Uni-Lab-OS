@@ -15,17 +15,20 @@ import os
 from unilabos.config.config import MQConfig
 from unilabos.app.controler import job_add
 from unilabos.app.model import JobAddReq
+from unilabos.app.communication import BaseCommunicationClient
 from unilabos.utils import logger
 from unilabos.utils.type_check import TypeEncoder
 
 from paho.mqtt.enums import CallbackAPIVersion
 
 
-class MQTTClient:
+class MQTTClient(BaseCommunicationClient):
     mqtt_disable = True
 
     def __init__(self):
+        super().__init__()
         self.mqtt_disable = not MQConfig.lab_id
+        self.is_disabled = self.mqtt_disable  # 更新父类属性
         self.client_id = f"{MQConfig.group_id}@@@{MQConfig.lab_id}{uuid.uuid4()}"
         logger.info("[MQTT] Client_id: " + self.client_id)
         self.client = mqtt.Client(CallbackAPIVersion.VERSION2, client_id=self.client_id, protocol=mqtt.MQTTv5)
@@ -208,11 +211,12 @@ class MQTTClient:
         self.client.subscribe(pong_topic, 0)
         logger.debug(f"Subscribed to pong topic: {pong_topic}")
 
-    def handle_pong(self, pong_data: dict):
-        """处理pong响应（这个方法会在收到pong消息时被调用）"""
-        logger.debug(f"Pong received: {pong_data}")
-        # 这里会被HostNode的ping-pong处理逻辑调用
-        pass
+    @property
+    def is_connected(self) -> bool:
+        """检查MQTT是否已连接"""
+        if self.is_disabled:
+            return False
+        return hasattr(self.client, "is_connected") and self.client.is_connected()
 
 
 mqtt_client = MQTTClient()
