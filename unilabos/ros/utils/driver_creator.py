@@ -6,7 +6,6 @@
 """
 import asyncio
 import inspect
-import json
 import traceback
 from abc import abstractmethod
 from typing import Type, Any, Dict, Optional, TypeVar, Generic
@@ -297,6 +296,11 @@ class WorkstationNodeCreator(DeviceClassCreator[T]):
         try:
             # 创建实例，额外补充一个给protocol node的字段，后面考虑取消
             data["children"] = self.children
+            station_resource_dict = data["station_resource"]
+            from pylabrobot.resources import Deck, Resource
+            plrc = PyLabRobotCreator(Deck, self.children, self.resource_tracker)
+            station_resource = plrc.create_instance(station_resource_dict)
+            data["station_resource"] = station_resource
             self.device_instance = super(WorkstationNodeCreator, self).create_instance(data)
             self.post_create()
             return self.device_instance

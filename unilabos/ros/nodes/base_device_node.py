@@ -515,6 +515,17 @@ class BaseROS2DeviceNode(Node, Generic[T]):
         rclpy.get_global_executor().add_node(self)
         self.lab_logger().debug(f"ROS节点初始化完成")
 
+    async def update_resource(self, resources: List[Any]):
+        r = ResourceUpdate.Request()
+        unique_resources = []
+        for resource in resources:  # resource是list[ResourcePLR]
+            # 目前更新资源只支持传入plr的对象，后面要更新convert_resources_from_type函数
+            converted_list = convert_resources_from_type([resource], resource_type=[object], is_plr=True)
+            unique_resources.extend([convert_to_ros_msg(Resource, converted) for converted in converted_list])
+        r.resources = unique_resources
+        response = await self._resource_clients["resource_update"].call_async(r)
+        self.lab_logger().debug(f"资源更新结果: {response}")
+
     def register_device(self):
         """向注册表中注册设备信息"""
         topics_info = self._property_publishers.copy()
@@ -944,6 +955,7 @@ class ROS2DeviceNode:
         self._driver_class = driver_class
         self.device_config = device_config
         self.driver_is_ros = driver_is_ros
+        self.driver_is_workstation = False
         self.resource_tracker = DeviceNodeResourceTracker()
 
         # use_pylabrobot_creator 使用 cls的包路径检测
@@ -956,12 +968,6 @@ class ROS2DeviceNode:
 
         # TODO: 要在创建之前预先请求服务器是否有当前id的物料，放到resource_tracker中，让pylabrobot进行创建
         # 创建设备类实例
-        # 判断是否包含设备子节点，决定是否使用ROS2WorkstationNode
-        has_device_children = any(
-            child_config.get("type", "device") == "device" 
-            for child_config in children.values()
-        )
-
         if use_pylabrobot_creator:
             # 先对pylabrobot的子资源进行加载，不然subclass无法认出
             # 在下方对于加载Deck等Resource要手动import
@@ -970,19 +976,12 @@ class ROS2DeviceNode:
                 driver_class, children=children, resource_tracker=self.resource_tracker
             )
         else:
-            from unilabos.ros.nodes.presets.workstation_node import ROS2WorkstationNode
             from unilabos.devices.workstation.workstation_base import WorkstationBase
 
-            # 检查是否是WorkstationBase的子类且包含设备子节点
-            if issubclass(self._driver_class, WorkstationBase) and has_device_children:
-                # WorkstationBase + 设备子节点 -> 使用WorkstationNode作为ros_instance
-                self._use_workstation_node_ros = True
-                self._driver_creator = DeviceClassCreator(driver_class, children=children, resource_tracker=self.resource_tracker)
-            elif issubclass(self._driver_class, ROS2WorkstationNode):  # 是WorkstationNode的子节点，就要调用WorkstationNodeCreator
-                self._use_workstation_node_ros = False
+            if issubclass(self._driver_class, WorkstationBase):  # 是WorkstationNode的子节点，就要调用WorkstationNodeCreator
+                self.driver_is_workstation = True
                 self._driver_creator = WorkstationNodeCreator(driver_class, children=children, resource_tracker=self.resource_tracker)
             else:
-                self._use_workstation_node_ros = False
                 self._driver_creator = DeviceClassCreator(driver_class, children=children, resource_tracker=self.resource_tracker)
 
         if driver_is_ros:
@@ -992,38 +991,22 @@ class ROS2DeviceNode:
         if self._driver_instance is None:
             logger.critical(f"设备实例创建失败 {driver_class}, params: {driver_params}")
             raise DeviceInitError("错误: 设备实例创建失败")
-
+        
         # 创建ROS2节点
         if driver_is_ros:
             self._ros_node = self._driver_instance  # type: ignore
-        elif hasattr(self, '_use_workstation_node_ros') and self._use_workstation_node_ros:
-            # WorkstationBase + 设备子节点 -> 创建ROS2WorkstationNode作为ros_instance
-            from unilabos.ros.nodes.presets.workstation_node import ROS2WorkstationNode
-            
-            # 从children提取设备协议类型
-            protocol_types = set()
-            for child_id, child_config in children.items():
-                if child_config.get("type", "device") == "device":
-                    # 检查设备配置中的协议类型
-                    if "protocol_type" in child_config:
-                        if isinstance(child_config["protocol_type"], list):
-                            protocol_types.update(child_config["protocol_type"])
-                        else:
-                            protocol_types.add(child_config["protocol_type"])
-            
-            # 如果没有明确的协议类型，使用默认值
-            if not protocol_types:
-                protocol_types = ["default_protocol"]
-            
+        elif self.driver_is_workstation:
+            from unilabos.ros.nodes.presets.workstation import ROS2WorkstationNode
             self._ros_node = ROS2WorkstationNode(
-                device_id=device_id,
+                protocol_type=driver_params["protocol_type"],
                 children=children,
-                protocol_type=list(protocol_types),
+                driver_instance=self._driver_instance,  # type: ignore
+                device_id=device_id,
+                status_types=status_types,
+                action_value_mappings=action_value_mappings,
+                hardware_interface=hardware_interface,
+                print_publish=print_publish,
                 resource_tracker=self.resource_tracker,
-                workstation_config={
-                    'workstation_instance': self._driver_instance,
-                    'deck_config': getattr(self._driver_instance, 'deck_config', {}),
-                }
             )
         else:
             self._ros_node = BaseROS2DeviceNode(
