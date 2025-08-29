@@ -221,6 +221,32 @@ class WebSocketClient(BaseCommunicationClient):
         except Exception as e:
             logger.error(f"[WebSocket] Message handler error: {str(e)}")
 
+    async def _handle_query_state(self, data: Dict[str, str]) -> None:
+        device_id = data.get("device_id", "")
+        if not device_id:
+            logger.error("[WebSocket] query_action_state missing device_id")
+            return
+        action_name = data.get("action_name", "")
+        if not action_name:
+            logger.error("[WebSocket] query_action_state missing action_name")
+            return
+        task_id = data.get("task_id", "")
+        if not task_id:
+            logger.error("[WebSocket] query_action_state missing task_id")
+            return
+        device_action_key = f"/devices/{device_id}/{action_name}"
+        action_jobs = len(HostNode.get_instance()._device_action_status[device_action_key].job_ids)
+        message = {
+            "type": "report_action_state",
+            "data": {
+                "device_id": device_id,
+                "action_name": action_name,
+                "task_id": task_id,
+                "free": bool(action_jobs)
+            },
+        }
+        await self._send_message(message)
+
     async def _process_message(self, input_message: Dict[str, Any]):
         """处理收到的消息"""
         message_type = input_message.get("type", "")
@@ -231,6 +257,8 @@ class WebSocketClient(BaseCommunicationClient):
         elif message_type == "pong":
             # 处理pong响应
             self._handle_pong_sync(data)
+        elif message_type == "query_action_state":
+            await self._handle_query_state(data)
         else:
             logger.debug(f"[WebSocket] Unknown message type: {message_type}")
 
