@@ -289,6 +289,9 @@ class ROS2WorkstationNode(BaseROS2DeviceNode):
 
     def create_ros_action_server(self, action_name, action_value_mapping):
         """创建ROS动作服务器"""
+        if action_name not in self.protocol_names:
+            # 非protocol方法调用父类注册
+            return super().create_ros_action_server(action_name, action_value_mapping)
         # 和Base创建的路径是一致的
         protocol_name = action_name
         action_type = action_value_mapping["type"]
@@ -303,8 +306,8 @@ class ROS2WorkstationNode(BaseROS2DeviceNode):
             execute_callback=self._create_protocol_execute_callback(action_name, protocol_steps_generator),
             callback_group=ReentrantCallbackGroup(),
         )
-
         self.lab_logger().trace(f"发布动作: {action_name}, 类型: {str_action_type}")
+        return
 
     def _create_protocol_execute_callback(self, protocol_name, protocol_steps_generator):
         async def execute_protocol(goal_handle: ServerGoalHandle):
