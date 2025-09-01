@@ -234,6 +234,10 @@ class WebSocketClient(BaseCommunicationClient):
         if not task_id:
             logger.error("[WebSocket] query_action_state missing task_id")
             return
+        job_id = data.get("job_id", "")
+        if not task_id:
+            logger.error("[WebSocket] query_action_state missing job_id")
+            return
         device_action_key = f"/devices/{device_id}/{action_name}"
         action_jobs = len(HostNode.get_instance()._device_action_status[device_action_key].job_ids)
         message = {
@@ -242,6 +246,7 @@ class WebSocketClient(BaseCommunicationClient):
                 "device_id": device_id,
                 "action_name": action_name,
                 "task_id": task_id,
+                "job_id": job_id,
                 "free": bool(action_jobs)
             },
         }
