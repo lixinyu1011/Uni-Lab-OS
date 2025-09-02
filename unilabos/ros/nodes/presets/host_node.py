@@ -6,7 +6,7 @@ import threading
 import time
 import traceback
 import uuid
-from typing import Optional, Dict, Any, List, ClassVar, Set, Union
+from typing import TYPE_CHECKING, Optional, Dict, Any, List, ClassVar, Set, Union
 
 from action_msgs.msg import GoalStatus
 from geometry_msgs.msg import Point
@@ -41,6 +41,9 @@ from unilabos.ros.nodes.base_device_node import BaseROS2DeviceNode, ROS2DeviceNo
 from unilabos.ros.nodes.presets.controller_node import ControllerNode
 from unilabos.utils.exception import DeviceClassInvalid
 from unilabos.utils.type_check import serialize_result_info
+
+if TYPE_CHECKING:
+    from unilabos.app.ws_client import QueueItem
 
 
 @dataclass
@@ -230,12 +233,12 @@ class HostNode(BaseROS2DeviceNode):
 
                     client: HTTPClient = bridge
                     resource_start_time = time.time()
-                    resource_add_res = client.resource_add(add_schema(resource_with_parent_name), False)
+                    # resource_add_res = client.resource_add(add_schema(resource_with_parent_name), False)
                     resource_end_time = time.time()
                     self.lab_logger().info(
                         f"[Host Node-Resource] 物料上传 {round(resource_end_time - resource_start_time, 5) * 1000} ms"
                     )
-                    resource_add_res = client.resource_edge_add(self.resources_edge_config, False)
+                    # resource_add_res = client.resource_edge_add(self.resources_edge_config, False)
                     resource_edge_end_time = time.time()
                     self.lab_logger().info(
                         f"[Host Node-Resource] 物料关系上传 {round(resource_edge_end_time - resource_end_time, 5) * 1000} ms"
@@ -621,11 +624,9 @@ class HostNode(BaseROS2DeviceNode):
 
     def send_goal(
         self,
-        device_id: str,
+        item: "QueueItem",
         action_type: str,
-        action_name: str,
         action_kwargs: Dict[str, Any],
-        goal_uuid: Optional[str] = None,
         server_info: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
@@ -639,12 +640,9 @@ class HostNode(BaseROS2DeviceNode):
             goal_uuid: 目标UUID，如果为None则自动生成
             server_info: 服务器发送信息，包含发送时间戳等
         """
-        if goal_uuid is None:
-            u = uuid.uuid4()
-        else:
-            u = uuid.UUID(goal_uuid)
-        device_action_key = f"/devices/{device_id}/{action_name}"
-        self._device_action_status[device_action_key].job_ids[str(u)] = time.time()
+        u = uuid.UUID(item.job_id)
+        device_id = item.device_id
+        action_name = item.action_name
         if action_type.startswith("UniLabJsonCommand"):
             if action_name.startswith("auto-"):
                 action_name = action_name[5:]
@@ -676,43 +674,44 @@ class HostNode(BaseROS2DeviceNode):
 
         future = action_client.send_goal_async(
             goal_msg,
-            feedback_callback=lambda feedback_msg: self.feedback_callback(action_id, str(u), feedback_msg),
+            feedback_callback=lambda feedback_msg: self.feedback_callback(item, action_id, feedback_msg),
             goal_uuid=goal_uuid_obj,
         )
         future.add_done_callback(
-            lambda future: self.goal_response_callback(device_action_key, action_id, str(u), future)
+            lambda future: self.goal_response_callback(item, action_id, future)
         )
 
-    def goal_response_callback(self, device_action_key: str, action_id: str, uuid_str: str, future) -> None:
+    def goal_response_callback(self, item: "QueueItem", action_id: str, future) -> None:
         """目标响应回调"""
         goal_handle = future.result()
         if not goal_handle.accepted:
-            self.lab_logger().warning(f"[Host Node] Goal {action_id} ({uuid_str}) rejected")
+            self.lab_logger().warning(f"[Host Node] Goal {item.action_name} ({item.job_id}) rejected")
             return
 
-        self.lab_logger().info(f"[Host Node] Goal {action_id} ({uuid_str}) accepted")
-        self._goals[uuid_str] = goal_handle
+        self.lab_logger().info(f"[Host Node] Goal {action_id} ({item.job_id}) accepted")
+        self._goals[item.job_id] = goal_handle
         goal_handle.get_result_async().add_done_callback(
-            lambda future: self.get_result_callback(device_action_key, action_id, uuid_str, future)
+            lambda future: self.get_result_callback(item, action_id, future)
         )
 
-    def feedback_callback(self, action_id: str, uuid_str: str, feedback_msg) -> None:
+    def feedback_callback(self, item: "QueueItem", action_id: str, feedback_msg) -> None:
         """反馈回调"""
         feedback_data = convert_from_ros_msg(feedback_msg)
         feedback_data.pop("goal_id")
-        self.lab_logger().debug(f"[Host Node] Feedback for {action_id} ({uuid_str}): {feedback_data}")
+        self.lab_logger().trace(f"[Host Node] Feedback for {action_id} ({item.job_id}): {feedback_data}")
 
         for bridge in self.bridges:
             if hasattr(bridge, "publish_job_status"):
-                bridge.publish_job_status(feedback_data, uuid_str, "running")
+                bridge.publish_job_status(feedback_data, item, "running")
 
-    def get_result_callback(self, device_action_key: str, action_id: str, uuid_str: str, future) -> None:
+    def get_result_callback(self, item: "QueueItem", action_id: str, future) -> None:
         """获取结果回调"""
+        job_id = item.job_id
+        self._device_action_status[f"/devices/{item.device_id}/{item.action_name}"].job_ids.pop(item.job_id)
         result_msg = future.result().result
         result_data = convert_from_ros_msg(result_msg)
         status = "success"
         return_info_str = result_data.get("return_info")
-        self._device_action_status[device_action_key].job_ids.pop(uuid_str)
         if return_info_str is not None:
             try:
                 ret = json.loads(return_info_str)
@@ -732,13 +731,23 @@ class HostNode(BaseROS2DeviceNode):
                 status = "failed"
                 return_info_str = serialize_result_info("缺少return_info", False, result_data)
 
-        self.lab_logger().info(f"[Host Node] Result for {action_id} ({uuid_str}): {status}")
+        self.lab_logger().info(f"[Host Node] Result for {action_id} ({job_id}): {status}")
         self.lab_logger().debug(f"[Host Node] Result data: {result_data}")
 
-        if uuid_str:
+        if job_id:
             for bridge in self.bridges:
                 if hasattr(bridge, "publish_job_status"):
-                    bridge.publish_job_status(result_data, uuid_str, status, return_info_str)
+                    bridge.publish_job_status(result_data, item, status, return_info_str)
+                # 如果是WebSocket客户端，通知任务完成
+                if hasattr(bridge, "_finish_job_callback_status"):
+                    import asyncio
+
+                    free = True  # 任务完成，设备空闲
+                    need_more = 0.0  # 任务结束，不需要更多时间
+                    try:
+                        asyncio.create_task(bridge._finish_job_callback_status(job_id, free, need_more))
+                    except Exception as e:
+                        self.lab_logger().error(f"[Host Node] Error finishing job callback status: {e}")
 
     def cancel_goal(self, goal_uuid: str) -> None:
         """取消目标"""
@@ -748,14 +757,14 @@ class HostNode(BaseROS2DeviceNode):
         else:
             self.lab_logger().warning(f"[Host Node] Goal {goal_uuid} not found, cannot cancel")
 
-    def get_goal_status(self, uuid_str: str) -> int:
+    def get_goal_status(self, job_id: str) -> int:
         """获取目标状态"""
-        if uuid_str in self._goals:
-            g = self._goals[uuid_str]
+        if job_id in self._goals:
+            g = self._goals[job_id]
             status = g.status
-            self.lab_logger().debug(f"[Host Node] Goal status for {uuid_str}: {status}")
+            self.lab_logger().debug(f"[Host Node] Goal status for {job_id}: {status}")
             return status
-        self.lab_logger().warning(f"[Host Node] Goal {uuid_str} not found, status unknown")
+        self.lab_logger().warning(f"[Host Node] Goal {job_id} not found, status unknown")
         return GoalStatus.STATUS_UNKNOWN
 
     """Controller Node"""
