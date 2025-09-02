@@ -233,12 +233,12 @@ class HostNode(BaseROS2DeviceNode):
 
                     client: HTTPClient = bridge
                     resource_start_time = time.time()
-                    # resource_add_res = client.resource_add(add_schema(resource_with_parent_name), False)
+                    resource_add_res = client.resource_add(add_schema(resource_with_parent_name), False)
                     resource_end_time = time.time()
                     self.lab_logger().info(
                         f"[Host Node-Resource] 物料上传 {round(resource_end_time - resource_start_time, 5) * 1000} ms"
                     )
-                    # resource_add_res = client.resource_edge_add(self.resources_edge_config, False)
+                    resource_add_res = client.resource_edge_add(self.resources_edge_config, False)
                     resource_edge_end_time = time.time()
                     self.lab_logger().info(
                         f"[Host Node-Resource] 物料关系上传 {round(resource_edge_end_time - resource_end_time, 5) * 1000} ms"
@@ -707,7 +707,6 @@ class HostNode(BaseROS2DeviceNode):
     def get_result_callback(self, item: "QueueItem", action_id: str, future) -> None:
         """获取结果回调"""
         job_id = item.job_id
-        self._device_action_status[f"/devices/{item.device_id}/{item.action_name}"].job_ids.pop(item.job_id)
         result_msg = future.result().result
         result_data = convert_from_ros_msg(result_msg)
         status = "success"
@@ -738,16 +737,6 @@ class HostNode(BaseROS2DeviceNode):
             for bridge in self.bridges:
                 if hasattr(bridge, "publish_job_status"):
                     bridge.publish_job_status(result_data, item, status, return_info_str)
-                # 如果是WebSocket客户端，通知任务完成
-                if hasattr(bridge, "_finish_job_callback_status"):
-                    import asyncio
-
-                    free = True  # 任务完成，设备空闲
-                    need_more = 0.0  # 任务结束，不需要更多时间
-                    try:
-                        asyncio.create_task(bridge._finish_job_callback_status(job_id, free, need_more))
-                    except Exception as e:
-                        self.lab_logger().error(f"[Host Node] Error finishing job callback status: {e}")
 
     def cancel_goal(self, goal_uuid: str) -> None:
         """取消目标"""
