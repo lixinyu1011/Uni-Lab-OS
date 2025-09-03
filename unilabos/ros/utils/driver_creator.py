@@ -216,7 +216,7 @@ class PyLabRobotCreator(DeviceClassCreator[T]):
                     for kk, vv in all_states.items():
                         if kk not in v:
                             v[kk] = vv
-                    self.device_instance.deck.load_all_state(v)
+                    self.device_instance.load_all_state(v)
                 self.resource_tracker.add_resource(self.device_instance)
                 self.post_create()
                 return self.device_instance  # type: ignore
@@ -283,6 +283,9 @@ class ProtocolNodeCreator(DeviceClassCreator[T]):
             children: 子资源字典，用于资源替换
         """
         super().__init__(cls, children, resource_tracker)
+
+    def attach_resource(self):
+        pass  # WorkstationNode不直接附加资源
 
     def create_instance(self, data: Dict[str, Any]) -> T:
         """
