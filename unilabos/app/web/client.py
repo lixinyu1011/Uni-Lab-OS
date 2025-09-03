@@ -58,6 +58,8 @@ class HTTPClient:
         )
         if response.status_code != 200 and response.status_code != 201:
             logger.error(f"添加物料关系失败: {response.status_code}, {response.text}")
+        elif self.backend_go:
+            logger.info(f"添加物料关系 {response.text}")
         return response
 
     def resource_add(self, resources: List[Dict[str, Any]], database_process_later: bool) -> requests.Response:
@@ -99,10 +101,6 @@ class HTTPClient:
             headers={"Authorization": f"{'lab' if not self.backend_go else 'Lab'} {self.auth}"},
             timeout=20,
         )
-        if response.status_code != 200:
-            logger.error(f"添加物料关系失败: {response.text}")
-        elif self.backend_go:
-            logger.info(f"添加物料关系 {response.text}")
         return response.json()
 
     def resource_del(self, id: str) -> requests.Response:
