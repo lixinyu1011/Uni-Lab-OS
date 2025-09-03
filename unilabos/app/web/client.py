@@ -52,7 +52,9 @@ class HTTPClient:
         response = requests.post(
             f"{self.remote_addr}/lab/resource/edge/batch_create/?database_process_later={database_param}"
             if not self.backend_go else f"{self.remote_addr}/lab/material/edge",
-            json=resources,
+            json={
+                "edges": resources,
+            } if self.backend_go else resources,
             headers={"Authorization": f"{'lab' if not self.backend_go else 'Lab'} {self.auth}"},
             timeout=100,
         )
