@@ -5,6 +5,7 @@
 # Uni-Lab-OS
 
 <!-- Language switcher -->
+
 [English](README.md) | **中文**
 
 [![GitHub Stars](https://img.shields.io/github/stars/dptech-corp/Uni-Lab-OS.svg)](https://github.com/dptech-corp/Uni-Lab-OS/stargazers)
@@ -12,7 +13,7 @@
 [![GitHub Issues](https://img.shields.io/github/issues/dptech-corp/Uni-Lab-OS.svg)](https://github.com/dptech-corp/Uni-Lab-OS/issues)
 [![GitHub License](https://img.shields.io/github/license/dptech-corp/Uni-Lab-OS.svg)](https://github.com/dptech-corp/Uni-Lab-OS/blob/main/LICENSE)
 
-Uni-Lab-OS是一个用于实验室自动化的综合平台，旨在连接和控制各种实验设备，实现实验流程的自动化和标准化。
+Uni-Lab-OS 是一个用于实验室自动化的综合平台，旨在连接和控制各种实验设备，实现实验流程的自动化和标准化。
 
 ## 🏆 比赛
 
@@ -34,7 +35,7 @@ Uni-Lab-OS是一个用于实验室自动化的综合平台，旨在连接和控�
 
 ## 快速开始
 
-1. 配置Conda环境
+1. 配置 Conda 环境
 
 Uni-Lab-OS 建议使用 `mamba` 管理环境。根据您的操作系统选择适当的环境文件:
 
@@ -43,7 +44,7 @@ Uni-Lab-OS 建议使用 `mamba` 管理环境。根据您的操作系统选择适
 mamba create -n unilab uni-lab::unilabos -c robostack-staging -c conda-forge
 ```
 
-2. 安装开发版Uni-Lab-OS:
+2. 安装开发版 Uni-Lab-OS:
 
 ```bash
 # 克隆仓库
@@ -76,4 +77,4 @@ Uni-Lab-OS 使用预构建的 `unilabos_msgs` 进行系统通信。您可以在 
 
 ## 联系我们
 
-- GitHub Issues: [https://github.com/dptech-corp/Uni-Lab-OS/issues](https://github.com/dptech-corp/Uni-Lab-OS/issues) 
+- GitHub Issues: [https://github.com/dptech-corp/Uni-Lab-OS/issues](https://github.com/dptech-corp/Uni-Lab-OS/issues)

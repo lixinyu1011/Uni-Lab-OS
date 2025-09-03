@@ -7,7 +7,7 @@ gas_source.mock:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: is_closed的参数schema
@@ -27,7 +27,7 @@ gas_source.mock:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: is_open的参数schema
@@ -47,7 +47,7 @@ gas_source.mock:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
@@ -79,7 +79,7 @@ gas_source.mock:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
@@ -113,7 +113,7 @@ gas_source.mock:
           string: string
         goal_default:
           string: ''
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
@@ -187,7 +187,7 @@ vacuum_pump.mock:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: is_closed的参数schema
@@ -207,7 +207,7 @@ vacuum_pump.mock:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: is_open的参数schema
@@ -227,7 +227,7 @@ vacuum_pump.mock:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
@@ -259,7 +259,7 @@ vacuum_pump.mock:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
@@ -293,7 +293,7 @@ vacuum_pump.mock:
           string: string
         goal_default:
           string: ''
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''

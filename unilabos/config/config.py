@@ -1,14 +1,18 @@
 #!/usr/bin/env python
 # coding=utf-8
 # 定义配置变量和加载函数
+import base64
 import traceback
 import os
 import importlib.util
+from typing import Optional
 from unilabos.utils import logger
 
 
 class BasicConfig:
     ENV = "pro"  # 'test'
+    ak = ""
+    sk = ""
     working_dir = ""
     config_path = ""
     is_host_mode = True
@@ -17,6 +21,17 @@ class BasicConfig:
     machine_name = "undefined"
     vis_2d_enable = False
     enable_resource_load = True
+    # 通信协议配置
+    communication_protocol = "mqtt"  # 支持: "mqtt", "websocket"
+
+    @classmethod
+    def auth_secret(cls):
+        # base64编码
+        if not cls.ak or not cls.sk:
+            return ""
+        target = f"{cls.ak}:{cls.sk}"
+        base64_target = base64.b64encode(target.encode("utf-8")).decode("utf-8")
+        return base64_target
 
 
 # MQTT配置
@@ -36,6 +51,13 @@ class MQConfig:
     ca_file = ""  # 相对config.py所在目录的路径
     cert_file = ""  # 相对config.py所在目录的路径
     key_file = ""  # 相对config.py所在目录的路径
+
+
+# WebSocket配置
+class WSConfig:
+    reconnect_interval = 5  # 重连间隔（秒）
+    max_reconnect_attempts = 999  # 最大重连次数
+    ping_interval = 30  # ping间隔（秒）
 
 
 # OSS上传配置
@@ -65,7 +87,7 @@ class ROSConfig:
     ]
 
 
-def _update_config_from_module(module, override_labid: str):
+def _update_config_from_module(module, override_labid: Optional[str]):
     for name, obj in globals().items():
         if isinstance(obj, type) and name.endswith("Config"):
             if hasattr(module, name) and isinstance(getattr(module, name), type):
@@ -74,7 +96,7 @@ def _update_config_from_module(module, override_labid: str):
                         setattr(obj, attr, getattr(getattr(module, name), attr))
     # 更新OSS认证
     if len(OSSUploadConfig.authorization) == 0:
-        OSSUploadConfig.authorization = f"lab {MQConfig.lab_id}"
+        OSSUploadConfig.authorization = f"Lab {MQConfig.lab_id}"
     # 对 ca_file cert_file key_file 进行初始化
     if override_labid:
         MQConfig.lab_id = override_labid
@@ -157,7 +179,6 @@ def _update_config_from_env():
             logger.info(f"[ENV] 设置 {matched_cls.__name__}.{matched_field} = {value}")
         except Exception as e:
             logger.warning(f"[ENV] 解析环境变量 {env_key} 失败: {e}")
-
 
 
 def load_config(config_path=None, override_labid=None):

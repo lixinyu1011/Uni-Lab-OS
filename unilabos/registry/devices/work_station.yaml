@@ -53,7 +53,7 @@ workstation:
             sample_id: ''
             type: ''
           to_repo_position: ''
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
@@ -6030,7 +6030,7 @@ workstation:
         goal_default:
           action_name: null
           action_value_mapping: null
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: create_ros_action_server的参数schema
@@ -6059,7 +6059,7 @@ workstation:
           action_kwargs: null
           action_name: null
           device_id: null
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: execute_single_action的参数schema
@@ -6090,7 +6090,7 @@ workstation:
         goal_default:
           device_config: null
           device_id: null
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: initialize_device的参数schema
@@ -6150,7 +6150,7 @@ workstation.example:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
@@ -6178,7 +6178,7 @@ workstation.example:
           resource_tracker: null
           resources: null
           slot_on_deck: null
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
