@@ -142,9 +142,9 @@ class TaskScheduler:
                             # 执行相应的任务
                             should_continue = False
                             if item.task_type == "query_action_status":
-                                should_continue = await self._process_query_status_item(item)
+                                should_continue = asyncio.run_coroutine_threadsafe(self._process_query_status_item(item), self.message_sender.event_loop).result()
                             elif item.task_type == "job_call_back_status":
-                                should_continue = await self._process_job_callback_item(item)
+                                should_continue = asyncio.run_coroutine_threadsafe(self._process_job_callback_item(item), self.message_sender.event_loop).result()
                             else:
                                 logger.warning(f"[TaskScheduler] Unknown task type: {item.task_type}")
                                 continue
@@ -622,8 +622,8 @@ class WebSocketClient(BaseCommunicationClient):
         self.message_queue = asyncio.Queue() if not self.is_disabled else None
         self.reconnect_count = 0
 
-        # 消息发送锁（解决并发写入问题）
-        self.send_lock = asyncio.Lock()
+        # 消息发送锁（解决并发写入问题）- 延迟初始化
+        self.send_lock = None
 
         # 任务调度器
         self.task_scheduler = None
@@ -708,6 +708,9 @@ class WebSocketClient(BaseCommunicationClient):
             # 创建新的事件循环
             self.event_loop = asyncio.new_event_loop()
             asyncio.set_event_loop(self.event_loop)
+
+            # 在正确的事件循环中创建锁
+            self.send_lock = asyncio.Lock()
 
             # 运行连接逻辑
             self.event_loop.run_until_complete(self._connection_handler())
@@ -832,6 +835,12 @@ class WebSocketClient(BaseCommunicationClient):
         if not self.connected or not self.websocket:
             logger.warning("[WebSocket] Not connected, cannot send message")
             return
+
+        # 检查锁是否已初始化（在事件循环启动后才会创建）
+        if not self.send_lock:
+            logger.warning("[WebSocket] Send lock not initialized, cannot send message safely")
+            return
+
         message_str = json.dumps(message, ensure_ascii=False)
         # 使用异步锁防止并发写入导致的竞态条件
         async with self.send_lock:
