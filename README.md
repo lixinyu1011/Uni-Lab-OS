@@ -5,6 +5,7 @@
 # Uni-Lab-OS
 
 <!-- Language switcher -->
+
 **English** | [中文](README_zh.md)
 
 [![GitHub Stars](https://img.shields.io/github/stars/dptech-corp/Uni-Lab-OS.svg)](https://github.com/dptech-corp/Uni-Lab-OS/stargazers)
@@ -30,7 +31,7 @@ Join the [Intelligent Organic Chemistry Synthesis Competition](https://bohrium.d
 
 Detailed documentation can be found at:
 
-- [Online Documentation](https://readthedocs.dp.tech/Uni-Lab/v0.8.0/)
+- [Online Documentation](https://dptech-corp.github.io/Uni-Lab-OS/)
 
 ## Quick Start
 
@@ -54,7 +55,7 @@ pip install .
 
 3. Start Uni-Lab System:
 
-Please refer to [Documentation - Boot Examples](https://readthedocs.dp.tech/Uni-Lab/v0.8.0/boot_examples/index.html)
+Please refer to [Documentation - Boot Examples](https://dptech-corp.github.io/Uni-Lab-OS/boot_examples/index.html)
 
 ## Message Format
 
