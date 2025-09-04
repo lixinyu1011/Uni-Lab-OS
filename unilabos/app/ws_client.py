@@ -622,6 +622,9 @@ class WebSocketClient(BaseCommunicationClient):
         self.message_queue = asyncio.Queue() if not self.is_disabled else None
         self.reconnect_count = 0
 
+        # 消息发送锁（解决并发写入问题）
+        self.send_lock = asyncio.Lock()
+
         # 任务调度器
         self.task_scheduler = None
 
@@ -825,16 +828,18 @@ class WebSocketClient(BaseCommunicationClient):
 
     # MessageSender接口实现
     async def send_message(self, message: Dict[str, Any]) -> None:
-        """内部发送消息方法"""
+        """内部发送消息方法，使用锁确保线程安全"""
         if not self.connected or not self.websocket:
             logger.warning("[WebSocket] Not connected, cannot send message")
             return
-        try:
-            message_str = json.dumps(message, ensure_ascii=False)
-            await self.websocket.send(message_str)
-            logger.debug(f"[WebSocket] Message sent: {message['action']}")
-        except Exception as e:
-            logger.error(f"[WebSocket] Failed to send message: {str(e)}")
+        message_str = json.dumps(message, ensure_ascii=False)
+        # 使用异步锁防止并发写入导致的竞态条件
+        async with self.send_lock:
+            try:
+                await self.websocket.send(message_str)
+                logger.debug(f"[WebSocket] Message sent: {message['action']}")
+            except Exception as e:
+                logger.error(f"[WebSocket] Failed to send message: {str(e)}")
 
     def is_connected(self) -> bool:
         """检查是否已连接（TaskScheduler调用的接口）"""
@@ -856,8 +861,7 @@ class WebSocketClient(BaseCommunicationClient):
                 },
             },
         }
-        if self.event_loop:
-            asyncio.run_coroutine_threadsafe(self.send_message(message), self.event_loop)
+        asyncio.run_coroutine_threadsafe(self.send_message(message), self.event_loop).result()
         logger.debug(f"[WebSocket] Device status published: {device_id}.{property_name}")
 
     def publish_job_status(
@@ -875,8 +879,7 @@ class WebSocketClient(BaseCommunicationClient):
             logger.warning("[WebSocket] Not connected, cannot send ping")
             return
         message = {"action": "ping", "data": {"ping_id": ping_id, "client_timestamp": timestamp}}
-        if self.event_loop:
-            asyncio.run_coroutine_threadsafe(self.send_message(message), self.event_loop)
+        asyncio.run_coroutine_threadsafe(self.send_message(message), self.event_loop).result()
         logger.debug(f"[WebSocket] Ping sent: {ping_id}")
 
     def cancel_goal(self, job_id: str) -> None:

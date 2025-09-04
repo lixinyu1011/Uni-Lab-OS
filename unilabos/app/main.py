@@ -283,7 +283,7 @@ def main():
     materials.extend(lab_registry.obtain_registry_device_info())
     materials = {k["id"]: k for k in materials}
     nodes = {k["id"]: k for k in data["nodes"]}
-
+    edge_info = len(resource_edge_info)
     for ind, i in enumerate(resource_edge_info[::-1]):
         source_node = nodes[i["source"]]
         target_node = nodes[i["target"]]
@@ -293,11 +293,11 @@ def main():
         target_handler_keys = [h["handler_key"] for h in materials[target_node["class"]]["handles"] if h["io_type"] == 'target']
         if not source_handle in source_handler_keys:
             print_status(f"节点 {source_node['id']} 的source端点 {source_handle} 不存在，请检查，支持的端点 {source_handler_keys}", "error")
-            resource_edge_info.pop(-ind - 1)
+            resource_edge_info.pop(edge_info - ind - 1)
             continue
         if not target_handle in target_handler_keys:
             print_status(f"节点 {target_node['id']} 的target端点 {target_handle} 不存在，请检查，支持的端点 {target_handler_keys}", "error")
-            resource_edge_info.pop(-ind - 1)
+            resource_edge_info.pop(edge_info - ind - 1)
             continue
 
     devices_and_resources = dict_from_graph(graph_res.physical_setup_graph)
