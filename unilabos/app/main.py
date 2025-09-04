@@ -258,7 +258,7 @@ def main():
     print_unilab_banner(args_dict)
 
     # 注册表
-    build_registry(args_dict["registry_path"], False, args_dict["upload_registry"])
+    lab_registry = build_registry(args_dict["registry_path"], False, args_dict["upload_registry"])
     if args_dict["graph"] is None:
         request_startup_json = http_client.request_startup_json()
         if not request_startup_json:
@@ -279,6 +279,27 @@ def main():
 
     graph_res.physical_setup_graph = graph
     resource_edge_info = modify_to_backend_format(data["links"])
+    materials = lab_registry.obtain_registry_resource_info()
+    materials.extend(lab_registry.obtain_registry_device_info())
+    materials = {k["id"]: k for k in materials}
+    nodes = {k["id"]: k for k in data["nodes"]}
+
+    for ind, i in enumerate(resource_edge_info[::-1]):
+        source_node = nodes[i["source"]]
+        target_node = nodes[i["target"]]
+        source_handle = i["sourceHandle"]
+        target_handle = i["targetHandle"]
+        source_handler_keys = [h["handler_key"] for h in materials[source_node["class"]]["handles"] if h["io_type"] == 'source']
+        target_handler_keys = [h["handler_key"] for h in materials[target_node["class"]]["handles"] if h["io_type"] == 'target']
+        if not source_handle in source_handler_keys:
+            print_status(f"节点 {source_node['id']} 的source端点 {source_handle} 不存在，请检查，支持的端点 {source_handler_keys}", "error")
+            resource_edge_info.pop(-ind - 1)
+            continue
+        if not target_handle in target_handler_keys:
+            print_status(f"节点 {target_node['id']} 的target端点 {target_handle} 不存在，请检查，支持的端点 {target_handler_keys}", "error")
+            resource_edge_info.pop(-ind - 1)
+            continue
+
     devices_and_resources = dict_from_graph(graph_res.physical_setup_graph)
     # args_dict["resources_config"] = initialize_resources(list(deepcopy(devices_and_resources).values()))
     args_dict["resources_config"] = list(devices_and_resources.values())
