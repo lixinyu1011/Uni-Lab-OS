@@ -139,12 +139,12 @@ linear_motion.grbl:
                           required:
                           - sec
                           - nanosec
-                          title: Time
+                          title: stamp
                           type: object
                       required:
                       - stamp
                       - frame_id
-                      title: Header
+                      title: header
                       type: object
                     pose:
                       properties:
@@ -163,7 +163,7 @@ linear_motion.grbl:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -177,17 +177,17 @@ linear_motion.grbl:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                   required:
                   - header
                   - pose
-                  title: PoseStamped
+                  title: current_pose
                   type: object
                 distance_remaining:
                   type: number
@@ -204,7 +204,7 @@ linear_motion.grbl:
                   required:
                   - sec
                   - nanosec
-                  title: Duration
+                  title: estimated_time_remaining
                   type: object
                 navigation_time:
                   properties:
@@ -219,7 +219,7 @@ linear_motion.grbl:
                   required:
                   - sec
                   - nanosec
-                  title: Duration
+                  title: navigation_time
                   type: object
                 number_of_poses_remaining:
                   maximum: 32767
@@ -262,12 +262,12 @@ linear_motion.grbl:
                             required:
                             - sec
                             - nanosec
-                            title: Time
+                            title: stamp
                             type: object
                         required:
                         - stamp
                         - frame_id
-                        title: Header
+                        title: header
                         type: object
                       pose:
                         properties:
@@ -286,7 +286,7 @@ linear_motion.grbl:
                             - y
                             - z
                             - w
-                            title: Quaternion
+                            title: orientation
                             type: object
                           position:
                             properties:
@@ -300,17 +300,17 @@ linear_motion.grbl:
                             - x
                             - y
                             - z
-                            title: Point
+                            title: position
                             type: object
                         required:
                         - position
                         - orientation
-                        title: Pose
+                        title: pose
                         type: object
                     required:
                     - header
                     - pose
-                    title: PoseStamped
+                    title: poses
                     type: object
                   type: array
               required:
@@ -323,7 +323,7 @@ linear_motion.grbl:
                 result:
                   properties: {}
                   required: []
-                  title: Empty
+                  title: result
                   type: object
               required:
               - result
@@ -371,12 +371,12 @@ linear_motion.grbl:
                       required:
                       - sec
                       - nanosec
-                      title: Time
+                      title: stamp
                       type: object
                   required:
                   - stamp
                   - frame_id
-                  title: Header
+                  title: header
                   type: object
                 position:
                   type: number
@@ -406,7 +406,7 @@ linear_motion.grbl:
                   required:
                   - sec
                   - nanosec
-                  title: Duration
+                  title: min_duration
                   type: object
                 position:
                   type: number

@@ -145,7 +145,7 @@ virtual_centrifuge:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -159,12 +159,12 @@ virtual_centrifuge:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -181,7 +181,7 @@ virtual_centrifuge:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: vessel
                   type: object
               required:
               - vessel
@@ -446,7 +446,7 @@ virtual_column:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -460,12 +460,12 @@ virtual_column:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -482,7 +482,7 @@ virtual_column:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: from_vessel
                   type: object
                 pct1:
                   type: string
@@ -531,7 +531,7 @@ virtual_column:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -545,12 +545,12 @@ virtual_column:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -567,7 +567,7 @@ virtual_column:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: to_vessel
                   type: object
               required:
               - from_vessel
@@ -850,7 +850,7 @@ virtual_filter:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -864,12 +864,12 @@ virtual_filter:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -886,7 +886,7 @@ virtual_filter:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: filtrate_vessel
                   type: object
                 stir:
                   type: boolean
@@ -929,7 +929,7 @@ virtual_filter:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -943,12 +943,12 @@ virtual_filter:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -965,7 +965,7 @@ virtual_filter:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: vessel
                   type: object
                 volume:
                   type: number
@@ -1071,8 +1071,8 @@ virtual_filter:
       - status
       - progress
       - current_temp
-      - filtered_volume
       - current_status
+      - filtered_volume
       - message
       - max_temp
       - max_stir_speed
@@ -1455,7 +1455,7 @@ virtual_heatchill:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -1469,12 +1469,12 @@ virtual_heatchill:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -1491,7 +1491,7 @@ virtual_heatchill:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: vessel
                   type: object
               required:
               - vessel
@@ -1610,7 +1610,7 @@ virtual_heatchill:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -1624,12 +1624,12 @@ virtual_heatchill:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -1646,7 +1646,7 @@ virtual_heatchill:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: vessel
                   type: object
               required:
               - vessel
@@ -1747,7 +1747,7 @@ virtual_heatchill:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -1761,12 +1761,12 @@ virtual_heatchill:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -1783,7 +1783,7 @@ virtual_heatchill:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: vessel
                   type: object
               required:
               - vessel
@@ -2397,7 +2397,7 @@ virtual_rotavap:
                   required:
                   - sec
                   - nanosec
-                  title: Duration
+                  title: time_remaining
                   type: object
                 time_spent:
                   properties:
@@ -2412,7 +2412,7 @@ virtual_rotavap:
                   required:
                   - sec
                   - nanosec
-                  title: Duration
+                  title: time_spent
                   type: object
               required:
               - status
@@ -2468,7 +2468,7 @@ virtual_rotavap:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -2482,12 +2482,12 @@ virtual_rotavap:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -2504,7 +2504,7 @@ virtual_rotavap:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: vessel
                   type: object
               required:
               - vessel
@@ -2889,7 +2889,7 @@ virtual_separator:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -2903,12 +2903,12 @@ virtual_separator:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -2925,7 +2925,7 @@ virtual_separator:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: from_vessel
                   type: object
                 product_phase:
                   type: string
@@ -2964,7 +2964,7 @@ virtual_separator:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -2978,12 +2978,12 @@ virtual_separator:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -3000,7 +3000,7 @@ virtual_separator:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: product_vessel
                   type: object
                 purpose:
                   type: string
@@ -3043,7 +3043,7 @@ virtual_separator:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -3057,12 +3057,12 @@ virtual_separator:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -3079,7 +3079,7 @@ virtual_separator:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: separation_vessel
                   type: object
                 settling_time:
                   type: number
@@ -3128,7 +3128,7 @@ virtual_separator:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -3142,12 +3142,12 @@ virtual_separator:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -3164,7 +3164,7 @@ virtual_separator:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: to_vessel
                   type: object
                 vessel:
                   properties:
@@ -3201,7 +3201,7 @@ virtual_separator:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -3215,12 +3215,12 @@ virtual_separator:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -3237,7 +3237,7 @@ virtual_separator:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: vessel
                   type: object
                 volume:
                   type: string
@@ -3276,7 +3276,7 @@ virtual_separator:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -3290,12 +3290,12 @@ virtual_separator:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -3312,7 +3312,7 @@ virtual_separator:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: waste_phase_to_vessel
                   type: object
                 waste_vessel:
                   properties:
@@ -3349,7 +3349,7 @@ virtual_separator:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -3363,12 +3363,12 @@ virtual_separator:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -3385,7 +3385,7 @@ virtual_separator:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: waste_vessel
                   type: object
               required:
               - vessel
@@ -3951,7 +3951,7 @@ virtual_solid_dispenser:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -3965,12 +3965,12 @@ virtual_solid_dispenser:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -3987,7 +3987,7 @@ virtual_solid_dispenser:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: vessel
                   type: object
                 viscous:
                   type: boolean
@@ -4332,7 +4332,7 @@ virtual_stirrer:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -4346,12 +4346,12 @@ virtual_stirrer:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -4368,7 +4368,7 @@ virtual_stirrer:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: vessel
                   type: object
               required:
               - vessel
@@ -4492,7 +4492,7 @@ virtual_stirrer:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -4506,12 +4506,12 @@ virtual_stirrer:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -4528,7 +4528,7 @@ virtual_stirrer:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: vessel
                   type: object
               required:
               - vessel
@@ -4639,7 +4639,7 @@ virtual_stirrer:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -4653,12 +4653,12 @@ virtual_stirrer:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -4675,7 +4675,7 @@ virtual_stirrer:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: vessel
                   type: object
               required:
               - vessel
@@ -4704,6 +4704,7 @@ virtual_stirrer:
     status_types:
       current_speed: float
       current_vessel: str
+      device_info: dict
       is_stirring: bool
       max_speed: float
       min_speed: float
@@ -4738,6 +4739,8 @@ virtual_stirrer:
           type: number
         current_vessel:
           type: string
+        device_info:
+          type: object
         is_stirring:
           type: boolean
         max_speed:
@@ -4759,6 +4762,7 @@ virtual_stirrer:
       - remaining_time
       - max_speed
       - min_speed
+      - device_info
       type: object
   version: 1.0.0
 virtual_transfer_pump:
