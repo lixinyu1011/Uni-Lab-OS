@@ -155,7 +155,7 @@ liquid_handler:
                     - x
                     - y
                     - z
-                    title: Point
+                    title: offsets
                     type: object
                   type: array
                 reagent_sources:
@@ -194,7 +194,7 @@ liquid_handler:
                             - y
                             - z
                             - w
-                            title: Quaternion
+                            title: orientation
                             type: object
                           position:
                             properties:
@@ -208,12 +208,12 @@ liquid_handler:
                             - x
                             - y
                             - z
-                            title: Point
+                            title: position
                             type: object
                         required:
                         - position
                         - orientation
-                        title: Pose
+                        title: pose
                         type: object
                       sample_id:
                         type: string
@@ -230,7 +230,7 @@ liquid_handler:
                     - pose
                     - config
                     - data
-                    title: Resource
+                    title: reagent_sources
                     type: object
                   type: array
                 spread:
@@ -271,7 +271,7 @@ liquid_handler:
                             - y
                             - z
                             - w
-                            title: Quaternion
+                            title: orientation
                             type: object
                           position:
                             properties:
@@ -285,12 +285,12 @@ liquid_handler:
                             - x
                             - y
                             - z
-                            title: Point
+                            title: position
                             type: object
                         required:
                         - position
                         - orientation
-                        title: Pose
+                        title: pose
                         type: object
                       sample_id:
                         type: string
@@ -307,7 +307,7 @@ liquid_handler:
                     - pose
                     - config
                     - data
-                    title: Resource
+                    title: targets
                     type: object
                   type: array
                 use_channels:
@@ -436,7 +436,7 @@ liquid_handler:
                     - x
                     - y
                     - z
-                    title: Point
+                    title: offsets
                     type: object
                   type: array
                 resources:
@@ -475,7 +475,7 @@ liquid_handler:
                             - y
                             - z
                             - w
-                            title: Quaternion
+                            title: orientation
                             type: object
                           position:
                             properties:
@@ -489,12 +489,12 @@ liquid_handler:
                             - x
                             - y
                             - z
-                            title: Point
+                            title: position
                             type: object
                         required:
                         - position
                         - orientation
-                        title: Pose
+                        title: pose
                         type: object
                       sample_id:
                         type: string
@@ -511,7 +511,7 @@ liquid_handler:
                     - pose
                     - config
                     - data
-                    title: Resource
+                    title: resources
                     type: object
                   type: array
                 spread:
@@ -826,7 +826,7 @@ liquid_handler:
                     - x
                     - y
                     - z
-                    title: Point
+                    title: offsets
                     type: object
                   type: array
                 resources:
@@ -865,7 +865,7 @@ liquid_handler:
                             - y
                             - z
                             - w
-                            title: Quaternion
+                            title: orientation
                             type: object
                           position:
                             properties:
@@ -879,12 +879,12 @@ liquid_handler:
                             - x
                             - y
                             - z
-                            title: Point
+                            title: position
                             type: object
                         required:
                         - position
                         - orientation
-                        title: Pose
+                        title: pose
                         type: object
                       sample_id:
                         type: string
@@ -901,7 +901,7 @@ liquid_handler:
                     - pose
                     - config
                     - data
-                    title: Resource
+                    title: resources
                     type: object
                   type: array
                 spread:
@@ -1005,7 +1005,7 @@ liquid_handler:
                     - x
                     - y
                     - z
-                    title: Point
+                    title: offsets
                     type: object
                   type: array
                 tip_spots:
@@ -1044,7 +1044,7 @@ liquid_handler:
                             - y
                             - z
                             - w
-                            title: Quaternion
+                            title: orientation
                             type: object
                           position:
                             properties:
@@ -1058,12 +1058,12 @@ liquid_handler:
                             - x
                             - y
                             - z
-                            title: Point
+                            title: position
                             type: object
                         required:
                         - position
                         - orientation
-                        title: Pose
+                        title: pose
                         type: object
                       sample_id:
                         type: string
@@ -1080,7 +1080,7 @@ liquid_handler:
                     - pose
                     - config
                     - data
-                    title: Resource
+                    title: tip_spots
                     type: object
                   type: array
                 use_channels:
@@ -1171,7 +1171,7 @@ liquid_handler:
                   - x
                   - y
                   - z
-                  title: Point
+                  title: offset
                   type: object
                 tip_rack:
                   properties:
@@ -1208,7 +1208,7 @@ liquid_handler:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -1222,12 +1222,12 @@ liquid_handler:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -1244,7 +1244,7 @@ liquid_handler:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: tip_rack
                   type: object
               required:
               - tip_rack
@@ -1350,7 +1350,7 @@ liquid_handler:
                     - x
                     - y
                     - z
-                    title: Point
+                    title: offsets
                     type: object
                   type: array
                 targets:
@@ -1389,7 +1389,7 @@ liquid_handler:
                             - y
                             - z
                             - w
-                            title: Quaternion
+                            title: orientation
                             type: object
                           position:
                             properties:
@@ -1403,12 +1403,12 @@ liquid_handler:
                             - x
                             - y
                             - z
-                            title: Point
+                            title: position
                             type: object
                         required:
                         - position
                         - orientation
-                        title: Pose
+                        title: pose
                         type: object
                       sample_id:
                         type: string
@@ -1425,7 +1425,7 @@ liquid_handler:
                     - pose
                     - config
                     - data
-                    title: Resource
+                    title: targets
                     type: object
                   type: array
               required:
@@ -1550,7 +1550,7 @@ liquid_handler:
                   - x
                   - y
                   - z
-                  title: Point
+                  title: destination_offset
                   type: object
                 drop_direction:
                   type: string
@@ -1569,7 +1569,7 @@ liquid_handler:
                     - x
                     - y
                     - z
-                    title: Point
+                    title: intermediate_locations
                     type: object
                   type: array
                 lid:
@@ -1607,7 +1607,7 @@ liquid_handler:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -1621,12 +1621,12 @@ liquid_handler:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -1643,7 +1643,7 @@ liquid_handler:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: lid
                   type: object
                 pickup_direction:
                   type: string
@@ -1663,7 +1663,7 @@ liquid_handler:
                   - x
                   - y
                   - z
-                  title: Point
+                  title: resource_offset
                   type: object
                 to:
                   properties:
@@ -1700,7 +1700,7 @@ liquid_handler:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -1714,12 +1714,12 @@ liquid_handler:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -1736,7 +1736,7 @@ liquid_handler:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: to
                   type: object
               required:
               - lid
@@ -1867,7 +1867,7 @@ liquid_handler:
                   - x
                   - y
                   - z
-                  title: Point
+                  title: destination_offset
                   type: object
                 drop_direction:
                   type: string
@@ -1886,7 +1886,7 @@ liquid_handler:
                     - x
                     - y
                     - z
-                    title: Point
+                    title: intermediate_locations
                     type: object
                   type: array
                 pickup_direction:
@@ -1905,7 +1905,7 @@ liquid_handler:
                   - x
                   - y
                   - z
-                  title: Point
+                  title: pickup_offset
                   type: object
                 plate:
                   properties:
@@ -1942,7 +1942,7 @@ liquid_handler:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -1956,12 +1956,12 @@ liquid_handler:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -1978,7 +1978,7 @@ liquid_handler:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: plate
                   type: object
                 put_direction:
                   type: string
@@ -1994,7 +1994,7 @@ liquid_handler:
                   - x
                   - y
                   - z
-                  title: Point
+                  title: resource_offset
                   type: object
                 to:
                   properties:
@@ -2031,7 +2031,7 @@ liquid_handler:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -2045,12 +2045,12 @@ liquid_handler:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -2067,7 +2067,7 @@ liquid_handler:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: to
                   type: object
               required:
               - plate
@@ -2179,7 +2179,7 @@ liquid_handler:
                   - x
                   - y
                   - z
-                  title: Point
+                  title: destination_offset
                   type: object
                 drop_direction:
                   type: string
@@ -2198,7 +2198,7 @@ liquid_handler:
                     - x
                     - y
                     - z
-                    title: Point
+                    title: intermediate_locations
                     type: object
                   type: array
                 pickup_direction:
@@ -2242,7 +2242,7 @@ liquid_handler:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -2256,12 +2256,12 @@ liquid_handler:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -2278,7 +2278,7 @@ liquid_handler:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: resource
                   type: object
                 resource_offset:
                   properties:
@@ -2292,7 +2292,7 @@ liquid_handler:
                   - x
                   - y
                   - z
-                  title: Point
+                  title: resource_offset
                   type: object
                 to:
                   properties:
@@ -2306,7 +2306,7 @@ liquid_handler:
                   - x
                   - y
                   - z
-                  title: Point
+                  title: to
                   type: object
               required:
               - resource
@@ -2419,7 +2419,7 @@ liquid_handler:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -2433,12 +2433,12 @@ liquid_handler:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -2455,7 +2455,7 @@ liquid_handler:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: well
                   type: object
               required:
               - well
@@ -2538,7 +2538,7 @@ liquid_handler:
                     - x
                     - y
                     - z
-                    title: Point
+                    title: offsets
                     type: object
                   type: array
                 tip_spots:
@@ -2577,7 +2577,7 @@ liquid_handler:
                             - y
                             - z
                             - w
-                            title: Quaternion
+                            title: orientation
                             type: object
                           position:
                             properties:
@@ -2591,12 +2591,12 @@ liquid_handler:
                             - x
                             - y
                             - z
-                            title: Point
+                            title: position
                             type: object
                         required:
                         - position
                         - orientation
-                        title: Pose
+                        title: pose
                         type: object
                       sample_id:
                         type: string
@@ -2613,7 +2613,7 @@ liquid_handler:
                     - pose
                     - config
                     - data
-                    title: Resource
+                    title: tip_spots
                     type: object
                   type: array
                 use_channels:
@@ -2699,7 +2699,7 @@ liquid_handler:
                   - x
                   - y
                   - z
-                  title: Point
+                  title: offset
                   type: object
                 tip_rack:
                   properties:
@@ -2736,7 +2736,7 @@ liquid_handler:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -2750,12 +2750,12 @@ liquid_handler:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -2772,7 +2772,7 @@ liquid_handler:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: tip_rack
                   type: object
               required:
               - tip_rack
@@ -2923,7 +2923,7 @@ liquid_handler:
                     - x
                     - y
                     - z
-                    title: Point
+                    title: offsets
                     type: object
                   type: array
                 sources:
@@ -2962,7 +2962,7 @@ liquid_handler:
                             - y
                             - z
                             - w
-                            title: Quaternion
+                            title: orientation
                             type: object
                           position:
                             properties:
@@ -2976,12 +2976,12 @@ liquid_handler:
                             - x
                             - y
                             - z
-                            title: Point
+                            title: position
                             type: object
                         required:
                         - position
                         - orientation
-                        title: Pose
+                        title: pose
                         type: object
                       sample_id:
                         type: string
@@ -2998,7 +2998,7 @@ liquid_handler:
                     - pose
                     - config
                     - data
-                    title: Resource
+                    title: sources
                     type: object
                   type: array
                 spread:
@@ -3052,7 +3052,7 @@ liquid_handler:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -3066,12 +3066,12 @@ liquid_handler:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -3088,7 +3088,7 @@ liquid_handler:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: waste_liquid
                   type: object
               required:
               - vols
@@ -3253,7 +3253,7 @@ liquid_handler:
                     - x
                     - y
                     - z
-                    title: Point
+                    title: offsets
                     type: object
                   type: array
                 sources:
@@ -3292,7 +3292,7 @@ liquid_handler:
                             - y
                             - z
                             - w
-                            title: Quaternion
+                            title: orientation
                             type: object
                           position:
                             properties:
@@ -3306,12 +3306,12 @@ liquid_handler:
                             - x
                             - y
                             - z
-                            title: Point
+                            title: position
                             type: object
                         required:
                         - position
                         - orientation
-                        title: Pose
+                        title: pose
                         type: object
                       sample_id:
                         type: string
@@ -3328,7 +3328,7 @@ liquid_handler:
                     - pose
                     - config
                     - data
-                    title: Resource
+                    title: sources
                     type: object
                   type: array
                 spread:
@@ -3382,7 +3382,7 @@ liquid_handler:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -3396,12 +3396,12 @@ liquid_handler:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -3418,7 +3418,7 @@ liquid_handler:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: waste_liquid
                   type: object
               required:
               - vols
@@ -3648,7 +3648,7 @@ liquid_handler:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -3662,12 +3662,12 @@ liquid_handler:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -3684,7 +3684,7 @@ liquid_handler:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: source
                   type: object
                 target:
                   properties:
@@ -3721,7 +3721,7 @@ liquid_handler:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -3735,12 +3735,12 @@ liquid_handler:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -3757,7 +3757,7 @@ liquid_handler:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: target
                   type: object
                 volume:
                   type: number
@@ -4078,7 +4078,7 @@ liquid_handler:
                     - x
                     - y
                     - z
-                    title: Point
+                    title: offsets
                     type: object
                   type: array
                 sources:
@@ -4117,7 +4117,7 @@ liquid_handler:
                             - y
                             - z
                             - w
-                            title: Quaternion
+                            title: orientation
                             type: object
                           position:
                             properties:
@@ -4131,12 +4131,12 @@ liquid_handler:
                             - x
                             - y
                             - z
-                            title: Point
+                            title: position
                             type: object
                         required:
                         - position
                         - orientation
-                        title: Pose
+                        title: pose
                         type: object
                       sample_id:
                         type: string
@@ -4153,7 +4153,7 @@ liquid_handler:
                     - pose
                     - config
                     - data
-                    title: Resource
+                    title: sources
                     type: object
                   type: array
                 spread:
@@ -4194,7 +4194,7 @@ liquid_handler:
                             - y
                             - z
                             - w
-                            title: Quaternion
+                            title: orientation
                             type: object
                           position:
                             properties:
@@ -4208,12 +4208,12 @@ liquid_handler:
                             - x
                             - y
                             - z
-                            title: Point
+                            title: position
                             type: object
                         required:
                         - position
                         - orientation
-                        title: Pose
+                        title: pose
                         type: object
                       sample_id:
                         type: string
@@ -4230,7 +4230,7 @@ liquid_handler:
                     - pose
                     - config
                     - data
-                    title: Resource
+                    title: targets
                     type: object
                   type: array
                 tip_racks:
@@ -4269,7 +4269,7 @@ liquid_handler:
                             - y
                             - z
                             - w
-                            title: Quaternion
+                            title: orientation
                             type: object
                           position:
                             properties:
@@ -4283,12 +4283,12 @@ liquid_handler:
                             - x
                             - y
                             - z
-                            title: Point
+                            title: position
                             type: object
                         required:
                         - position
                         - orientation
-                        title: Pose
+                        title: pose
                         type: object
                       sample_id:
                         type: string
@@ -4305,7 +4305,7 @@ liquid_handler:
                     - pose
                     - config
                     - data
-                    title: Resource
+                    title: tip_racks
                     type: object
                   type: array
                 touch_tip:
@@ -5084,7 +5084,7 @@ liquid_handler.biomek:
                     - x
                     - y
                     - z
-                    title: Point
+                    title: offsets
                     type: object
                   type: array
                 sources:
@@ -5123,7 +5123,7 @@ liquid_handler.biomek:
                             - y
                             - z
                             - w
-                            title: Quaternion
+                            title: orientation
                             type: object
                           position:
                             properties:
@@ -5137,12 +5137,12 @@ liquid_handler.biomek:
                             - x
                             - y
                             - z
-                            title: Point
+                            title: position
                             type: object
                         required:
                         - position
                         - orientation
-                        title: Pose
+                        title: pose
                         type: object
                       sample_id:
                         type: string
@@ -5159,7 +5159,7 @@ liquid_handler.biomek:
                     - pose
                     - config
                     - data
-                    title: Resource
+                    title: sources
                     type: object
                   type: array
                 spread:
@@ -5200,7 +5200,7 @@ liquid_handler.biomek:
                             - y
                             - z
                             - w
-                            title: Quaternion
+                            title: orientation
                             type: object
                           position:
                             properties:
@@ -5214,12 +5214,12 @@ liquid_handler.biomek:
                             - x
                             - y
                             - z
-                            title: Point
+                            title: position
                             type: object
                         required:
                         - position
                         - orientation
-                        title: Pose
+                        title: pose
                         type: object
                       sample_id:
                         type: string
@@ -5236,7 +5236,7 @@ liquid_handler.biomek:
                     - pose
                     - config
                     - data
-                    title: Resource
+                    title: targets
                     type: object
                   type: array
                 tip_racks:
@@ -5275,7 +5275,7 @@ liquid_handler.biomek:
                             - y
                             - z
                             - w
-                            title: Quaternion
+                            title: orientation
                             type: object
                           position:
                             properties:
@@ -5289,12 +5289,12 @@ liquid_handler.biomek:
                             - x
                             - y
                             - z
-                            title: Point
+                            title: position
                             type: object
                         required:
                         - position
                         - orientation
-                        title: Pose
+                        title: pose
                         type: object
                       sample_id:
                         type: string
@@ -5311,7 +5311,7 @@ liquid_handler.biomek:
                     - pose
                     - config
                     - data
-                    title: Resource
+                    title: tip_racks
                     type: object
                   type: array
                 touch_tip:
@@ -5540,7 +5540,7 @@ liquid_handler.prcxi:
                     - x
                     - y
                     - z
-                    title: Point
+                    title: offsets
                     type: object
                   type: array
                 reagent_sources:
@@ -5579,7 +5579,7 @@ liquid_handler.prcxi:
                             - y
                             - z
                             - w
-                            title: Quaternion
+                            title: orientation
                             type: object
                           position:
                             properties:
@@ -5593,12 +5593,12 @@ liquid_handler.prcxi:
                             - x
                             - y
                             - z
-                            title: Point
+                            title: position
                             type: object
                         required:
                         - position
                         - orientation
-                        title: Pose
+                        title: pose
                         type: object
                       sample_id:
                         type: string
@@ -5615,7 +5615,7 @@ liquid_handler.prcxi:
                     - pose
                     - config
                     - data
-                    title: Resource
+                    title: reagent_sources
                     type: object
                   type: array
                 spread:
@@ -5656,7 +5656,7 @@ liquid_handler.prcxi:
                             - y
                             - z
                             - w
-                            title: Quaternion
+                            title: orientation
                             type: object
                           position:
                             properties:
@@ -5670,12 +5670,12 @@ liquid_handler.prcxi:
                             - x
                             - y
                             - z
-                            title: Point
+                            title: position
                             type: object
                         required:
                         - position
                         - orientation
-                        title: Pose
+                        title: pose
                         type: object
                       sample_id:
                         type: string
@@ -5692,7 +5692,7 @@ liquid_handler.prcxi:
                     - pose
                     - config
                     - data
-                    title: Resource
+                    title: targets
                     type: object
                   type: array
                 use_channels:
@@ -5822,7 +5822,7 @@ liquid_handler.prcxi:
                     - x
                     - y
                     - z
-                    title: Point
+                    title: offsets
                     type: object
                   type: array
                 resources:
@@ -5861,7 +5861,7 @@ liquid_handler.prcxi:
                             - y
                             - z
                             - w
-                            title: Quaternion
+                            title: orientation
                             type: object
                           position:
                             properties:
@@ -5875,12 +5875,12 @@ liquid_handler.prcxi:
                             - x
                             - y
                             - z
-                            title: Point
+                            title: position
                             type: object
                         required:
                         - position
                         - orientation
-                        title: Pose
+                        title: pose
                         type: object
                       sample_id:
                         type: string
@@ -5897,7 +5897,7 @@ liquid_handler.prcxi:
                     - pose
                     - config
                     - data
-                    title: Resource
+                    title: resources
                     type: object
                   type: array
                 spread:
@@ -6225,7 +6225,7 @@ liquid_handler.prcxi:
                     - x
                     - y
                     - z
-                    title: Point
+                    title: offsets
                     type: object
                   type: array
                 resources:
@@ -6264,7 +6264,7 @@ liquid_handler.prcxi:
                             - y
                             - z
                             - w
-                            title: Quaternion
+                            title: orientation
                             type: object
                           position:
                             properties:
@@ -6278,12 +6278,12 @@ liquid_handler.prcxi:
                             - x
                             - y
                             - z
-                            title: Point
+                            title: position
                             type: object
                         required:
                         - position
                         - orientation
-                        title: Pose
+                        title: pose
                         type: object
                       sample_id:
                         type: string
@@ -6300,7 +6300,7 @@ liquid_handler.prcxi:
                     - pose
                     - config
                     - data
-                    title: Resource
+                    title: resources
                     type: object
                   type: array
                 spread:
@@ -6399,7 +6399,7 @@ liquid_handler.prcxi:
                     - x
                     - y
                     - z
-                    title: Point
+                    title: offsets
                     type: object
                   type: array
                 tip_spots:
@@ -6438,7 +6438,7 @@ liquid_handler.prcxi:
                             - y
                             - z
                             - w
-                            title: Quaternion
+                            title: orientation
                             type: object
                           position:
                             properties:
@@ -6452,12 +6452,12 @@ liquid_handler.prcxi:
                             - x
                             - y
                             - z
-                            title: Point
+                            title: position
                             type: object
                         required:
                         - position
                         - orientation
-                        title: Pose
+                        title: pose
                         type: object
                       sample_id:
                         type: string
@@ -6474,7 +6474,7 @@ liquid_handler.prcxi:
                     - pose
                     - config
                     - data
-                    title: Resource
+                    title: tip_spots
                     type: object
                   type: array
                 use_channels:
@@ -6590,7 +6590,7 @@ liquid_handler.prcxi:
                     - x
                     - y
                     - z
-                    title: Point
+                    title: offsets
                     type: object
                   type: array
                 targets:
@@ -6629,7 +6629,7 @@ liquid_handler.prcxi:
                             - y
                             - z
                             - w
-                            title: Quaternion
+                            title: orientation
                             type: object
                           position:
                             properties:
@@ -6643,12 +6643,12 @@ liquid_handler.prcxi:
                             - x
                             - y
                             - z
-                            title: Point
+                            title: position
                             type: object
                         required:
                         - position
                         - orientation
-                        title: Pose
+                        title: pose
                         type: object
                       sample_id:
                         type: string
@@ -6665,7 +6665,7 @@ liquid_handler.prcxi:
                     - pose
                     - config
                     - data
-                    title: Resource
+                    title: targets
                     type: object
                   type: array
               required:
@@ -6754,7 +6754,7 @@ liquid_handler.prcxi:
                     - x
                     - y
                     - z
-                    title: Point
+                    title: offsets
                     type: object
                   type: array
                 tip_spots:
@@ -6793,7 +6793,7 @@ liquid_handler.prcxi:
                             - y
                             - z
                             - w
-                            title: Quaternion
+                            title: orientation
                             type: object
                           position:
                             properties:
@@ -6807,12 +6807,12 @@ liquid_handler.prcxi:
                             - x
                             - y
                             - z
-                            title: Point
+                            title: position
                             type: object
                         required:
                         - position
                         - orientation
-                        title: Pose
+                        title: pose
                         type: object
                       sample_id:
                         type: string
@@ -6829,7 +6829,7 @@ liquid_handler.prcxi:
                     - pose
                     - config
                     - data
-                    title: Resource
+                    title: tip_spots
                     type: object
                   type: array
                 use_channels:
@@ -6991,7 +6991,7 @@ liquid_handler.prcxi:
                     - x
                     - y
                     - z
-                    title: Point
+                    title: offsets
                     type: object
                   type: array
                 sources:
@@ -7030,7 +7030,7 @@ liquid_handler.prcxi:
                             - y
                             - z
                             - w
-                            title: Quaternion
+                            title: orientation
                             type: object
                           position:
                             properties:
@@ -7044,12 +7044,12 @@ liquid_handler.prcxi:
                             - x
                             - y
                             - z
-                            title: Point
+                            title: position
                             type: object
                         required:
                         - position
                         - orientation
-                        title: Pose
+                        title: pose
                         type: object
                       sample_id:
                         type: string
@@ -7066,7 +7066,7 @@ liquid_handler.prcxi:
                     - pose
                     - config
                     - data
-                    title: Resource
+                    title: sources
                     type: object
                   type: array
                 spread:
@@ -7120,7 +7120,7 @@ liquid_handler.prcxi:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -7134,12 +7134,12 @@ liquid_handler.prcxi:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -7156,7 +7156,7 @@ liquid_handler.prcxi:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: waste_liquid
                   type: object
               required:
               - vols
@@ -7279,7 +7279,7 @@ liquid_handler.prcxi:
                             - y
                             - z
                             - w
-                            title: Quaternion
+                            title: orientation
                             type: object
                           position:
                             properties:
@@ -7293,12 +7293,12 @@ liquid_handler.prcxi:
                             - x
                             - y
                             - z
-                            title: Point
+                            title: position
                             type: object
                         required:
                         - position
                         - orientation
-                        title: Pose
+                        title: pose
                         type: object
                       sample_id:
                         type: string
@@ -7315,7 +7315,7 @@ liquid_handler.prcxi:
                     - pose
                     - config
                     - data
-                    title: Resource
+                    title: wells
                     type: object
                   type: array
               required:
@@ -7412,7 +7412,7 @@ liquid_handler.prcxi:
                             - y
                             - z
                             - w
-                            title: Quaternion
+                            title: orientation
                             type: object
                           position:
                             properties:
@@ -7426,12 +7426,12 @@ liquid_handler.prcxi:
                             - x
                             - y
                             - z
-                            title: Point
+                            title: position
                             type: object
                         required:
                         - position
                         - orientation
-                        title: Pose
+                        title: pose
                         type: object
                       sample_id:
                         type: string
@@ -7448,7 +7448,7 @@ liquid_handler.prcxi:
                     - pose
                     - config
                     - data
-                    title: Resource
+                    title: tip_racks
                     type: object
                   type: array
               required:
@@ -7764,7 +7764,7 @@ liquid_handler.prcxi:
                     - x
                     - y
                     - z
-                    title: Point
+                    title: offsets
                     type: object
                   type: array
                 sources:
@@ -7803,7 +7803,7 @@ liquid_handler.prcxi:
                             - y
                             - z
                             - w
-                            title: Quaternion
+                            title: orientation
                             type: object
                           position:
                             properties:
@@ -7817,12 +7817,12 @@ liquid_handler.prcxi:
                             - x
                             - y
                             - z
-                            title: Point
+                            title: position
                             type: object
                         required:
                         - position
                         - orientation
-                        title: Pose
+                        title: pose
                         type: object
                       sample_id:
                         type: string
@@ -7839,7 +7839,7 @@ liquid_handler.prcxi:
                     - pose
                     - config
                     - data
-                    title: Resource
+                    title: sources
                     type: object
                   type: array
                 spread:
@@ -7880,7 +7880,7 @@ liquid_handler.prcxi:
                             - y
                             - z
                             - w
-                            title: Quaternion
+                            title: orientation
                             type: object
                           position:
                             properties:
@@ -7894,12 +7894,12 @@ liquid_handler.prcxi:
                             - x
                             - y
                             - z
-                            title: Point
+                            title: position
                             type: object
                         required:
                         - position
                         - orientation
-                        title: Pose
+                        title: pose
                         type: object
                       sample_id:
                         type: string
@@ -7916,7 +7916,7 @@ liquid_handler.prcxi:
                     - pose
                     - config
                     - data
-                    title: Resource
+                    title: targets
                     type: object
                   type: array
                 tip_racks:
@@ -7955,7 +7955,7 @@ liquid_handler.prcxi:
                             - y
                             - z
                             - w
-                            title: Quaternion
+                            title: orientation
                             type: object
                           position:
                             properties:
@@ -7969,12 +7969,12 @@ liquid_handler.prcxi:
                             - x
                             - y
                             - z
-                            title: Point
+                            title: position
                             type: object
                         required:
                         - position
                         - orientation
-                        title: Pose
+                        title: pose
                         type: object
                       sample_id:
                         type: string
@@ -7991,7 +7991,7 @@ liquid_handler.prcxi:
                     - pose
                     - config
                     - data
-                    title: Resource
+                    title: tip_racks
                     type: object
                   type: array
                 touch_tip:
@@ -8184,7 +8184,7 @@ liquid_handler.revvity:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -8198,12 +8198,12 @@ liquid_handler.revvity:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -8220,7 +8220,7 @@ liquid_handler.revvity:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: resource
                   type: object
                 wf_name:
                   type: string

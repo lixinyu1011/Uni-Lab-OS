@@ -24,12 +24,11 @@ DEFAULT_PATHS = [Path(__file__).absolute().parent]
 class Registry:
     def __init__(self, registry_paths=None):
         import ctypes
+
         try:
             import unilabos_msgs
         except ImportError:
-            logger.error(
-                "[UniLab Registry] unilabos_msgs模块未找到，请确保已根据官方文档安装unilabos_msgs包。"
-            )
+            logger.error("[UniLab Registry] unilabos_msgs模块未找到，请确保已根据官方文档安装unilabos_msgs包。")
             sys.exit(1)
         try:
             ctypes.CDLL(str(Path(unilabos_msgs.__file__).parent / "unilabos_msgs_s__rosidl_typesupport_c.pyd"))
@@ -53,7 +52,7 @@ class Registry:
         # 其他状态变量
         # self.is_host_mode = False  # 移至BasicConfig中
 
-    def setup(self, complete_registry=False):
+    def setup(self, complete_registry=False, upload_registry=False):
         # 检查是否已调用过setup
         if self._setup_called:
             logger.critical("[UniLab Registry] setup方法已被调用过，不允许多次调用")
@@ -152,22 +151,22 @@ class Registry:
                 }
             }
         )
-        logger.debug(f"[UniLab Registry] ----------Setup----------")
+        logger.trace(f"[UniLab Registry] ----------Setup----------")
         self.registry_paths = [Path(path).absolute() for path in self.registry_paths]
         for i, path in enumerate(self.registry_paths):
             sys_path = path.parent
-            logger.debug(f"[UniLab Registry] Path {i+1}/{len(self.registry_paths)}: {sys_path}")
+            logger.trace(f"[UniLab Registry] Path {i+1}/{len(self.registry_paths)}: {sys_path}")
             sys.path.append(str(sys_path))
             self.load_device_types(path, complete_registry)
             if BasicConfig.enable_resource_load:
-                self.load_resource_types(path, complete_registry)
+                self.load_resource_types(path, complete_registry, upload_registry)
             else:
                 logger.warning("跳过了资源注册表加载！")
         logger.info("[UniLab Registry] 注册表设置完成")
         # 标记setup已被调用
         self._setup_called = True
 
-    def load_resource_types(self, path: os.PathLike, complete_registry: bool):
+    def load_resource_types(self, path: os.PathLike, complete_registry: bool, upload_registry: bool):
         abs_path = Path(path).absolute()
         resource_path = abs_path / "resources"
         files = list(resource_path.glob("*/*.yaml"))
@@ -194,7 +193,12 @@ class Registry:
                         resource_info["handles"] = []
                     if "init_param_schema" not in resource_info:
                         resource_info["init_param_schema"] = {}
-                    if complete_registry:
+                    if "config_info" in resource_info:
+                        del resource_info["config_info"]
+                    if "file_path" in resource_info:
+                        del resource_info["file_path"]
+                    complete_data[resource_id] = copy.deepcopy(dict(sorted(resource_info.items())))
+                    if upload_registry:
                         class_info = resource_info.get("class", {})
                         if len(class_info) and "module" in class_info:
                             if class_info.get("type") == "pylabrobot":
@@ -205,7 +209,6 @@ class Registry:
                                     res_instance = res_class(res_class.__name__)
                                     res_ulr = tree_to_list([resource_plr_to_ulab(res_instance)])
                                     resource_info["config_info"] = res_ulr
-                    complete_data[resource_id] = copy.deepcopy(dict(sorted(resource_info.items())))  # 稍后dump到文件
                     resource_info["registry_type"] = "resource"
                     resource_info["file_path"] = str(file.absolute()).replace("\\", "/")
                 complete_data = dict(sorted(complete_data.items()))
@@ -215,7 +218,7 @@ class Registry:
                         yaml.dump(complete_data, f, allow_unicode=True, default_flow_style=False, Dumper=NoAliasDumper)
 
                 self.resource_type_registry.update(data)
-                logger.debug(
+                logger.trace(  # type: ignore
                     f"[UniLab Registry] Resource-{current_resource_number} File-{i+1}/{len(files)} "
                     + f"Add {list(data.keys())}"
                 )
@@ -402,7 +405,7 @@ class Registry:
         devices_path = abs_path / "devices"
         device_comms_path = abs_path / "device_comms"
         files = list(devices_path.glob("*.yaml")) + list(device_comms_path.glob("*.yaml"))
-        logger.debug(
+        logger.trace(  # type: ignore
             f"[UniLab Registry] devices: {devices_path.exists()}, device_comms: {device_comms_path.exists()}, "
             + f"total: {len(files)}"
         )
@@ -447,6 +450,8 @@ class Registry:
                         if complete_registry:
                             device_config["class"]["status_types"].clear()
                             enhanced_info = get_enhanced_class_info(device_config["class"]["module"], use_dynamic=True)
+                            if not enhanced_info.get("dynamic_import_success", False):
+                                continue
                             device_config["class"]["status_types"].update(
                                 {k: v["return_type"] for k, v in enhanced_info["status_methods"].items()}
                             )
@@ -517,6 +522,12 @@ class Registry:
                         for action_name, action_config in device_config["class"]["action_value_mappings"].items():
                             if "handles" not in action_config:
                                 action_config["handles"] = {}
+                            elif isinstance(action_config["handles"], list):
+                                if len(action_config["handles"]):
+                                    logger.error(f"设备{device_id} {action_name} 的handles配置错误，应该是字典类型")
+                                    continue
+                                else:
+                                    action_config["handles"] = {}
                             if "type" in action_config:
                                 action_type_str: str = action_config["type"]
                                 # 通过Json发放指令，而不是通过特殊的ros action进行处理
@@ -565,7 +576,7 @@ class Registry:
                             }
                     device_config["file_path"] = str(file.absolute()).replace("\\", "/")
                     device_config["registry_type"] = "device"
-                    logger.debug(
+                    logger.trace(
                         f"[UniLab Registry] Device-{current_device_number} File-{i+1}/{len(files)} Add {device_id} "
                         + f"[{data[device_id].get('name', '未命名设备')}]"
                     )
@@ -627,7 +638,7 @@ class Registry:
 lab_registry = Registry()
 
 
-def build_registry(registry_paths=None, complete_registry=False):
+def build_registry(registry_paths=None, complete_registry=False, upload_registry=False):
     """
     构建或获取Registry单例实例
 
@@ -651,6 +662,6 @@ def build_registry(registry_paths=None, complete_registry=False):
                 lab_registry.registry_paths.append(path)
 
     # 初始化注册表
-    lab_registry.setup(complete_registry)
+    lab_registry.setup(complete_registry, upload_registry)
 
     return lab_registry

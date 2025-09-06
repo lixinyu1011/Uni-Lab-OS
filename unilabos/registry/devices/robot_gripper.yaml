@@ -533,7 +533,7 @@ gripper.mock:
                   required:
                   - position
                   - max_effort
-                  title: GripperCommand
+                  title: command
                   type: object
               required:
               - command
