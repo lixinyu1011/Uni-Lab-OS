@@ -78,21 +78,23 @@ def setup_web_pages(router: APIRouter) -> None:
             HTMLResponse: 渲染后的HTML页面
         """
         try:
-            # 准备设备数据
+            # 准备初始数据结构（这些数据将通过WebSocket实时更新）
             devices = []
             resources = []
             modules = {"names": [], "classes": [], "displayed_count": 0, "total_count": 0}
 
-            # 获取在线设备信息
+            # 获取在线设备信息（用于初始渲染）
             ros_node_info = get_ros_node_info()
-            # 获取主机节点信息
+            # 获取主机节点信息（用于初始渲染）
             host_node_info = get_host_node_info()
-            # 获取Registry路径信息
+            # 获取Registry路径信息（静态信息，不需要实时更新）
             registry_info = get_registry_info()
 
-            # 获取已加载的设备
+            # 获取初始数据用于页面渲染（后续将被WebSocket数据覆盖）
             if lab_registry:
-                devices = json.loads(json.dumps(lab_registry.obtain_registry_device_info(), ensure_ascii=False, cls=TypeEncoder))
+                devices = json.loads(
+                    json.dumps(lab_registry.obtain_registry_device_info(), ensure_ascii=False, cls=TypeEncoder)
+                )
                 # 资源类型
                 for resource_id, resource_info in lab_registry.resource_type_registry.items():
                     resources.append(
@@ -103,7 +105,7 @@ def setup_web_pages(router: APIRouter) -> None:
                         }
                     )
 
-            # 获取导入的模块
+            # 获取导入的模块（初始数据）
             if msg_converter_manager:
                 modules["names"] = msg_converter_manager.list_modules()
                 all_classes = [i for i in msg_converter_manager.list_classes() if "." in i]
@@ -171,3 +173,20 @@ def setup_web_pages(router: APIRouter) -> None:
         except Exception as e:
             error(f"打开文件夹时出错: {str(e)}")
             return {"status": "error", "message": f"Failed to open folder: {str(e)}"}
+
+    @router.get("/registry-editor", response_class=HTMLResponse, summary="Registry Editor")
+    async def registry_editor_page() -> str:
+        """
+        注册表编辑页面，用于导入Python文件并生成注册表
+
+        Returns:
+            HTMLResponse: 渲染后的HTML页面
+        """
+        try:
+            # 使用模板渲染页面
+            template = env.get_template("registry_editor.html")
+            html = template.render()
+            return html
+        except Exception as e:
+            error(f"生成注册表编辑页面时出错: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Error generating registry editor page: {str(e)}")
