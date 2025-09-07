@@ -7,6 +7,7 @@ block header %}UniLab System Status{% endblock %} {% block top_info %}
     href="/status"
     class="nav-tab"
     style="background-color: #4caf50; color: white"
+    target="_blank"
     >状态</a
   >
   <a href="/registry-editor" class="nav-tab" target="_blank">注册表编辑</a>
@@ -1720,9 +1721,10 @@ ros2 action send_goal {{ action_info.action_path }} {{ action_info.type_name_con
     const navTabs = document.querySelectorAll('.nav-tab');
     navTabs.forEach((tab) => {
       tab.addEventListener('click', function (e) {
-        e.preventDefault();
         const targetId = this.getAttribute('href');
+        // 只对内部锚链接（以#开头）应用滚动行为
         if (targetId && targetId.startsWith('#')) {
+          e.preventDefault();
           const targetElement = document.querySelector(targetId);
           if (targetElement) {
             targetElement.scrollIntoView({
@@ -1730,6 +1732,7 @@ ros2 action send_goal {{ action_info.action_path }} {{ action_info.type_name_con
             });
           }
         }
+        // 对于外部链接（如 /status, /registry-editor），不调用preventDefault()，让浏览器处理默认行为
       });
     });
   }

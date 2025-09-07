@@ -1,6 +1,6 @@
 {% extends "base.html" %} {% block title %}注册表编辑器 - UniLab{% endblock %}
-{% block header %}注册表编辑器{% endblock %} {% block nav %}
-{% endblock %} {% block scripts %}
+{% block header %}注册表编辑器{% endblock %} {% block nav %} {% endblock %} {%
+block scripts %}
 <style>
   .editor-container {
     max-width: 100%;
@@ -9,11 +9,11 @@
     position: relative;
   }
   .form-section {
-    background: white;
+    background: rgb(212, 226, 243);
     border-radius: 8px;
-    padding: 20px;
+    padding: 10px;
     margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
   }
   .form-group {
     margin-bottom: 15px;
@@ -280,6 +280,77 @@
     padding: 4px 12px;
   }
 
+  /* Handle 配置相关样式 */
+  .handle-item {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 10px;
+    background: #f8f9fa;
+    position: relative;
+  }
+
+  .handle-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .handle-item-title {
+    font-weight: bold;
+    color: #333;
+  }
+
+  .remove-handle-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .remove-handle-btn:hover {
+    background-color: #c82333;
+  }
+
+  .handle-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .handle-form-row.full-width {
+    grid-template-columns: 1fr;
+  }
+
+  .handle-form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .handle-form-group label {
+    font-size: 12px;
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 3px;
+  }
+
+  .handle-form-group input,
+  .handle-form-group select {
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 13px;
+  }
+
   /* 连接状态右上角定位 */
   .connection-status-fixed {
     position: fixed;
@@ -455,6 +526,84 @@
 
     <!-- 右栏：注册表配置结果 -->
     <div class="right-column">
+      <!-- 配置参数输入区域 -->
+      <div
+        id="config-params-section"
+        class="form-section"
+        style="display: none"
+      >
+        <h3>配置参数</h3>
+
+        <!-- Module Prefix 输入框 -->
+        <div class="form-group">
+          <label for="module-prefix">Module Prefix</label>
+          <input
+            type="text"
+            id="module-prefix"
+            class="form-control"
+            placeholder="例如: unilabos.devices.pumps"
+          />
+          <small class="form-text">模块路径前缀，指定类所在的包位置</small>
+        </div>
+
+        <!-- Safe Class Name 输入框 -->
+        <div class="form-group">
+          <label for="safe-class-name">Safe Class Name</label>
+          <input
+            type="text"
+            id="safe-class-name"
+            class="form-control"
+            placeholder="自动生成，可自定义"
+          />
+          <small class="form-text"
+            >将作为注册表中的ID使用，必须是有效的标识符</small
+          >
+        </div>
+
+        <!-- 设备/资源描述 -->
+        <div class="form-group">
+          <label for="description-input">设备/资源描述</label>
+          <textarea
+            id="description-input"
+            class="form-control"
+            rows="3"
+            placeholder="请输入设备或资源的描述信息..."
+          ></textarea>
+          <small class="form-text"
+            >描述信息将显示在注册表中，帮助用户了解设备功能</small
+          >
+        </div>
+
+        <!-- Icon 输入框 -->
+        <div class="form-group">
+          <label for="icon-input">图标文件名</label>
+          <input
+            type="text"
+            id="icon-input"
+            class="form-control"
+            placeholder="icon_xxx.webp"
+          />
+          <small class="form-text">图标文件名，例如：icon_pump.webp</small>
+        </div>
+
+        <!-- Handles 配置区域 -->
+        <div class="form-group">
+          <label>Handles 配置</label>
+          <div id="handles-container">
+            <!-- 动态添加的handles项目会在这里显示 -->
+          </div>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            onclick="addHandleItem()"
+          >
+            添加 Handle
+          </button>
+          <small class="form-text">配置设备/资源的输入输出接口</small>
+        </div>
+      </div>
+
+      <!-- YAML结果显示区域 -->
       <div id="results-section" class="form-section" style="display: none">
         <h3>注册表配置结果</h3>
         <div class="yaml-container">
@@ -485,6 +634,7 @@
   let isConnected = false;
   let currentPath = '';
   let selectedFilePath = null;
+  let handleCounter = 0;
 
   // 页面加载完成后初始化
   document.addEventListener('DOMContentLoaded', function () {
@@ -613,7 +763,12 @@
       // 保存YAML内容供复制使用
       window.registryYaml = result.registry_schema;
 
-      addLog(`生成的设备ID: ${result.device_id}`, 'info');
+      addLog(
+        `生成的${result.registry_type === 'resource' ? '资源' : '设备'}ID: ${
+          result.item_id || result.device_id
+        }`,
+        'info'
+      );
     }
 
     addLog('注册表生成完成！', 'success');
@@ -716,24 +871,6 @@
 
     // 清空文件浏览器
     fileBrowser.innerHTML = '';
-
-    // 添加返回上级目录选项（除了根路径）
-    const currentPath = data.current_path || data.working_dir;
-    if (currentPath && currentPath !== '' && !isRootPath(currentPath)) {
-      const parentItem = document.createElement('div');
-      parentItem.className = 'file-item';
-      parentItem.innerHTML = `
-        <span class="file-icon directory-icon">⬆️</span>
-        <span class="file-name">..</span>
-        <span class="file-size">(返回上级目录)</span>
-      `;
-
-      // 计算上级目录路径
-      const parentPath = currentPath.split(/[/\\]/).slice(0, -1).join('/');
-      parentItem.onclick = () => loadFileBrowser(parentPath);
-
-      fileBrowser.appendChild(parentItem);
-    }
 
     if (data.items.length === 0) {
       if (fileBrowser.children.length === 0) {
@@ -912,14 +1049,31 @@
         // 显示分析状态
         showFileAnalysisStatus(analysisResult);
 
-        // 监听类选择变化，启用导入按钮
+        // 监听类选择变化，启用导入按钮和显示配置参数区域
         classSelect.onchange = function () {
           const importBtn = document.getElementById('import-btn');
+          const configParamsSection = document.getElementById(
+            'config-params-section'
+          );
+          const safeClassNameInput = document.getElementById('safe-class-name');
+
           if (this.value) {
             importBtn.disabled = false;
+            configParamsSection.style.display = 'block';
+
+            // 自动生成Safe Class Name
+            const registryType = document.querySelector(
+              'input[name="registry-type"]:checked'
+            ).value;
+            const suffix = registryType === 'device' ? '_device' : '';
+            const safeClassName = this.value.toLowerCase() + suffix;
+            safeClassNameInput.value = safeClassName;
+
             addLog(`选择了类: ${this.value}`, 'info');
+            addLog(`自动生成Safe Class Name: ${safeClassName}`, 'info');
           } else {
             importBtn.disabled = true;
+            configParamsSection.style.display = 'none';
           }
         };
       } else {
@@ -992,6 +1146,17 @@
       'input[name="registry-type"]:checked'
     ).value;
 
+    // 获取用户输入的所有配置参数
+    const description = document
+      .getElementById('description-input')
+      .value.trim();
+    const safeClassName = document
+      .getElementById('safe-class-name')
+      .value.trim();
+    const iconInput = document.getElementById('icon-input').value.trim();
+    const modulePrefix = document.getElementById('module-prefix').value.trim();
+    const handlesConfig = getHandlesConfig();
+
     updateConnectionStatus('processing', '正在生成注册表...');
 
     const request = {
@@ -1001,6 +1166,11 @@
         registry_type: registryType,
         class_name: className,
         module_name: null, // 模块名自动生成
+        description: description,
+        safe_class_name: safeClassName,
+        icon: iconInput,
+        module_prefix: modulePrefix,
+        handles: handlesConfig,
       },
     };
 
@@ -1010,11 +1180,27 @@
     addLog(`选择的类: ${className}`, 'info');
 
     // 显示文件信息
-    showFileInfo(selectedFilePath, registryType, className);
+    showFileInfo(
+      selectedFilePath,
+      registryType,
+      className,
+      safeClassName,
+      iconInput,
+      modulePrefix,
+      handlesConfig
+    );
   }
 
   // 显示文件信息
-  function showFileInfo(filePath, registryType, className) {
+  function showFileInfo(
+    filePath,
+    registryType,
+    className,
+    safeClassName,
+    icon,
+    modulePrefix,
+    handles
+  ) {
     const fileInfo = document.getElementById('file-info');
     const fileDetails = document.getElementById('file-details');
 
@@ -1022,7 +1208,23 @@
             <div><strong>文件路径:</strong> ${filePath}</div>
             <div><strong>注册表类型:</strong> ${registryType}</div>
             <div><strong>选择的类:</strong> ${className}</div>
+            <div><strong>Safe Class Name:</strong> ${
+              safeClassName || '自动生成'
+            }</div>
+            <div><strong>Module Prefix:</strong> ${modulePrefix || '无'}</div>
+            <div><strong>图标:</strong> ${icon || '无'}</div>
+            <div><strong>Handles 数量:</strong> ${handles.length}</div>
         `;
+
+    if (handles.length > 0) {
+      details += '<div><strong>Handles 配置:</strong><ul>';
+      handles.forEach((handle, index) => {
+        details += `<li>${index + 1}. ${handle.data_key} (${
+          handle.io_type
+        })</li>`;
+      });
+      details += '</ul></div>';
+    }
 
     fileDetails.innerHTML = details;
     fileInfo.style.display = 'block';
@@ -1051,8 +1253,20 @@
     const importBtn = document.getElementById('import-btn');
     importBtn.disabled = true;
 
-    // 隐藏类选择
+    // 隐藏类选择和配置参数区域
     document.getElementById('class-selection-group').style.display = 'none';
+    document.getElementById('config-params-section').style.display = 'none';
+
+    // 清空所有输入框
+    document.getElementById('description-input').value = '';
+    document.getElementById('safe-class-name').value = '';
+    document.getElementById('icon-input').value = '';
+    document.getElementById('module-prefix').value = '';
+
+    // 清空handles配置
+    const handlesContainer = document.getElementById('handles-container');
+    handlesContainer.innerHTML = '';
+    handleCounter = 0;
 
     // 根据当前注册表类型设置默认选项文字
     const registryType = document.querySelector(
@@ -1080,6 +1294,118 @@
     window.registryYaml = null;
 
     addLog('已重置所有设置', 'info');
+  }
+
+  // 添加Handle项目
+  function addHandleItem() {
+    handleCounter++;
+    const handlesContainer = document.getElementById('handles-container');
+
+    const handleItem = document.createElement('div');
+    handleItem.className = 'handle-item';
+    handleItem.id = `handle-item-${handleCounter}`;
+
+    handleItem.innerHTML = `
+      <div class="handle-item-header">
+        <span class="handle-item-title">Handle ${handleCounter}</span>
+        <button type="button" class="remove-handle-btn" onclick="removeHandleItem(${handleCounter})" title="删除">×</button>
+      </div>
+      
+      <div class="handle-form-row">
+        <div class="handle-form-group">
+          <label>Data Key</label>
+          <input type="text" placeholder="例如: fluid_port_1" data-field="data_key">
+        </div>
+        <div class="handle-form-group">
+          <label>Handler Key</label>
+          <input type="text" placeholder="例如: port_1" data-field="handler_key">
+        </div>
+      </div>
+      
+      <div class="handle-form-row">
+        <div class="handle-form-group">
+          <label>Data Source</label>
+          <input type="text" placeholder="例如: executor、handle" data-field="data_source">
+        </div>
+        <div class="handle-form-group">
+          <label>Data Type</label>
+          <input type="text" placeholder="例如: fluid" data-field="data_type">
+        </div>
+      </div>
+      
+      <div class="handle-form-row">
+        <div class="handle-form-group">
+          <label>IO Type</label>
+          <select data-field="io_type">
+            <option value="">请选择</option>
+            <option value="source">source（输出，右侧）</option>
+            <option value="target">target（输入，左侧）</option>
+          </select>
+        </div>
+        <div class="handle-form-group">
+          <label>Side</label>
+          <select data-field="side">
+            <option value="">请选择</option>
+            <option value="NORTH">NORTH（上）</option>
+            <option value="SOUTH">SOUTH（下）</option>
+            <option value="EAST">EAST（右）</option>
+            <option value="WEST">WEST（左）</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="handle-form-row">
+        <div class="handle-form-group">
+          <label>Label</label>
+          <input type="text" placeholder="显示名称，例如: port_1" data-field="label">
+        </div>
+      </div>
+      
+      <div class="handle-form-row full-width">
+        <div class="handle-form-group">
+          <label>Description</label>
+          <input type="text" placeholder="例如: 八通阀门端口1" data-field="description">
+        </div>
+      </div>
+    `;
+
+    handlesContainer.appendChild(handleItem);
+    addLog(`添加了 Handle ${handleCounter}`, 'info');
+  }
+
+  // 删除Handle项目
+  function removeHandleItem(id) {
+    const handleItem = document.getElementById(`handle-item-${id}`);
+    if (handleItem) {
+      handleItem.remove();
+      addLog(`删除了 Handle ${id}`, 'info');
+    }
+  }
+
+  // 获取所有Handles配置
+  function getHandlesConfig() {
+    const handles = [];
+    const handleItems = document.querySelectorAll('.handle-item');
+
+    handleItems.forEach((item) => {
+      const handleData = {};
+      const inputs = item.querySelectorAll('[data-field]');
+
+      inputs.forEach((input) => {
+        const field = input.getAttribute('data-field');
+        const value = input.value.trim();
+        if (value) {
+          handleData[field] = value;
+        }
+      });
+
+      // 只有当至少有data_key时才添加
+      if (handleData.data_key) {
+        handles.push(handleData);
+      }
+    });
+
+    return handles;
   }
 </script>
 {% endblock %}

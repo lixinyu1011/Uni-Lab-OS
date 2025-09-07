@@ -576,7 +576,7 @@ class Registry:
                             }
                     device_config["file_path"] = str(file.absolute()).replace("\\", "/")
                     device_config["registry_type"] = "device"
-                    logger.trace(
+                    logger.trace(  # type: ignore
                         f"[UniLab Registry] Device-{current_device_number} File-{i+1}/{len(files)} Add {device_id} "
                         + f"[{data[device_id].get('name', '未命名设备')}]"
                     )
