@@ -336,7 +336,7 @@ separator.homemade:
                           - y
                           - z
                           - w
-                          title: Quaternion
+                          title: orientation
                           type: object
                         position:
                           properties:
@@ -350,12 +350,12 @@ separator.homemade:
                           - x
                           - y
                           - z
-                          title: Point
+                          title: position
                           type: object
                       required:
                       - position
                       - orientation
-                      title: Pose
+                      title: pose
                       type: object
                     sample_id:
                       type: string
@@ -372,7 +372,7 @@ separator.homemade:
                   - pose
                   - config
                   - data
-                  title: Resource
+                  title: vessel
                   type: object
               required:
               - vessel

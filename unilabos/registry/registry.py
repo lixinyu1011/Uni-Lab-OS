@@ -24,12 +24,11 @@ DEFAULT_PATHS = [Path(__file__).absolute().parent]
 class Registry:
     def __init__(self, registry_paths=None):
         import ctypes
+
         try:
             import unilabos_msgs
         except ImportError:
-            logger.error(
-                "[UniLab Registry] unilabos_msgs模块未找到，请确保已根据官方文档安装unilabos_msgs包。"
-            )
+            logger.error("[UniLab Registry] unilabos_msgs模块未找到，请确保已根据官方文档安装unilabos_msgs包。")
             sys.exit(1)
         try:
             ctypes.CDLL(str(Path(unilabos_msgs.__file__).parent / "unilabos_msgs_s__rosidl_typesupport_c.pyd"))
@@ -219,7 +218,7 @@ class Registry:
                         yaml.dump(complete_data, f, allow_unicode=True, default_flow_style=False, Dumper=NoAliasDumper)
 
                 self.resource_type_registry.update(data)
-                logger.trace(
+                logger.trace(  # type: ignore
                     f"[UniLab Registry] Resource-{current_resource_number} File-{i+1}/{len(files)} "
                     + f"Add {list(data.keys())}"
                 )
@@ -406,7 +405,7 @@ class Registry:
         devices_path = abs_path / "devices"
         device_comms_path = abs_path / "device_comms"
         files = list(devices_path.glob("*.yaml")) + list(device_comms_path.glob("*.yaml"))
-        logger.trace(
+        logger.trace(  # type: ignore
             f"[UniLab Registry] devices: {devices_path.exists()}, device_comms: {device_comms_path.exists()}, "
             + f"total: {len(files)}"
         )
@@ -577,7 +576,7 @@ class Registry:
                             }
                     device_config["file_path"] = str(file.absolute()).replace("\\", "/")
                     device_config["registry_type"] = "device"
-                    logger.trace(
+                    logger.trace(  # type: ignore
                         f"[UniLab Registry] Device-{current_device_number} File-{i+1}/{len(files)} Add {device_id} "
                         + f"[{data[device_id].get('name', '未命名设备')}]"
                     )
