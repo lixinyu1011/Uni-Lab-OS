@@ -222,6 +222,13 @@ def main():
     # 加载配置文件
     print_status(f"当前工作目录为 {working_dir}", "info")
     load_config_from_file(config_path, args_dict["labid"])
+    if args_dict["addr"] == "test":
+        print_status("使用测试环境地址", "info")
+        HTTPConfig.remote_addr = "https://uni-lab.test.bohrium.com/api/v1"
+    elif args_dict["addr"] == "local":
+        print_status("使用本地环境地址", "info")
+        HTTPConfig.remote_addr = "http://127.0.0.1:48197/api/v1"
+    HTTPConfig.remote_addr = args_dict.get("addr", "")
 
     if args_dict["use_remote_resource"]:
         print_status("使用远程资源启动", "info")
@@ -237,13 +244,6 @@ def main():
     # 设置BasicConfig参数
     BasicConfig.ak = args_dict.get("ak", "")
     BasicConfig.sk = args_dict.get("sk", "")
-    if args_dict["addr"] == "test":
-        print_status("使用测试环境地址", "info")
-        HTTPConfig.remote_addr = "https://uni-lab.test.bohrium.com/api/v1"
-    elif args_dict["addr"] == "local":
-        print_status("使用本地环境地址", "info")
-        HTTPConfig.remote_addr = "http://127.0.0.1:48197/api/v1"
-    HTTPConfig.remote_addr = args_dict.get("addr", "")
     BasicConfig.working_dir = working_dir
     BasicConfig.is_host_mode = not args_dict.get("without_host", False)
     BasicConfig.slave_no_host = args_dict.get("slave_no_host", False)
