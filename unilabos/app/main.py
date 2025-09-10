@@ -22,7 +22,7 @@ from unilabos.utils.banner_print import print_status, print_unilab_banner
 from unilabos.resources.graphio import modify_to_backend_format
 
 
-def load_config_from_file(config_path, override_labid=None):
+def load_config_from_file(config_path):
     if config_path is None:
         config_path = os.environ.get("UNILABOS_BASICCONFIG_CONFIG_PATH", None)
     if config_path:
@@ -31,10 +31,10 @@ def load_config_from_file(config_path, override_labid=None):
         elif not config_path.endswith(".py"):
             print_status(f"配置文件 {config_path} 不是Python文件，必须以.py结尾", "error")
         else:
-            load_config(config_path, override_labid)
+            load_config(config_path)
     else:
         print_status(f"启动 UniLab-OS时，配置文件参数未正确传入 --config '{config_path}' 尝试本地配置...", "warning")
-        load_config(config_path, override_labid)
+        load_config(config_path)
 
 
 def convert_argv_dashes_to_underscores(args: argparse.ArgumentParser):
@@ -52,8 +52,6 @@ def parse_args():
     """解析命令行参数"""
     parser = argparse.ArgumentParser(description="Start Uni-Lab Edge server.")
     parser.add_argument("-g", "--graph", help="Physical setup graph.")
-    # parser.add_argument("-d", "--devices", help="Devices config file.")
-    # parser.add_argument("-r", "--resources", help="Resources config file.")
     parser.add_argument("-c", "--controllers", default=None, help="Controllers config file.")
     parser.add_argument(
         "--registry_path",
@@ -127,12 +125,6 @@ def parse_args():
         choices=["rviz", "web", "disable"],
         default="disable",
         help="选择可视化工具: rviz, web",
-    )
-    parser.add_argument(
-        "--labid",
-        type=str,
-        default="",
-        help="实验室唯一ID，也可通过环境变量 UNILABOS_MQCONFIG_LABID 设置或传入--config设置",
     )
     parser.add_argument(
         "--ak",
@@ -215,13 +207,12 @@ def main():
                 os.path.join(os.path.dirname(os.path.dirname(__file__)), "config", "example_config.py"), config_path
             )
             print_status(f"已创建 local_config.py 路径： {config_path}", "info")
-            print_status(f"请在文件夹中配置lab_id，放入下载的CA.crt、lab.crt、lab.key重新启动本程序", "info")
             os._exit(1)
         else:
             os._exit(1)
     # 加载配置文件
     print_status(f"当前工作目录为 {working_dir}", "info")
-    load_config_from_file(config_path, args_dict["labid"])
+    load_config_from_file(config_path)
     if args_dict["addr"] == "test":
         print_status("使用测试环境地址", "info")
         HTTPConfig.remote_addr = "https://uni-lab.test.bohrium.com/api/v1"
