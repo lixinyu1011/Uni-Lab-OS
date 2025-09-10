@@ -228,7 +228,8 @@ def main():
     elif args_dict["addr"] == "local":
         print_status("使用本地环境地址", "info")
         HTTPConfig.remote_addr = "http://127.0.0.1:48197/api/v1"
-    HTTPConfig.remote_addr = args_dict.get("addr", "")
+    else:
+        HTTPConfig.remote_addr = args_dict.get("addr", "")
 
     if args_dict["use_remote_resource"]:
         print_status("使用远程资源启动", "info")
