@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import traceback
-from typing import List, Sequence, Optional, Literal, Union, Iterator, Dict, Any, Callable, Set
-
+from typing import List, Sequence, Optional, Literal, Union, Iterator, Dict, Any, Callable, Set, cast
+from collections import Counter
 import asyncio
 import time
-
+import pprint as pp
 from pylabrobot.liquid_handling import LiquidHandler, LiquidHandlerBackend, LiquidHandlerChatterboxBackend, Strictness
 from pylabrobot.liquid_handling.liquid_handler import TipPresenceProbingMethod
 from pylabrobot.liquid_handling.standard import GripDirection
@@ -29,6 +29,7 @@ from pylabrobot.resources import (
 class LiquidHandlerMiddleware(LiquidHandler):
     def __init__(self, backend: LiquidHandlerBackend, deck: Deck, simulator: bool = False, channel_num: int = 8):
         self._simulator = simulator
+        self.channel_num = channel_num
         if simulator:
             self._simulate_backend = LiquidHandlerChatterboxBackend(channel_num)
             self._simulate_handler = LiquidHandlerAbstract(self._simulate_backend, deck, False)
@@ -104,8 +105,7 @@ class LiquidHandlerMiddleware(LiquidHandler):
         offsets: Optional[List[Coordinate]] = None,
         **backend_kwargs,
     ):
-        print('222'*200)
-        print(tip_spots)
+
         if self._simulator:
             return await self._simulate_handler.pick_up_tips(tip_spots, use_channels, offsets, **backend_kwargs)
         return await super().pick_up_tips(tip_spots, use_channels, offsets, **backend_kwargs)
@@ -545,6 +545,7 @@ class LiquidHandlerAbstract(LiquidHandlerMiddleware):
           deck: Deck to use.
         """
         self._simulator = simulator
+        self.group_info = dict()
         super().__init__(backend, deck, simulator, channel_num)
 
     @classmethod
@@ -555,6 +556,51 @@ class LiquidHandlerAbstract(LiquidHandlerMiddleware):
     # ---------------------------------------------------------------
     # REMOVE LIQUID --------------------------------------------------
     # ---------------------------------------------------------------
+
+    def set_group(self, group_name: str, wells: List[Well], volumes: List[float]):
+        if len(wells) != 8:
+            raise RuntimeError(f"Expected 8 wells, got {len(wells)}")
+        self.group_info[group_name] = wells
+        self.set_liquid(wells, [group_name] * len(wells), volumes)
+
+    async def transfer_group(self, source_group_name: str, target_group_name: str, unit_volume: float):
+        source_wells = self.group_info.get(source_group_name, [])
+        target_wells = self.group_info.get(target_group_name, [])
+        rack_info = dict()
+        for child in self.deck.children:
+            if issubclass(child.__class__, TipRack):
+                rack: TipRack = cast(TipRack, child)
+                if "plate" not in rack.name.lower():
+                    for tip in rack.get_all_tips():
+                        if unit_volume > tip.maximal_volume:
+                            break
+                        else:
+                            rack_info[rack.name] = (rack, tip.maximal_volume - unit_volume)
+        if len(rack_info) == 0:
+            raise ValueError(f"No tip rack can support volume {unit_volume}.")
+        
+        rack_info = sorted(rack_info.items(), key=lambda x: x[1][1])
+        for child in self.deck.children:
+            if child.name == rack_info[0][0]:
+                target_rack = child
+
+        target_rack = cast(TipRack, target_rack)
+
+        available_tips = {}
+        for (idx, name), tipSpot in zip(target_rack._ordering.items(), target_rack.get_all_items()):
+            if tipSpot.has_tip():
+                available_tips[idx] = tipSpot
+                continue
+
+        colnum_list = [int(holename[1:]) for holename in available_tips.keys()]
+        available_cols = [colnum for colnum, count in dict(Counter(colnum_list)).items() if count == 8]
+        available_cols.sort() # 这样就确定了列号
+        tips_to_use = [available_tips[f"{chr(65 + i)}{available_cols[0]}"] for i in range(8)]
+
+        await self.pick_up_tips(tips_to_use, use_channels=list(range(0, 8)))
+        await self.aspirate(source_wells, [10] * 8, use_channels=list(range(0, 8)))
+        await self.dispense(target_wells, [10] * 8, use_channels=list(range(0, 8)))
+        await self.discard_tips(use_channels=list(range(0, 8)))
 
     async def create_protocol(
         self,
@@ -568,6 +614,7 @@ class LiquidHandlerAbstract(LiquidHandlerMiddleware):
     ):
         """Create a new protocol with the given metadata."""
         pass
+
 
     async def remove_liquid(
         self,
@@ -987,8 +1034,8 @@ class LiquidHandlerAbstract(LiquidHandlerMiddleware):
                     if delays is not None:
                         await self.custom_delay(seconds=delays[1])
                     await self.touch_tip(current_targets)
-                    await self.discard_tips()
-                    
+                    await self.discard_tips([0,1,2,3,4,5,6,7])
+
     # except Exception as e:
     #     traceback.print_exc()
     #     raise RuntimeError(f"Liquid addition failed: {e}") from e
