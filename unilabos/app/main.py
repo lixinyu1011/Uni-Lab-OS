@@ -17,7 +17,7 @@ unilabos_dir = os.path.dirname(os.path.dirname(current_dir))
 if unilabos_dir not in sys.path:
     sys.path.append(unilabos_dir)
 
-from unilabos.config.config import load_config, BasicConfig
+from unilabos.config.config import load_config, BasicConfig, HTTPConfig
 from unilabos.utils.banner_print import print_status, print_unilab_banner
 from unilabos.resources.graphio import modify_to_backend_format
 
@@ -147,6 +147,12 @@ def parse_args():
         help="实验室请求的sk",
     )
     parser.add_argument(
+        "--addr",
+        type=str,
+        default="https://uni-lab.bohrium.com/api/v1",
+        help="实验室后端地址",
+    )
+    parser.add_argument(
         "--websocket",
         action="store_true",
         help="使用websocket而非mqtt作为通信协议",
@@ -231,6 +237,13 @@ def main():
     # 设置BasicConfig参数
     BasicConfig.ak = args_dict.get("ak", "")
     BasicConfig.sk = args_dict.get("sk", "")
+    if args_dict["addr"] == "test":
+        print_status("使用测试环境地址", "info")
+        HTTPConfig.remote_addr = "https://uni-lab.test.bohrium.com/api/v1"
+    elif args_dict["addr"] == "local":
+        print_status("使用本地环境地址", "info")
+        HTTPConfig.remote_addr = "http://127.0.0.1:48197/api/v1"
+    HTTPConfig.remote_addr = args_dict.get("addr", "")
     BasicConfig.working_dir = working_dir
     BasicConfig.is_host_mode = not args_dict.get("without_host", False)
     BasicConfig.slave_no_host = args_dict.get("slave_no_host", False)
