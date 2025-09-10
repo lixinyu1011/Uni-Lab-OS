@@ -134,6 +134,12 @@ class PRCXI9300Handler(LiquidHandlerAbstract):
 
     def set_liquid(self, wells: list[Well], liquid_names: list[str], volumes: list[float]):
         return super().set_liquid(wells, liquid_names, volumes)
+    
+    def set_group(self, group_name: str, wells: List[Well], volumes: List[float]):
+        return super().set_group(group_name, wells, volumes)
+    
+    async def transfer_group(self, source_group_name: str, target_group_name: str, unit_volume: float):
+        return await super().transfer_group(source_group_name, target_group_name, unit_volume)
 
     async def create_protocol(
         self,
