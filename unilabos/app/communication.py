@@ -52,7 +52,7 @@ class BaseCommunicationClient(ABC):
 
     @abstractmethod
     def publish_job_status(
-        self, feedback_data: dict, job_id: str, status: str, return_info: Optional[str] = None
+        self, feedback_data: dict, job_id: str, status: str, return_info: Optional[dict] = None
     ) -> None:
         """
         发布作业状态信息

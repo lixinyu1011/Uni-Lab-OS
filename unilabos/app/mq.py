@@ -171,11 +171,11 @@ class MQTTClient(BaseCommunicationClient):
         self.client.publish(address, json.dumps(status), qos=2)
         # logger.info(f"Device {device_id} status published: address: {address}, {status}")
 
-    def publish_job_status(self, feedback_data: dict, job_id: str, status: str, return_info: Optional[str] = None):
+    def publish_job_status(self, feedback_data: dict, job_id: str, status: str, return_info: Optional[dict] = None):
         if self.mqtt_disable:
             return
         if return_info is None:
-            return_info = "{}"
+            return_info = {}
         jobdata = {"job_id": job_id, "data": feedback_data, "status": status, "return_info": return_info}
         self.client.publish(f"labs/{MQConfig.lab_id}/job/list/", json.dumps(jobdata), qos=2)
 

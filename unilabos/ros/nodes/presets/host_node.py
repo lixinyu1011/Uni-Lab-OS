@@ -713,22 +713,24 @@ class HostNode(BaseROS2DeviceNode):
         return_info_str = result_data.get("return_info")
         if return_info_str is not None:
             try:
-                ret = json.loads(return_info_str)
-                suc = ret.get("suc", False)
+                return_info = json.loads(return_info_str)
+                suc = return_info.get("suc", False)
                 if not suc:
                     status = "failed"
             except json.JSONDecodeError:
                 status = "failed"
+                return_info = serialize_result_info("", False, result_data)
+                self.lab_logger().critical("错误的return_info类型，请断点修复")
         else:
             # 无 return_info 字段时，回退到 success 字段（若存在）
             suc_field = result_data.get("success")
             if isinstance(suc_field, bool):
                 status = "success" if suc_field else "failed"
-                return_info_str = serialize_result_info("", suc_field, result_data)
+                return_info = serialize_result_info("", suc_field, result_data)
             else:
                 # 最保守的回退：标记失败并返回空JSON
                 status = "failed"
-                return_info_str = serialize_result_info("缺少return_info", False, result_data)
+                return_info = serialize_result_info("缺少return_info", False, result_data)
 
         self.lab_logger().info(f"[Host Node] Result for {action_id} ({job_id}): {status}")
         self.lab_logger().debug(f"[Host Node] Result data: {result_data}")
@@ -736,7 +738,7 @@ class HostNode(BaseROS2DeviceNode):
         if job_id:
             for bridge in self.bridges:
                 if hasattr(bridge, "publish_job_status"):
-                    bridge.publish_job_status(result_data, item, status, return_info_str)
+                    bridge.publish_job_status(result_data, item, status, return_info)
 
     def cancel_goal(self, goal_uuid: str) -> None:
         """取消目标"""

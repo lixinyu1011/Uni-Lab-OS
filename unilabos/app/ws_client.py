@@ -243,6 +243,7 @@ class TaskScheduler:
                 )
                 return False
 
+            # noinspection PyProtectedMember
             action_jobs = len(host_node._device_action_status[item.device_action_key].job_ids)
             free = not bool(action_jobs)
 
@@ -539,7 +540,7 @@ class TaskScheduler:
 
     # 外部接口方法
     def publish_job_status(
-        self, feedback_data: dict, item: "QueueItem", status: str, return_info: Optional[str] = None
+        self, feedback_data: dict, item: "QueueItem", status: str, return_info: Optional[dict] = None
     ) -> None:
         """发布作业状态，拦截最终结果（给HostNode调用的接口）"""
         if not self.message_sender.is_connected():
@@ -983,7 +984,7 @@ class WebSocketClient(BaseCommunicationClient):
         logger.debug(f"[WebSocket] Device status published: {device_id}.{property_name}")
 
     def publish_job_status(
-        self, feedback_data: dict, item: "QueueItem", status: str, return_info: Optional[str] = None
+        self, feedback_data: dict, item: "QueueItem", status: str, return_info: Optional[dict] = None
     ) -> None:
         """发布作业状态（转发给TaskScheduler）"""
         if self.task_scheduler:

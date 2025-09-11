@@ -53,7 +53,7 @@ from unilabos.ros.x.rclpyx import get_event_loop
 from unilabos.ros.utils.driver_creator import ProtocolNodeCreator, PyLabRobotCreator, DeviceClassCreator
 from unilabos.utils.async_util import run_async_func
 from unilabos.utils.log import info, debug, warning, error, critical, logger, trace
-from unilabos.utils.type_check import get_type_class, TypeEncoder, serialize_result_info
+from unilabos.utils.type_check import get_type_class, TypeEncoder, serialize_result_info, get_result_info_str
 
 T = TypeVar("T")
 
@@ -416,10 +416,10 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                         liquid_volume=LIQUID_VOLUME,
                         slot_on_deck=slot,
                     )
-                    res.response = serialize_result_info("", True, ret)
+                    res.response = get_result_info_str("", True, ret)
                 except Exception as e:
                     traceback.print_exc()
-                    res.response = serialize_result_info(traceback.format_exc(), False, {})
+                    res.response = get_result_info_str(traceback.format_exc(), False, {})
                 return res
             # 接下来该根据bind_parent_id进行assign了，目前只有plr可以进行assign，不然没有办法输入到物料系统中
             if bind_parent_id != self.node_name:
@@ -837,7 +837,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                 if attr_name in ["success", "reached_goal"]:
                     setattr(result_msg, attr_name, True)
                 elif attr_name == "return_info":
-                    setattr(result_msg, attr_name, serialize_result_info(execution_error, execution_success, action_return_value))
+                    setattr(result_msg, attr_name, get_result_info_str(execution_error, execution_success, action_return_value))
 
             ##### self.lab_logger().info(f"动作 {action_name} 完成并返回结果")
             return result_msg

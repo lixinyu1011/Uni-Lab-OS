@@ -25,7 +25,7 @@ from unilabos.ros.msgs.message_converter import (
 )
 from unilabos.ros.nodes.base_device_node import BaseROS2DeviceNode, DeviceNodeResourceTracker, ROS2DeviceNode
 from unilabos.utils.log import error
-from unilabos.utils.type_check import serialize_result_info
+from unilabos.utils.type_check import serialize_result_info, get_result_info_str
 
 
 class ROS2ProtocolNode(BaseROS2DeviceNode):
@@ -314,7 +314,7 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
                     setattr(
                         result,
                         attr_name,
-                        serialize_result_info(execution_error, execution_success, protocol_return_value),
+                        get_result_info_str(execution_error, execution_success, protocol_return_value),
                     )
 
             self.lab_logger().info(f"协议 {protocol_name} 完成并返回结果")
