@@ -216,6 +216,9 @@ def main():
     if args_dict["addr"] == "test":
         print_status("使用测试环境地址", "info")
         HTTPConfig.remote_addr = "https://uni-lab.test.bohrium.com/api/v1"
+    elif args_dict["addr"] == "uat":
+        print_status("使用uat环境地址", "info")
+        HTTPConfig.remote_addr = "https://uni-lab.uat.bohrium.com/api/v1"
     elif args_dict["addr"] == "local":
         print_status("使用本地环境地址", "info")
         HTTPConfig.remote_addr = "http://127.0.0.1:48197/api/v1"
