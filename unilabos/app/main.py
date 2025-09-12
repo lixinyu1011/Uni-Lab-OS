@@ -139,6 +139,11 @@ def parse_args():
         action="store_true",
         help="跳过启动时的环境依赖检查",
     )
+    parser.add_argument(
+        "--direct_end",
+        action="store_true",
+        help="直接结束任务",
+    )
     return parser
 
 
@@ -212,6 +217,7 @@ def main():
 
     # 设置BasicConfig参数
     BasicConfig.working_dir = working_dir
+    BasicConfig.direct_end = args_dict.get("direct_end", False)
     BasicConfig.is_host_mode = not args_dict.get("without_host", False)
     BasicConfig.slave_no_host = args_dict.get("slave_no_host", False)
     BasicConfig.upload_registry = args_dict.get("upload_registry", False)

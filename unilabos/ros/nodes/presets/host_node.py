@@ -619,6 +619,9 @@ class HostNode(BaseROS2DeviceNode):
             goal_uuid: 目标UUID，如果为None则自动生成
             server_info: 服务器发送信息，包含发送时间戳等
         """
+        if BasicConfig.direct_end:
+            raise ValueError("direct_end")
+
         if action_type.startswith("UniLabJsonCommand"):
             if action_name.startswith("auto-"):
                 action_name = action_name[5:]

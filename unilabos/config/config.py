@@ -17,6 +17,7 @@ class BasicConfig:
     machine_name = "undefined"
     vis_2d_enable = False
     enable_resource_load = True
+    direct_end = False
 
 
 # MQTT配置
