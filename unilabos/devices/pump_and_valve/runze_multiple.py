@@ -349,7 +349,7 @@ if __name__ == "__main__":
         # 请根据实际串口修改端口号
         # Windows: "COM3", "COM4", 等
         # Linux/Mac: "/dev/ttyUSB0", "/dev/ttyACM0", 等
-        port = "COM3"  # 修改为实际使用的串口
+        port = "/dev/cn."  # 修改为实际使用的串口
 
         print("正在创建泵控制器...")
         pump_controller = RunzeMultiplePump(port)
@@ -365,11 +365,6 @@ if __name__ == "__main__":
                 # 检查泵状态
                 status = pump_controller.get_status(address)
                 print(f"泵 {address} 状态: {status}")
-
-                # 查询软件版本
-                version = pump_controller.query_software_version(address)
-                print(f"泵 {address} 软件版本: {version}")
-
             except Exception as e:
                 print(f"泵 {address} 初始化失败: {e}")
 
