@@ -160,7 +160,7 @@ class RunzeMultiplePump:
         full_command_data = bytearray(full_command, "ascii")
         self.hardware_interface.write(full_command_data)
         time.sleep(0.05)
-        response = self.hardware_interface.read_until(b"\n")
+        response = self.hardware_interface.read_until(b"\n")  # \n should direct use, not \\n
         output = self._receive(response)
         return output
 
