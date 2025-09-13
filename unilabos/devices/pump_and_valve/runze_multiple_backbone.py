@@ -170,7 +170,7 @@ class RunzeMultiplePump:
                 raise RunzeSyringePumpConnectionError("Connection is closing")
 
             run = "R" if "?" not in command else ""
-            full_command = f"/{address}{command}{run}\r\n"
+            full_command = f"/{address}{command}{run}\r\n"  # \r\n should direct use, not \\r\\n
 
             output = self.send_command(full_command)[3:-3]
         return output
