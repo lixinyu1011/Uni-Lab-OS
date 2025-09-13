@@ -176,12 +176,9 @@ class RunzeMultiplePump:
         return output
 
     def _receive(self, data: bytes) -> str:
-        """
-        Do not change this method.
-        """
         if not data:
             return ""
-        ascii_string = "".join(chr(byte) for byte in data)
+        ascii_string = "".join(chr(byte) for byte in data)  # *Do not use decode('ascii', errors='ignore')
         return ascii_string
 
     def _run(self, address: str, command: str) -> str:
