@@ -9,16 +9,13 @@ import asyncio
 
 import yaml
 
-from unilabos.app.controler import devices, job_add, job_info
+from unilabos.app.web.controler import devices, job_add, job_info
 from unilabos.app.model import (
     Resp,
     RespCode,
     JobStatusResp,
     JobAddResp,
     JobAddReq,
-    JobStepFinishReq,
-    JobPreintakeFinishReq,
-    JobFinishReq,
 )
 from unilabos.app.web.utils.host_utils import get_host_node_info
 from unilabos.registry.registry import lab_registry

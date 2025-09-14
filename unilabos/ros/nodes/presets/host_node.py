@@ -164,13 +164,10 @@ class HostNode(BaseROS2DeviceNode):
         self.device_status = {}  # 用来存储设备状态
         self.device_status_timestamps = {}  # 用来存储设备状态最后更新时间
         if BasicConfig.upload_registry:
-            from unilabos.app.communication import get_communication_client
-
-            comm_client = get_communication_client()
-            register_devices_and_resources(comm_client, lab_registry)
+            register_devices_and_resources(lab_registry)
         else:
             self.lab_logger().warning(
-                "本次启动注册表不报送云端，如果您需要联网调试，请使用unilab-register命令进行单独报送，或者在启动命令增加--upload_registry"
+                "本次启动注册表不报送云端，如果您需要联网调试，请在启动命令增加--upload_registry"
             )
         time.sleep(1)  # 等待通信连接稳定
         # 首次发现网络中的设备

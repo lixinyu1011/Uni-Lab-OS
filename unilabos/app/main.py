@@ -51,14 +51,14 @@ def convert_argv_dashes_to_underscores(args: argparse.ArgumentParser):
 def parse_args():
     """解析命令行参数"""
     parser = argparse.ArgumentParser(description="Start Uni-Lab Edge server.")
-    parser.add_argument("-g", "--graph", help="Physical setup graph.")
-    parser.add_argument("-c", "--controllers", default=None, help="Controllers config file.")
+    parser.add_argument("-g", "--graph", help="Physical setup graph file path.")
+    parser.add_argument("-c", "--controllers", default=None, help="Controllers config file path.")
     parser.add_argument(
         "--registry_path",
         type=str,
         default=None,
         action="append",
-        help="Path to the registry",
+        help="Path to the registry directory",
     )
     parser.add_argument(
         "--working_dir",
@@ -75,84 +75,85 @@ def parse_args():
     parser.add_argument(
         "--app_bridges",
         nargs="+",
-        default=["mqtt", "fastapi"],
-        help="Bridges to connect to. Now support 'mqtt' and 'fastapi'.",
+        default=["websocket", "fastapi"],
+        help="Bridges to connect to. Now support 'websocket' and 'fastapi'.",
     )
     parser.add_argument(
-        "--without_host",
+        "--is_slave",
         action="store_true",
-        help="Run the backend as slave (without host).",
+        help="Run the backend as slave node (without host privileges).",
     )
     parser.add_argument(
         "--slave_no_host",
         action="store_true",
-        help="Slave模式下跳过等待host服务",
+        help="Skip waiting for host service in slave mode",
     )
     parser.add_argument(
         "--upload_registry",
         action="store_true",
-        help="启动unilab时同时报送注册表信息",
+        help="Upload registry information when starting unilab",
     )
     parser.add_argument(
         "--use_remote_resource",
         action="store_true",
-        help="启动unilab时使用远程资源启动",
+        help="Use remote resources when starting unilab",
     )
     parser.add_argument(
         "--config",
         type=str,
         default=None,
-        help="配置文件路径，支持.py格式的Python配置文件",
+        help="Configuration file path, supports .py format Python config files",
     )
     parser.add_argument(
         "--port",
         type=int,
         default=8002,
-        help="信息页web服务的启动端口",
+        help="Port for web service information page",
     )
     parser.add_argument(
         "--disable_browser",
         action="store_true",
-        help="是否在启动时关闭信息页",
+        help="Disable opening information page on startup",
     )
     parser.add_argument(
         "--2d_vis",
         action="store_true",
-        help="是否在pylabrobot实例启动时，同时启动可视化",
+        help="Enable 2D visualization when starting pylabrobot instance",
     )
     parser.add_argument(
         "--visual",
         choices=["rviz", "web", "disable"],
         default="disable",
-        help="选择可视化工具: rviz, web",
+        help="Choose visualization tool: rviz, web, or disable",
     )
     parser.add_argument(
         "--ak",
         type=str,
         default="",
-        help="实验室请求的ak",
+        help="Access key for laboratory requests",
     )
     parser.add_argument(
         "--sk",
         type=str,
         default="",
-        help="实验室请求的sk",
+        help="Secret key for laboratory requests",
     )
     parser.add_argument(
         "--addr",
         type=str,
         default="https://uni-lab.bohrium.com/api/v1",
-        help="实验室后端地址",
-    )
-    parser.add_argument(
-        "--websocket",
-        action="store_true",
-        help="使用websocket而非mqtt作为通信协议",
+        help="Laboratory backend address",
     )
     parser.add_argument(
         "--skip_env_check",
         action="store_true",
-        help="跳过启动时的环境依赖检查",
+        help="Skip environment dependency check on startup",
+    )
+    parser.add_argument(
+        "--complete_registry",
+        action="store_true",
+        default=False,
+        help="Complete registry information",
     )
     return parser
 
@@ -237,13 +238,17 @@ def main():
             print_status("远程资源不存在，本地将进行首次上报！", "info")
 
     # 设置BasicConfig参数
-    BasicConfig.ak = args_dict.get("ak", "")
-    BasicConfig.sk = args_dict.get("sk", "")
+    if args_dict.get("ak", ""):
+        BasicConfig.ak = args_dict.get("ak", "")
+        print_status("传入了ak参数，优先采用传入参数！", "info")
+    if args_dict.get("sk", ""):
+        BasicConfig.sk = args_dict.get("sk", "")
+        print_status("传入了sk参数，优先采用传入参数！", "info")
     BasicConfig.working_dir = working_dir
-    BasicConfig.is_host_mode = not args_dict.get("without_host", False)
+    BasicConfig.is_host_mode = not args_dict.get("is_slave", False)
     BasicConfig.slave_no_host = args_dict.get("slave_no_host", False)
     BasicConfig.upload_registry = args_dict.get("upload_registry", False)
-    BasicConfig.communication_protocol = "websocket" if args_dict.get("websocket", False) else "mqtt"
+    BasicConfig.communication_protocol = "websocket"
     machine_name = os.popen("hostname").read().strip()
     machine_name = "".join([c if c.isalnum() or c == "_" else "_" for c in machine_name])
     BasicConfig.machine_name = machine_name
@@ -261,12 +266,19 @@ def main():
     from unilabos.app.backend import start_backend
     from unilabos.app.web import http_client
     from unilabos.app.web import start_server
+    from unilabos.app.register import register_devices_and_resources
 
     # 显示启动横幅
     print_unilab_banner(args_dict)
 
     # 注册表
-    lab_registry = build_registry(args_dict["registry_path"], False, args_dict["upload_registry"])
+    lab_registry = build_registry(
+        args_dict["registry_path"], args_dict.get("complete_registry", False), args_dict["upload_registry"]
+    )
+
+    if not BasicConfig.ak or not BasicConfig.sk:
+        print_status("后续运行必须拥有一个实验室，请前往 https://uni-lab.bohrium.com 注册实验室！", "warning")
+        os._exit(1)
     if args_dict["graph"] is None:
         request_startup_json = http_client.request_startup_json()
         if not request_startup_json:
@@ -297,14 +309,24 @@ def main():
         target_node = nodes[i["target"]]
         source_handle = i["sourceHandle"]
         target_handle = i["targetHandle"]
-        source_handler_keys = [h["handler_key"] for h in materials[source_node["class"]]["handles"] if h["io_type"] == 'source']
-        target_handler_keys = [h["handler_key"] for h in materials[target_node["class"]]["handles"] if h["io_type"] == 'target']
-        if not source_handle in source_handler_keys:
-            print_status(f"节点 {source_node['id']} 的source端点 {source_handle} 不存在，请检查，支持的端点 {source_handler_keys}", "error")
+        source_handler_keys = [
+            h["handler_key"] for h in materials[source_node["class"]]["handles"] if h["io_type"] == "source"
+        ]
+        target_handler_keys = [
+            h["handler_key"] for h in materials[target_node["class"]]["handles"] if h["io_type"] == "target"
+        ]
+        if source_handle not in source_handler_keys:
+            print_status(
+                f"节点 {source_node['id']} 的source端点 {source_handle} 不存在，请检查，支持的端点 {source_handler_keys}",
+                "error",
+            )
             resource_edge_info.pop(edge_info - ind - 1)
             continue
-        if not target_handle in target_handler_keys:
-            print_status(f"节点 {target_node['id']} 的target端点 {target_handle} 不存在，请检查，支持的端点 {target_handler_keys}", "error")
+        if target_handle not in target_handler_keys:
+            print_status(
+                f"节点 {target_node['id']} 的target端点 {target_handle} 不存在，请检查，支持的端点 {target_handler_keys}",
+                "error",
+            )
             resource_edge_info.pop(edge_info - ind - 1)
             continue
 
@@ -318,6 +340,19 @@ def main():
     for i in args_dict["resources_config"]:
         print_status(f"DeviceId: {i['id']}, Class: {i['class']}", "info")
 
+    # 设备注册到服务端 - 需要 ak 和 sk
+    if args_dict.get("ak") and args_dict.get("sk"):
+        print_status("检测到 ak 和 sk，开始注册设备到服务端...", "info")
+        try:
+            register_devices_and_resources(lab_registry)
+            print_status("设备注册完成", "info")
+        except Exception as e:
+            print_status(f"设备注册失败: {e}", "error")
+    elif args_dict.get("ak") or args_dict.get("sk"):
+        print_status("警告：ak 和 sk 必须同时提供才能注册设备到服务端", "warning")
+    else:
+        print_status("未提供 ak 和 sk，跳过设备注册", "info")
+
     if args_dict["controllers"] is not None:
         args_dict["controllers_config"] = yaml.safe_load(open(args_dict["controllers"], encoding="utf-8"))
     else:
@@ -325,14 +360,14 @@ def main():
 
     args_dict["bridges"] = []
 
-    # 获取通信客户端（根据配置选择MQTT或WebSocket）
+    # 获取通信客户端（仅支持WebSocket）
     comm_client = get_communication_client()
 
-    if "mqtt" in args_dict["app_bridges"]:
+    if "websocket" in args_dict["app_bridges"]:
         args_dict["bridges"].append(comm_client)
     if "fastapi" in args_dict["app_bridges"]:
         args_dict["bridges"].append(http_client)
-    if "mqtt" in args_dict["app_bridges"]:
+    if "websocket" in args_dict["app_bridges"]:
 
         def _exit(signum, frame):
             comm_client.stop()

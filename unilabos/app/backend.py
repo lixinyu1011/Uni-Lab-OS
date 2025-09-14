@@ -15,24 +15,33 @@ def start_backend(
     without_host: bool = False,
     visual: str = "None",
     resources_mesh_config: dict = {},
-    **kwargs
+    **kwargs,
 ):
     if backend == "ros":
         # 假设 ros_main, simple_main, automancer_main 是不同 backend 的启动函数
         from unilabos.ros.main_slave_run import main, slave  # 如果选择 'ros' 作为 backend
-    elif backend == 'simple':
+    elif backend == "simple":
         # 这里假设 simple_backend 和 automancer_backend 是你定义的其他两个后端
         # from simple_backend import main as simple_main
         pass
-    elif backend == 'automancer':
+    elif backend == "automancer":
         # from automancer_backend import main as automancer_main
         pass
     else:
         raise ValueError(f"Unsupported backend: {backend}")
-    
+
     backend_thread = threading.Thread(
         target=main if not without_host else slave,
-        args=(devices_config, resources_config, resources_edge_config, graph, controllers_config, bridges, visual, resources_mesh_config),
+        args=(
+            devices_config,
+            resources_config,
+            resources_edge_config,
+            graph,
+            controllers_config,
+            bridges,
+            visual,
+            resources_mesh_config,
+        ),
         name="backend_thread",
         daemon=True,
     )
