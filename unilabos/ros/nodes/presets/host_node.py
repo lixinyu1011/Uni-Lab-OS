@@ -24,8 +24,6 @@ from unilabos_msgs.srv import (
 )  # type: ignore
 from unique_identifier_msgs.msg import UUID
 
-from unilabos.app.register import register_devices_and_resources
-from unilabos.config.config import BasicConfig
 from unilabos.registry.registry import lab_registry
 from unilabos.resources.graphio import initialize_resource
 from unilabos.resources.registry import add_schema
@@ -163,12 +161,6 @@ class HostNode(BaseROS2DeviceNode):
 
         self.device_status = {}  # 用来存储设备状态
         self.device_status_timestamps = {}  # 用来存储设备状态最后更新时间
-        if BasicConfig.upload_registry:
-            register_devices_and_resources(lab_registry)
-        else:
-            self.lab_logger().warning(
-                "本次启动注册表不报送云端，如果您需要联网调试，请在启动命令增加--upload_registry"
-            )
         time.sleep(1)  # 等待通信连接稳定
         # 首次发现网络中的设备
         self._discover_devices()

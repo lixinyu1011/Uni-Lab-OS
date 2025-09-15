@@ -340,18 +340,21 @@ def main():
     for i in args_dict["resources_config"]:
         print_status(f"DeviceId: {i['id']}, Class: {i['class']}", "info")
 
-    # 设备注册到服务端 - 需要 ak 和 sk
-    if args_dict.get("ak") and args_dict.get("sk"):
-        print_status("检测到 ak 和 sk，开始注册设备到服务端...", "info")
-        try:
-            register_devices_and_resources(lab_registry)
-            print_status("设备注册完成", "info")
-        except Exception as e:
-            print_status(f"设备注册失败: {e}", "error")
-    elif args_dict.get("ak") or args_dict.get("sk"):
-        print_status("警告：ak 和 sk 必须同时提供才能注册设备到服务端", "warning")
+    if BasicConfig.upload_registry:
+        # 设备注册到服务端 - 需要 ak 和 sk
+        if args_dict.get("ak") and args_dict.get("sk"):
+            print_status("开始注册设备到服务端...", "info")
+            try:
+                register_devices_and_resources(lab_registry)
+                print_status("设备注册完成", "info")
+            except Exception as e:
+                print_status(f"设备注册失败: {e}", "error")
+        else:
+            print_status("未提供 ak 和 sk，跳过设备注册", "info")
     else:
-        print_status("未提供 ak 和 sk，跳过设备注册", "info")
+        print_status(
+            "本次启动注册表不报送云端，如果您需要联网调试，请在启动命令增加--upload_registry", "warning"
+        )
 
     if args_dict["controllers"] is not None:
         args_dict["controllers_config"] = yaml.safe_load(open(args_dict["controllers"], encoding="utf-8"))
