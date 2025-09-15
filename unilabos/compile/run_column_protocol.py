@@ -2,6 +2,7 @@ from typing import List, Dict, Any, Union
 import networkx as nx
 import logging
 import re
+from .utils.vessel_parser import get_vessel
 from .pump_protocol import generate_pump_protocol_with_rinsing
 
 logger = logging.getLogger(__name__)
@@ -403,9 +404,9 @@ def generate_run_column_protocol(
     """
     
     # 🔧 核心修改：从字典中提取容器ID
-    from_vessel_id = from_vessel["id"]
-    to_vessel_id = to_vessel["id"]
-    
+    from_vessel_id, _ = get_vessel(from_vessel)
+    to_vessel_id, _ = get_vessel(to_vessel)
+
     debug_print("🏛️" * 20)
     debug_print("🚀 开始生成柱层析协议（支持vessel字典和体积运算）✨")
     debug_print(f"📝 输入参数:")
