@@ -10,7 +10,7 @@ from typing import List, Dict, Any, Optional
 
 import requests
 from unilabos.utils.log import info
-from unilabos.config.config import MQConfig, HTTPConfig, BasicConfig
+from unilabos.config.config import HTTPConfig, BasicConfig
 from unilabos.utils import logger
 
 
@@ -30,11 +30,8 @@ class HTTPClient:
             self.auth = auth
         else:
             auth_secret = BasicConfig.auth_secret()
-            if auth_secret:
-                self.auth = auth_secret
-                info(f"正在使用ak sk作为授权信息 {auth_secret}")
-            else:
-                self.auth = MQConfig.lab_id
+            self.auth = auth_secret
+            info(f"正在使用ak sk作为授权信息：[{auth_secret}]")
         info(f"HTTPClient 初始化完成: remote_addr={self.remote_addr}")
 
     def resource_edge_add(self, resources: List[Dict[str, Any]], database_process_later: bool) -> requests.Response:
