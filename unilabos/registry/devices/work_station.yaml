@@ -1,3 +1,351 @@
+bettery_station_registry:
+  category:
+  - work_station
+  class:
+    action_value_mappings:
+      auto-change_hole_sheet_to_2:
+        feedback: {}
+        goal: {}
+        goal_default:
+          hole: null
+        handles: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                hole:
+                  type: string
+              required:
+              - hole
+              type: object
+            result: {}
+          required:
+          - goal
+          title: change_hole_sheet_to_2参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-fill_plate:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: fill_plate参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-force_continue_csv_export:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: force_continue_csv_export参数
+          type: object
+        type: UniLabJsonCommand
+      auto-func_pack_device_auto:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: func_pack_device_auto参数
+          type: object
+        type: UniLabJsonCommand
+      auto-func_pack_device_init:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: func_pack_device_init参数
+          type: object
+        type: UniLabJsonCommand
+      auto-func_pack_device_start:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: func_pack_device_start参数
+          type: object
+        type: UniLabJsonCommand
+      auto-func_pack_device_stop:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: func_pack_device_stop参数
+          type: object
+        type: UniLabJsonCommand
+      auto-func_pack_read_data_cmd:
+        feedback: {}
+        goal: {}
+        goal_default:
+          file_path: null
+        handles: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                file_path:
+                  type: string
+              required:
+              - file_path
+              type: object
+            result: {}
+          required:
+          - goal
+          title: func_pack_read_data_cmd参数
+          type: object
+        type: UniLabJsonCommand
+      auto-func_pack_send_msg_cmd:
+        feedback: {}
+        goal: {}
+        goal_default:
+          experiment_params: null
+        handles: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                experiment_params:
+                  type: string
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: func_pack_send_msg_cmd参数
+          type: object
+        type: UniLabJsonCommand
+      auto-start_battery_completion_export:
+        feedback: {}
+        goal: {}
+        goal_default:
+          file_path: null
+        handles: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                file_path:
+                  type: string
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: start_battery_completion_export参数
+          type: object
+        type: UniLabJsonCommand
+      auto-stop_csv_export:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: stop_csv_export参数
+          type: object
+        type: UniLabJsonCommand
+    module: unilabos.devices.workstation.coin_cell_assembly.coin_cell_assembly:CoinCellAssemblyWorkstation
+    status_types:
+      csv_export_status: String
+      data_assembly_coin_cell_num: int
+      data_assembly_pressure: int
+      data_assembly_time: float
+      data_axis_x_pos: float
+      data_axis_y_pos: float
+      data_axis_z_pos: float
+      data_coin_cell_code: str
+      data_coin_num: int
+      data_electrolyte_code: str
+      data_electrolyte_volume: int
+      data_glove_box_o2_content: float
+      data_glove_box_pressure: float
+      data_glove_box_water_content: float
+      data_open_circuit_voltage: float
+      data_pole_weight: float
+      request_rec_msg_status: bool
+      request_send_msg_status: bool
+      sys_mode: str
+      sys_status: str
+    type: python
+  config_info: []
+  description: ''
+  handles: []
+  icon: ''
+  init_param_schema:
+    config:
+      properties:
+        address:
+          default: 192.168.1.20
+          type: string
+        debug_mode:
+          default: false
+          type: string
+        port:
+          default: '502'
+          type: string
+        station_resource:
+          type: string
+      required:
+      - station_resource
+      type: object
+    data:
+      properties:
+        csv_export_status:
+          type: string
+        data_assembly_coin_cell_num:
+          type: integer
+        data_assembly_pressure:
+          type: integer
+        data_assembly_time:
+          type: number
+        data_axis_x_pos:
+          type: number
+        data_axis_y_pos:
+          type: number
+        data_axis_z_pos:
+          type: number
+        data_coin_cell_code:
+          type: string
+        data_coin_num:
+          type: integer
+        data_electrolyte_code:
+          type: string
+        data_electrolyte_volume:
+          type: integer
+        data_glove_box_o2_content:
+          type: number
+        data_glove_box_pressure:
+          type: number
+        data_glove_box_water_content:
+          type: number
+        data_open_circuit_voltage:
+          type: number
+        data_pole_weight:
+          type: number
+        request_rec_msg_status:
+          type: boolean
+        request_send_msg_status:
+          type: boolean
+        sys_mode:
+          type: string
+        sys_status:
+          type: string
+      required:
+      - sys_status
+      - sys_mode
+      - request_rec_msg_status
+      - request_send_msg_status
+      - data_assembly_coin_cell_num
+      - data_assembly_time
+      - data_open_circuit_voltage
+      - data_axis_x_pos
+      - data_axis_y_pos
+      - data_axis_z_pos
+      - data_pole_weight
+      - data_assembly_pressure
+      - data_electrolyte_volume
+      - data_coin_num
+      - data_coin_cell_code
+      - data_electrolyte_code
+      - data_glove_box_pressure
+      - data_glove_box_o2_content
+      - data_glove_box_water_content
+      - csv_export_status
+      type: object
+  version: 1.0.0
 workstation:
   category:
   - work_station
@@ -6122,19 +6470,33 @@ workstation:
   init_param_schema:
     config:
       properties:
+        action_value_mappings:
+          type: object
         children:
           type: object
         device_id:
           type: string
-        protocol_type:
+        driver_instance:
           type: string
+        hardware_interface:
+          type: object
+        print_publish:
+          default: true
+          type: string
+        protocol_type:
+          type: array
         resource_tracker:
           type: string
+        status_types:
+          type: object
       required:
-      - device_id
-      - children
       - protocol_type
-      - resource_tracker
+      - children
+      - driver_instance
+      - device_id
+      - status_types
+      - action_value_mappings
+      - hardware_interface
       type: object
     data:
       properties: {}
@@ -6145,79 +6507,7 @@ workstation.example:
   category:
   - work_station
   class:
-    action_value_mappings:
-      auto-append_resource:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: {}
-        result: {}
-        schema:
-          description: ''
-          properties:
-            feedback: {}
-            goal:
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: append_resource参数
-          type: object
-        type: UniLabJsonCommand
-      auto-create_resource:
-        feedback: {}
-        goal: {}
-        goal_default:
-          bind_location: null
-          bind_parent_id: null
-          liquid_input_slot: null
-          liquid_type: null
-          liquid_volume: null
-          resource_tracker: null
-          resources: null
-          slot_on_deck: null
-        handles: {}
-        result: {}
-        schema:
-          description: ''
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                bind_location:
-                  type: object
-                bind_parent_id:
-                  type: string
-                liquid_input_slot:
-                  type: array
-                liquid_type:
-                  type: array
-                liquid_volume:
-                  type: array
-                resource_tracker:
-                  type: string
-                resources:
-                  type: array
-                slot_on_deck:
-                  type: integer
-              required:
-              - resource_tracker
-              - resources
-              - bind_parent_id
-              - bind_location
-              - liquid_input_slot
-              - liquid_type
-              - liquid_volume
-              - slot_on_deck
-              type: object
-            result: {}
-          required:
-          - goal
-          title: create_resource参数
-          type: object
-        type: UniLabJsonCommand
+    action_value_mappings: {}
     module: unilabos.devices.workstation.workstation_base:WorkstationExample
     status_types: {}
     type: python
@@ -6228,19 +6518,10 @@ workstation.example:
   init_param_schema:
     config:
       properties:
-        children:
-          type: object
-        device_id:
-          type: string
-        protocol_type:
-          type: string
-        resource_tracker:
+        station_resource:
           type: string
       required:
-      - device_id
-      - children
-      - protocol_type
-      - resource_tracker
+      - station_resource
       type: object
     data:
       properties: {}

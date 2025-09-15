@@ -14,63 +14,47 @@ from unilabos.device_comms.modbus_plc.client import TCPClient, ModbusNode, PLCWo
 from unilabos.device_comms.modbus_plc.modbus import DeviceType, Base as ModbusNodeBase, DataType, WorderOrder
 from unilabos.devices.workstation.coin_cell_assembly.button_battery_station import CoincellDeck, Battery
 
-class _DebugNode:
-    def __init__(self, name: str):
-        self.name = name
-
-    def read(self, count: int, word_order=None):
-        # 线圈/状态寄存器：返回 False
-        if self.name.startswith("COIL_"):
-            return [False] * max(1, count), None
-        # 普通数据寄存器：统一返回 -1
-        return [-1] * max(1, count), None
-
-    def write(self, value, data_type=None, word_order=None):
-        print(f"[DEBUG WRITE] node={self.name} value={value} "
-              f"data_type={data_type} word_order={word_order}")
-        return True
-
-class _DebugClient:
-    def use_node(self, name: str) -> _DebugNode:
-        return _DebugNode(name)
-
 class CoinCellAssemblyWorkstation(WorkstationBase):
-    def __init__(self, station_resource: CoincellDeck, address="192.168.1.20", port="502",
-                 debug_mode=False, *args, **kwargs):
-        super().__init__(station_resource=station_resource, *args, **kwargs)
+    def __init__(
+        self,
+        station_resource: CoincellDeck,
+        address: str = "192.168.1.20",
+        port: str = "502",
+        debug_mode: bool = False,
+        *args,
+        **kwargs,
+    ):
+        super().__init__(
+            station_resource=station_resource,
+            *args,
+            **kwargs,
+        )
         self.debug_mode = debug_mode
         self.station_resource = station_resource
-        self.success = False
-        self.allow_data_read = False
-        self.csv_export_thread = None
-        self.csv_export_running = False
-        self.csv_export_file = None
-
-        if self.debug_mode:
-            print("【DEBUG】测试模式：完全跳过 PLC 连接与节点注册")
-            self.client = _DebugClient()
-            self.nodes = []  # 不需要加载 CSV
-        else:
-            """ 连接初始化（真实硬件） """
-            modbus_client = TCPClient(addr=address, port=port)
-            print("modbus_client", modbus_client)
+        """ 连接初始化 """
+        modbus_client = TCPClient(addr=address, port=port)
+        print("modbus_client", modbus_client)
+        if not debug_mode:
             modbus_client.client.connect()
             count = 100
-            while count > 0:
-                count -= 1
+            while count >0:
+                count -=1
                 if modbus_client.client.is_socket_open():
                     break
+                # time.sleep(2)
             if not modbus_client.client.is_socket_open():
                 raise ValueError('modbus tcp connection failed')
+        else:
+            print("测试模式，跳过连接")
 
-            """ 工站的配置 """
-            self.nodes = BaseClient.load_csv(os.path.join(os.path.dirname(__file__), 'PLC_register_0905.csv'))
-            self.client  = modbus_client.register_node_list(self.nodes)
-            self.success = False
-            self.allow_data_read = False  #允许读取函数运行标志位
-            self.csv_export_thread = None
-            self.csv_export_running = False
-            self.csv_expoart_file = None
+        """ 工站的配置 """
+        self.nodes = BaseClient.load_csv(os.path.join(os.path.dirname(__file__), 'coin_cell_assembly_a.csv'))
+        self.client  = modbus_client.register_node_list(self.nodes)
+        self.success = False
+        self.allow_data_read = False  #允许读取函数运行标志位
+        self.csv_export_thread = None
+        self.csv_export_running = False
+        self.csv_expoart_file = None
 
     # 批量操作在这里写
     async def change_hole_sheet_to_2(self, hole: MaterialHole):
@@ -192,7 +176,6 @@ class CoinCellAssemblyWorkstation(WorkstationBase):
             print("waiting for hand_cmd")
             # time.sleep(1)
         #设备初始化
-        # 初始化流程必须要等待完成，如果中断初始化，会导致程序卡死，无法执行其他操作
         print("func_pack_device_init")
         self._sys_init_cmd(True)
         while self._sys_init_status() == False:
@@ -419,7 +402,7 @@ class CoinCellAssemblyWorkstation(WorkstationBase):
     def data_assembly_coin_cell_num(self) -> int:
         """已完成电池数量 (INT16)"""
         if self.debug_mode:
-            return -1
+            return 0
         num, read_err = self.client.use_node('REG_DATA_ASSEMBLY_COIN_CELL_NUM').read(1)
         return num
 
@@ -427,7 +410,7 @@ class CoinCellAssemblyWorkstation(WorkstationBase):
     def data_assembly_time(self) -> float:
         """单颗电池组装时间 (秒, REAL/FLOAT32)"""
         if self.debug_mode:
-            return -1
+            return 0
         time, read_err =  self.client.use_node('REG_DATA_ASSEMBLY_PER_TIME').read(2, word_order=WorderOrder.LITTLE)
         return time
 
@@ -435,7 +418,7 @@ class CoinCellAssemblyWorkstation(WorkstationBase):
     def data_open_circuit_voltage(self) -> float:
         """开路电压值 (FLOAT32)"""
         if self.debug_mode:
-            return -1
+            return 0
         vol, read_err =  self.client.use_node('REG_DATA_OPEN_CIRCUIT_VOLTAGE').read(2, word_order=WorderOrder.LITTLE)
         return vol
 
@@ -443,7 +426,7 @@ class CoinCellAssemblyWorkstation(WorkstationBase):
     def data_axis_x_pos(self) -> float:
         """分液X轴当前位置 (FLOAT32)"""
         if self.debug_mode:
-            return -1
+            return 0
         pos, read_err =  self.client.use_node('REG_DATA_AXIS_X_POS').read(2, word_order=WorderOrder.LITTLE)
         return pos
 
@@ -451,7 +434,7 @@ class CoinCellAssemblyWorkstation(WorkstationBase):
     def data_axis_y_pos(self) -> float:
         """分液Y轴当前位置 (FLOAT32)"""
         if self.debug_mode:
-            return -1
+            return 0
         pos, read_err =  self.client.use_node('REG_DATA_AXIS_Y_POS').read(2, word_order=WorderOrder.LITTLE)
         return pos
 
@@ -459,7 +442,7 @@ class CoinCellAssemblyWorkstation(WorkstationBase):
     def data_axis_z_pos(self) -> float:
         """分液Z轴当前位置 (FLOAT32)"""
         if self.debug_mode:
-            return -1
+            return 0
         pos, read_err =  self.client.use_node('REG_DATA_AXIS_Z_POS').read(2, word_order=WorderOrder.LITTLE)
         return pos
 
@@ -467,7 +450,7 @@ class CoinCellAssemblyWorkstation(WorkstationBase):
     def data_pole_weight(self) -> float:
         """当前电池正极片称重数据 (FLOAT32)"""
         if self.debug_mode:
-            return -1
+            return 0
         weight, read_err =  self.client.use_node('REG_DATA_POLE_WEIGHT').read(2, word_order=WorderOrder.LITTLE)
         return weight
 
@@ -475,7 +458,7 @@ class CoinCellAssemblyWorkstation(WorkstationBase):
     def data_assembly_pressure(self) -> int:
         """当前电池压制力 (INT16)"""
         if self.debug_mode:
-            return -1
+            return 0
         pressure, read_err = self.client.use_node('REG_DATA_ASSEMBLY_PRESSURE').read(1)
         return pressure
 
@@ -483,7 +466,7 @@ class CoinCellAssemblyWorkstation(WorkstationBase):
     def data_electrolyte_volume(self) -> int:
         """当前电解液加注量 (INT16)"""
         if self.debug_mode:
-            return -1
+            return 0
         vol, read_err = self.client.use_node('REG_DATA_ELECTROLYTE_VOLUME').read(1)
         return vol
 
@@ -491,7 +474,7 @@ class CoinCellAssemblyWorkstation(WorkstationBase):
     def data_coin_num(self) -> int:
         """当前电池数量 (INT16)"""
         if self.debug_mode:
-            return -1
+            return 0
         num, read_err = self.client.use_node('REG_DATA_COIN_NUM').read(1)
         return num
 
@@ -670,10 +653,9 @@ class CoinCellAssemblyWorkstation(WorkstationBase):
             with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerow([
-                    'timestamp', 'current_battery_count', 'assembly_time',
-                    'pole_weight', 'assembly_pressure', 'electrolyte_volume',
-                    'open_circuit_voltage', 
-                    'battery_code', 'electrolyte_code'
+                    'Timestamp', 'Battery_Count', 'Assembly_Time', 
+                    'Open_Circuit_Voltage', 'Pole_Weight', 'Battery_Code', 
+                    'Electrolyte_Code'
                 ])
         except Exception as e:
             self.csv_export_running = False
@@ -701,13 +683,13 @@ class CoinCellAssemblyWorkstation(WorkstationBase):
                     
                     # 批量收集数据以减少时间差
                     try:
-                        assembly_time = self.data_assembly_time
-                        pole_weight = self.data_pole_weight
-                        assembly_pressure = self.data_assembly_pressure
-                        electrolyte_volume = self.data_electrolyte_volume
-                        open_circuit_voltage = self.data_open_circuit_voltage
-                        battery_code = self.data_coin_cell_code
-                        electrolyte_code = self.data_electrolyte_code
+                        assembly_time = self.data_assembly_time()
+                        pole_weight = self.data_pole_weight()
+                        assembly_pressure = self.data_assembly_pressure()
+                        electrolyte_volume = self.data_electrolyte_volume()
+                        open_circuit_voltage = self.data_open_circuit_voltage()
+                        battery_code = self.data_coin_cell_code()
+                        electrolyte_code = self.data_electrolyte_code()
 
                         # 检查设备状态并记录到日志
                         device_stopped = self._sys_stop_status()
@@ -926,37 +908,88 @@ class CoinCellAssemblyWorkstation(WorkstationBase):
 #         #    print("台面状态已保存到: button_battery_station_state.json")
 
 
+
+
+
+
+#             #将数据写入csv中
+#             #如当前目录下无同名文件则新建一个csv用于存放数据
+#             if not os.path.exists(self.csv_export_file):
+#                 #创建一个表头
+#                 with open(self.csv_export_file, 'w', newline='', encoding='utf-8') as csvfile:
+#                     writer = csv.writer(csvfile)
+#                     writer.writerow([
+#                         'Time', 'open_circuit_voltage', 'pole_weight', 
+#                         'assembly_time', 'assembly_pressure', 'electrolyte_volume', 
+#                         'coin_num', 'electrolyte_code', 'coin_cell_code'
+#                     ])
+#                     #立刻写入磁盘
+#                     csvfile.flush()
+#             #开始追加电池信息
+#             with open(self.csv_export_file, 'a', newline='', encoding='utf-8') as csvfile:
+#                 writer = csv.writer(csvfile)
+#                 writer.writerow([
+#                     timestamp, data_open_circuit_voltage, data_pole_weight,
+#                     data_assembly_time, data_assembly_pressure, data_electrolyte_volume,
+#                     data_coin_num, data_electrolyte_code, data_coin_cell_code
+#                 ])
+#                 #立刻写入磁盘
+#                 csvfile.flush()
+
+#             # 只要不在自动模式运行中，就将允许标志位置False
+#             if self.sys_auto_status  == False or self.sys_start_status == False:
+#                 self.allow_data_read = False
+#                 self.csv_export_running = False
+#             time.sleep(1)
+
+#     def func_stop_read_data(self):
+#         """停止CSV导出"""
+#         if not self.csv_export_running:
+#             return False, "read data未在运行"
+        
+#         self.csv_export_running = False
+#         self.allow_data_read = False
+        
+#         if self.csv_export_thread and self.csv_export_thread.is_alive():
+#             self.csv_export_thread.join(timeout=5)
+
+#     def func_get_csv_export_status(self):
+#         """获取CSV导出状态"""
+#         return {
+#             'allow_read': self.allow_data_read,
+#             'running': self.csv_export_running,
+#             'thread_alive': self.csv_export_thread.is_alive() if self.csv_export_thread else False
+#         }
+
+#     @property
+#     def data_stack_vision_code(self) -> int:
+#         """物料堆叠复检图片编码 (INT16)"""
+#         if self.debug_mode:
+#             return 0
+#         code = 0
+#         # code, read_err =  self.client.use_node('REG_DATA_STACK_VISON_CODE').read(1)
+#         return code
+#     '''
+#     # ===================== 物料管理区 ======================
+#     @property
+#     def data_material_inventory(self) -> int:
+#         """主物料库存 (数量, INT16)"""
+#         inventory, read_err =  self.client.use_node('REG_DATA_MATERIAL_INVENTORY').read(1)
+#         return inventory
+
+#     @property
+#     def data_tips_inventory(self) -> int:
+#         """移液枪头库存 (数量, INT16)"""
+#         inventory, read_err = self.client.register_node_list(self.nodes).use_node('REG_DATA_TIPS_INVENTORY').read(1)
+#         return inventory
+        
+#     '''
+
+
 if __name__ == "__main__":
     from pylabrobot.resources import Resource
-    cell = CoinCellAssemblyWorkstation(Resource("1", 1, 1, 1), debug_mode = False)
-    # cell.func_pack_device_init()
-
-    # cell._sys_hand_cmd(True)
-    # while cell._sys_hand_status() == False:
-    #     print("waiting for hand_cmd")
-    #     time.sleep(1)
-    # #设备初始化
-    # # 初始化流程必须要等待完成，如果中断初始化，会导致程序卡死，无法执行其他操作
-    # print("func_pack_device_init")
-    cell._sys_init_cmd(False)
-    # while cell._sys_init_status() == False:
-    #     print("waiting for init_cmd")
-    # 手动按钮置回False
-    # cell._sys_hand_cmd(False)
-    # while cell._sys_hand_cmd() == True:
-    #     print("waiting for hand_cmd to False")
-    # #初始化命令置回False
-    # cell._sys_init_cmd(False)
-    # while cell._sys_init_cmd() == True:
-    #     print("waiting for init_cmd to False")
+    cell = CoinCellAssemblyWorkstation(Resource("1", 1, 1, 1), debug_mode = True)
+    cell.start_battery_completion_export()
 
 
-    # ok, msg = cell.start_battery_completion_export()
-    # print(msg) 
-
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        cell.stop_csv_export()
     print("success")

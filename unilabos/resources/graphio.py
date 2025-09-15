@@ -439,6 +439,11 @@ def resource_plr_to_ulab(resource_plr: "ResourcePLR", parent_name: str = None):
             "trash": "container",
             "deck": "deck",
             "tip_rack": "container",
+            "electrode_sheet": "container",
+            "material_hole": "container",
+            "material_plate": "plate",
+            "plate_slot": "container",
+            "coin_cell_deck": "deck",
         }
         if source in replace_info:
             return replace_info[source]

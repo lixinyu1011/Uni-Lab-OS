@@ -185,6 +185,113 @@ class CoinCellAssemblyWorkstation(WorkstationBase):
             cmd_feedback, read_err = self.client.use_node('COIL_UNILAB_REC_MSG_SUCC_CMD').read(1)
             return cmd_feedback
 
+    # by xinyu
+    def _init_check_and_reset_flags(self):
+        """初始化检查：依次读取指定的寄存器值，如果为 True 就复位为 False。
+        涉及地址: 8500, 8510, 8520, 8210, 8220, 8230, 8240, 8250, 8260,
+                8700, 8710, 8720, 8730, 8010, 8020, 8030, 8040, 8050, 8060"""
+
+        try:
+            # 8500 请求发送电池组装配方
+            val, _ = self.client.use_node("COIL_REQUEST_REC_MSG_STATUS").read(1)
+            if val[0]:
+                self.client.use_node("COIL_REQUEST_REC_MSG_STATUS").write(False)
+
+            # 8510 请求接受电池组装数据
+            val, _ = self.client.use_node("COIL_REQUEST_DATA_STATUS").read(1)
+            if val[0]:
+                self.client.use_node("COIL_REQUEST_DATA_STATUS").write(False)
+
+            # 8520 请求发送物料情况
+            val, _ = self.client.use_node("COIL_REQUEST_ELEC_NUM").read(1)
+            if val[0]:
+                self.client.use_node("COIL_REQUEST_ELEC_NUM").write(False)
+
+            # 8210 设备启动中
+            val, _ = self.client.use_node("COIL_SYS_START_STATUS").read(1)
+            if val[0]:
+                self.client.use_node("COIL_SYS_START_STATUS").write(False)
+
+            # 8220 设备停止中
+            val, _ = self.client.use_node("COIL_SYS_STOP_STATUS").read(1)
+            if val[0]:
+                self.client.use_node("COIL_SYS_STOP_STATUS").write(False)
+
+            # 8230 设备复位中
+            val, _ = self.client.use_node("COIL_SYS_RESET_STATUS").read(1)
+            if val[0]:
+                self.client.use_node("COIL_SYS_RESET_STATUS").write(False)
+
+            # 8240 设备手动模式
+            val, _ = self.client.use_node("COIL_SYS_AUTO_STATUS").read(1)
+            if not val[0]:
+                self.client.use_node("COIL_SYS_AUTO_STATUS").write(True)
+
+            # 8250 设备自动模式
+            val, _ = self.client.use_node("COIL_SYS_HAND_STATUS").read(1)
+            if val[0]:
+                self.client.use_node("COIL_SYS_HAND_STATUS").write(False)
+
+            # 8260 设备初始化完成
+            val, _ = self.client.use_node("COIL_SYS_INIT_STATUS").read(1)
+            if val[0]:
+                self.client.use_node("COIL_SYS_INIT_STATUS").write(False)
+
+            # 8700 发送电池组装配方完成
+            val, _ = self.client.use_node("COIL_UNILAB_SEND_MSG_SUCC_CMD").read(1)
+            if val[0]:
+                self.client.use_node("COIL_UNILAB_SEND_MSG_SUCC_CMD").write(False)
+
+            # 8710 接收电池组装数据完成
+            val, _ = self.client.use_node("COIL_UNILAB_REC_MSG_SUCC_CMD").read(1)
+            if val[0]:
+                self.client.use_node("COIL_UNILAB_REC_MSG_SUCC_CMD").write(False)
+
+            # 8720 发送物料信息
+            val, _ = self.client.use_node("COIL_UNILAB_SEND_ELEC_NUM_SUCC").read(1)
+            if val[0]:
+                self.client.use_node("COIL_UNILAB_SEND_ELEC_NUM_SUCC").write(False)
+
+            # 8730 电解液出料完成信号
+            val, _ = self.client.use_node("COIL_UNILAB_EXTRA_SUCC").read(1)
+            if val[0]:
+                self.client.use_node("COIL_UNILAB_EXTRA_SUCC").write(False)
+
+            # 8010 设备启动命令
+            val, _ = self.client.use_node("COIL_SYS_START_CMD").read(1)
+            if val[0]:
+                self.client.use_node("COIL_SYS_START_CMD").write(False)
+
+            # 8020 设备停止命令
+            val, _ = self.client.use_node("COIL_SYS_STOP_CMD").read(1)
+            if val[0]:
+                self.client.use_node("COIL_SYS_STOP_CMD").write(False)
+
+            # 8030 设备复位命令
+            val, _ = self.client.use_node("COIL_SYS_RESET_CMD").read(1)
+            if val[0]:
+                self.client.use_node("COIL_SYS_RESET_CMD").write(False)
+
+            # 8040 设备自动模式命令
+            val, _ = self.client.use_node("COIL_SYS_AUTO_CMD").read(1)
+            if val[0]:
+                self.client.use_node("COIL_SYS_AUTO_CMD").write(False)
+
+            # 8050 设备手动模式命令
+            val, _ = self.client.use_node("COIL_SYS_HAND_CMD").read(1)
+            if val[0]:
+                self.client.use_node("COIL_SYS_HAND_CMD").write(False)
+
+            # 8060 设备初始化命令
+            val, _ = self.client.use_node("COIL_SYS_INIT_CMD").read(1)
+            if val[0]:
+                self.client.use_node("COIL_SYS_INIT_CMD").write(False)
+
+        except Exception as e:
+            print(f"[init_check_and_reset_flags] 执行出错: {e}")
+
+
+    # 设备初始化运行
     def func_pack_device_init(self):
         # 切换手动模式
         self._sys_hand_cmd(True)
@@ -294,6 +401,29 @@ class CoinCellAssemblyWorkstation(WorkstationBase):
         else:
             cmd_feedback, read_err = self.client.use_node('REG_MSG_ASSEMBLY_PRESSURE').read(2, word_order=WorderOrder.LITTLE)
             return cmd_feedback[0]
+
+    #by xinyu
+    def func_pack_send_bottle_num(self, num: int =None):
+        # 第二步 本批次电解液数量下发
+        # print("启动")
+        val, _ = self.client.use_node("COIL_UNILAB_RECE_ELECTROLYTE_BOTTLE_NUM").read(1)
+        while val[0] == False:
+            print("waiting for rece_electrolyte_bottle_num to True")  
+        #发送电解液瓶数为num
+        self._unilab_send_msg_electrolyte_num(num)
+        
+        #完成信号置True
+        self._unilab_send_electrolyte_bottle_num(True)
+        time.sleep(1)
+        #检测到依华已接收
+        while (self._unilab_rece_electrolyte_bottle_num()) == True:
+            print("waiting for rece_electrolyte_bottle_num to False")
+            time.sleep(1)    
+        #完成信号置False
+        self._unilab_send_electrolyte_bottle_num(False) 
+        time.sleep(1) 
+        #自动按钮置False
+
     # 下发参数
     def func_pack_send_msg_cmd(self, experiment_params=None):
         """UNILAB写参数"""
