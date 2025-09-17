@@ -131,6 +131,7 @@ class HTTPClient:
         Returns:
             Response: API响应对象
         """
+        return self.resource_add(resources)
         response = requests.patch(
             f"{self.remote_addr}/lab/resource/batch_update/?edge_format=1",
             json=resources,

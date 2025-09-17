@@ -1,24 +1,26 @@
 # **Uni-Lab 安装**
 
-请先 `git clone` 本仓库，随后按照以下步骤安装项目：
+## 快速开始
 
-`Uni-Lab` 建议您采用 `mamba` 管理环境。若需从头建立 `Uni-Lab` 的运行依赖环境，请执行
+1. **配置 Conda 环境**
+
+Uni-Lab-OS 建议使用 `mamba` 管理环境。创建新的环境：
 
 ```shell
-mamba env create -f unilabos-<YOUR_OS>.yaml
-mamba activate unilab
+mamba create -n unilab uni-lab::unilabos -c robostack-staging -c conda-forge
 ```
 
-其中 `YOUR_OS` 是您的操作系统，可选值 `win64`, `linux-64`, `osx-64`, `osx-arm64`
-
-若需将依赖安装进当前环境，请执行
+2. **安装开发版 Uni-Lab-OS**
 
 ```shell
-conda env update --file unilabos-<YOUR_OS>.yml
-```
+# 配置好conda环境后，克隆仓库
+git clone https://github.com/dptech-corp/Uni-Lab-OS.git
+cd Uni-Lab-OS
 
-随后，可在本仓库安装 `unilabos` 的开发版：
-
-```shell
+# 安装 Uni-Lab-OS
 pip install .
 ```
+
+3. **启动 Uni-Lab 系统**
+
+请参见{doc}`启动样例 <../boot_examples/index>`或{doc}`启动指南 <launch>`了解详细的启动方法。
