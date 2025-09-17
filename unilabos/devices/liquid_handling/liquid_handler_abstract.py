@@ -593,6 +593,7 @@ class LiquidHandlerAbstract(LiquidHandlerMiddleware):
                 available_tips[idx] = tipSpot
                 continue
         # 一般移动液体有两种方式，一对多和多对多
+        print("channel_num", self.channel_num)
         if self.channel_num == 8:
 
             tip_prefix = list(available_tips.values())[0].name.split('_')[0]
@@ -601,8 +602,11 @@ class LiquidHandlerAbstract(LiquidHandlerMiddleware):
             available_cols.sort() 
             available_tips_dict = {tip.name: tip for tip in available_tips.values()}
             tips_to_use = [available_tips_dict[f"{tip_prefix}_{chr(65 + i)}{available_cols[0]}"] for i in range(8)]
+            print("tips_to_use", tips_to_use)
             await self.pick_up_tips(tips_to_use, use_channels=list(range(0, 8)))
+            print("source_wells", source_wells)
             await self.aspirate(source_wells, [unit_volume] * 8, use_channels=list(range(0, 8)))
+            print("target_wells", target_wells)
             await self.dispense(target_wells, [unit_volume] * 8, use_channels=list(range(0, 8)))
             await self.discard_tips(use_channels=list(range(0, 8)))
 
@@ -610,7 +614,10 @@ class LiquidHandlerAbstract(LiquidHandlerMiddleware):
             
             for num_well in range(len(target_wells)):
                 tip_to_use = available_tips[list(available_tips.keys())[num_well]] 
+                print("tip_to_use", tip_to_use)
                 await self.pick_up_tips([tip_to_use], use_channels=[0])
+                print("source_wells", source_wells)
+                print("target_wells", target_wells)
                 if len(source_wells) == 1:
                     await self.aspirate([source_wells[0]], [unit_volume], use_channels=[0]) 
                 else:

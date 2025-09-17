@@ -5,7 +5,7 @@ import json
 import socket
 import time
 from typing import Any, List, Dict, Optional, TypedDict, Union, Sequence, Iterator, Literal
-
+import pprint as pp
 from pylabrobot.liquid_handling import (
     LiquidHandlerBackend,
     Pickup,
@@ -25,6 +25,7 @@ from pylabrobot.liquid_handling.standard import (
     ResourceDrop,
 )
 from pylabrobot.resources import Tip, Deck, Plate, Well, TipRack, Resource, Container, Coordinate, TipSpot, Trash
+from traitlets import Int
 
 from unilabos.devices.liquid_handling.liquid_handler_abstract import LiquidHandlerAbstract
 
@@ -445,10 +446,11 @@ class LabResource:
 
 from typing import Dict, Any
 
+import time
 class DefaultLayout:
-    
+
     def __init__(self, product_name: str = "PRCXI9300"):
-        self.labresource = None
+        self.labresource = {}
         if product_name not in ["PRCXI9300", "PRCXI9320"]:
             raise ValueError(f"Unsupported product_name: {product_name}. Only 'PRCXI9300' and 'PRCXI9320' are supported.")
 
@@ -458,12 +460,32 @@ class DefaultLayout:
             self.layout = [1, 2, 3, 4, 5, 6]
             self.trash_slot = 3
             self.waste_liquid_slot = 6
+
         elif product_name == "PRCXI9320":
             self.rows = 3
             self.columns = 4
-            self.layout = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-            self.trash_slot = 3
+            self.layout = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+            self.trash_slot = 16
             self.waste_liquid_slot = 12
+            self.default_layout =  {"MatrixId":f"{time.time()}","MatrixName":f"{time.time()}","MatrixCount":16,"WorkTablets":
+            [{"Number": 1, "Code": "T1", "Material": {"uuid": "57b1e4711e9e4a32b529f3132fc5931f", "materialEnum": 0}},
+  {"Number": 2, "Code": "T2", "Material": {"uuid": "57b1e4711e9e4a32b529f3132fc5931f", "materialEnum": 0}},
+  {"Number": 3, "Code": "T3", "Material": {"uuid": "57b1e4711e9e4a32b529f3132fc5931f", "materialEnum": 0}},
+  {"Number": 4, "Code": "T4", "Material": {"uuid": "57b1e4711e9e4a32b529f3132fc5931f", "materialEnum": 0}},
+  {"Number": 5, "Code": "T5", "Material": {"uuid": "57b1e4711e9e4a32b529f3132fc5931f", "materialEnum": 0}},
+  {"Number": 6, "Code": "T6", "Material": {"uuid": "57b1e4711e9e4a32b529f3132fc5931f", "materialEnum": 0}},
+  {"Number": 7, "Code": "T7", "Material": {"uuid": "57b1e4711e9e4a32b529f3132fc5931f", "materialEnum": 0}},
+  {"Number": 8, "Code": "T8", "Material": {"uuid": "57b1e4711e9e4a32b529f3132fc5931f", "materialEnum": 0}},
+  {"Number": 9, "Code": "T9", "Material": {"uuid": "57b1e4711e9e4a32b529f3132fc5931f", "materialEnum": 0}},
+  {"Number": 10, "Code": "T10", "Material": {"uuid": "57b1e4711e9e4a32b529f3132fc5931f", "materialEnum": 0}},
+  {"Number": 11, "Code": "T11", "Material": {"uuid": "57b1e4711e9e4a32b529f3132fc5931f", "materialEnum": 0}},
+  {"Number": 12, "Code": "T12", "Material": {"uuid": "730067cf07ae43849ddf4034299030e9", "materialEnum": 0}},  # 这个设置成废液槽，用储液槽表示
+  {"Number": 13, "Code": "T13", "Material": {"uuid": "57b1e4711e9e4a32b529f3132fc5931f", "materialEnum": 0}},
+  {"Number": 14, "Code": "T14", "Material": {"uuid": "57b1e4711e9e4a32b529f3132fc5931f", "materialEnum": 0}},
+  {"Number": 15, "Code": "T15", "Material": {"uuid": "57b1e4711e9e4a32b529f3132fc5931f", "materialEnum": 0}},
+  {"Number": 16, "Code": "T16", "Material": {"uuid": "730067cf07ae43849ddf4034299030e9", "materialEnum": 0}} # 这个设置成垃圾桶，用储液槽表示
+]
+}
 
     def get_layout(self) -> Dict[str, Any]:
         return {
@@ -479,90 +501,121 @@ class DefaultLayout:
     
     def get_waste_liquid_slot(self) -> int:
         return self.waste_liquid_slot
-    
-    def set_liquid_handler_layout(self, product_name: str):
-        if product_name == "PRCXI9300":
-            self.rows = 2
-            self.columns = 3
-            self.layout = [1, 2, 3, 4, 5, 6]
-            self.trash_slot = 3
-            self.waste_liquid_slot = 6
 
-        elif product_name == "PRCXI9320":
-            self.rows = 3
-            self.columns = 4
-            self.layout = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-            self.trash_slot = 3
-            self.waste_liquid_slot = 12
+    def add_lab_resource(self, material_info):
+        self.labresource = material_info
 
-    def set_trash_slot(self, slot: int):
-        self.trash_slot = slot
-
-    def set_waste_liquid_slot(self, slot: int):
-        self.waste_liquid_slot = slot
-
-    def add_lab_resource(self, lab_resource: LabResource):
-        self.labresource = lab_resource.get_resources_info()
-
-    def recommend_layout(self, needs: Dict[str, Any]) -> Dict[str, Any]:
+    def recommend_layout(self, needs: Dict[str, int]) -> Dict[str, Any]:
         """根据 needs 推荐布局"""
-        liquid_info = needs['liquid_setup']
-        tip_info = needs['totals_by_tip']  # 修改这里：直接访问 totals_by_tip
-        print("当前实验所需物料信息：", liquid_info)
-        print("当前实验所需枪头信息：", tip_info)
-        print(self.labresource)
+        for k, v in needs.items():
+            if k not in self.labresource:
+                raise ValueError(f"Material {k} not found in lab resources.")
+        
+        # 预留位置12和16不动
+        reserved_positions = {12, 16}
+        available_positions = [i for i in range(1, 17) if i not in reserved_positions]
+        
+        # 计算总需求
+        total_needed = sum(needs.values())
+        if total_needed > len(available_positions):
+            raise ValueError(f"需要 {total_needed} 个位置，但只有 {len(available_positions)} 个可用位置（排除位置12和16）")
+        
+        # 依次分配位置
+        current_pos = 0
+        for material_name, count in needs.items():
+            material_uuid = self.labresource[material_name]['uuid']
+            material_enum = self.labresource[material_name]['materialEnum']
+            
+            for _ in range(count):
+                if current_pos >= len(available_positions):
+                    raise ValueError("位置不足，无法分配更多物料")
+                
+                position = available_positions[current_pos]
+                # 找到对应的tablet并更新
+                for tablet in self.default_layout['WorkTablets']:
+                    if tablet['Number'] == position:
+                        tablet['Material']['uuid'] = material_uuid
+                        tablet['Material']['materialEnum'] = material_enum
+                        break
+                
+                current_pos += 1
+        
+        return self.default_layout
 
-        for liquid in liquid_info:
-            # total_volume = liquid.values()
-            print(liquid)
-            #print(f"资源 {liquid} 需要的总体积: {total_volume}")
 
 if __name__ == "__main__":
-    # ---- 资源：SUP 供液（X），中间板 R1（4 孔空），目标板 R2（4 孔空）----
-    sup = MaterialResource("SUP", slot=5, well=[1], liquid_id="X", volume=10000)      
-    r1  = MaterialResource("R1",  slot=6, well=[1,2,3,4,5,6,7,8])
-    r2  = MaterialResource("R2",  slot=7, well=[1,2,3,4,5,6,7,8])
-
-    pm = ProtocolManager()
-    # 步骤1：SUP -> R1，1->N 扇出，每孔 50 uL（总 200 uL）
-    pm.add_transfer(sup, r1, unit_volume=10.0)
-    # 步骤2：R1 -> R2，N->N 对应，每对 25 uL（总 100 uL；来自 R1 中已存在的混合物 X）
-    pm.add_transfer(r1, r2, unit_volume=120.0)
-
-    out = pm.compute_min_initials_with_tips()
+    with open("prcxi_material.json", "r") as f:
+        material_info = json.load(f)
+    
+    layout = DefaultLayout("PRCXI9320")
+    layout.add_lab_resource(material_info)
+    plan = layout.recommend_layout({
+        "10μL加长 Tip头": 2,
+        "300μL Tip头": 2, 
+        "96深孔板": 2,
+    })
     
 
 
 
-    # layout_planer = DefaultLayout('PRCXI9320')
-    # print(layout_planer.get_layout())
-    # print("回推最小需求：", out["liquid_setup"])     # {'SUP': {'X': 200.0}}
-    # print("步骤枪头建议：", out["step_tips"]) # [{'idx':0,'tip':'TIP_200uL','unit_volume':50.0}, {'idx':1,'tip':'TIP_50uL','unit_volume':25.0}]
+# if __name__ == "__main__":
+#     # ---- 资源：SUP 供液（X），中间板 R1（4 孔空），目标板 R2（4 孔空）----
+# #     sup = MaterialResource("SUP", slot=5, well=[1], liquid_id="X", volume=10000)      
+# #     r1  = MaterialResource("R1",  slot=6, well=[1,2,3,4,5,6,7,8])
+# #     r2  = MaterialResource("R2",  slot=7, well=[1,2,3,4,5,6,7,8])
 
-#     # 实际执行（可选）
-#     transfer_liquid(sup, r1, unit_volume=50.0)
-#     transfer_liquid(r1, r2, unit_volume=25.0)
-#     print("执行后 SUP：", sup.get_resource())  # 总体积 -200
-#     print("执行后 R1：",  r1.get_resource())   # 每孔 25 uL（50 进 -25 出）
-#     print("执行后 R2：",  r2.get_resource())   # 每孔 25 uL
+# #     pm = ProtocolManager()
+# #     # 步骤1：SUP -> R1，1->N 扇出，每孔 50 uL（总 200 uL）
+# #     pm.add_transfer(sup, r1, unit_volume=10.0)
+# #     # 步骤2：R1 -> R2，N->N 对应，每对 25 uL（总 100 uL；来自 R1 中已存在的混合物 X）
+# #     pm.add_transfer(r1, r2, unit_volume=120.0)
+
+# #     out = pm.compute_min_initials_with_tips()
+# #     # layout_planer = DefaultLayout('PRCXI9320')
+# #     # print(layout_planer.get_layout())
+# #     # print("回推最小需求：", out["liquid_setup"])     # {'SUP': {'X': 200.0}}
+# #     # print("步骤枪头建议：", out["step_tips"]) # [{'idx':0,'tip':'TIP_200uL','unit_volume':50.0}, {'idx':1,'tip':'TIP_50uL','unit_volume':25.0}]
+
+# # #     # 实际执行（可选）
+# # #     transfer_liquid(sup, r1, unit_volume=50.0)
+# # #     transfer_liquid(r1, r2, unit_volume=25.0)
+# # #     print("执行后 SUP：", sup.get_resource())  # 总体积 -200
+# # #     print("执行后 R1：",  r1.get_resource())   # 每孔 25 uL（50 进 -25 出）
+# # #     print("执行后 R2：",  r2.get_resource())   # 每孔 25 uL
 
 
-    from pylabrobot.resources.opentrons.tube_racks import *
-    from pylabrobot.resources.opentrons.plates import *
-    from pylabrobot.resources.opentrons.tip_racks import *
-    from pylabrobot.resources.opentrons.reservoirs import *
+# #     from pylabrobot.resources.opentrons.tube_racks import *
+# #     from pylabrobot.resources.opentrons.plates import *
+# #     from pylabrobot.resources.opentrons.tip_racks import *
+# #     from pylabrobot.resources.opentrons.reservoirs import *
 
-    plate = [locals()['nest_96_wellplate_2ml_deep'](name="thermoscientificnunc_96_wellplate_2000ul"), locals()['corning_96_wellplate_360ul_flat'](name="corning_96_wellplate_360ul_flat")]
-    tiprack = [locals()['opentrons_96_tiprack_300ul'](name="opentrons_96_tiprack_300ul"), locals()['opentrons_96_tiprack_1000ul'](name="opentrons_96_tiprack_1000ul")]
-    trash = [locals()['axygen_1_reservoir_90ml'](name="axygen_1_reservoir_90ml")]
+# #     plate = [locals()['nest_96_wellplate_2ml_deep'](name="thermoscientificnunc_96_wellplate_2000ul"), locals()['corning_96_wellplate_360ul_flat'](name="corning_96_wellplate_360ul_flat")]
+# #     tiprack = [locals()['opentrons_96_tiprack_300ul'](name="opentrons_96_tiprack_300ul"), locals()['opentrons_96_tiprack_1000ul'](name="opentrons_96_tiprack_1000ul")]
+# #     trash = [locals()['axygen_1_reservoir_90ml'](name="axygen_1_reservoir_90ml")]
 
-    from pprint import pprint
+# #     from pprint import pprint
 
-    lab_resource = LabResource()
-    lab_resource.add_tipracks(tiprack)
-    lab_resource.add_plates(plate)
-    lab_resource.add_trash(trash)
+# #     lab_resource = LabResource()
+# #     lab_resource.add_tipracks(tiprack)
+# #     lab_resource.add_plates(plate)
+# #     lab_resource.add_trash(trash)
 
-    layout_planer = DefaultLayout('PRCXI9300')
-    layout_planer.add_lab_resource(lab_resource)
-    layout_planer.recommend_layout(out)
+# #     layout_planer = DefaultLayout('PRCXI9300')
+# #     layout_planer.add_lab_resource(lab_resource)
+# #     layout_planer.recommend_layout(out)
+
+#     with open("prcxi_material.json", "r") as f:
+#         material_info = json.load(f)
+#     # print("当前实验物料信息：", material_info)
+
+#     layout = DefaultLayout("PRCXI9320")
+#     layout.add_lab_resource(material_info)
+#     print(layout.default_layout['WorkTablets'])
+#     # plan = layout.recommend_layout({
+#     #     "10μL加长 Tip头": 2,
+#     #     "300μL Tip头": 2,
+#     #     "96深孔板": 2,
+#     # })
+
+
+
