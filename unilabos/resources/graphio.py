@@ -231,14 +231,20 @@ def dict_to_tree(nodes: dict, devices_only: bool = False) -> list[dict]:
     # 将节点转换为字典，以便通过 ID 快速查找
     nodes_list = [node for node in nodes.values() if node.get("type") == "device" or not devices_only]
     id_list = [node["id"] for node in nodes_list]
+    is_root = {node["id"]: True for node in nodes_list}
 
     # 初始化每个节点的 children 为包含节点字典的列表
     for node in nodes_list:
         node["children"] = [nodes[child_id] for child_id in node.get("children", [])]
+        for child_id in node.get("children", []):
+            if child_id in is_root:
+                is_root[child_id] = False
 
     # 找到根节点并返回
     root_nodes = [
-        node for node in nodes_list if len(nodes_list) == 1 or node.get("parent", node.get("parent_name")) in [None, "", "None", np.nan] or node.get("parent", node.get("parent_name")) not in id_list
+        node
+        for node in nodes_list
+        if is_root.get(node["id"], False) or len(nodes_list) == 1
     ]
 
     # 如果存在多个根节点，返回所有根节点
@@ -248,6 +254,7 @@ def dict_to_tree(nodes: dict, devices_only: bool = False) -> list[dict]:
 def dict_to_nested_dict(nodes: dict, devices_only: bool = False) -> dict:
     # 将节点转换为字典，以便通过 ID 快速查找
     nodes_list = [node for node in nodes.values() if node.get("type") == "device" or not devices_only]
+    is_root = {node["id"]: True for node in nodes_list}
 
     # 初始化每个节点的 children 为包含节点字典的列表
     for node in nodes_list:
@@ -256,14 +263,17 @@ def dict_to_nested_dict(nodes: dict, devices_only: bool = False) -> dict:
             for child_id in node.get("children", [])
             if nodes[child_id].get("type") == "device" or not devices_only
         }
-        if len(node["children"]) > 0 and node["type"].lower() == "device" and devices_only:
+        for child_id in node.get("children", []):
+            if child_id in is_root:
+                is_root[child_id] = False
+        if len(node["children"]) > 0 and node["type"].lower() == "device":
             node["config"]["children"] = node["children"]
 
     # 找到根节点并返回
     root_nodes = {
         node["id"]: node
         for node in nodes_list
-        if node.get("parent", node.get("parent_name")) in [None, "", "None", np.nan] or len(nodes_list) == 1
+        if is_root.get(node["id"], False) or len(nodes_list) == 1
     }
 
     # 如果存在多个根节点，返回所有根节点
