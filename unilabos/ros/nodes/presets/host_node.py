@@ -219,7 +219,7 @@ class HostNode(BaseROS2DeviceNode):
 
                     client: HTTPClient = bridge
                     resource_start_time = time.time()
-                    resource_add_res = client.resource_add(add_schema(resources_config), False)
+                    resource_add_res = client.resource_add(add_schema(resources_config))
                     # DEBUG ONLY
                     # for i in resource_with_dirs_name:
                     #     http_req = self.bridges[-1].resource_get(i["data"]["unilabos_dirs"], True)
@@ -229,7 +229,7 @@ class HostNode(BaseROS2DeviceNode):
                     self.lab_logger().info(
                         f"[Host Node-Resource] 物料上传 {round(resource_end_time - resource_start_time, 5) * 1000} ms"
                     )
-                    resource_add_res = client.resource_edge_add(self.resources_edge_config, False)
+                    resource_add_res = client.resource_edge_add(self.resources_edge_config)
                     resource_edge_end_time = time.time()
                     self.lab_logger().info(
                         f"[Host Node-Resource] 物料关系上传 {round(resource_edge_end_time - resource_end_time, 5) * 1000} ms"
@@ -865,7 +865,7 @@ class HostNode(BaseROS2DeviceNode):
             from unilabos.app.web.client import HTTPClient
 
             client: HTTPClient = self.bridges[-1]
-            r = client.resource_add(add_schema(resources), False)
+            r = client.resource_add(add_schema(resources))
             success = bool(r)
 
         response.success = success
