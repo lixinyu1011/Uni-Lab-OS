@@ -4,7 +4,7 @@ import contextlib
 import json
 import socket
 import time
-from typing import Any, List, Dict, Optional, TypedDict, Union, Sequence, Iterator, Literal
+from typing import Any, List, Dict, Optional, Tuple, TypedDict, Union, Sequence, Iterator, Literal
 
 from pylabrobot.liquid_handling import (
     LiquidHandlerBackend,
@@ -1030,24 +1030,26 @@ class DefaultLayout:
     def add_lab_resource(self, material_info):
         self.labresource = material_info
 
-    def recommend_layout(self, needs: Dict[str, int]) -> Dict[str, Any]:
-        """根据 needs 推荐布局"""
-        for k, v in needs.items():
-            if k not in self.labresource:
-                raise ValueError(f"Material {k} not found in lab resources.")
-        
-        # 预留位置12和16不动
+    def recommend_layout(self, needs: List[Tuple[str, str, int]]) -> Dict[str, Any]:
+        layout_list = []
+        for reagent_name, material_name, count in needs:
+
+            if material_name not in self.labresource:
+                raise ValueError(f"Material {reagent_name} not found in lab resources.")
+
+            # 预留位置12和16不动
         reserved_positions = {12, 16}
         available_positions = [i for i in range(1, 17) if i not in reserved_positions]
-        
-        # 计算总需求
-        total_needed = sum(needs.values())
+            
+            # 计算总需求
+        total_needed = sum(count for _, _, count in needs)
         if total_needed > len(available_positions):
             raise ValueError(f"需要 {total_needed} 个位置，但只有 {len(available_positions)} 个可用位置（排除位置12和16）")
         
-        # 依次分配位置
+            # 依次分配位置
         current_pos = 0
-        for material_name, count in needs.items():
+        for reagent_name, material_name, count in needs:
+
             material_uuid = self.labresource[material_name]['uuid']
             material_enum = self.labresource[material_name]['materialEnum']
             
@@ -1061,11 +1063,10 @@ class DefaultLayout:
                     if tablet['Number'] == position:
                         tablet['Material']['uuid'] = material_uuid
                         tablet['Material']['materialEnum'] = material_enum
+                        layout_list.append(dict(reagent_name=reagent_name, material_name=material_name, positions=position))
                         break
-                
                 current_pos += 1
-        
-        return self.default_layout
+        return self.default_layout, layout_list
 
 
 
@@ -1388,7 +1389,7 @@ if __name__ == "__main__":
                                timeout=10.0, setup=False, debug=True, 
                                matrix_id="c1d0d5dc-40f2-4f24-97ac-9cc49c68496c",
                                channel_num=1, axis="Left",simulator=True)  # Initialize the handler with the deck and host settings
-    
+
     handler.set_tiprack([plate8])  # Set the tip rack for the handler
     asyncio.run(handler.setup())  # Initialize the handler and setup the connection
     from pylabrobot.resources import set_volume_tracking
@@ -1530,17 +1531,17 @@ if __name__ == "__main__":
     
     layout = DefaultLayout("PRCXI9320")
     layout.add_lab_resource(material_info)
-    MatrixLayout_1 = layout.recommend_layout({
-        "96 细胞培养皿": 3,
-        "12道储液槽": 1,
-        "200μL Tip头": 1,
-        "10μL加长 Tip头": 1,
-    })
-    print(MatrixLayout_1)
-    MatrixLayout_2 = layout.recommend_layout({
-        "96深孔板": 4,
-        "12道储液槽": 1,
-        "200μL Tip头": 1,
-        "10μL加长 Tip头": 1,
-    })
+    MatrixLayout_1, dict_1 = layout.recommend_layout([
+        ("reagent_1", "96 细胞培养皿", 3),
+        ("reagent_2", "12道储液槽", 1),
+        ("reagent_3", "200μL Tip头", 7),
+        ("reagent_4", "10μL加长 Tip头", 1),
+    ])
+    print(dict_1)
+    MatrixLayout_2, dict_2 = layout.recommend_layout([
+        ("reagent_1", "96深孔板", 4),
+        ("reagent_2", "12道储液槽", 1),
+        ("reagent_3", "200μL Tip头", 1),
+        ("reagent_4", "10μL加长 Tip头", 1),
+    ])
 
