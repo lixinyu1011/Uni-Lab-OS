@@ -199,22 +199,18 @@ class HostNode(BaseROS2DeviceNode):
                 "children": [],
             },
         )
-        resource_with_parent_name = []
+        resource_with_dirs_name = []
         resource_ids_to_instance = {i["id"]: i for i in resources_config}
-        resource_name_to_with_parent_name = {}
         for res in resources_config:
-            # if res.get("parent") and res.get("type") == "device" and res.get("class"):
-            #     parent_id = res.get("parent")
-            #     parent_res = resource_ids_to_instance[parent_id]
-            #     if parent_res.get("type") == "device" and parent_res.get("class"):
-            #         resource_with_parent_name.append(copy.deepcopy(res))
-            #         resource_name_to_with_parent_name[resource_with_parent_name[-1]["id"]] = f"{parent_res['id']}/{res['id']}"
-            #         resource_with_parent_name[-1]["id"] = f"{parent_res['id']}/{res['id']}"
-            #         continue
-            resource_with_parent_name.append(copy.deepcopy(res))
-        # for edge in self.resources_edge_config:
-        #     edge["source"] = resource_name_to_with_parent_name.get(edge.get("source"), edge.get("source"))
-        #     edge["target"] = resource_name_to_with_parent_name.get(edge.get("target"), edge.get("target"))
+            temp_res = res
+            res_paths = [res]
+            while temp_res.get("parent"):
+                temp_res = resource_ids_to_instance[temp_res.get("parent")]
+                res_paths.append(temp_res)
+            dirs = "/" + "/".join([res["id"] for res in res_paths[::-1]])
+            new_res = copy.deepcopy(res)
+            new_res["data"]["unilabos_dirs"] = dirs
+            resource_with_dirs_name.append(new_res)
         try:
             for bridge in self.bridges:
                 if hasattr(bridge, "resource_add"):
@@ -222,7 +218,12 @@ class HostNode(BaseROS2DeviceNode):
 
                     client: HTTPClient = bridge
                     resource_start_time = time.time()
-                    resource_add_res = client.resource_add(add_schema(resource_with_parent_name), False)
+                    resource_add_res = client.resource_add(add_schema(resources_config), False)
+                    # DEBUG ONLY
+                    # for i in resource_with_dirs_name:
+                    #     http_req = self.bridges[-1].resource_get(i["data"]["unilabos_dirs"], True)
+                    #     res = self._resource_get_process(http_req)
+                    #     print(res)
                     resource_end_time = time.time()
                     self.lab_logger().info(
                         f"[Host Node-Resource] 物料上传 {round(resource_end_time - resource_start_time, 5) * 1000} ms"
@@ -871,6 +872,12 @@ class HostNode(BaseROS2DeviceNode):
         self.lab_logger().info(f"[Host Node-Resource] Add request completed, success: {success}")
         return response
 
+    def _resource_get_process(self, data: Dict[str, Any]):
+        r = data["data"]
+        self.lab_logger().debug(f"[Host Node-Resource] Retrieved from bridge: {len(r)} resources")
+        resources = [convert_to_ros_msg(Resource, resource) for resource in r]
+        return resources
+
     def _resource_get_callback(self, request: ResourceGet.Request, response: ResourceGet.Response):
         """
         获取资源回调
@@ -884,22 +891,14 @@ class HostNode(BaseROS2DeviceNode):
         Returns:
             响应对象，包含查询到的资源
         """
-        self.lab_logger().info(f"[Host Node-Resource] Get request for ID: {request.id}")
-
-        if len(self.bridges) > 0:
-            # 云上物料服务，根据 id 查询物料
-            try:
-                r = self.bridges[-1].resource_get(request.id, request.with_children)["data"]
-                self.lab_logger().debug(f"[Host Node-Resource] Retrieved from bridge: {len(r)} resources")
-            except Exception as e:
-                self.lab_logger().error(f"[Host Node-Resource] Error retrieving from bridge: {str(e)}")
-                r = [resource for resource in self.resources_config if resource.get("id") == request.id]
-                self.lab_logger().warning(f"[Host Node-Resource] Retrieved from local: {len(r)} resources")
-        else:
-            # 本地物料服务，根据 id 查询物料
-            r = [resource for resource in self.resources_config if resource.get("id") == request.id]
-            self.lab_logger().debug(f"[Host Node-Resource] Retrieved from local: {len(r)} resources")
-
+        try:
+            http_req = self.bridges[-1].resource_get(request.id, request.with_children)
+            response.resources = self._resource_get_process(http_req)
+            return response
+        except Exception as e:
+            self.lab_logger().error(f"[Host Node-Resource] Error retrieving from bridge: {str(e)}")
+        r = [resource for resource in self.resources_config if resource.get("id") == request.id]
+        self.lab_logger().debug(f"[Host Node-Resource] Retrieved from local: {len(r)} resources")
         response.resources = [convert_to_ros_msg(Resource, resource) for resource in r]
         return response
 

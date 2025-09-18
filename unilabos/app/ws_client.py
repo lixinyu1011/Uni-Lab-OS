@@ -384,7 +384,7 @@ class MessageProcessor:
         """停止消息处理线程"""
         self.is_running = False
         if self.thread and self.thread.is_alive():
-            self.thread.join(timeout=5)
+            self.thread.join(timeout=2)
         logger.info("[MessageProcessor] Stopped")
 
     def _run(self):
@@ -832,7 +832,7 @@ class QueueProcessor:
         """停止队列处理线程"""
         self.is_running = False
         if self.thread and self.thread.is_alive():
-            self.thread.join(timeout=5)
+            self.thread.join(timeout=2)
         logger.info("[QueueProcessor] Stopped")
 
     def _run(self):

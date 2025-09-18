@@ -6129,7 +6129,7 @@ workstation:
         protocol_type:
           type: string
         resource_tracker:
-          type: string
+          type: object
       required:
       - device_id
       - children
@@ -6171,14 +6171,22 @@ workstation.example:
                 bind_parent_id:
                   type: string
                 liquid_input_slot:
+                  items:
+                    type: integer
                   type: array
                 liquid_type:
+                  items:
+                    type: string
                   type: array
                 liquid_volume:
+                  items:
+                    type: integer
                   type: array
                 resource_tracker:
-                  type: string
+                  type: object
                 resources:
+                  items:
+                    type: object
                   type: array
                 slot_on_deck:
                   type: integer
@@ -6213,9 +6221,9 @@ workstation.example:
             goal:
               properties:
                 base_plate:
-                  type: string
+                  type: object
                 tip_rack:
-                  type: string
+                  type: object
               required:
               - tip_rack
               - base_plate
@@ -6241,9 +6249,9 @@ workstation.example:
             goal:
               properties:
                 from_plate:
-                  type: string
+                  type: object
                 to_base_plate:
-                  type: string
+                  type: object
               required:
               - from_plate
               - to_base_plate
@@ -6271,7 +6279,7 @@ workstation.example:
         protocol_type:
           type: string
         resource_tracker:
-          type: string
+          type: object
       required:
       - device_id
       - children
