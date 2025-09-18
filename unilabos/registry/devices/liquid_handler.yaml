@@ -355,7 +355,6 @@ liquid_handler:
         feedback: {}
         goal:
           blow_out_air_volume: blow_out_air_volume
-          end_delay: end_delay
           flow_rates: flow_rates
           liquid_height: liquid_height
           offsets: offsets
@@ -5833,7 +5832,6 @@ liquid_handler.prcxi:
         feedback: {}
         goal:
           blow_out_air_volume: blow_out_air_volume
-          end_delay: end_delay
           flow_rates: flow_rates
           liquid_height: liquid_height
           offsets: offsets
