@@ -13,6 +13,7 @@ from geometry_msgs.msg import Point
 from rclpy.action import ActionClient, get_action_server_names_and_types_by_node
 from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.service import Service
+from rosidl_runtime_py import set_message_fields
 from unilabos_msgs.msg import Resource  # type: ignore
 from unilabos_msgs.srv import (
     ResourceAdd,
@@ -366,7 +367,7 @@ class HostNode(BaseROS2DeviceNode):
         bind_parent_ids: list[str],
         bind_locations: list[Point],
         other_calling_params: list[str],
-    ):
+    ) -> List[str]:
         responses = []
         for resource, device_id, bind_parent_id, bind_location, other_calling_param in zip(
             resources, device_ids, bind_parent_ids, bind_locations, other_calling_params
@@ -403,8 +404,8 @@ class HostNode(BaseROS2DeviceNode):
                 },
                 ensure_ascii=False,
             )
-            response = await sclient.call_async(request)
-            responses.append(response)
+            response: SerialCommand.Response = await sclient.call_async(request)
+            responses.append(response.response)
         return responses
 
     async def create_resource(
@@ -463,11 +464,23 @@ class HostNode(BaseROS2DeviceNode):
             )
         ]
 
-        response = await self.create_resource_detailed(
+        response: List[str] = await self.create_resource_detailed(
             resources, device_ids, bind_parent_id, bind_location, other_calling_param
         )
 
-        return response
+        try:
+            new_li = []
+            for i in response:
+                res = json.loads(i)
+                new_li.append(res)
+            return {
+                "resources": new_li,
+                "liquid_input_resources": new_li
+            }
+        except Exception as ex:
+            pass
+        _n = "\n"
+        raise ValueError(f"创建资源时失败！\n{_n.join(response)}")
 
     def initialize_device(self, device_id: str, device_config: Dict[str, Any]) -> None:
         """

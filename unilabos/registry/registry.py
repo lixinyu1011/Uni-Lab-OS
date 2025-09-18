@@ -294,7 +294,7 @@ class Registry:
             logger.warning(f"[UniLab Registry] 设备 {device_id} 的 {field_name} 类型为空，跳过替换")
             return type_name
         convert_manager = {  # 将python基本对象转为ros2基本对象
-            "builtins:str": "String",
+            "str": "String",
             "bool": "Bool",
             "int": "Int64",
             "float": "Float64",

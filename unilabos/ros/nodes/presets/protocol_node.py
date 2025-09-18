@@ -218,7 +218,7 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
                             [convert_from_ros_msg(rs) for rs in response.resources]
                         )
 
-                self.lab_logger().info(f"🔍 最终的 vessel: {protocol_kwargs.get('vessel', 'NOT_FOUND')}")
+                # self.lab_logger().info(f"🔍 最终的 vessel: {protocol_kwargs.get('vessel', 'NOT_FOUND')}")
 
                 from unilabos.resources.graphio import physical_setup_graph
 
@@ -325,6 +325,8 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
     async def execute_single_action(self, device_id, action_name, action_kwargs):
         """执行单个动作"""
         # 构建动作ID
+        if action_name == "log_message":
+            self.lab_logger().info(f"[Protocol Log] {action_kwargs}")
         if device_id in ["", None, "self"]:
             action_id = f"/devices/{self.device_id}/{action_name}"
         else:

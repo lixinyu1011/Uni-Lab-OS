@@ -430,7 +430,7 @@ def resource_ulab_to_plr(resource: dict, plr_model=False) -> "ResourcePLR":
     return resource_plr
 
 
-def resource_plr_to_ulab(resource_plr: "ResourcePLR", parent_name: str = None):
+def resource_plr_to_ulab(resource_plr: "ResourcePLR", parent_name: str = None, with_children=True):
     def replace_plr_type_to_ulab(source: str):
         replace_info = {
             "plate": "plate",
@@ -445,12 +445,12 @@ def resource_plr_to_ulab(resource_plr: "ResourcePLR", parent_name: str = None):
         else:
             print("转换pylabrobot的时候，出现未知类型", source)
             return "container"
-    def resource_plr_to_ulab_inner(d: dict, all_states: dict) -> dict:
+    def resource_plr_to_ulab_inner(d: dict, all_states: dict, child=True) -> dict:
         r = {
             "id": d["name"],
             "name": d["name"],
             "sample_id": None,
-            "children": [resource_plr_to_ulab_inner(child, all_states) for child in d["children"]],
+            "children": [resource_plr_to_ulab_inner(child, all_states) for child in d["children"]] if child else [],
             "parent": d["parent_name"] if d["parent_name"] else parent_name if parent_name else None,
             "type": replace_plr_type_to_ulab(d.get("category")),  # FIXME plr自带的type是python class name
             "class": d.get("class", ""),
@@ -465,7 +465,7 @@ def resource_plr_to_ulab(resource_plr: "ResourcePLR", parent_name: str = None):
         return r
     d = resource_plr.serialize()
     all_states = resource_plr.serialize_all_state()
-    r = resource_plr_to_ulab_inner(d, all_states)
+    r = resource_plr_to_ulab_inner(d, all_states, with_children)
 
     return r
 

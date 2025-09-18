@@ -12,6 +12,7 @@ import asyncio
 
 import rclpy
 import yaml
+from msgcenterpy import ROS2MessageInstance
 from rclpy.node import Node
 from rclpy.action import ActionServer, ActionClient
 from rclpy.action.server import ServerGoalHandle
@@ -177,7 +178,7 @@ class PropertyPublisher:
         try:
             self.publisher_ = node.create_publisher(msg_type, f"{name}", 10)
         except AttributeError as ex:
-            logger.error(f"创建发布者失败，可能由于注册表有误，类型: {msg_type}，错误: {ex}\n{traceback.format_exc()}")
+            self.node.lab_logger().error(f"创建发布者 {name} 失败，可能由于注册表有误，类型: {msg_type}，错误: {ex}\n{traceback.format_exc()}")
         self.timer = node.create_timer(self.timer_period, self.publish_property)
         self.__loop = get_event_loop()
         str_msg_type = str(msg_type)[8:-2]
@@ -399,9 +400,13 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                         logger.info(f"更新物料{container_query_dict['name']}的数据{resource['data']} dict")
                     else:
                         logger.info(f"更新物料{container_query_dict['name']}出现不支持的数据类型{type(resource)} {resource}")
-            response = await rclient.call_async(request)
+            response: ResourceAdd.Response = await rclient.call_async(request)
             # 应该先add_resource了
-            res.response = "OK"
+            final_response = {
+                "created_resources": [ROS2MessageInstance(i).get_python_dict() for i in request.resources],
+                "liquid_input_resources": []
+            }
+            res.response = json.dumps(final_response)
             # 如果driver自己就有assign的方法，那就使用driver自己的assign方法
             if hasattr(self.driver_instance, "create_resource"):
                 create_resource_func = getattr(self.driver_instance, "create_resource")
@@ -418,7 +423,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                     )
                     res.response = get_result_info_str("", True, ret)
                 except Exception as e:
-                    traceback.print_exc()
+                    self.lab_logger().error(f"运行设备的create_resource出错：{create_resource_func}\n{traceback.format_exc()}")
                     res.response = get_result_info_str(traceback.format_exc(), False, {})
                 return res
             # 接下来该根据bind_parent_id进行assign了，目前只有plr可以进行assign，不然没有办法输入到物料系统中
@@ -438,6 +443,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                     # resources.list()
                     resources_tree = dict_to_tree(copy.deepcopy({r["id"]: r for r in resources}))
                     plr_instance = resource_ulab_to_plr(resources_tree[0], contain_model)
+
                     if isinstance(plr_instance, Plate):
                         empty_liquid_info_in = [(None, 0)] * plr_instance.num_items
                         for liquid_type, liquid_volume, liquid_input_slot in zip(
@@ -445,6 +451,11 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                         ):
                             empty_liquid_info_in[liquid_input_slot] = (liquid_type, liquid_volume)
                         plr_instance.set_well_liquids(empty_liquid_info_in)
+                        input_wells_ulr = [
+                            convert_to_ros_msg(Resource, resource_plr_to_ulab(plr_instance.get_well(LIQUID_INPUT_SLOT), with_children=False)) for r in LIQUID_INPUT_SLOT
+                        ]
+                        final_response["liquid_input_resources"] = [ROS2MessageInstance(i).get_python_dict() for i in input_wells_ulr]
+                        res.response = json.dumps(final_response)
                     if isinstance(resource, OTDeck) and "slot" in other_calling_param:
                         other_calling_param["slot"] = int(other_calling_param["slot"])
                         resource.assign_child_at_slot(plr_instance, **other_calling_param)
