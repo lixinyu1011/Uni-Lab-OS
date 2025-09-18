@@ -1,0 +1,277 @@
+[
+  {
+    "id": "3a1b5c18-9238-5cd2-9ef7-2482de95f3d5",
+    "name": "123",
+    "sample_id": "0009-00031",
+    "children": [],
+    "parent": "站内Tip头盒堆栈",
+    "type": "container",
+    "class": "TipBox64",
+    "position": {
+      "x": 1,
+      "y": 1,
+      "z": 1
+    },
+    "config": {
+      "barCode": "",
+      "unit": "盒",
+      "status": 1,
+      "max_volume": 1,
+      "available_quantity": 1,
+      "location_info": {
+        "location_id": "3a19deab-d5cc-be1e-5c37-4e9e5a664388",
+        "warehouse_id": "3a19deab-d5cb-e4be-51dc-9c7d68eba113",
+        "warehouse_name": "站内Tip头盒堆栈",
+        "code": "0006-0001",
+        "quantity_at_location": 0
+      }
+    },
+    "data": {
+      "quantity": 1,
+      "lockQuantity": 0,
+      "liquids": [
+        [
+          "123",
+          1
+        ]
+      ],
+      "pending_liquids": [],
+      "liquid_history": []
+    }
+  },
+  {
+    "id": "3a1b5c18-bb55-8523-2108-03229ed0cf7b",
+    "name": "4565",
+    "sample_id": "0009-00032",
+    "children": [],
+    "parent": "站内Tip头盒堆栈",
+    "type": "container",
+    "class": "TipBox64",
+    "position": {
+      "x": 1,
+      "y": 2,
+      "z": 1
+    },
+    "config": {
+      "barCode": "",
+      "unit": "盒",
+      "status": 1,
+      "max_volume": 1,
+      "available_quantity": 1,
+      "location_info": {
+        "location_id": "3a19deab-d5cc-b394-8141-27cb3853e8ea",
+        "warehouse_id": "3a19deab-d5cb-e4be-51dc-9c7d68eba113",
+        "warehouse_name": "站内Tip头盒堆栈",
+        "code": "0006-0002",
+        "quantity_at_location": 0
+      }
+    },
+    "data": {
+      "quantity": 1,
+      "lockQuantity": 0,
+      "liquids": [
+        [
+          "4565",
+          1
+        ]
+      ],
+      "pending_liquids": [],
+      "liquid_history": []
+    }
+  },
+  {
+    "id": "3a1b8aef-8d13-c28a-bf51-e26516ac60b2",
+    "name": "枪头盒3",
+    "sample_id": "0009-00037",
+    "children": [],
+    "parent": "站内Tip头盒堆栈",
+    "type": "container",
+    "class": "TipBox64",
+    "position": {
+      "x": 2,
+      "y": 1,
+      "z": 1
+    },
+    "config": {
+      "barCode": "",
+      "unit": "盒",
+      "status": 1,
+      "max_volume": 1,
+      "available_quantity": 1,
+      "location_info": {
+        "location_id": "3a19deab-d5cc-4dca-596e-ca7414d5f501",
+        "warehouse_id": "3a19deab-d5cb-e4be-51dc-9c7d68eba113",
+        "warehouse_name": "站内Tip头盒堆栈",
+        "code": "0006-0003",
+        "quantity_at_location": 0
+      }
+    },
+    "data": {
+      "quantity": 1,
+      "lockQuantity": 0,
+      "liquids": [
+        [
+          "枪头盒3",
+          1
+        ]
+      ],
+      "pending_liquids": [],
+      "liquid_history": []
+    }
+  },
+  {
+    "id": "3a1b8aef-ace7-c515-fb6b-ac909eabac21",
+    "name": "枪头盒4",
+    "sample_id": "0009-00038",
+    "children": [],
+    "parent": "站内Tip头盒堆栈",
+    "type": "container",
+    "class": "TipBox64",
+    "position": {
+      "x": 2,
+      "y": 2,
+      "z": 1
+    },
+    "config": {
+      "barCode": "",
+      "unit": "盒",
+      "status": 1,
+      "max_volume": 1,
+      "available_quantity": 1,
+      "location_info": {
+        "location_id": "3a19deab-d5cc-9bc0-442b-12d9d59aa62a",
+        "warehouse_id": "3a19deab-d5cb-e4be-51dc-9c7d68eba113",
+        "warehouse_name": "站内Tip头盒堆栈",
+        "code": "0006-0004",
+        "quantity_at_location": 0
+      }
+    },
+    "data": {
+      "quantity": 1,
+      "lockQuantity": 0,
+      "liquids": [
+        [
+          "枪头盒4",
+          1
+        ]
+      ],
+      "pending_liquids": [],
+      "liquid_history": []
+    }
+  },
+  {
+    "id": "3a1bbf38-7555-ff32-2626-2bbb9e22c6d0",
+    "name": "配液瓶(小)",
+    "sample_id": "0002",
+    "children": [],
+    "parent": "3a1bbf38-74de-5616-141a-2916b1767708",
+    "type": "well",
+    "class": "Bottle",
+    "position": {
+      "x": 1,
+      "y": 1,
+      "z": 1
+    },
+    "config": {
+      "detailMaterialId": "3a1bbf38-7550-c45d-7ec6-3415e43dfcb0",
+      "unit": "个",
+      "associateId": null,
+      "max_volume": 1.0,
+      "available_quantity": 0
+    },
+    "data": {
+      "quantity": 1.0,
+      "lockQuantity": 0,
+      "liquids": [
+        [
+          "配液瓶(小)",
+          1.0
+        ]
+      ],
+      "pending_liquids": [],
+      "liquid_history": []
+    }
+  },
+  {
+    "id": "3a1bbf38-74de-5616-141a-2916b1767708",
+    "name": "配液瓶(小)板",
+    "sample_id": "0001-00001",
+    "children": [
+      "3a1bbf38-7555-ff32-2626-2bbb9e22c6d0"
+    ],
+    "parent": "手动堆栈",
+    "type": "container",
+    "class": "BottleRack",
+    "position": {
+      "x": 5,
+      "y": 3,
+      "z": 1
+    },
+    "config": {
+      "barCode": null,
+      "unit": "块",
+      "status": 1,
+      "max_volume": 1,
+      "available_quantity": 1,
+      "location_info": {
+        "location_id": "3a19deae-2c7a-b163-2219-23df15200311",
+        "warehouse_id": "3a19deae-2c79-05a3-9c76-8e6760424841",
+        "warehouse_name": "手动堆栈",
+        "code": "15",
+        "quantity_at_location": 0
+      }
+    },
+    "data": {
+      "quantity": 1,
+      "lockQuantity": 0,
+      "liquids": [
+        [
+          "配液瓶(小)板",
+          1
+        ]
+      ],
+      "pending_liquids": [],
+      "liquid_history": []
+    }
+  },
+  {
+    "id": "3a1bbf38-79d6-0ef0-4fcc-5852ed042885",
+    "name": "适配器块",
+    "sample_id": "0018-00025",
+    "children": [],
+    "parent": "适配器位仓库",
+    "type": "container",
+    "class": "Block",
+    "position": {
+      "x": 1,
+      "y": 1,
+      "z": 1
+    },
+    "config": {
+      "barCode": null,
+      "unit": "块",
+      "status": 1,
+      "max_volume": 1,
+      "available_quantity": 1,
+      "location_info": {
+        "location_id": "3a1abd46-18fe-1f56-6ced-a1f7fe08e36c",
+        "warehouse_id": "3a1abd46-18fb-7bf7-847d-01b359586436",
+        "warehouse_name": "适配器位仓库",
+        "code": "0014-0001",
+        "quantity_at_location": 0
+      }
+    },
+    "data": {
+      "quantity": 1,
+      "lockQuantity": 0,
+      "liquids": [
+        [
+          "适配器块",
+          1
+        ]
+      ],
+      "pending_liquids": [],
+      "liquid_history": []
+    }
+  }
+]
