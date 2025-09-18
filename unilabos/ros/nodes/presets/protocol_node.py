@@ -191,12 +191,11 @@ class ROS2ProtocolNode(BaseROS2DeviceNode):
             execution_error = ""
             execution_success = False
             protocol_return_value = None
-            self.get_logger().info(f"Executing {protocol_name} action...")
+            self.lab_logger().info(f"Executing {protocol_name} action...")
             action_value_mapping = self._action_value_mappings[protocol_name]
             step_results = []
             try:
-                print("+" * 30)
-                print(protocol_steps_generator)
+                self.lab_logger().warning("+" * 30)
                 # 从目标消息中提取参数, 并调用Protocol生成器(根据设备连接图)生成action步骤
                 goal = goal_handle.request
                 protocol_kwargs = convert_from_ros_msg_with_mapping(goal, action_value_mapping["goal"])

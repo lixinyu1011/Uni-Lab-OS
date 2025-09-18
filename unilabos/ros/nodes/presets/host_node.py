@@ -636,11 +636,8 @@ class HostNode(BaseROS2DeviceNode):
         向设备发送目标请求
 
         Args:
-            device_id: 设备ID
             action_type: 动作类型
-            action_name: 动作名称
             action_kwargs: 动作参数
-            goal_uuid: 目标UUID，如果为None则自动生成
             server_info: 服务器发送信息，包含发送时间戳等
         """
         u = uuid.UUID(item.job_id)

@@ -169,7 +169,7 @@ def generate_add_protocol(
                 
                 # 固体加样
                 add_kwargs = {
-                    "vessel": vessel_id,  # 🔧 使用 vessel_id
+                    "vessel": {"id": vessel_id},  # 🔧 使用 vessel_id
                     "reagent": reagent,
                     "purpose": purpose,
                     "event": event,
