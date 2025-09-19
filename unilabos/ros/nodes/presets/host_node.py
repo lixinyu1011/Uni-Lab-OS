@@ -13,6 +13,7 @@ from geometry_msgs.msg import Point
 from rclpy.action import ActionClient, get_action_server_names_and_types_by_node
 from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.service import Service
+from rosidl_runtime_py import set_message_fields
 from unilabos_msgs.msg import Resource  # type: ignore
 from unilabos_msgs.srv import (
     ResourceAdd,
@@ -24,8 +25,6 @@ from unilabos_msgs.srv import (
 )  # type: ignore
 from unique_identifier_msgs.msg import UUID
 
-from unilabos.app.register import register_devices_and_resources
-from unilabos.config.config import BasicConfig
 from unilabos.registry.registry import lab_registry
 from unilabos.resources.graphio import initialize_resource
 from unilabos.resources.registry import add_schema
@@ -163,15 +162,6 @@ class HostNode(BaseROS2DeviceNode):
 
         self.device_status = {}  # 用来存储设备状态
         self.device_status_timestamps = {}  # 用来存储设备状态最后更新时间
-        if BasicConfig.upload_registry:
-            from unilabos.app.communication import get_communication_client
-
-            comm_client = get_communication_client()
-            register_devices_and_resources(comm_client, lab_registry)
-        else:
-            self.lab_logger().warning(
-                "本次启动注册表不报送云端，如果您需要联网调试，请使用unilab-register命令进行单独报送，或者在启动命令增加--upload_registry"
-            )
         time.sleep(1)  # 等待通信连接稳定
         # 首次发现网络中的设备
         self._discover_devices()
@@ -210,22 +200,18 @@ class HostNode(BaseROS2DeviceNode):
                 "children": [],
             },
         )
-        resource_with_parent_name = []
+        resource_with_dirs_name = []
         resource_ids_to_instance = {i["id"]: i for i in resources_config}
-        resource_name_to_with_parent_name = {}
         for res in resources_config:
-            # if res.get("parent") and res.get("type") == "device" and res.get("class"):
-            #     parent_id = res.get("parent")
-            #     parent_res = resource_ids_to_instance[parent_id]
-            #     if parent_res.get("type") == "device" and parent_res.get("class"):
-            #         resource_with_parent_name.append(copy.deepcopy(res))
-            #         resource_name_to_with_parent_name[resource_with_parent_name[-1]["id"]] = f"{parent_res['id']}/{res['id']}"
-            #         resource_with_parent_name[-1]["id"] = f"{parent_res['id']}/{res['id']}"
-            #         continue
-            resource_with_parent_name.append(copy.deepcopy(res))
-        # for edge in self.resources_edge_config:
-        #     edge["source"] = resource_name_to_with_parent_name.get(edge.get("source"), edge.get("source"))
-        #     edge["target"] = resource_name_to_with_parent_name.get(edge.get("target"), edge.get("target"))
+            temp_res = res
+            res_paths = [res]
+            while temp_res.get("parent"):
+                temp_res = resource_ids_to_instance[temp_res.get("parent")]
+                res_paths.append(temp_res)
+            dirs = "/" + "/".join([res["id"] for res in res_paths[::-1]])
+            new_res = copy.deepcopy(res)
+            new_res["data"]["unilabos_dirs"] = dirs
+            resource_with_dirs_name.append(new_res)
         try:
             for bridge in self.bridges:
                 if hasattr(bridge, "resource_add"):
@@ -233,12 +219,17 @@ class HostNode(BaseROS2DeviceNode):
 
                     client: HTTPClient = bridge
                     resource_start_time = time.time()
-                    resource_add_res = client.resource_add(add_schema(resource_with_parent_name), False)
+                    resource_add_res = client.resource_add(add_schema(resources_config))
+                    # DEBUG ONLY
+                    # for i in resource_with_dirs_name:
+                    #     http_req = self.bridges[-1].resource_get(i["data"]["unilabos_dirs"], True)
+                    #     res = self._resource_get_process(http_req)
+                    #     print(res)
                     resource_end_time = time.time()
                     self.lab_logger().info(
                         f"[Host Node-Resource] 物料上传 {round(resource_end_time - resource_start_time, 5) * 1000} ms"
                     )
-                    resource_add_res = client.resource_edge_add(self.resources_edge_config, False)
+                    resource_add_res = client.resource_edge_add(self.resources_edge_config)
                     resource_edge_end_time = time.time()
                     self.lab_logger().info(
                         f"[Host Node-Resource] 物料关系上传 {round(resource_edge_end_time - resource_end_time, 5) * 1000} ms"
@@ -376,7 +367,7 @@ class HostNode(BaseROS2DeviceNode):
         bind_parent_ids: list[str],
         bind_locations: list[Point],
         other_calling_params: list[str],
-    ):
+    ) -> List[str]:
         responses = []
         for resource, device_id, bind_parent_id, bind_location, other_calling_param in zip(
             resources, device_ids, bind_parent_ids, bind_locations, other_calling_params
@@ -413,8 +404,8 @@ class HostNode(BaseROS2DeviceNode):
                 },
                 ensure_ascii=False,
             )
-            response = await sclient.call_async(request)
-            responses.append(response)
+            response: SerialCommand.Response = await sclient.call_async(request)
+            responses.append(response.response)
         return responses
 
     async def create_resource(
@@ -473,11 +464,23 @@ class HostNode(BaseROS2DeviceNode):
             )
         ]
 
-        response = await self.create_resource_detailed(
+        response: List[str] = await self.create_resource_detailed(
             resources, device_ids, bind_parent_id, bind_location, other_calling_param
         )
 
-        return response
+        try:
+            new_li = []
+            for i in response:
+                res = json.loads(i)
+                new_li.append(res)
+            return {
+                "resources": new_li,
+                "liquid_input_resources": new_li
+            }
+        except Exception as ex:
+            pass
+        _n = "\n"
+        raise ValueError(f"创建资源时失败！\n{_n.join(response)}")
 
     def initialize_device(self, device_id: str, device_config: Dict[str, Any]) -> None:
         """
@@ -633,11 +636,8 @@ class HostNode(BaseROS2DeviceNode):
         向设备发送目标请求
 
         Args:
-            device_id: 设备ID
             action_type: 动作类型
-            action_name: 动作名称
             action_kwargs: 动作参数
-            goal_uuid: 目标UUID，如果为None则自动生成
             server_info: 服务器发送信息，包含发送时间戳等
         """
         u = uuid.UUID(item.job_id)
@@ -713,22 +713,24 @@ class HostNode(BaseROS2DeviceNode):
         return_info_str = result_data.get("return_info")
         if return_info_str is not None:
             try:
-                ret = json.loads(return_info_str)
-                suc = ret.get("suc", False)
+                return_info = json.loads(return_info_str)
+                suc = return_info.get("suc", False)
                 if not suc:
                     status = "failed"
             except json.JSONDecodeError:
                 status = "failed"
+                return_info = serialize_result_info("", False, result_data)
+                self.lab_logger().critical("错误的return_info类型，请断点修复")
         else:
             # 无 return_info 字段时，回退到 success 字段（若存在）
             suc_field = result_data.get("success")
             if isinstance(suc_field, bool):
                 status = "success" if suc_field else "failed"
-                return_info_str = serialize_result_info("", suc_field, result_data)
+                return_info = serialize_result_info("", suc_field, result_data)
             else:
                 # 最保守的回退：标记失败并返回空JSON
                 status = "failed"
-                return_info_str = serialize_result_info("缺少return_info", False, result_data)
+                return_info = serialize_result_info("缺少return_info", False, result_data)
 
         self.lab_logger().info(f"[Host Node] Result for {action_id} ({job_id}): {status}")
         self.lab_logger().debug(f"[Host Node] Result data: {result_data}")
@@ -736,7 +738,7 @@ class HostNode(BaseROS2DeviceNode):
         if job_id:
             for bridge in self.bridges:
                 if hasattr(bridge, "publish_job_status"):
-                    bridge.publish_job_status(result_data, item, status, return_info_str)
+                    bridge.publish_job_status(result_data, item, status, return_info)
 
     def cancel_goal(self, goal_uuid: str) -> None:
         """取消目标"""
@@ -863,7 +865,7 @@ class HostNode(BaseROS2DeviceNode):
             from unilabos.app.web.client import HTTPClient
 
             client: HTTPClient = self.bridges[-1]
-            r = client.resource_add(add_schema(resources), False)
+            r = client.resource_add(add_schema(resources))
             success = bool(r)
 
         response.success = success
@@ -880,6 +882,12 @@ class HostNode(BaseROS2DeviceNode):
         self.lab_logger().info(f"[Host Node-Resource] Add request completed, success: {success}")
         return response
 
+    def _resource_get_process(self, data: Dict[str, Any]):
+        r = data["data"]
+        self.lab_logger().debug(f"[Host Node-Resource] Retrieved from bridge: {len(r)} resources")
+        resources = [convert_to_ros_msg(Resource, resource) for resource in r]
+        return resources
+
     def _resource_get_callback(self, request: ResourceGet.Request, response: ResourceGet.Response):
         """
         获取资源回调
@@ -893,22 +901,14 @@ class HostNode(BaseROS2DeviceNode):
         Returns:
             响应对象，包含查询到的资源
         """
-        self.lab_logger().info(f"[Host Node-Resource] Get request for ID: {request.id}")
-
-        if len(self.bridges) > 0:
-            # 云上物料服务，根据 id 查询物料
-            try:
-                r = self.bridges[-1].resource_get(request.id, request.with_children)["data"]
-                self.lab_logger().debug(f"[Host Node-Resource] Retrieved from bridge: {len(r)} resources")
-            except Exception as e:
-                self.lab_logger().error(f"[Host Node-Resource] Error retrieving from bridge: {str(e)}")
-                r = [resource for resource in self.resources_config if resource.get("id") == request.id]
-                self.lab_logger().warning(f"[Host Node-Resource] Retrieved from local: {len(r)} resources")
-        else:
-            # 本地物料服务，根据 id 查询物料
-            r = [resource for resource in self.resources_config if resource.get("id") == request.id]
-            self.lab_logger().debug(f"[Host Node-Resource] Retrieved from local: {len(r)} resources")
-
+        try:
+            http_req = self.bridges[-1].resource_get(request.id, request.with_children)
+            response.resources = self._resource_get_process(http_req)
+            return response
+        except Exception as e:
+            self.lab_logger().error(f"[Host Node-Resource] Error retrieving from bridge: {str(e)}")
+        r = [resource for resource in self.resources_config if resource.get("id") == request.id]
+        self.lab_logger().debug(f"[Host Node-Resource] Retrieved from local: {len(r)} resources")
         response.resources = [convert_to_ros_msg(Resource, resource) for resource in r]
         return response
 

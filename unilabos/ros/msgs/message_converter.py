@@ -195,7 +195,7 @@ _msg_converter_back: Dict[Type, Any] = {
         "children": list(x.children),
         "parent": x.parent if x.parent else None,
         "type": x.type,
-        "class": x.category,
+        "class": "",
         "position": {"x": x.pose.position.x, "y": x.pose.position.y, "z": x.pose.position.z},
         "config": json_or_yaml_loads(x.config or "{}"),
         "data": json_or_yaml_loads(x.data or "{}"),

@@ -355,7 +355,6 @@ liquid_handler:
         feedback: {}
         goal:
           blow_out_air_volume: blow_out_air_volume
-          end_delay: end_delay
           flow_rates: flow_rates
           liquid_height: liquid_height
           offsets: offsets
@@ -652,6 +651,38 @@ liquid_handler:
           title: iter_tips参数
           type: object
         type: UniLabJsonCommand
+      auto-set_group:
+        feedback: {}
+        goal: {}
+        goal_default:
+          group_name: null
+          volumes: null
+          wells: null
+        handles: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                group_name:
+                  type: string
+                volumes:
+                  type: string
+                wells:
+                  type: string
+              required:
+              - group_name
+              - wells
+              - volumes
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_group参数
+          type: object
+        type: UniLabJsonCommand
       auto-set_tiprack:
         feedback: {}
         goal: {}
@@ -698,6 +729,38 @@ liquid_handler:
           required:
           - goal
           title: touch_tip参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-transfer_group:
+        feedback: {}
+        goal: {}
+        goal_default:
+          source_group_name: null
+          target_group_name: null
+          unit_volume: null
+        handles: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                source_group_name:
+                  type: string
+                target_group_name:
+                  type: string
+                unit_volume:
+                  type: number
+              required:
+              - source_group_name
+              - target_group_name
+              - unit_volume
+              type: object
+            result: {}
+          required:
+          - goal
+          title: transfer_group参数
           type: object
         type: UniLabJsonCommandAsync
       discard_tips:
@@ -4444,14 +4507,22 @@ liquid_handler.biomek:
                 bind_parent_id:
                   type: string
                 liquid_input_slot:
+                  items:
+                    type: integer
                   type: array
                 liquid_type:
+                  items:
+                    type: string
                   type: array
                 liquid_volume:
+                  items:
+                    type: integer
                   type: array
                 resource_tracker:
-                  type: string
+                  type: object
                 resources:
+                  items:
+                    type: object
                   type: array
                 slot_on_deck:
                   type: integer
@@ -4495,10 +4566,16 @@ liquid_handler.biomek:
                 id:
                   type: string
                 liquid_input_wells:
+                  items:
+                    type: string
                   type: array
                 liquid_type:
+                  items:
+                    type: string
                   type: array
                 liquid_volume:
+                  items:
+                    type: integer
                   type: array
                 parent:
                   type: string
@@ -5755,7 +5832,6 @@ liquid_handler.prcxi:
         feedback: {}
         goal:
           blow_out_air_volume: blow_out_air_volume
-          end_delay: end_delay
           flow_rates: flow_rates
           liquid_height: liquid_height
           offsets: offsets
@@ -5975,6 +6051,8 @@ liquid_handler.prcxi:
               properties:
                 none_keys:
                   default: []
+                  items:
+                    type: string
                   type: array
                 protocol_author:
                   default: ''
@@ -6075,7 +6153,7 @@ liquid_handler.prcxi:
                   default: 0
                   type: number
                 well:
-                  type: string
+                  type: object
               required:
               - well
               type: object
@@ -7226,6 +7304,151 @@ liquid_handler.prcxi:
           title: LiquidHandlerRemove
           type: object
         type: LiquidHandlerRemove
+      set_group:
+        feedback: {}
+        goal:
+          group_name: group_name
+          volumes: volumes
+          wells: wells
+        goal_default:
+          group_name: ''
+          volumes:
+          - 0.0
+          wells:
+          - category: ''
+            children: []
+            config: ''
+            data: ''
+            id: ''
+            name: ''
+            parent: ''
+            pose:
+              orientation:
+                w: 1.0
+                x: 0.0
+                y: 0.0
+                z: 0.0
+              position:
+                x: 0.0
+                y: 0.0
+                z: 0.0
+            sample_id: ''
+            type: ''
+        handles: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback:
+              properties: {}
+              required: []
+              title: LiquidHandlerSetGroup_Feedback
+              type: object
+            goal:
+              properties:
+                group_name:
+                  type: string
+                volumes:
+                  items:
+                    type: number
+                  type: array
+                wells:
+                  items:
+                    properties:
+                      category:
+                        type: string
+                      children:
+                        items:
+                          type: string
+                        type: array
+                      config:
+                        type: string
+                      data:
+                        type: string
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      parent:
+                        type: string
+                      pose:
+                        properties:
+                          orientation:
+                            properties:
+                              w:
+                                type: number
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            - w
+                            title: orientation
+                            type: object
+                          position:
+                            properties:
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            title: position
+                            type: object
+                        required:
+                        - position
+                        - orientation
+                        title: pose
+                        type: object
+                      sample_id:
+                        type: string
+                      type:
+                        type: string
+                    required:
+                    - id
+                    - name
+                    - sample_id
+                    - children
+                    - parent
+                    - type
+                    - category
+                    - pose
+                    - config
+                    - data
+                    title: wells
+                    type: object
+                  type: array
+              required:
+              - group_name
+              - wells
+              - volumes
+              title: LiquidHandlerSetGroup_Goal
+              type: object
+            result:
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: LiquidHandlerSetGroup_Result
+              type: object
+          required:
+          - goal
+          title: LiquidHandlerSetGroup
+          type: object
+        type: LiquidHandlerSetGroup
       set_liquid:
         feedback: {}
         goal:
@@ -7601,6 +7824,56 @@ liquid_handler.prcxi:
           title: Transfer
           type: object
         type: Transfer
+      transfer_group:
+        feedback: {}
+        goal:
+          source_group_name: source_group_name
+          target_group_name: target_group_name
+          unit_volume: unit_volume
+        goal_default:
+          source_group_name: ''
+          target_group_name: ''
+          unit_volume: 0.0
+        handles: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback:
+              properties: {}
+              required: []
+              title: LiquidHandlerTransferGroup_Feedback
+              type: object
+            goal:
+              properties:
+                source_group_name:
+                  type: string
+                target_group_name:
+                  type: string
+                unit_volume:
+                  type: number
+              required:
+              - source_group_name
+              - target_group_name
+              - unit_volume
+              title: LiquidHandlerTransferGroup_Goal
+              type: object
+            result:
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: LiquidHandlerTransferGroup_Result
+              type: object
+          required:
+          - goal
+          title: LiquidHandlerTransferGroup
+          type: object
+        type: LiquidHandlerTransferGroup
       transfer_liquid:
         feedback: {}
         goal:
@@ -8099,7 +8372,7 @@ liquid_handler.prcxi:
           default: false
           type: string
         deck:
-          type: string
+          type: object
         host:
           type: string
         matrix_id:

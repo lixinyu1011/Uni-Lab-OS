@@ -1,0 +1,170 @@
+{
+  "data": [
+    {
+      "id": "3a1b5c18-9238-5cd2-9ef7-2482de95f3d5",
+      "typeName": "枪头盒",
+      "code": "0009-00031",
+      "barCode": "",
+      "name": "123",
+      "quantity": 1,
+      "lockQuantity": 0,
+      "unit": "盒",
+      "status": 1,
+      "isUse": false,
+      "locations": [
+        {
+          "id": "3a19deab-d5cc-be1e-5c37-4e9e5a664388",
+          "whid": "3a19deab-d5cb-e4be-51dc-9c7d68eba113",
+          "whName": "站内Tip头盒堆栈",
+          "code": "0006-0001",
+          "x": 1,
+          "y": 1,
+          "z": 1,
+          "quantity": 0
+        }
+      ],
+      "detail": []
+    },
+    {
+      "id": "3a1b5c18-bb55-8523-2108-03229ed0cf7b",
+      "typeName": "枪头盒",
+      "code": "0009-00032",
+      "barCode": "",
+      "name": "4565",
+      "quantity": 1,
+      "lockQuantity": 0,
+      "unit": "盒",
+      "status": 1,
+      "isUse": false,
+      "locations": [
+        {
+          "id": "3a19deab-d5cc-b394-8141-27cb3853e8ea",
+          "whid": "3a19deab-d5cb-e4be-51dc-9c7d68eba113",
+          "whName": "站内Tip头盒堆栈",
+          "code": "0006-0002",
+          "x": 1,
+          "y": 2,
+          "z": 1,
+          "quantity": 0
+        }
+      ],
+      "detail": []
+    },
+    {
+      "id": "3a1b8aef-8d13-c28a-bf51-e26516ac60b2",
+      "typeName": "枪头盒",
+      "code": "0009-00037",
+      "barCode": "",
+      "name": "枪头盒3",
+      "quantity": 1,
+      "lockQuantity": 0,
+      "unit": "盒",
+      "status": 1,
+      "isUse": false,
+      "locations": [
+        {
+          "id": "3a19deab-d5cc-4dca-596e-ca7414d5f501",
+          "whid": "3a19deab-d5cb-e4be-51dc-9c7d68eba113",
+          "whName": "站内Tip头盒堆栈",
+          "code": "0006-0003",
+          "x": 2,
+          "y": 1,
+          "z": 1,
+          "quantity": 0
+        }
+      ],
+      "detail": []
+    },
+    {
+      "id": "3a1b8aef-ace7-c515-fb6b-ac909eabac21",
+      "typeName": "枪头盒",
+      "code": "0009-00038",
+      "barCode": "",
+      "name": "枪头盒4",
+      "quantity": 1,
+      "lockQuantity": 0,
+      "unit": "盒",
+      "status": 1,
+      "isUse": false,
+      "locations": [
+        {
+          "id": "3a19deab-d5cc-9bc0-442b-12d9d59aa62a",
+          "whid": "3a19deab-d5cb-e4be-51dc-9c7d68eba113",
+          "whName": "站内Tip头盒堆栈",
+          "code": "0006-0004",
+          "x": 2,
+          "y": 2,
+          "z": 1,
+          "quantity": 0
+        }
+      ],
+      "detail": []
+    },
+    {
+      "id": "3a1bbf38-74de-5616-141a-2916b1767708",
+      "typeName": "配液瓶(小)板",
+      "code": "0001-00001",
+      "barCode": null,
+      "name": "配液瓶(小)板",
+      "quantity": 1,
+      "lockQuantity": 0,
+      "unit": "块",
+      "status": 1,
+      "isUse": false,
+      "locations": [
+        {
+          "id": "3a19deae-2c7a-b163-2219-23df15200311",
+          "whid": "3a19deae-2c79-05a3-9c76-8e6760424841",
+          "whName": "手动堆栈",
+          "code": "15",
+          "x": 5,
+          "y": 3,
+          "z": 1,
+          "quantity": 0
+        }
+      ],
+      "detail": [
+        {
+          "id": "3a1bbf38-7555-ff32-2626-2bbb9e22c6d0",
+          "detailMaterialId": "3a1bbf38-7550-c45d-7ec6-3415e43dfcb0",
+          "code": "0002",
+          "name": "配液瓶(小)",
+          "quantity": "1",
+          "unit": "个",
+          "x": 1,
+          "y": 1,
+          "z": 1,
+          "associateId": null
+        }
+      ]
+    },
+    {
+      "id": "3a1bbf38-79d6-0ef0-4fcc-5852ed042885",
+      "typeName": "适配器块",
+      "code": "0018-00025",
+      "barCode": null,
+      "name": "适配器块",
+      "quantity": 1,
+      "lockQuantity": 0,
+      "unit": "块",
+      "status": 1,
+      "isUse": false,
+      "locations": [
+        {
+          "id": "3a1abd46-18fe-1f56-6ced-a1f7fe08e36c",
+          "whid": "3a1abd46-18fb-7bf7-847d-01b359586436",
+          "whName": "适配器位仓库",
+          "code": "0014-0001",
+          "x": 1,
+          "y": 1,
+          "z": 1,
+          "quantity": 0
+        }
+      ],
+      "detail": []
+    }
+  ],
+  "code": 1,
+  "message": "",
+  "timestamp": 1757942039230
+}

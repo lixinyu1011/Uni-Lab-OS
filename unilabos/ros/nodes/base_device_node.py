@@ -5,13 +5,18 @@ import threading
 import time
 import traceback
 import uuid
+<<<<<<< HEAD
 from typing import List, get_type_hints, TypeVar, Generic, Dict, Any, Type, TypedDict, Optional
+=======
+from typing import get_type_hints, TypeVar, Generic, Dict, Any, Type, TypedDict, Optional, List, Union
+>>>>>>> 4dceffabfd7213a881059ac54fa633e600466550
 
 from concurrent.futures import ThreadPoolExecutor
 import asyncio
 
 import rclpy
 import yaml
+from msgcenterpy import ROS2MessageInstance
 from rclpy.node import Node
 from rclpy.action import ActionServer, ActionClient
 from rclpy.action.server import ServerGoalHandle
@@ -53,7 +58,7 @@ from unilabos.ros.x.rclpyx import get_event_loop
 from unilabos.ros.utils.driver_creator import WorkstationNodeCreator, PyLabRobotCreator, DeviceClassCreator
 from unilabos.utils.async_util import run_async_func
 from unilabos.utils.log import info, debug, warning, error, critical, logger, trace
-from unilabos.utils.type_check import get_type_class, TypeEncoder, serialize_result_info
+from unilabos.utils.type_check import get_type_class, TypeEncoder, serialize_result_info, get_result_info_str
 
 T = TypeVar("T")
 
@@ -177,7 +182,7 @@ class PropertyPublisher:
         try:
             self.publisher_ = node.create_publisher(msg_type, f"{name}", 10)
         except AttributeError as ex:
-            logger.error(f"创建发布者失败，可能由于注册表有误，类型: {msg_type}，错误: {ex}\n{traceback.format_exc()}")
+            self.node.lab_logger().error(f"创建发布者 {name} 失败，可能由于注册表有误，类型: {msg_type}，错误: {ex}\n{traceback.format_exc()}")
         self.timer = node.create_timer(self.timer_period, self.publish_property)
         self.__loop = get_event_loop()
         str_msg_type = str(msg_type)[8:-2]
@@ -396,9 +401,17 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                         logger.info(f"更新物料{container_query_dict['name']}的数据{parent['data']} dict")
                     else:
                         logger.info(f"更新物料{container_query_dict['name']}出现不支持的数据类型{type(parent)} {parent}")
+<<<<<<< HEAD
             response = await rclient.call_async(request)
+=======
+            response: ResourceAdd.Response = await rclient.call_async(request)
+>>>>>>> 4dceffabfd7213a881059ac54fa633e600466550
             # 应该先add_resource了
-            res.response = "OK"
+            final_response = {
+                "created_resources": [ROS2MessageInstance(i).get_python_dict() for i in request.resources],
+                "liquid_input_resources": []
+            }
+            res.response = json.dumps(final_response)
             # 如果driver自己就有assign的方法，那就使用driver自己的assign方法
             if hasattr(self.driver_instance, "create_resource"):
                 create_resource_func = getattr(self.driver_instance, "create_resource")
@@ -413,10 +426,10 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                         liquid_volume=LIQUID_VOLUME,
                         slot_on_deck=slot,
                     )
-                    res.response = serialize_result_info("", True, ret)
+                    res.response = get_result_info_str("", True, ret)
                 except Exception as e:
-                    traceback.print_exc()
-                    res.response = serialize_result_info(traceback.format_exc(), False, {})
+                    self.lab_logger().error(f"运行设备的create_resource出错：{create_resource_func}\n{traceback.format_exc()}")
+                    res.response = get_result_info_str(traceback.format_exc(), False, {})
                 return res
             # 接下来该根据bind_parent_id进行assign了，目前只有plr可以进行assign，不然没有办法输入到物料系统中
             if bind_parent_id != self.node_name:
@@ -433,6 +446,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                     # resources.list()
                     resources_tree = dict_to_tree(copy.deepcopy({r["id"]: r for r in resources}))
                     plr_instance = resource_ulab_to_plr(resources_tree[0], contain_model)
+
                     if isinstance(plr_instance, Plate):
                         empty_liquid_info_in = [(None, 0)] * plr_instance.num_items
                         for liquid_type, liquid_volume, liquid_input_slot in zip(
@@ -440,6 +454,14 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                         ):
                             empty_liquid_info_in[liquid_input_slot] = (liquid_type, liquid_volume)
                         plr_instance.set_well_liquids(empty_liquid_info_in)
+<<<<<<< HEAD
+=======
+                        input_wells_ulr = [
+                            convert_to_ros_msg(Resource, resource_plr_to_ulab(plr_instance.get_well(LIQUID_INPUT_SLOT), with_children=False)) for r in LIQUID_INPUT_SLOT
+                        ]
+                        final_response["liquid_input_resources"] = [ROS2MessageInstance(i).get_python_dict() for i in input_wells_ulr]
+                        res.response = json.dumps(final_response)
+>>>>>>> 4dceffabfd7213a881059ac54fa633e600466550
                     if isinstance(parent, OTDeck) and "slot" in other_calling_param:
                         other_calling_param["slot"] = int(other_calling_param["slot"])
                         parent.assign_child_at_slot(plr_instance, **other_calling_param)
@@ -670,7 +692,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                 for k, v in goal.get_fields_and_field_types().items():
                     if v in ["unilabos_msgs/Resource", "sequence<unilabos_msgs/Resource>"]:
                         self.lab_logger().info(f"查询资源状态: Key: {k} Type: {v}")
-                        current_resources = []
+                        current_resources: Union[List[Resource], List[List[Resource]]] = []
                         # TODO: resource后面需要分组
                         only_one_resource = False
                         try:
@@ -680,7 +702,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                                     r.id = i["id"]  # splash optional
                                     r.with_children = True
                                     response = await self._resource_clients["resource_get"].call_async(r)
-                                    current_resources.extend(response.resources)
+                                    current_resources.append(response.resources)
                             else:
                                 only_one_resource = True
                                 r = ResourceGet.Request()
@@ -695,17 +717,18 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                         except Exception:
                             logger.error(f"资源查询失败，默认使用本地资源")
                         # 删除对response.resources的检查，因为它总是存在
-                        resources_list = [convert_from_ros_msg(rs) for rs in current_resources]  # type: ignore  # FIXME
-                        self.lab_logger().debug(f"资源查询结果: {len(resources_list)} 个资源")
                         type_hint = action_paramtypes[k]
                         final_type = get_type_class(type_hint)
-                        # 判断 ACTION 是否需要特殊的物料类型如 pylabrobot.resources.Resource，并做转换
                         if only_one_resource:
+                            resources_list: List[Dict[str, Any]] = [convert_from_ros_msg(rs) for rs in current_resources]  # type: ignore
+                            self.lab_logger().debug(f"资源查询结果: {len(resources_list)} 个资源")
                             final_resource = convert_resources_to_type(resources_list, final_type)
+                        # 判断 ACTION 是否需要特殊的物料类型如 pylabrobot.resources.Resource，并做转换
                         else:
-                            final_resource = [convert_resources_to_type([i], final_type)[0] for i in resources_list]
+                            resources_list: List[List[Dict[str, Any]]] = [[convert_from_ros_msg(rs) for rs in sub_res_list] for sub_res_list in current_resources]  # type: ignore
+                            final_resource = [convert_resources_to_type(sub_res_list, final_type)[0] for sub_res_list in resources_list]
                         try:
-                            action_kwargs[k] = self.resource_tracker.figure_resource(final_resource, try_mode=True)
+                            action_kwargs[k] = self.resource_tracker.figure_resource(final_resource, try_mode=False)
                         except Exception as e:
                             self.lab_logger().error(f"物料实例获取失败: {e}\n{traceback.format_exc()}")
                             error_skip = True
@@ -845,7 +868,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                 if attr_name in ["success", "reached_goal"]:
                     setattr(result_msg, attr_name, True)
                 elif attr_name == "return_info":
-                    setattr(result_msg, attr_name, serialize_result_info(execution_error, execution_success, action_return_value))
+                    setattr(result_msg, attr_name, get_result_info_str(execution_error, execution_success, action_return_value))
 
             ##### self.lab_logger().info(f"动作 {action_name} 完成并返回结果")
             return result_msg

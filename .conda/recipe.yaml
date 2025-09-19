@@ -1,6 +1,6 @@
 package:
   name: unilabos
-  version: 0.10.4
+  version: 0.10.5
 
 source:
   path: ../unilabos
@@ -10,7 +10,6 @@ build:
   python:
     entry_points:
      - unilab = unilabos.app.main:main
-     - unilab-register = unilabos.app.register:main
   script:
   - set PIP_NO_INDEX=
   - if: win

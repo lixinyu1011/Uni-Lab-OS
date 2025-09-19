@@ -160,7 +160,11 @@ class WorkstationBase(ABC):
         self.plr_resources: Dict[str, PLRResource] = {}
 
         # 资源同步器（可选）
+<<<<<<< HEAD
         # self.resource_synchronizer = ResourceSynchronizer(self)  # 要在driver中自行初始化，只有workstation用
+=======
+        self.resource_synchronizer = ResourceSynchronizer(self)  # 要在driver中自行初始化，只有workstation用
+>>>>>>> 4dceffabfd7213a881059ac54fa633e600466550
 
         # 硬件接口
         self.hardware_interface: Union[Any, str] = None
@@ -178,15 +182,22 @@ class WorkstationBase(ABC):
         self._initialize_material_system()
 
         # 注册支持的工作流
+<<<<<<< HEAD
         # self._register_supported_workflows()
 
         # logger.info(f"工作站 {device_id} 初始化完成（简化版）")
+=======
+        self._register_supported_workflows()
+
+        logger.info(f"工作站 {device_id} 初始化完成（简化版）")
+>>>>>>> 4dceffabfd7213a881059ac54fa633e600466550
 
     def _initialize_material_system(self):
         """初始化物料系统 - 使用 graphio 转换"""
         try:
             from unilabos.resources.graphio import resource_ulab_to_plr
 
+<<<<<<< HEAD
             # # 1. 合并 deck_config 和 children 创建完整的资源树
             # complete_resource_config = self._create_complete_resource_config()
 
@@ -205,6 +216,26 @@ class WorkstationBase(ABC):
             pass
         except Exception as e:
             # logger.error(f"工作站 {self.device_id} 物料系统初始化失败: {e}")
+=======
+            # 1. 合并 deck_config 和 children 创建完整的资源树
+            complete_resource_config = self._create_complete_resource_config()
+
+            # 2. 使用 graphio 转换为 PLR 资源
+            self.deck = resource_ulab_to_plr(complete_resource_config, plr_model=True)
+
+            # 3. 建立资源映射
+            self._build_resource_mappings(self.deck)
+
+            # 4. 如果有资源同步器，执行初始同步
+            if self.resource_synchronizer:
+                # 这里可以异步执行，暂时跳过
+                pass
+
+            logger.info(f"工作站 {self.device_id} 物料系统初始化成功，创建了 {len(self.plr_resources)} 个资源")
+
+        except Exception as e:
+            logger.error(f"工作站 {self.device_id} 物料系统初始化失败: {e}")
+>>>>>>> 4dceffabfd7213a881059ac54fa633e600466550
             raise
 
     def _create_complete_resource_config(self) -> Dict[str, Any]:
@@ -443,6 +474,7 @@ class WorkstationBase(ABC):
 
     # ============ 抽象方法 - 子类必须实现 ============
 
+<<<<<<< HEAD
     # @abstractmethod
     # def _register_supported_workflows(self):
     #     """注册支持的工作流 - 子类必须实现"""
@@ -457,6 +489,22 @@ class WorkstationBase(ABC):
     # def _stop_workflow_impl(self, emergency: bool = False) -> bool:
     #     """停止工作流的具体实现 - 子类必须实现"""
     #     pass
+=======
+    @abstractmethod
+    def _register_supported_workflows(self):
+        """注册支持的工作流 - 子类必须实现"""
+        pass
+
+    @abstractmethod
+    def _execute_workflow_impl(self, workflow_name: str, parameters: Dict[str, Any]) -> bool:
+        """执行工作流的具体实现 - 子类必须实现"""
+        pass
+
+    @abstractmethod
+    def _stop_workflow_impl(self, emergency: bool = False) -> bool:
+        """停止工作流的具体实现 - 子类必须实现"""
+        pass
+>>>>>>> 4dceffabfd7213a881059ac54fa633e600466550
 
 class WorkstationExample(WorkstationBase):
     """工作站示例实现"""

@@ -6460,7 +6460,11 @@ workstation:
           title: initialize_device参数
           type: object
         type: UniLabJsonCommand
+<<<<<<< HEAD
     module: unilabos.ros.nodes.presets.workstation:ROS2WorkstationNode
+=======
+    module: unilabos.ros.nodes.presets.workstation_node:ROS2WorkstationNode
+>>>>>>> 4dceffabfd7213a881059ac54fa633e600466550
     status_types: {}
     type: ros2
   config_info: []
@@ -6486,8 +6490,11 @@ workstation:
         protocol_type:
           type: array
         resource_tracker:
+<<<<<<< HEAD
           type: string
         status_types:
+=======
+>>>>>>> 4dceffabfd7213a881059ac54fa633e600466550
           type: object
       required:
       - protocol_type
@@ -6507,8 +6514,129 @@ workstation.example:
   category:
   - work_station
   class:
+<<<<<<< HEAD
     action_value_mappings: {}
     module: unilabos.devices.workstation.workstation_base:WorkstationExample
+=======
+    action_value_mappings:
+      auto-create_resource:
+        feedback: {}
+        goal: {}
+        goal_default:
+          bind_location: null
+          bind_parent_id: null
+          liquid_input_slot: null
+          liquid_type: null
+          liquid_volume: null
+          resource_tracker: null
+          resources: null
+          slot_on_deck: null
+        handles: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                bind_location:
+                  type: object
+                bind_parent_id:
+                  type: string
+                liquid_input_slot:
+                  items:
+                    type: integer
+                  type: array
+                liquid_type:
+                  items:
+                    type: string
+                  type: array
+                liquid_volume:
+                  items:
+                    type: integer
+                  type: array
+                resource_tracker:
+                  type: object
+                resources:
+                  items:
+                    type: object
+                  type: array
+                slot_on_deck:
+                  type: integer
+              required:
+              - resource_tracker
+              - resources
+              - bind_parent_id
+              - bind_location
+              - liquid_input_slot
+              - liquid_type
+              - liquid_volume
+              - slot_on_deck
+              type: object
+            result: {}
+          required:
+          - goal
+          title: create_resource参数
+          type: object
+        type: UniLabJsonCommand
+      auto-transfer_bottle:
+        feedback: {}
+        goal: {}
+        goal_default:
+          base_plate: null
+          tip_rack: null
+        handles: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                base_plate:
+                  type: object
+                tip_rack:
+                  type: object
+              required:
+              - tip_rack
+              - base_plate
+              type: object
+            result: {}
+          required:
+          - goal
+          title: transfer_bottle参数
+          type: object
+        type: UniLabJsonCommand
+      auto-trigger_resource_update:
+        feedback: {}
+        goal: {}
+        goal_default:
+          from_plate: null
+          to_base_plate: null
+        handles: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                from_plate:
+                  type: object
+                to_base_plate:
+                  type: object
+              required:
+              - from_plate
+              - to_base_plate
+              type: object
+            result: {}
+          required:
+          - goal
+          title: trigger_resource_update参数
+          type: object
+        type: UniLabJsonCommand
+    module: unilabos.ros.nodes.presets.workstation:WorkStationExample
+>>>>>>> 4dceffabfd7213a881059ac54fa633e600466550
     status_types: {}
     type: python
   config_info: []
@@ -6518,8 +6646,19 @@ workstation.example:
   init_param_schema:
     config:
       properties:
+<<<<<<< HEAD
         station_resource:
           type: string
+=======
+        children:
+          type: object
+        device_id:
+          type: string
+        protocol_type:
+          type: string
+        resource_tracker:
+          type: object
+>>>>>>> 4dceffabfd7213a881059ac54fa633e600466550
       required:
       - station_resource
       type: object

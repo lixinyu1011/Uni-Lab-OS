@@ -1,0 +1,132 @@
+{
+  "mcpServers": {
+    "spec-workflow": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@pimzino/spec-workflow-mcp@latest",
+        "E:\\Projects\\CursorProjects\\MiaoPicFlow"
+      ]
+    },
+    "thinking-local": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
+    },
+    "playwright-local": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@smithery/cli@latest",
+        "run",
+        "@microsoft/playwright-mcp",
+        "--key",
+        "[你自己的key]"
+      ]
+    },
+    "context7-local": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@smithery/cli@latest",
+        "run",
+        "@upstash/context7-mcp",
+        "--key",
+        "[你自己的key]"
+      ]
+    },
+    "time-local": {
+      "command": "python",
+      "args": [
+        "-m",
+        "mcp_server_time"
+      ]
+    },
+    "file-local": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "."
+      ]
+    },
+    "git-local": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@cyanheads/git-mcp-server"
+      ],
+      "env": {
+        "MCP_LOG_LEVEL": "info",
+        "GIT_SIGN_COMMITS": "false"
+      }
+    },
+    "memory-local": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ]
+    },
+    "fetch-local": {
+      "command": "python",
+      "args": [
+        "-m",
+        "mcp_server_fetch"
+      ]
+    },
+    "powershell-local": {
+      "command": "E:\\Projects\\CursorProjects\\MCP-Servers\\PowerShell-Exec-MCP-Server\\venv\\Scripts\\mcp-powershell-exec.exe",
+      "args": [],
+      "env": {
+        "TRANSPORT": "stdio"
+      }
+    },
+    "mysql-local": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@f4ww4z/mcp-mysql-server"
+      ],
+      "env": {
+        "MYSQL_HOST": "localhost",
+        "MYSQL_PORT": "3306",
+        "MYSQL_USER": "miaopic",
+        "MYSQL_PASSWORD": "MiaoPic2025!",
+        "MYSQL_DATABASE": "miaopicflow"
+      }
+    },
+    "Figma-MCP": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "figma-developer-mcp",
+        "--figma-api-key=[你自己的key]",
+        "--stdio"
+      ]
+    },
+    "postgresql-mcp": {
+      "command": "npx",
+      "args": [
+        "@henkey/postgres-mcp-server",
+        "--connection-string", "postgresql://miaopic:MiaoPic2025!@localhost:5432/miaopicflow"
+      ]
+    }
+  }
+}

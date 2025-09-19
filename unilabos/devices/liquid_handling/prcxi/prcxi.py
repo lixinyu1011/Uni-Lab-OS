@@ -4,7 +4,7 @@ import contextlib
 import json
 import socket
 import time
-from typing import Any, List, Dict, Optional, TypedDict, Union, Sequence, Iterator, Literal
+from typing import Any, List, Dict, Optional, Tuple, TypedDict, Union, Sequence, Iterator, Literal
 
 from pylabrobot.liquid_handling import (
     LiquidHandlerBackend,
@@ -14,7 +14,9 @@ from pylabrobot.liquid_handling import (
     SingleChannelDispense,
     PickupTipRack,
     DropTipRack,
-    MultiHeadAspirationPlate, ChatterBoxBackend, LiquidHandlerChatterboxBackend,
+    MultiHeadAspirationPlate,
+    ChatterBoxBackend,
+    LiquidHandlerChatterboxBackend,
 )
 from pylabrobot.liquid_handling.standard import (
     MultiHeadAspirationContainer,
@@ -72,7 +74,16 @@ class PRCXI9300Container(Plate, TipRack):
     该类定义了 PRCXI 9300 的工作台布局和槽位信息。
     """
 
-    def __init__(self, name: str, size_x: float, size_y: float, size_z: float, category: str, ordering: collections.OrderedDict, model: Optional[str] = None,):
+    def __init__(
+        self,
+        name: str,
+        size_x: float,
+        size_y: float,
+        size_z: float,
+        category: str,
+        ordering: collections.OrderedDict,
+        model: Optional[str] = None,
+    ):
         super().__init__(name, size_x, size_y, size_z, category=category, ordering=ordering, model=model)
         self._unilabos_state = {}
 
@@ -102,14 +113,15 @@ class PRCXI9300Trash(Trash):
 
     def load_state(self, state: Dict[str, Any]) -> None:
         """从给定的状态加载工作台信息。"""
-        #super().load_state(state)
+        # super().load_state(state)
         self._unilabos_state = state
 
     def serialize_state(self) -> Dict[str, Dict[str, Any]]:
         data = super().serialize_state()
         data.update(self._unilabos_state)
         return data
-    
+
+
 class PRCXI9300Handler(LiquidHandlerAbstract):
     support_touch_tip = False
 
@@ -120,7 +132,20 @@ class PRCXI9300Handler(LiquidHandlerAbstract):
             return True
         return self._unilabos_backend.is_reset_ok
 
-    def __init__(self, deck: Deck, host: str, port: int, timeout: float, channel_num=8, axis="Left", setup=True, debug=False, simulator=False, matrix_id=""):
+    def __init__(
+        self,
+        deck: Deck,
+        host: str,
+        port: int,
+        timeout: float,
+        channel_num=8,
+        axis="Left",
+        setup=True,
+        debug=False,
+        simulator=False,
+        matrix_id="",
+        is_9320=False,
+    ):
         tablets_info = []
         count = 0
         for child in deck.children:
@@ -129,11 +154,21 @@ class PRCXI9300Handler(LiquidHandlerAbstract):
                 tablets_info.append(
                     WorkTablets(Number=count, Code=f"T{count}", Material=child._unilabos_state["Material"])
                 )
-        self._unilabos_backend = PRCXI9300Backend(tablets_info, host, port, timeout, channel_num, axis, setup, debug, matrix_id)
+        if is_9320:
+            print("当前设备是9320")
+        self._unilabos_backend = PRCXI9300Backend(
+            tablets_info, host, port, timeout, channel_num, axis, setup, debug, matrix_id, is_9320
+        )
         super().__init__(backend=self._unilabos_backend, deck=deck, simulator=simulator, channel_num=channel_num)
 
     def set_liquid(self, wells: list[Well], liquid_names: list[str], volumes: list[float]):
         return super().set_liquid(wells, liquid_names, volumes)
+
+    def set_group(self, group_name: str, wells: List[Well], volumes: List[float]):
+        return super().set_group(group_name, wells, volumes)
+
+    async def transfer_group(self, source_group_name: str, target_group_name: str, unit_volume: float):
+        return await super().transfer_group(source_group_name, target_group_name, unit_volume)
 
     async def create_protocol(
         self,
@@ -289,41 +324,88 @@ class PRCXI9300Handler(LiquidHandlerAbstract):
         mix_rate: Optional[float] = None,
         none_keys: List[str] = [],
     ):
-        return await self._unilabos_backend.mix(targets, mix_time, mix_vol, height_to_bottom, offsets, mix_rate, none_keys)
+        return await self._unilabos_backend.mix(
+            targets, mix_time, mix_vol, height_to_bottom, offsets, mix_rate, none_keys
+        )
 
     def iter_tips(self, tip_racks: Sequence[TipRack]) -> Iterator[Resource]:
         return super().iter_tips(tip_racks)
 
-    async def pick_up_tips(self, tip_spots: List[TipSpot], use_channels: Optional[List[int]] = None,
-                           offsets: Optional[List[Coordinate]] = None, **backend_kwargs):
+    async def pick_up_tips(
+        self,
+        tip_spots: List[TipSpot],
+        use_channels: Optional[List[int]] = None,
+        offsets: Optional[List[Coordinate]] = None,
+        **backend_kwargs,
+    ):
         return await super().pick_up_tips(tip_spots, use_channels, offsets, **backend_kwargs)
 
-    async def aspirate(self, resources: Sequence[Container], vols: List[float],
-                       use_channels: Optional[List[int]] = None, flow_rates: Optional[List[Optional[float]]] = None,
-                       offsets: Optional[List[Coordinate]] = None,
-                       liquid_height: Optional[List[Optional[float]]] = None,
-                       blow_out_air_volume: Optional[List[Optional[float]]] = None,
-                       spread: Literal["wide", "tight", "custom"] = "wide", **backend_kwargs):
+    async def aspirate(
+        self,
+        resources: Sequence[Container],
+        vols: List[float],
+        use_channels: Optional[List[int]] = None,
+        flow_rates: Optional[List[Optional[float]]] = None,
+        offsets: Optional[List[Coordinate]] = None,
+        liquid_height: Optional[List[Optional[float]]] = None,
+        blow_out_air_volume: Optional[List[Optional[float]]] = None,
+        spread: Literal["wide", "tight", "custom"] = "wide",
+        **backend_kwargs,
+    ):
 
-        return await super().aspirate(resources, vols, use_channels, flow_rates, offsets, liquid_height,
-                                      blow_out_air_volume, spread, **backend_kwargs)
+        return await super().aspirate(
+            resources,
+            vols,
+            use_channels,
+            flow_rates,
+            offsets,
+            liquid_height,
+            blow_out_air_volume,
+            spread,
+            **backend_kwargs,
+        )
 
-    async def drop_tips(self, tip_spots: Sequence[Union[TipSpot, Trash]], use_channels: Optional[List[int]] = None,
-                        offsets: Optional[List[Coordinate]] = None, allow_nonzero_volume: bool = False,
-                        **backend_kwargs):
+    async def drop_tips(
+        self,
+        tip_spots: Sequence[Union[TipSpot, Trash]],
+        use_channels: Optional[List[int]] = None,
+        offsets: Optional[List[Coordinate]] = None,
+        allow_nonzero_volume: bool = False,
+        **backend_kwargs,
+    ):
         return await super().drop_tips(tip_spots, use_channels, offsets, allow_nonzero_volume, **backend_kwargs)
 
-    async def dispense(self, resources: Sequence[Container], vols: List[float],
-                       use_channels: Optional[List[int]] = None, flow_rates: Optional[List[Optional[float]]] = None,
-                       offsets: Optional[List[Coordinate]] = None,
-                       liquid_height: Optional[List[Optional[float]]] = None,
-                       blow_out_air_volume: Optional[List[Optional[float]]] = None,
-                       spread: Literal["wide", "tight", "custom"] = "wide", **backend_kwargs):
-        return await super().dispense(resources, vols, use_channels, flow_rates, offsets, liquid_height,
-                                      blow_out_air_volume, spread, **backend_kwargs)
+    async def dispense(
+        self,
+        resources: Sequence[Container],
+        vols: List[float],
+        use_channels: Optional[List[int]] = None,
+        flow_rates: Optional[List[Optional[float]]] = None,
+        offsets: Optional[List[Coordinate]] = None,
+        liquid_height: Optional[List[Optional[float]]] = None,
+        blow_out_air_volume: Optional[List[Optional[float]]] = None,
+        spread: Literal["wide", "tight", "custom"] = "wide",
+        **backend_kwargs,
+    ):
+        return await super().dispense(
+            resources,
+            vols,
+            use_channels,
+            flow_rates,
+            offsets,
+            liquid_height,
+            blow_out_air_volume,
+            spread,
+            **backend_kwargs,
+        )
 
-    async def discard_tips(self, use_channels: Optional[List[int]] = None, allow_nonzero_volume: bool = True,
-                           offsets: Optional[List[Coordinate]] = None, **backend_kwargs):
+    async def discard_tips(
+        self,
+        use_channels: Optional[List[int]] = None,
+        allow_nonzero_volume: bool = True,
+        offsets: Optional[List[Coordinate]] = None,
+        **backend_kwargs,
+    ):
         return await super().discard_tips(use_channels, allow_nonzero_volume, offsets, **backend_kwargs)
 
     def set_tiprack(self, tip_racks: Sequence[TipRack]):
@@ -346,7 +428,7 @@ class PRCXI9300Backend(LiquidHandlerBackend):
     def is_reset_ok(self) -> bool:
         self._is_reset_ok = self.api_client.get_reset_status()
         return self._is_reset_ok
-    
+
     matrix_info: MatrixInfo
     protocol_name: str
     steps_todo_list = []
@@ -357,16 +439,17 @@ class PRCXI9300Backend(LiquidHandlerBackend):
         host: str = "127.0.0.1",
         port: int = 9999,
         timeout: float = 10.0,
-        channel_num: int=8,
-        axis: str="Left",
+        channel_num: int = 8,
+        axis: str = "Left",
         setup=True,
         debug=False,
         matrix_id="",
+        is_9320=False,
     ) -> None:
         super().__init__()
         self.tablets_info = tablets_info
         self.matrix_id = matrix_id
-        self.api_client = PRCXI9300Api(host, port, timeout, axis, debug)
+        self.api_client = PRCXI9300Api(host, port, timeout, axis, debug, is_9320)
         self.host, self.port, self.timeout = host, port, timeout
         self._num_channels = channel_num
         self._execute_setup = setup
@@ -385,7 +468,7 @@ class PRCXI9300Backend(LiquidHandlerBackend):
             MatrixCount=len(self.tablets_info),
             WorkTablets=self.tablets_info,
         )
-        #print(json.dumps(self.matrix_info, indent=2))
+        # print(json.dumps(self.matrix_info, indent=2))
         if not len(self.matrix_id):
             res = self.api_client.add_WorkTablet_Matrix(self.matrix_info)
             assert res["Success"], f"Failed to create matrix: {res.get('Message', 'Unknown error')}"
@@ -395,9 +478,7 @@ class PRCXI9300Backend(LiquidHandlerBackend):
             )
         else:
             print(f"PRCXI9300Backend using predefined worktable {self.matrix_id}, skipping matrix creation.")
-            solution_id = self.api_client.add_solution(
-                f"protocol_{run_time}", self.matrix_id, self.steps_todo_list
-            )
+            solution_id = self.api_client.add_solution(f"protocol_{run_time}", self.matrix_id, self.steps_todo_list)
         print(f"PRCXI9300Backend created solution with ID: {solution_id}")
         self.api_client.load_solution(solution_id)
         print(json.dumps(self.steps_todo_list, indent=2))
@@ -431,19 +512,19 @@ class PRCXI9300Backend(LiquidHandlerBackend):
 
     async def pick_up_tips(self, ops: List[Pickup], use_channels: List[int] = None):
         """Pick up tips from the specified resource."""
-        print('where?'*200)
+
         plate_indexes = []
         for op in ops:
             plate = op.resource.parent
             deck = plate.parent
             plate_index = deck.children.index(plate)
-            print(f"Plate index: {plate_index}, Plate name: {plate.name}")
-            print(f"Number of children in deck: {len(deck.children)}")
+            # print(f"Plate index: {plate_index}, Plate name: {plate.name}")
+            # print(f"Number of children in deck: {len(deck.children)}")
 
             plate_indexes.append(plate_index)
 
         if len(set(plate_indexes)) != 1:
-            raise ValueError("All pickups must be from the same plate. Found different plates: " + str(plate_indexes)) 
+            raise ValueError("All pickups must be from the same plate. Found different plates: " + str(plate_indexes))
 
         tip_columns = []
         for op in ops:
@@ -452,23 +533,29 @@ class PRCXI9300Backend(LiquidHandlerBackend):
             tip_columns.append(tipspot_index // 8)
         if len(set(tip_columns)) != 1:
             raise ValueError("All pickups must be from the same tip column. Found different columns: " + str(tip_columns))
-        # print('111'*99)
-        # print(plate_indexes[0])
         PlateNo = plate_indexes[0] + 1
         hole_col = tip_columns[0] + 1
         hole_row = 1
         if self._num_channels == 1:
-            hole_row = tipspot_index % 8 + 1 
+            hole_row = tipspot_index % 8 + 1
 
-        step = self.api_client.Load(dosage=0, plate_no=PlateNo, is_whole_plate=False, hole_row=hole_row, hole_col=hole_col,
-                                    blending_times=0, balance_height=0, plate_or_hole=f"H{hole_col}-8,T{PlateNo}",
-                                    hole_numbers="1,2,3,4,5,6,7,8")
+        step = self.api_client.Load(
+            dosage=0,
+            plate_no=PlateNo,
+            is_whole_plate=False,
+            hole_row=hole_row,
+            hole_col=hole_col,
+            blending_times=0,
+            balance_height=0,
+            plate_or_hole=f"H{hole_col}-8,T{PlateNo}",
+            hole_numbers="1,2,3,4,5,6,7,8",
+        )
         self.steps_todo_list.append(step)
 
     async def drop_tips(self, ops: List[Drop], use_channels: List[int] = None):
         """Pick up tips from the specified resource."""
 
-        # 检查trash # 
+        # 检查trash #
         if ops[0].resource.name == "trash":
 
             PlateNo = ops[0].resource.parent.children.index(ops[0].resource) + 1
@@ -483,12 +570,11 @@ class PRCXI9300Backend(LiquidHandlerBackend):
                 balance_height=0,
                 plate_or_hole=f"H{1}-8,T{PlateNo}",
                 hole_numbers="1,2,3,4,5,6,7,8",
-        )
+            )
             self.steps_todo_list.append(step)
             return
-        #print(ops[0].resource.parent.children.index(ops[0].resource))
+        # print(ops[0].resource.parent.children.index(ops[0].resource))
 
-        
         plate_indexes = []
         for op in ops:
             plate = op.resource.parent
@@ -496,7 +582,9 @@ class PRCXI9300Backend(LiquidHandlerBackend):
             plate_index = deck.children.index(plate)
             plate_indexes.append(plate_index)
         if len(set(plate_indexes)) != 1:
-            raise ValueError("All drop_tips must be from the same plate. Found different plates: " + str(plate_indexes)) 
+            raise ValueError(
+                "All drop_tips must be from the same plate. Found different plates: " + str(plate_indexes)
+            )
 
         tip_columns = []
         for op in ops:
@@ -504,8 +592,10 @@ class PRCXI9300Backend(LiquidHandlerBackend):
             tipspot_index = tipspot.parent.children.index(tipspot)
             tip_columns.append(tipspot_index // 8)
         if len(set(tip_columns)) != 1:
-            raise ValueError("All drop_tips must be from the same tip column. Found different columns: " + str(tip_columns))
-        
+            raise ValueError(
+                "All drop_tips must be from the same tip column. Found different columns: " + str(tip_columns)
+            )
+
         PlateNo = plate_indexes[0] + 1
         hole_col = tip_columns[0] + 1
 
@@ -526,18 +616,17 @@ class PRCXI9300Backend(LiquidHandlerBackend):
         self.steps_todo_list.append(step)
 
     async def mix(
-            self,
-            targets: Sequence[Container],
-            mix_time: int = None,
-            mix_vol: Optional[int] = None,
-            height_to_bottom: Optional[float] = None,
-            offsets: Optional[Coordinate] = None,
-            mix_rate: Optional[float] = None,
-            none_keys: List[str] = [],
+        self,
+        targets: Sequence[Container],
+        mix_time: int = None,
+        mix_vol: Optional[int] = None,
+        height_to_bottom: Optional[float] = None,
+        offsets: Optional[Coordinate] = None,
+        mix_rate: Optional[float] = None,
+        none_keys: List[str] = [],
     ):
-        
         """Mix liquid in the specified resources."""
-   
+
         plate_indexes = []
         for op in targets:
             deck = op.parent.parent
@@ -546,7 +635,7 @@ class PRCXI9300Backend(LiquidHandlerBackend):
             plate_indexes.append(plate_index)
 
         if len(set(plate_indexes)) != 1:
-            raise ValueError("All pickups must be from the same plate. Found different plates: " + str(plate_indexes)) 
+            raise ValueError("All pickups must be from the same plate. Found different plates: " + str(plate_indexes))
 
         tip_columns = []
         for op in targets:
@@ -554,13 +643,15 @@ class PRCXI9300Backend(LiquidHandlerBackend):
             tip_columns.append(tipspot_index // 8)
 
         if len(set(tip_columns)) != 1:
-            raise ValueError("All pickups must be from the same tip column. Found different columns: " + str(tip_columns))
-        
+            raise ValueError(
+                "All pickups must be from the same tip column. Found different columns: " + str(tip_columns)
+            )
+
         PlateNo = plate_indexes[0] + 1
         hole_col = tip_columns[0] + 1
         hole_row = 1
         if self.num_channels == 1:
-            hole_row = tipspot_index % 8 + 1 
+            hole_row = tipspot_index % 8 + 1
 
         assert mix_time > 0
         step = self.api_client.Blending(
@@ -577,7 +668,6 @@ class PRCXI9300Backend(LiquidHandlerBackend):
         self.steps_todo_list.append(step)
 
     async def aspirate(self, ops: List[SingleChannelAspiration], use_channels: List[int] = None):
-
         """Aspirate liquid from the specified resources."""
 
         plate_indexes = []
@@ -588,7 +678,7 @@ class PRCXI9300Backend(LiquidHandlerBackend):
             plate_indexes.append(plate_index)
 
         if len(set(plate_indexes)) != 1:
-            raise ValueError("All pickups must be from the same plate. Found different plates: " + str(plate_indexes)) 
+            raise ValueError("All pickups must be from the same plate. Found different plates: " + str(plate_indexes))
 
         tip_columns = []
         for op in ops:
@@ -597,27 +687,34 @@ class PRCXI9300Backend(LiquidHandlerBackend):
             tip_columns.append(tipspot_index // 8)
 
         if len(set(tip_columns)) != 1:
-            raise ValueError("All pickups must be from the same tip column. Found different columns: " + str(tip_columns))
-        
+            raise ValueError(
+                "All pickups must be from the same tip column. Found different columns: " + str(tip_columns)
+            )
+
         volumes = [op.volume for op in ops]
         if len(set(volumes)) != 1:
             raise ValueError("All aspirate volumes must be the same. Found different volumes: " + str(volumes))
-        
+
         PlateNo = plate_indexes[0] + 1
         hole_col = tip_columns[0] + 1
         hole_row = 1
         if self.num_channels == 1:
-            hole_row = tipspot_index % 8 + 1 
+            hole_row = tipspot_index % 8 + 1
 
-        step = self.api_client.Imbibing(dosage=int(volumes[0]), plate_no=PlateNo, is_whole_plate=False, hole_row=hole_row,
-                                        hole_col=hole_col, blending_times=0, balance_height=0,
-                                        plate_or_hole=f"H{hole_col}-8,T{PlateNo}", hole_numbers="1,2,3,4,5,6,7,8")
+        step = self.api_client.Imbibing(
+            dosage=int(volumes[0]),
+            plate_no=PlateNo,
+            is_whole_plate=False,
+            hole_row=hole_row,
+            hole_col=hole_col,
+            blending_times=0,
+            balance_height=0,
+            plate_or_hole=f"H{hole_col}-8,T{PlateNo}",
+            hole_numbers="1,2,3,4,5,6,7,8",
+        )
         self.steps_todo_list.append(step)
-        
-
 
     async def dispense(self, ops: List[SingleChannelDispense], use_channels: List[int] = None):
-        
         """Dispense liquid into the specified resources."""
 
         plate_indexes = []
@@ -628,7 +725,7 @@ class PRCXI9300Backend(LiquidHandlerBackend):
             plate_indexes.append(plate_index)
 
         if len(set(plate_indexes)) != 1:
-            raise ValueError("All dispense must be from the same plate. Found different plates: " + str(plate_indexes)) 
+            raise ValueError("All dispense must be from the same plate. Found different plates: " + str(plate_indexes))
 
         tip_columns = []
         for op in ops:
@@ -637,12 +734,14 @@ class PRCXI9300Backend(LiquidHandlerBackend):
             tip_columns.append(tipspot_index // 8)
 
         if len(set(tip_columns)) != 1:
-            raise ValueError("All dispense must be from the same tip column. Found different columns: " + str(tip_columns))
-        
+            raise ValueError(
+                "All dispense must be from the same tip column. Found different columns: " + str(tip_columns)
+            )
+
         volumes = [op.volume for op in ops]
         if len(set(volumes)) != 1:
             raise ValueError("All dispense volumes must be the same. Found different volumes: " + str(volumes))
-        
+
         PlateNo = plate_indexes[0] + 1
         hole_col = tip_columns[0] + 1
 
@@ -696,10 +795,19 @@ class PRCXI9300Backend(LiquidHandlerBackend):
 
 
 class PRCXI9300Api:
-    def __init__(self, host: str = "127.0.0.1", port: int = 9999, timeout: float = 10.0, axis="Left", debug: bool = False) -> None:
+    def __init__(
+        self,
+        host: str = "127.0.0.1",
+        port: int = 9999,
+        timeout: float = 10.0,
+        axis="Left",
+        debug: bool = False,
+        is_9320: bool = False,
+    ) -> None:
         self.host, self.port, self.timeout = host, port, timeout
         self.debug = debug
         self.axis = axis
+        self.is_9320 = is_9320
 
     @staticmethod
     def _len_prefix(n: int) -> bytes:
@@ -795,6 +903,10 @@ class PRCXI9300Api:
         return self.call("IMachineState", "GetLocation", [axis_num])
 
     # ---------------------------------------------------- 版位矩阵（IMatrix）
+    def get_all_materials(self) -> Dict[str, Any]:
+        """GetStepState"""
+        return self.call("IMatrix", "GetAllMaterial", [])
+
     def list_matrices(self) -> List[Dict[str, Any]]:
         """GetWorkTabletMatrices"""
         return self.call("IMatrix", "GetWorkTabletMatrices")
@@ -804,12 +916,26 @@ class PRCXI9300Api:
         return self.call("IMatrix", "GetWorkTabletMatrixById", [matrix_id])
 
     def add_WorkTablet_Matrix(self, matrix: MatrixInfo):
-        return self.call("IMatrix", "AddWorkTabletMatrix", [matrix])
+        return self.call("IMatrix", "AddWorkTabletMatrix2" if self.is_9320 else "AddWorkTabletMatrix", [matrix])
 
-    def Load(self, dosage: int, plate_no: int, is_whole_plate: bool, hole_row: int, hole_col: int, blending_times: int,
-             balance_height: int, plate_or_hole: str, hole_numbers: str, assist_fun1: str = "", assist_fun2: str = "",
-             assist_fun3: str = "", assist_fun4: str = "", assist_fun5: str = "",
-             liquid_method: str = "NormalDispense") -> Dict[str, Any]:
+    def Load(
+        self,
+        dosage: int,
+        plate_no: int,
+        is_whole_plate: bool,
+        hole_row: int,
+        hole_col: int,
+        blending_times: int,
+        balance_height: int,
+        plate_or_hole: str,
+        hole_numbers: str,
+        assist_fun1: str = "",
+        assist_fun2: str = "",
+        assist_fun3: str = "",
+        assist_fun4: str = "",
+        assist_fun5: str = "",
+        liquid_method: str = "NormalDispense",
+    ) -> Dict[str, Any]:
         return {
             "StepAxis": self.axis,
             "Function": "Load",
@@ -830,10 +956,24 @@ class PRCXI9300Api:
             "LiquidDispensingMethod": liquid_method,
         }
 
-    def Imbibing(self, dosage: int, plate_no: int, is_whole_plate: bool, hole_row: int, hole_col: int,
-                 blending_times: int, balance_height: int, plate_or_hole: str, hole_numbers: str, assist_fun1: str = "",
-                 assist_fun2: str = "", assist_fun3: str = "", assist_fun4: str = "", assist_fun5: str = "",
-                 liquid_method: str = "NormalDispense") -> Dict[str, Any]:
+    def Imbibing(
+        self,
+        dosage: int,
+        plate_no: int,
+        is_whole_plate: bool,
+        hole_row: int,
+        hole_col: int,
+        blending_times: int,
+        balance_height: int,
+        plate_or_hole: str,
+        hole_numbers: str,
+        assist_fun1: str = "",
+        assist_fun2: str = "",
+        assist_fun3: str = "",
+        assist_fun4: str = "",
+        assist_fun5: str = "",
+        liquid_method: str = "NormalDispense",
+    ) -> Dict[str, Any]:
         return {
             "StepAxis": self.axis,
             "Function": "Imbibing",
@@ -968,6 +1108,103 @@ class PRCXI9300Api:
             "LiquidDispensingMethod": liquid_method,
         }
 
+class DefaultLayout:
+
+    def __init__(self, product_name: str = "PRCXI9300"):
+        self.labresource = {}
+        if product_name not in ["PRCXI9300", "PRCXI9320"]:
+            raise ValueError(f"Unsupported product_name: {product_name}. Only 'PRCXI9300' and 'PRCXI9320' are supported.")
+
+        if product_name == "PRCXI9300":
+            self.rows = 2
+            self.columns = 3
+            self.layout = [1, 2, 3, 4, 5, 6]
+            self.trash_slot = 3
+            self.waste_liquid_slot = 6
+
+        elif product_name == "PRCXI9320":
+            self.rows = 3
+            self.columns = 4
+            self.layout = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+            self.trash_slot = 16
+            self.waste_liquid_slot = 12
+            self.default_layout =  {"MatrixId":f"{time.time()}","MatrixName":f"{time.time()}","MatrixCount":16,"WorkTablets":
+            [{"Number": 1, "Code": "T1", "Material": {"uuid": "57b1e4711e9e4a32b529f3132fc5931f", "materialEnum": 0}},
+  {"Number": 2, "Code": "T2", "Material": {"uuid": "57b1e4711e9e4a32b529f3132fc5931f", "materialEnum": 0}},
+  {"Number": 3, "Code": "T3", "Material": {"uuid": "57b1e4711e9e4a32b529f3132fc5931f", "materialEnum": 0}},
+  {"Number": 4, "Code": "T4", "Material": {"uuid": "57b1e4711e9e4a32b529f3132fc5931f", "materialEnum": 0}},
+  {"Number": 5, "Code": "T5", "Material": {"uuid": "57b1e4711e9e4a32b529f3132fc5931f", "materialEnum": 0}},
+  {"Number": 6, "Code": "T6", "Material": {"uuid": "57b1e4711e9e4a32b529f3132fc5931f", "materialEnum": 0}},
+  {"Number": 7, "Code": "T7", "Material": {"uuid": "57b1e4711e9e4a32b529f3132fc5931f", "materialEnum": 0}},
+  {"Number": 8, "Code": "T8", "Material": {"uuid": "57b1e4711e9e4a32b529f3132fc5931f", "materialEnum": 0}},
+  {"Number": 9, "Code": "T9", "Material": {"uuid": "57b1e4711e9e4a32b529f3132fc5931f", "materialEnum": 0}},
+  {"Number": 10, "Code": "T10", "Material": {"uuid": "57b1e4711e9e4a32b529f3132fc5931f", "materialEnum": 0}},
+  {"Number": 11, "Code": "T11", "Material": {"uuid": "57b1e4711e9e4a32b529f3132fc5931f", "materialEnum": 0}},
+  {"Number": 12, "Code": "T12", "Material": {"uuid": "730067cf07ae43849ddf4034299030e9", "materialEnum": 0}},  # 这个设置成废液槽，用储液槽表示
+  {"Number": 13, "Code": "T13", "Material": {"uuid": "57b1e4711e9e4a32b529f3132fc5931f", "materialEnum": 0}},
+  {"Number": 14, "Code": "T14", "Material": {"uuid": "57b1e4711e9e4a32b529f3132fc5931f", "materialEnum": 0}},
+  {"Number": 15, "Code": "T15", "Material": {"uuid": "57b1e4711e9e4a32b529f3132fc5931f", "materialEnum": 0}},
+  {"Number": 16, "Code": "T16", "Material": {"uuid": "730067cf07ae43849ddf4034299030e9", "materialEnum": 0}} # 这个设置成垃圾桶，用储液槽表示
+]
+}
+
+    def get_layout(self) -> Dict[str, Any]:
+        return {
+            "rows": self.rows,
+            "columns": self.columns,
+            "layout": self.layout,
+            "trash_slot": self.trash_slot,
+            "waste_liquid_slot": self.waste_liquid_slot
+        }
+
+    def get_trash_slot(self) -> int:
+        return self.trash_slot
+
+    def get_waste_liquid_slot(self) -> int:
+        return self.waste_liquid_slot
+
+    def add_lab_resource(self, material_info):
+        self.labresource = material_info
+
+    def recommend_layout(self, needs: List[Tuple[str, str, int]]) -> Dict[str, Any]:
+        layout_list = []
+        for reagent_name, material_name, count in needs:
+
+            if material_name not in self.labresource:
+                raise ValueError(f"Material {reagent_name} not found in lab resources.")
+
+            # 预留位置12和16不动
+        reserved_positions = {12, 16}
+        available_positions = [i for i in range(1, 17) if i not in reserved_positions]
+
+            # 计算总需求
+        total_needed = sum(count for _, _, count in needs)
+        if total_needed > len(available_positions):
+            raise ValueError(f"需要 {total_needed} 个位置，但只有 {len(available_positions)} 个可用位置（排除位置12和16）")
+
+            # 依次分配位置
+        current_pos = 0
+        for reagent_name, material_name, count in needs:
+
+            material_uuid = self.labresource[material_name]['uuid']
+            material_enum = self.labresource[material_name]['materialEnum']
+
+            for _ in range(count):
+                if current_pos >= len(available_positions):
+                    raise ValueError("位置不足，无法分配更多物料")
+
+                position = available_positions[current_pos]
+                # 找到对应的tablet并更新
+                for tablet in self.default_layout['WorkTablets']:
+                    if tablet['Number'] == position:
+                        tablet['Material']['uuid'] = material_uuid
+                        tablet['Material']['materialEnum'] = material_enum
+                        layout_list.append(dict(reagent_name=reagent_name, material_name=material_name, positions=position))
+                        break
+                current_pos += 1
+        return self.default_layout, layout_list
+
+
 
 if __name__ == "__main__":
     # Example usage
@@ -976,7 +1213,6 @@ if __name__ == "__main__":
     # 3. 设计一个单点动作流程，可以跑
     # 4.
 
-    
     # deck = PRCXI9300Deck(name="PRCXI_Deck_9300", size_x=100, size_y=100, size_z=100)
 
     # from pylabrobot.resources.opentrons.tip_racks import opentrons_96_tiprack_300ul,opentrons_96_tiprack_10ul
@@ -985,7 +1221,7 @@ if __name__ == "__main__":
     # def get_well_container(name: str) -> PRCXI9300Container:
     #     well_containers = corning_96_wellplate_360ul_flat(name).serialize()
     #     plate = PRCXI9300Container(name=name, size_x=50, size_y=50, size_z=10, category="plate",
-    #                        ordering=collections.OrderedDict())
+    #                        ordering=well_containers["ordering"])
     #     plate_serialized = plate.serialize()
     #     plate_serialized["parent_name"] = deck.name
     #     well_containers.update({k: v for k, v in plate_serialized.items() if k not in ["children"]})
@@ -995,13 +1231,13 @@ if __name__ == "__main__":
     # def get_tip_rack(name: str) -> PRCXI9300Container:
     #     tip_racks = opentrons_96_tiprack_300ul("name").serialize()
     #     tip_rack = PRCXI9300Container(name=name, size_x=50, size_y=50, size_z=10, category="tip_rack",
-    #                        ordering=collections.OrderedDict())
+    #                        ordering=tip_racks["ordering"])
     #     tip_rack_serialized = tip_rack.serialize()
     #     tip_rack_serialized["parent_name"] = deck.name
     #     tip_racks.update({k: v for k, v in tip_rack_serialized.items() if k not in ["children"]})
     #     new_tip_rack: PRCXI9300Container = PRCXI9300Container.deserialize(tip_racks)
     #     return new_tip_rack
-    
+
     # plate1 = get_tip_rack("RackT1")
     # plate1.load_state({
     #     "Material": {
@@ -1019,7 +1255,6 @@ if __name__ == "__main__":
     #         "Name": "96深孔板"
     #     }
     # })
-
 
     # plate3 = PRCXI9300Trash("trash", size_x=50, size_y=100, size_z=10, category="trash")
     # plate3.load_state({
@@ -1062,68 +1297,75 @@ if __name__ == "__main__":
     # deck.assign_child_resource(plate5, location=Coordinate(0, 0, 0))
     # deck.assign_child_resource(plate6, location=Coordinate(0, 0, 0))
 
-    # # print(plate2)
-    # plate_2_liquids = [[('water', 500)]]*96
-    # plate2.set_well_liquids(plate_2_liquids)
+    # # # plate_2_liquids = [[('water', 500)]]*96
+
+    # # # plate2.set_well_liquids(plate_2_liquids)
+
+
+
 
     # handler = PRCXI9300Handler(deck=deck, host="10.181.214.132", port=9999, 
-    #                            timeout=10.0, setup=False, debug=False, 
+    #                            timeout=10.0, setup=False, debug=False,
+    #                            simulator=True,
     #                            matrix_id="71593",
     #                            channel_num=8, axis="Left")  # Initialize the handler with the deck and host settings
-    
 
-    # handler.set_tiprack([plate1]) 
+    # plate_2_liquids = handler.set_group("water", plate2.children[:8], [200]*8)
 
+    # plate5_liquids = handler.set_group("master_mix", plate5.children[:8], [100]*8)
+
+    # handler.set_tiprack([plate1])
     # asyncio.run(handler.setup())  # Initialize the handler and setup the connection
     # from pylabrobot.resources import set_volume_tracking
-    # # from pylabrobot.resources import set_tip_tracking
+    # from pylabrobot.resources import set_tip_tracking
     # set_volume_tracking(enabled=True)
     # from unilabos.resources.graphio import *
-    # A = tree_to_list([resource_plr_to_ulab(deck)])
-    # with open("deck_9300_new.json", "w", encoding="utf-8") as f:
-    #     json.dump(A, f, indent=4, ensure_ascii=False)
+    # # A = tree_to_list([resource_plr_to_ulab(deck)])
+    # # with open("deck_9300_new.json", "w", encoding="utf-8") as f:
+    # #     json.dump(A, f, indent=4, ensure_ascii=False)
     # asyncio.run(handler.create_protocol(protocol_name="Test Protocol"))  # Initialize the backend and setup the connection
+    # asyncio.run(handler.transfer_group("water", "master_mix", 100))  # Reset tip tracking
 
-    # # asyncio.run(handler.pick_up_tips(plate1.children[:8],[0,1,2,3,4,5,6,7]))
-    # # print(plate1.children[:8])
-    # # asyncio.run(handler.aspirate(plate2.children[:8],[50]*8, [0,1,2,3,4,5,6,7]))
-    # # print(plate2.children[:8])
-    # # asyncio.run(handler.dispense(plate5.children[:8],[50]*8,[0,1,2,3,4,5,6,7]))
-    # # print(plate5.children[:8])
+    # asyncio.run(handler.pick_up_tips(plate1.children[:8],[0,1,2,3,4,5,6,7]))
+    # print(plate1.children[:8])
+    # asyncio.run(handler.aspirate(plate2.children[:8],[50]*8, [0,1,2,3,4,5,6,7]))
+    # print(plate2.children[:8])
+    # asyncio.run(handler.dispense(plate5.children[:8],[50]*8,[0,1,2,3,4,5,6,7]))
+    # print(plate5.children[:8])
 
-    # # # # # asyncio.run(handler.drop_tips(tip_rack.children[8:16],[0,1,2,3,4,5,6,7]))
-    # # asyncio.run(handler.discard_tips())
+    # #asyncio.run(handler.drop_tips(tip_rack.children[8:16],[0,1,2,3,4,5,6,7]))
+    # asyncio.run(handler.discard_tips([0,1,2,3,4,5,6,7]))
 
-    # # asyncio.run(handler.mix(well_containers.children[:8
-    # # ], mix_time=3, mix_vol=50, height_to_bottom=0.5, offsets=Coordinate(0, 0, 0), mix_rate=100))
-    # # #print(json.dumps(handler._unilabos_backend.steps_todo_list, indent=2))  # Print matrix info
-    # # asyncio.run(handler.add_liquid(
-    # #     asp_vols=[100]*16,
-    # #     dis_vols=[100]*16,
-    # #     reagent_sources=plate2.children[:16],
-    # #     targets=plate5.children[:16],
-    # #     use_channels=[0, 1, 2, 3, 4, 5, 6, 7],
-    # #     flow_rates=[None] * 32,
-    # #     offsets=[Coordinate(0, 0, 0)] * 32,
-    # #     liquid_height=[None] * 16,
-    # #     blow_out_air_volume=[None] * 16,
-    # #     delays=None,
-    # #     mix_time=3,
-    # #     mix_vol=50,
-    # #     spread="wide",
-    # # ))
-    # # asyncio.run(handler.run_protocol())  # Run the protocol
-    # # asyncio.run(handler.remove_liquid(
-    # #     vols=[100]*16,
-    # #     sources=plate2.children[-16:],
-    # #     waste_liquid=plate5.children[:16], # 这个有些奇怪，但是好像也只能这么写
-    # #     use_channels=[0, 1, 2, 3, 4, 5, 6, 7],
-    # #     flow_rates=[None] * 32,
-    # #     offsets=[Coordinate(0, 0, 0)] * 32,
-    # #     liquid_height=[None] * 32,
-    # #     blow_out_air_volume=[None] * 32,
-    # #     spread="wide",
-    # # ))
+    # asyncio.run(handler.mix(well_containers.children[:8
+    # ], mix_time=3, mix_vol=50, height_to_bottom=0.5, offsets=Coordinate(0, 0, 0), mix_rate=100))
+    # #print(json.dumps(handler._unilabos_backend.steps_todo_list, indent=2))  # Print matrix info
+    # asyncio.run(handler.add_liquid(
+    #     asp_vols=[100]*16,
+    #     dis_vols=[100]*16,
+    #     reagent_sources=plate2.children[:16],
+    #     targets=plate5.children[:16],
+    #     use_channels=[0, 1, 2, 3, 4, 5, 6, 7],
+    #     flow_rates=[None] * 32,
+    #     offsets=[Coordinate(0, 0, 0)] * 32,
+    #     liquid_height=[None] * 16,
+    #     blow_out_air_volume=[None] * 16,
+    #     delays=None,
+    #     mix_time=3,
+    #     mix_vol=50,
+    #     spread="wide",
+    # ))
+    # asyncio.run(handler.run_protocol())  # Run the protocol
+    # asyncio.run(handler.remove_liquid(
+    #     vols=[100]*16,
+    #     sources=plate2.children[-16:],
+    #     waste_liquid=plate5.children[:16], # 这个有些奇怪，但是好像也只能这么写
+    #     use_channels=[0, 1, 2, 3, 4, 5, 6, 7],
+    #     flow_rates=[None] * 32,
+    #     offsets=[Coordinate(0, 0, 0)] * 32,
+    #     liquid_height=[None] * 32,
+    #     blow_out_air_volume=[None] * 32,
+    #     spread="wide",
+    # ))
 
     # acid = [20]*8+[40]*8+[60]*8+[80]*8+[100]*8+[120]*8+[140]*8+[160]*8+[180]*8+[200]*8+[220]*8+[240]*8
     # alkaline = acid[::-1]  # Reverse the acid list for alkaline
@@ -1144,258 +1386,420 @@ if __name__ == "__main__":
     #     spread="wide",
     # ))
     # asyncio.run(handler.run_protocol())  # Run the protocol
-    # # # input("Running protocol...")
-    # # # input("Press Enter to continue...")  # Wait for user input before proceeding
-    # # # print("PRCXI9300Handler initialized with deck and host settings.")
+    # # input("Running protocol...")
+    # # input("Press Enter to continue...")  # Wait for user input before proceeding
+    # # print("PRCXI9300Handler initialized with deck and host settings.")
 
-    # # Example usage
-    # # 1. 用导出的json，给每个T1 T2板子设定相应的物料，如果是孔板和枪头盒，要对应区分
-    # # 2. 设计一个单点动作流程，可以跑
-    # # 3.
+
+
+### 9320 ###
 
 
     deck = PRCXI9300Deck(name="PRCXI_Deck", size_x=100, size_y=100, size_z=100)
 
-    from pylabrobot.resources.opentrons.tip_racks import tipone_96_tiprack_200ul,opentrons_96_tiprack_10ul
+    from pylabrobot.resources.opentrons.tip_racks import tipone_96_tiprack_200ul, opentrons_96_tiprack_10ul
     from pylabrobot.resources.opentrons.plates import corning_96_wellplate_360ul_flat, nest_96_wellplate_2ml_deep
 
     def get_well_container(name: str) -> PRCXI9300Container:
         well_containers = corning_96_wellplate_360ul_flat(name).serialize()
-        plate = PRCXI9300Container(name=name, size_x=50, size_y=50, size_z=10, category="plate",
-                           ordering=collections.OrderedDict())
+        plate = PRCXI9300Container(
+            name=name, size_x=50, size_y=50, size_z=10, category="plate", ordering=well_containers["ordering"]
+        )
         plate_serialized = plate.serialize()
         plate_serialized["parent_name"] = deck.name
         well_containers.update({k: v for k, v in plate_serialized.items() if k not in ["children"]})
         new_plate: PRCXI9300Container = PRCXI9300Container.deserialize(well_containers)
         return new_plate
 
-    def get_tip_rack(name: str) -> PRCXI9300Container:
-        tip_racks = opentrons_96_tiprack_10ul("name").serialize()
-        tip_rack = PRCXI9300Container(name=name, size_x=50, size_y=50, size_z=10, category="tip_rack",
-                           ordering=collections.OrderedDict())
+    def get_tip_rack(name: str, child_prefix: str="tip") -> PRCXI9300Container:
+        tip_racks = opentrons_96_tiprack_10ul(name).serialize()
+        tip_rack = PRCXI9300Container(
+            name=name, size_x=50, size_y=50, size_z=10, category="tip_rack", ordering=collections.OrderedDict({
+                k: f"{child_prefix}_{k}" for k, v in tip_racks["ordering"].items()
+            })
+        )
         tip_rack_serialized = tip_rack.serialize()
         tip_rack_serialized["parent_name"] = deck.name
         tip_racks.update({k: v for k, v in tip_rack_serialized.items() if k not in ["children"]})
         new_tip_rack: PRCXI9300Container = PRCXI9300Container.deserialize(tip_racks)
         return new_tip_rack
-    
-    plate1 = get_well_container("HPLCPlateT1")
-    plate1.load_state({
-        "Material": {
-            "uuid": "548bbc3df0d4447586f2c19d2c0c0c55",
-            "Code": "HPLC01",
-            "Name":  "HPLC料盘"
-        }
-    })
+
+    plate1 = get_tip_rack("RackT1")
+    plate1.load_state(
+        {"Material": {"uuid": "068b3815e36b4a72a59bae017011b29f", "Code": "ZX-001-10+", "Name": "10μL加长 Tip头"}}
+    )
     plate2 = get_well_container("PlateT2")
-    plate2.load_state({
-        "Material": {
-            "uuid": "04211a2dc93547fe9bf6121eac533650",
-        }
-    })
+    plate2.load_state(
+        {"Material": {"uuid": "b05b3b2aafd94ec38ea0cd3215ecea8f", "Code": "ZX-78-096", "Name": "细菌培养皿"}}
+    )
     plate3 = get_well_container("PlateT3")
-    plate3.load_state({
-        "Material": {
-            "uuid": "04211a2dc93547fe9bf6121eac533650",
+    plate3.load_state(
+        {
+            "Material": {
+                "uuid": "04211a2dc93547fe9bf6121eac533650",
+            }
         }
-    })
-    trash = PRCXI9300Trash(name="trash", size_x=50, size_y=50, size_z=10, category="trash")
-    trash.load_state({
-        "Material": {
-            "uuid": "730067cf07ae43849ddf4034299030e9"
+    )
+    plate4 = get_well_container("PlateT4")
+    plate4.load_state(
+        {"Material": {"uuid": "b05b3b2aafd94ec38ea0cd3215ecea8f", "Code": "ZX-78-096", "Name": "细菌培养皿"}}
+    )
+
+    plate5 = get_tip_rack("RackT5")
+    plate5.load_state(
+        {
+            "Material": {
+                "uuid": "076250742950465b9d6ea29a225dfb00",
+                "Code": "ZX-001-300",
+                "SupplyType": 1,
+                "Name": "300μL Tip头",
+            }
         }
-    })
-    plate5 = get_well_container("PlateT5")
-    plate5.load_state({
-        "Material": {
-            "uuid": "04211a2dc93547fe9bf6121eac533650",
-        }
-    })
+    )
     plate6 = get_well_container("PlateT6")
-    plate6.load_state({
-        "Material": {
-            "uuid": "04211a2dc93547fe9bf6121eac533650"
+    plate6.load_state(
+        {
+            "Material": {
+                "uuid": "e146697c395e4eabb3d6b74f0dd6aaf7",
+                "Code": "1",
+                "SupplyType": 1,
+                "Name": "ep适配器",
+                "SummaryName": "ep适配器",
+            }
         }
-    })
-    plate7 = PRCXI9300Container(name="plateT7", size_x=50, size_y=50, size_z=10, category="plate", ordering=collections.OrderedDict())
-    plate7.load_state({
-        "Material": {
-            "uuid": "04211a2dc93547fe9bf6121eac533650"
-        }
-    })
-    plate8 = get_tip_rack("RackT8")
-    plate8.load_state({
-        "Material": {
-            "uuid": "068b3815e36b4a72a59bae017011b29f",
-            "Code": "ZX-001-10+",
-            "Name": "10μL加长 Tip头"
-        }
-    })
+    )
+    plate7 = PRCXI9300Container(
+        name="plateT7", size_x=50, size_y=50, size_z=10, category="plate", ordering=collections.OrderedDict()
+    )
+    plate7.load_state({"Material": {"uuid": "04211a2dc93547fe9bf6121eac533650"}})
+    plate8 = get_tip_rack("PlateT8")
+    plate8.load_state({"Material": {"uuid": "04211a2dc93547fe9bf6121eac533650"}})
     plate9 = get_well_container("PlateT9")
-    plate9.load_state({
-        "Material": {
-            "uuid": "04211a2dc93547fe9bf6121eac533650"
+    plate9.load_state(
+        {
+            "Material": {
+                "uuid": "4a043a07c65a4f9bb97745e1f129b165",
+                "Code": "ZX-58-0001",
+                "SupplyType": 2,
+                "Name": "全裙边 PCR适配器",
+                "SummaryName": "全裙边 PCR适配器",
+            }
         }
-    })
+    )
     plate10 = get_well_container("PlateT10")
-    plate10.load_state({
-        "Material": {
-            "uuid": "04211a2dc93547fe9bf6121eac533650"
+    plate10.load_state(
+        {
+            "Material": {
+                "uuid": "4a043a07c65a4f9bb97745e1f129b165",
+                "Code": "ZX-58-0001",
+                "SupplyType": 2,
+                "Name": "全裙边 PCR适配器",
+                "SummaryName": "全裙边 PCR适配器",
+            }
         }
-    })
+    )
     plate11 = get_well_container("PlateT11")
-    plate11.load_state({
-        "Material": {
-            "uuid": "57b1e4711e9e4a32b529f3132fc5931f",
+    plate11.load_state(
+        {
+            "Material": {
+                "uuid": "04211a2dc93547fe9bf6121eac533650",
+            }
         }
-    })
+    )
     plate12 = get_well_container("PlateT12")
-    plate12.load_state({
-        "Material": {
-            "uuid": "04211a2dc93547fe9bf6121eac533650"
-        }
-    })
+    plate12.load_state({"Material": {"uuid": "04211a2dc93547fe9bf6121eac533650"}})
     plate13 = get_well_container("PlateT13")
-    plate13.load_state({
-        "Material": {
-            "uuid": "04211a2dc93547fe9bf6121eac533650"
+    plate13.load_state(
+        {
+            "Material": {
+                "uuid": "4a043a07c65a4f9bb97745e1f129b165",
+                "Code": "ZX-58-0001",
+                "SupplyType": 2,
+                "Name": "全裙边 PCR适配器",
+                "SummaryName": "全裙边 PCR适配器",
+            }
         }
-    })
+    ),
+    plate14 = get_well_container("PlateT14")
+    plate14.load_state(
+        {
+            "Material": {
+                "uuid": "4a043a07c65a4f9bb97745e1f129b165",
+                "Code": "ZX-58-0001",
+                "SupplyType": 2,
+                "Name": "全裙边 PCR适配器",
+                "SummaryName": "全裙边 PCR适配器",
+            }
+        }
+    ),
+    plate15 = get_well_container("PlateT15")
+    plate15.load_state({"Material": {"uuid": "04211a2dc93547fe9bf6121eac533650"}})
+
+    trash = PRCXI9300Trash(name="trash", size_x=50, size_y=50, size_z=10, category="trash")
+    trash.load_state({"Material": {"uuid": "730067cf07ae43849ddf4034299030e9"}})
 
     # container_for_nothing = PRCXI9300Container(name="container_for_nothing", size_x=50, size_y=50, size_z=10, category="plate", ordering=collections.OrderedDict())
 
     deck.assign_child_resource(plate1, location=Coordinate(0, 0, 0))
-    deck.assign_child_resource(PRCXI9300Container(name="container_for_nothing1", size_x=50, size_y=50, size_z=10, category="plate", ordering=collections.OrderedDict()), location=Coordinate(0, 0, 0))
-    deck.assign_child_resource(PRCXI9300Container(name="container_for_nothing2", size_x=50, size_y=50, size_z=10, category="plate", ordering=collections.OrderedDict()), location=Coordinate(0, 0, 0))
+    deck.assign_child_resource(plate2, location=Coordinate(0, 0, 0))
+    deck.assign_child_resource(
+        PRCXI9300Container(
+            name="container_for_nothin3",
+            size_x=50,
+            size_y=50,
+            size_z=10,
+            category="plate",
+            ordering=collections.OrderedDict(),
+        ),
+        location=Coordinate(0, 0, 0),
+    )
+    deck.assign_child_resource(plate4, location=Coordinate(0, 0, 0))
+    deck.assign_child_resource(plate5, location=Coordinate(0, 0, 0))
+    deck.assign_child_resource(plate6, location=Coordinate(0, 0, 0))
+    deck.assign_child_resource(
+        PRCXI9300Container(
+            name="container_for_nothing7",
+            size_x=50,
+            size_y=50,
+            size_z=10,
+            category="plate",
+            ordering=collections.OrderedDict(),
+        ),
+        location=Coordinate(0, 0, 0),
+    )
+    deck.assign_child_resource(
+        PRCXI9300Container(
+            name="container_for_nothing8",
+            size_x=50,
+            size_y=50,
+            size_z=10,
+            category="plate",
+            ordering=collections.OrderedDict(),
+        ),
+        location=Coordinate(0, 0, 0),
+    )
+    deck.assign_child_resource(plate9, location=Coordinate(0, 0, 0))
+    deck.assign_child_resource(plate10, location=Coordinate(0, 0, 0))
+    deck.assign_child_resource(
+        PRCXI9300Container(
+            name="container_for_nothing11",
+            size_x=50,
+            size_y=50,
+            size_z=10,
+            category="plate",
+            ordering=collections.OrderedDict(),
+        ),
+        location=Coordinate(0, 0, 0),
+    )
+    deck.assign_child_resource(
+        PRCXI9300Container(
+            name="container_for_nothing12",
+            size_x=50,
+            size_y=50,
+            size_z=10,
+            category="plate",
+            ordering=collections.OrderedDict(),
+        ),
+        location=Coordinate(0, 0, 0),
+    )
+    deck.assign_child_resource(plate13, location=Coordinate(0, 0, 0))
+    deck.assign_child_resource(plate14, location=Coordinate(0, 0, 0))
+    deck.assign_child_resource(plate15, location=Coordinate(0, 0, 0))
     deck.assign_child_resource(trash, location=Coordinate(0, 0, 0))
-    deck.assign_child_resource(PRCXI9300Container(name="container_for_nothing3", size_x=50, size_y=50, size_z=10, category="plate", ordering=collections.OrderedDict()), location=Coordinate(0, 0, 0))
-    deck.assign_child_resource(PRCXI9300Container(name="container_for_nothing", size_x=50, size_y=50, size_z=10, category="plate", ordering=collections.OrderedDict()), location=Coordinate(0, 0, 0))
-    deck.assign_child_resource(PRCXI9300Container(name="container_for_nothing4", size_x=50, size_y=50, size_z=10, category="plate", ordering=collections.OrderedDict()), location=Coordinate(0, 0, 0))
-    deck.assign_child_resource(plate8, location=Coordinate(0, 0, 0))
-    deck.assign_child_resource(PRCXI9300Container(name="container_for_nothing5", size_x=50, size_y=50, size_z=10, category="plate", ordering=collections.OrderedDict()), location=Coordinate(0, 0, 0))
-    deck.assign_child_resource(PRCXI9300Container(name="container_for_nothing6", size_x=50, size_y=50, size_z=10, category="plate", ordering=collections.OrderedDict()), location=Coordinate(0, 0, 0))
-    deck.assign_child_resource(plate11, location=Coordinate(0, 0, 0))
-    deck.assign_child_resource(PRCXI9300Container(name="container_for_nothing7", size_x=50, size_y=50, size_z=10, category="plate", ordering=collections.OrderedDict()), location=Coordinate(0, 0, 0))
-    deck.assign_child_resource(PRCXI9300Container(name="container_for_nothing8", size_x=50, size_y=50, size_z=10, category="plate", ordering=collections.OrderedDict()), location=Coordinate(0, 0, 0))
 
-    handler = PRCXI9300Handler(deck=deck, host="10.181.102.13", port=9999, 
-                               timeout=10.0, setup=False, debug=False, 
-                               matrix_id="fd383e6d-2d0e-40b5-9c01-1b2870b1f1b1",
-                               channel_num=1, axis="Right")  # Initialize the handler with the deck and host settings
-    
+    from unilabos.resources.graphio import tree_to_list, resource_plr_to_ulab
+
+    A = tree_to_list([resource_plr_to_ulab(deck)])
+    with open("deck.json", "w", encoding="utf-8") as f:
+        json.dump(A, f, indent=4, ensure_ascii=False)
+
+    handler = PRCXI9300Handler(
+        deck=deck,
+        host="192.168.0.121",
+        port=9999,
+        timeout=10.0,
+        setup=False,
+        debug=False,
+        matrix_id="5de524d0-3f95-406c-86dd-f83626ebc7cb",
+        channel_num=1,
+        axis="Left",
+        simulator=False,
+        is_9320=True,
+    )  # Initialize the handler with the deck and host settings
+    backend: PRCXI9300Backend = handler.backend
+    res = backend.api_client.get_all_materials()
     handler.set_tiprack([plate8])  # Set the tip rack for the handler
     asyncio.run(handler.setup())  # Initialize the handler and setup the connection
     from pylabrobot.resources import set_volume_tracking
+
     # from pylabrobot.resources import set_tip_tracking
     set_volume_tracking(enabled=True)
 
-    plate11.set_well_liquids([("Water", 100) if (i % 8 == 0 and i // 8 < 6) else (None, 100) for i in range(96)])  # Set liquids for every 8 wells in plate8
 
-    from unilabos.resources.graphio import *
+# 第一种情景：一个孔往多个孔加液
+    # plate_2_liquids = handler.set_group("water", [plate2.children[0]], [300])
+    # plate5_liquids = handler.set_group("master_mix", plate5.children[:23], [100]*23)
+# 第二个情景：多个孔往多个孔加液(但是个数得对应)
+    plate_2_liquids = handler.set_group("water", plate2.children[:23], [300]*23)
+    plate5_liquids = handler.set_group("master_mix", plate5.children[:23], [100]*23)
 
-    A = tree_to_list([resource_plr_to_ulab(deck)])
-    # with open("deck.json", "w", encoding="utf-8") as f:
-    #     json.dump(A, f, indent=4, ensure_ascii=False)
+    # plate11.set_well_liquids([("Water", 100) if (i % 8 == 0 and i // 8 < 6) else (None, 100) for i in range(96)])  # Set liquids for every 8 wells in plate8
 
-    print(plate11.get_well(0).tracker.get_used_volume())
+    # plate11.set_well_liquids([("Water", 100) if (i % 8 == 0 and i // 8 < 6) else (None, 100) for i in range(96)])  # Set liquids for every 8 wells in plate8
+
+#     A = tree_to_list([resource_plr_to_ulab(deck)])
+#     # with open("deck.json", "w", encoding="utf-8") as f:
+#     #     json.dump(A, f, indent=4, ensure_ascii=False)
+
+#     print(plate11.get_well(0).tracker.get_used_volume())
     asyncio.run(handler.create_protocol(protocol_name="Test Protocol"))  # Initialize the backend and setup the connection
+    asyncio.run(handler.transfer_group("water", "master_mix", 10))  # Reset tip tracking
+
 
     # asyncio.run(handler.pick_up_tips([plate8.children[8]],[0]))
     # print(plate8.children[8])
-    # # asyncio.run(handler.run_protocol())
+    # asyncio.run(handler.run_protocol())
     # asyncio.run(handler.aspirate([plate11.children[0]],[10], [0]))
     # print(plate11.children[0])
     # # asyncio.run(handler.run_protocol())
     # asyncio.run(handler.dispense([plate1.children[0]],[10],[0]))
     # print(plate1.children[0])
-    # # asyncio.run(handler.run_protocol())
+    # asyncio.run(handler.run_protocol())
     # asyncio.run(handler.mix([plate1.children[0]], mix_time=3, mix_vol=5, height_to_bottom=0.5, offsets=Coordinate(0, 0, 0), mix_rate=100))
     # print(plate1.children[0])
-    # asyncio.run(handler.discard_tips())
+    # asyncio.run(handler.discard_tips([0]))
 
-    asyncio.run(handler.add_liquid(
-    asp_vols=[10]*7,
-    dis_vols=[10]*7,
-    reagent_sources=plate11.children[:7],
-    targets=plate1.children[2:9],
-    use_channels=[0],
-    flow_rates=[None] * 7,
-    offsets=[Coordinate(0, 0, 0)] * 7,
-    liquid_height=[None] * 7,
-    blow_out_air_volume=[None] * 2,
-    delays=None,
-    mix_time=3,
-    mix_vol=5,
-    spread="custom",
-))
+#     asyncio.run(handler.add_liquid(
+#     asp_vols=[10]*7,
+#     dis_vols=[10]*7,
+#     reagent_sources=plate11.children[:7],
+#     targets=plate1.children[2:9],
+#     use_channels=[0],
+#     flow_rates=[None] * 7,
+#     offsets=[Coordinate(0, 0, 0)] * 7,
+#     liquid_height=[None] * 7,
+#     blow_out_air_volume=[None] * 2,
+#     delays=None,
+#     mix_time=3,
+#     mix_vol=5,
+#     spread="custom",
+# ))
 
-    asyncio.run(handler.run_protocol())  # Run the protocol
-# #     asyncio.run(handler.transfer_liquid(
-# #     asp_vols=[10]*2,
-# #     dis_vols=[10]*2,
-# #     sources=plate11.children[:2],
-# #     targets=plate11.children[-2:],
-# #     use_channels=[0],
-# #     offsets=[Coordinate(0, 0, 0)] * 4,
-# #     liquid_height=[None] * 2,
-# #     blow_out_air_volume=[None] * 2,
-# #     delays=None,
-# #     mix_times=3,
-# #     mix_vol=5,
-# #     spread="wide",
-# #     tip_racks=[plate8]
-# # ))
-
-# #     asyncio.run(handler.remove_liquid(
-# #     vols=[10]*2,
-# #     sources=plate11.children[:2],
-# #     waste_liquid=plate11.children[43],
-# #     use_channels=[0],
-# #     offsets=[Coordinate(0, 0, 0)] * 4,
-# #     liquid_height=[None] * 2,
-# #     blow_out_air_volume=[None] * 2,
-# #     delays=None,
-# #     spread="wide"
-# # ))
-#     asyncio.run(handler.run_protocol())
-
-#     # asyncio.run(handler.discard_tips())
-#     # asyncio.run(handler.mix(well_containers.children[:8
-#     # ], mix_time=3, mix_vol=50, height_to_bottom=0.5, offsets=Coordinate(0, 0, 0), mix_rate=100))
-#     #print(json.dumps(handler._unilabos_backend.steps_todo_list, indent=2))  # Print matrix info
+    # asyncio.run(handler.run_protocol())  # Run the protocol
 
 
-#     # asyncio.run(handler.remove_liquid(
-#     #     vols=[100]*16,
-#     #     sources=well_containers.children[-16:],
-#     #     waste_liquid=well_containers.children[:16], # 这个有些奇怪，但是好像也只能这么写
-#     #     use_channels=[0, 1, 2, 3, 4, 5, 6, 7],
-#     #     flow_rates=[None] * 32,
-#     #     offsets=[Coordinate(0, 0, 0)] * 32,
-#     #     liquid_height=[None] * 32,
-#     #     blow_out_air_volume=[None] * 32,
-#     #     spread="wide",
-#     # ))
-#     # asyncio.run(handler.transfer_liquid(
-#     #     asp_vols=[100]*16,
-#     #     dis_vols=[100]*16,
-#     #     tip_racks=[tip_rack],
-#     #     sources=well_containers.children[-16:],
-#     #     targets=well_containers.children[:16],
-#     #     use_channels=[0, 1, 2, 3, 4, 5, 6, 7],
-#     #     offsets=[Coordinate(0, 0, 0)] * 32,
-#     #     asp_flow_rates=[None] * 16,
-#     #     dis_flow_rates=[None] * 16,
-#     #     liquid_height=[None] * 32,
-#     #     blow_out_air_volume=[None] * 32,
-#     #     mix_times=3,
-#     #     mix_vol=50,
-#     #     spread="wide",
-#     # ))
-    print(json.dumps(handler._unilabos_backend.steps_todo_list, indent=2))  # Print matrix info
-#     # input("pick_up_tips add step")
-#     #asyncio.run(handler.run_protocol())  # Run the protocol
-#     # input("Running protocol...")
-#     # input("Press Enter to continue...")  # Wait for user input before proceeding
-#     # print("PRCXI9300Handler initialized with deck and host settings.")
 
+
+# # #     asyncio.run(handler.transfer_liquid(
+# # #     asp_vols=[10]*2,
+# # #     dis_vols=[10]*2,
+# # #     sources=plate11.children[:2],
+# # #     targets=plate11.children[-2:],
+# # #     use_channels=[0],
+# # #     offsets=[Coordinate(0, 0, 0)] * 4,
+# # #     liquid_height=[None] * 2,
+# # #     blow_out_air_volume=[None] * 2,
+# # #     delays=None,
+# # #     mix_times=3,
+# # #     mix_vol=5,
+# # #     spread="wide",
+# # #     tip_racks=[plate8]
+# # # ))
+
+# # #     asyncio.run(handler.remove_liquid(
+# # #     vols=[10]*2,
+# # #     sources=plate11.children[:2],
+# # #     waste_liquid=plate11.children[43],
+# # #     use_channels=[0],
+# # #     offsets=[Coordinate(0, 0, 0)] * 4,
+# # #     liquid_height=[None] * 2,
+# # #     blow_out_air_volume=[None] * 2,
+# # #     delays=None,
+# # #     spread="wide"
+# # # ))
+# #     asyncio.run(handler.run_protocol())
+
+# #     # asyncio.run(handler.discard_tips())
+# #     # asyncio.run(handler.mix(well_containers.children[:8
+# #     # ], mix_time=3, mix_vol=50, height_to_bottom=0.5, offsets=Coordinate(0, 0, 0), mix_rate=100))
+# #     #print(json.dumps(handler._unilabos_backend.steps_todo_list, indent=2))  # Print matrix info
+
+
+# #     # asyncio.run(handler.remove_liquid(
+# #     #     vols=[100]*16,
+# #     #     sources=well_containers.children[-16:],
+# #     #     waste_liquid=well_containers.children[:16], # 这个有些奇怪，但是好像也只能这么写
+# #     #     use_channels=[0, 1, 2, 3, 4, 5, 6, 7],
+# #     #     flow_rates=[None] * 32,
+# #     #     offsets=[Coordinate(0, 0, 0)] * 32,
+# #     #     liquid_height=[None] * 32,
+# #     #     blow_out_air_volume=[None] * 32,
+# #     #     spread="wide",
+# #     # ))
+# #     # asyncio.run(handler.transfer_liquid(
+# #     #     asp_vols=[100]*16,
+# #     #     dis_vols=[100]*16,
+# #     #     tip_racks=[tip_rack],
+# #     #     sources=well_containers.children[-16:],
+# #     #     targets=well_containers.children[:16],
+# #     #     use_channels=[0, 1, 2, 3, 4, 5, 6, 7],
+# #     #     offsets=[Coordinate(0, 0, 0)] * 32,
+# #     #     asp_flow_rates=[None] * 16,
+# #     #     dis_flow_rates=[None] * 16,
+# #     #     liquid_height=[None] * 32,
+# #     #     blow_out_air_volume=[None] * 32,
+# #     #     mix_times=3,
+# #     #     mix_vol=50,
+# #     #     spread="wide",
+# #     # ))
+#       # print(json.dumps(handler._unilabos_backend.steps_todo_list, indent=2))  # Print matrix info
+# #     # input("pick_up_tips add step")
+     #asyncio.run(handler.run_protocol())  # Run the protocol
+# #     # input("Running protocol...")
+# #     # input("Press Enter to continue...")  # Wait for user input before proceeding
+# #     # print("PRCXI9300Handler initialized with deck and host settings.")
+
+
+# 一些推荐版位组合的测试样例：
+
+# 一些推荐版位组合的测试样例：
+
+
+
+    with open("prcxi_material.json", "r") as f:
+        material_info = json.load(f)
+
+    layout = DefaultLayout("PRCXI9320")
+    layout.add_lab_resource(material_info)
+    MatrixLayout_1, dict_1 = layout.recommend_layout([
+        ("reagent_1", "96 细胞培养皿", 3),
+        ("reagent_2", "12道储液槽", 1),
+        ("reagent_3", "200μL Tip头", 7),
+        ("reagent_4", "10μL加长 Tip头", 1),
+    ])
+    print(dict_1)
+    MatrixLayout_2, dict_2 = layout.recommend_layout([
+        ("reagent_1", "96深孔板", 4),
+        ("reagent_2", "12道储液槽", 1),
+        ("reagent_3", "200μL Tip头", 1),
+        ("reagent_4", "10μL加长 Tip头", 1),
+    ])
+
+# with open("prcxi_material.json", "r") as f:
+#     material_info = json.load(f)
+
+# layout = DefaultLayout("PRCXI9320")
+# layout.add_lab_resource(material_info)
+# MatrixLayout_1, dict_1 = layout.recommend_layout([
+#     ("reagent_1", "96 细胞培养皿", 3),
+#     ("reagent_2", "12道储液槽", 1),
+#     ("reagent_3", "200μL Tip头", 7),
+#     ("reagent_4", "10μL加长 Tip头", 1),
+# ])
+# print(dict_1)
+# MatrixLayout_2, dict_2 = layout.recommend_layout([
+#     ("reagent_1", "96深孔板", 4),
+#     ("reagent_2", "12道储液槽", 1),
+#     ("reagent_3", "200μL Tip头", 1),
+#     ("reagent_4", "10μL加长 Tip头", 1),
+# ])

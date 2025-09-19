@@ -1,0 +1,137 @@
+export const metadata = {
+  title: '接入新工作站',
+  description: '以宜宾深势自动化筛选电解液并装配电池工站为例，以PLC接入为例',
+}
+
+{/* 导航目录（title 与下面各节的 id 对应） */}
+export const sections = [
+  { title: '接入步骤', id: 'jie-ru-bu-zhou' },
+  { title: '新建工站文件', id: 'xin-jian-gong-zhan-wen-jian' },
+  { title: '新建工站驱动函数', id: 'xin-jian-gong-zhan-qu-dong-han-shu' },
+  { title: '生成工站注册表信息', id: 'sheng-cheng-gong-zhan-zhu-ce-biao-xin-xi' },
+  { title: '上传新的工站信息', id: 'shang-chuan-xin-de-gong-zhan-xin-xi' }
+]
+
+
+<h3 id="jie-ru-bu-zhou">接入步骤</h3>
+
+## 1) 在`unilabos\devices\workstation`基于 `WorkstationBase` 的工站.py文件。
+
+## 2) 定义新工站的驱动函数，定义读写寄存器函数（命令/状态/数据类寄存器的命名与映射）。
+
+## 3) 使用命令编译生成工作站注册表信息：
+
+```bash
+python unilabos\app\register.py --config cellconfig.py --complete_registry
+```
+
+## 4) 使用命令运行并上传新的工站注册表信息：
+
+```bash
+python unilabos\app\main.py -g celljson.json --ak <user的AK> --sk <user的SK> --websocket --upload_registry
+```
+
+ 
+<h3 id="xin-jian-gong-zhan-wen-jian">1） 新建工站文件</h3>
+
+ 新建继承标准工站（WorkstationBase基类）
+
+- 新建电池装配工站文件位置：`unilabos/devices/workstation/coin_cell_assembly/coin_cell_assembly.py`
+- 类必须继承 `unilabos.devices.workstation.workstation_base:WorkstationBase`
+- 构造函数必须至少接收 `station_resource` 与 `**kwargs`，以便注册机制与运行时注入参数
+
+示例代码：
+```python
+from typing import Optional
+# 导入工站基类文件
+from unilabos.devices.workstation.workstation_base import WorkstationBase
+# 导入modbus通讯协议
+from unilabos.device_comms.modbus_plc.client import TCPClient, BaseClient
+
+class CoinCellAssemblyWorkstation(WorkstationBase): # 定义了基于WorkstationBase的电池装配工站文件
+    def __init__(self, station_resource, 
+                  address: str = "192.168.1.20", 
+                  port: str = "502", 
+                  *args, **kwargs): # 构造函数必须至少接收 `station_resource` 与 `**kwargs`，以便注册机制与运行时注入参数
+        super().__init__(station_resource=station_resource, *args, **kwargs)
+        self.station_resource = station_resource  # 物料台面资源（Deck）实例
+        self.success: bool = False
+        self.allow_data_read: bool = False
+        self.csv_export_thread = None
+        self.csv_export_running = False
+        self.csv_export_file: Optional[str] = None
+        tcp = TCPClient(addr=address, port=port)  # 建立 PLC 连接
+        tcp.client.connect()
+        self.nodes = BaseClient.load_csv(".../PLC_register.csv")  # 从 CSV 加载PLC寄存器
+        self.client = tcp.register_node_list(self.nodes)
+```
+
+<h3 id="xin-jian-gong-zhan-qu-dong-han-shu">2） 新建工站驱动函数</h3>
+
+基于 `PLC_register.csv` 中的寄存器，给出一个最小可用的启动并读取关键数据的驱动函数示例：
+
+- 使用到的寄存器：
+  - `COIL_SYS_START_CMD`（BOOL，地址 8010）：启动命令
+  - `COIL_SYS_START_STATUS`（BOOL，地址 8210）：启动状态
+  - `REG_DATA_OPEN_CIRCUIT_VOLTAGE`（FLOAT32，地址 10002）：开路电压
+  - `REG_DATA_ASSEMBLY_PRESSURE`（INT16，地址 10014）：压制力
+
+示例代码：
+```python
+from unilabos.device_comms.modbus_plc.modbus import WorderOrder
+
+def start_and_read_metrics(self):
+    # 1) 下发启动命令（脉冲式：置 True 再复位 False）
+    self.client.use_node('COIL_SYS_START_CMD').write(True)
+    self.client.use_node('COIL_SYS_START_CMD').write(False)
+
+    # 2) 轮询等待设备进入启动状态
+    while True:
+        status, _ = self.client.use_node('COIL_SYS_START_STATUS').read(1)
+        if bool(status[0]):
+            break
+
+    # 3) 读取关键数据（注意 FLOAT32 需要读 2 个寄存器并指定字节序）
+    voltage, _ = self.client.use_node('REG_DATA_OPEN_CIRCUIT_VOLTAGE').read(
+        2, word_order=WorderOrder.LITTLE
+    )
+    pressure, _ = self.client.use_node('REG_DATA_ASSEMBLY_PRESSURE').read(1)
+
+    return {
+        'open_circuit_voltage': voltage,
+        'assembly_pressure': pressure,
+    }
+```
+
+<Note> 若需要参数下发，可参考 `REG_MSG_*` 类寄存器（如 `REG_MSG_ELECTROLYTE_VOLUME` 等）先写入，再通过 `COIL_UNILAB_SEND_MSG_SUCC_CMD` 进行握手复位。</Note>
+
+<h3 id="sheng-cheng-gong-zhan-zhu-ce-biao-xin-xi">3） 生成工站注册表信息</h3>
+
+完成工站类与驱动函数后，需生成（更新）工站注册表.yaml，使Unilab-OS识别新工站文件。可以运行代码自动生成注册表.yaml文件：
+```bash
+python unilabos\app\register.py --config cellconfig.py --complete_registry
+```
+
+成功后会在本地生成最新注册信息，供云端/前端调用。
+
+<Note> 在新生成的.yaml中，需要确认module字段为新工站文件路径。</Note>
+
+在本例中，新建工站的路径为：`unilabos\devices\workstation\coin_cell_assembly\coin_cell_assembly.py`，`coin_cell_assembly.py`中新工站的类名称为`CoinCellAssemblyWorkstation`
+
+则注册表中module字段应为：
+<Note> module: unilabos.devices.workstation.coin_cell_assembly.coin_cell_assembly:CoinCellAssemblyWorkstation </Note>
+
+
+<h3 id="shang-chuan-xin-de-gong-zhan-xin-xi">4） 上传新的工站信息</h3>
+
+运行应用并上传新包含新工站注册表到Unilab-OS云端：
+
+```bash
+python unilabos\app\main.py -g celljson.json --ak <user的AK> --sk <user的SK> --websocket --upload_registry
+```
+
+<Warn>只要增加或删除了新建工站文件中的驱动函数，都需要重新生成新的注册表并上传新的工站注册表到Unilab-OS云端。</Warn>
+
+参数要点：
+- `-g/--graph` 指定节点/物料图（如 `celljson.json`）
+- `--upload_registry` 会同步上传新工站 Python 与注册表

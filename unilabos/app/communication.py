@@ -3,7 +3,7 @@
 """
 通信模块
 
-提供MQTT和WebSocket的统一接口，支持通过配置选择通信协议。
+提供WebSocket的统一接口，支持通过配置选择通信协议。
 包含通信抽象层基类和通信客户端工厂。
 """
 
@@ -17,7 +17,7 @@ class BaseCommunicationClient(ABC):
     """
     通信客户端抽象基类
 
-    定义了所有通信客户端（MQTT、WebSocket等）需要实现的接口。
+    定义了所有通信客户端（WebSocket等）需要实现的接口。
     """
 
     def __init__(self):
@@ -52,7 +52,7 @@ class BaseCommunicationClient(ABC):
 
     @abstractmethod
     def publish_job_status(
-        self, feedback_data: dict, job_id: str, status: str, return_info: Optional[str] = None
+        self, feedback_data: dict, job_id: str, status: str, return_info: Optional[dict] = None
     ) -> None:
         """
         发布作业状态信息
@@ -121,14 +121,12 @@ class CommunicationClientFactory:
 
         protocol = protocol.lower()
 
-        if protocol == "mqtt":
-            return cls._create_mqtt_client()
-        elif protocol == "websocket":
+        if protocol == "websocket":
             return cls._create_websocket_client()
         else:
             logger.error(f"[CommunicationFactory] Unsupported protocol: {protocol}")
-            logger.warning(f"[CommunicationFactory] Falling back to MQTT")
-            return cls._create_mqtt_client()
+            logger.warning(f"[CommunicationFactory] Falling back to WebSocket")
+            return cls._create_websocket_client()
 
     @classmethod
     def get_client(cls, protocol: Optional[str] = None) -> BaseCommunicationClient:
@@ -148,25 +146,15 @@ class CommunicationClientFactory:
         return cls._client_cache
 
     @classmethod
-    def _create_mqtt_client(cls) -> BaseCommunicationClient:
-        """创建MQTT客户端"""
-        try:
-            from unilabos.app.mq import mqtt_client
-            return mqtt_client
-        except Exception as e:
-            logger.error(f"[CommunicationFactory] Failed to create MQTT client: {str(e)}")
-            raise
-
-    @classmethod
     def _create_websocket_client(cls) -> BaseCommunicationClient:
         """创建WebSocket客户端"""
         try:
             from unilabos.app.ws_client import WebSocketClient
+
             return WebSocketClient()
         except Exception as e:
             logger.error(f"[CommunicationFactory] Failed to create WebSocket client: {str(e)}")
-            logger.warning(f"[CommunicationFactory] Falling back to MQTT")
-            return cls._create_mqtt_client()
+            raise
 
     @classmethod
     def reset_client(cls):
@@ -188,7 +176,7 @@ class CommunicationClientFactory:
         Returns:
             支持的协议列表
         """
-        return ["mqtt", "websocket"]
+        return ["websocket"]
 
 
 def get_communication_client(protocol: Optional[str] = None) -> BaseCommunicationClient:

@@ -1,0 +1,31 @@
+[
+    {'id': '3a1bbf38-7558-d32b-067e-ad41f5e2cc57', 'name': '5ml分液瓶板', 'sample_id': '0010-00001', 'children': ['3a1bbf38-7561-7ef1-d4ed-df97db65d1b1'
+        ], 'parent': '手动堆栈', 'type': 'container', 'class': '5ml分液瓶板', 'position': {'x': 5, 'y': 2, 'z': 1
+        }, 'config': {'barCode': None, 'unit': '块', 'status': 1, 'max_volume': 1, 'available_quantity': 1, 'location_info': {'location_id': '3a19deae-2c7a-4367-96dd-1ca2186f4910', 'warehouse_id': '3a19deae-2c79-05a3-9c76-8e6760424841', 'warehouse_name': '手动堆栈', 'code': '14', 'quantity_at_location': 0
+            }
+        }, 'data': {'quantity': 1, 'lockQuantity': 0, 'liquids': [
+                ['5ml分液瓶板',
+                    1
+                ]
+            ], 'pending_liquids': [], 'liquid_history': []
+        }
+    },
+    {'id': '3a1bbf38-7561-7ef1-d4ed-df97db65d1b1', 'name': '5ml分液瓶', 'sample_id': '0007', 'children': [], 'parent': '3a1bbf38-7558-d32b-067e-ad41f5e2cc57', 'type': 'well', 'class': '', 'position': {'x': 1, 'y': 1, 'z': 1
+        }, 'config': {'detailMaterialId': '3a1bbf38-755e-bd13-4e4a-a44838ed5e5c', 'unit': '个', 'associateId': None, 'max_volume': 1.0, 'available_quantity': 0
+        }, 'data': {'quantity': 1.0, 'lockQuantity': 0, 'liquids': [
+                ['5ml分液瓶',
+                    1.0
+                ]
+            ], 'pending_liquids': [], 'liquid_history': []
+        }
+    },
+    {'id': '3a1bbf38-7550-c45d-7ec6-3415e43dfcb0', 'name': '配液瓶(小)', 'sample_id': '0002', 'children': [], 'parent': None, 'type': 'container', 'class': '配液瓶(小)', 'position': {'x': 0, 'y': 0, 'z': 0
+        }, 'config': {'barCode': None, 'unit': '个', 'status': 1, 'max_volume': 1, 'available_quantity': 1
+        }, 'data': {'quantity': 1, 'lockQuantity': 0, 'liquids': [
+                ['配液瓶(小)',
+                    1
+                ]
+            ], 'pending_liquids': [], 'liquid_history': []
+        }
+    }
+]

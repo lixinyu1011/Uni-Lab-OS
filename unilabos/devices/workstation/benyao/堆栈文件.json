@@ -1,0 +1,39 @@
+{
+    "id": "3a1bbf38-7000-aaaa-bbbb-ccccdddd1111",
+    "name": "手动堆栈",
+    "sample_id": "STACK-00001",
+    "children": [
+      "3a1bbf38-7558-d32b-067e-ad41f5e2cc57"
+    ],
+    "parent": null,
+    "type": "Container",
+    "class": "手动堆栈",
+    "position": {
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "config": {
+      "barCode": null,
+      "unit": "堆",
+      "status": 1,
+      "max_volume": 10,
+      "available_quantity": 1,
+      "location_info": {
+        "location_id": "3a19deae-7000-1234-5678-abcdefabcdef",
+        "warehouse_id": "3a19deae-7000-9999-8888-777777777777",
+        "warehouse_name": "主仓库",
+        "code": "STACK-01",
+        "quantity_at_location": 1
+      }
+    },
+    "data": {
+      "quantity": 1,
+      "lockQuantity": 0,
+      "liquids": [
+        ["手动堆栈", 1]
+      ],
+      "pending_liquids": [],
+      "liquid_history": []
+    }
+  }

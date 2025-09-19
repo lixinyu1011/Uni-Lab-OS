@@ -283,9 +283,6 @@ class WorkstationNodeCreator(DeviceClassCreator[T]):
         """
         super().__init__(cls, children, resource_tracker)
 
-    def attach_resource(self):
-        pass  # WorkstationNode不直接附加资源
-
     def create_instance(self, data: Dict[str, Any]) -> T:
         """
         从数据创建WorkstationNode设备实例

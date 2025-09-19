@@ -3,19 +3,19 @@ HTTP客户端模块
 
 提供与远程服务器通信的客户端功能，只有host需要用
 """
+
 import json
 import os
 from typing import List, Dict, Any, Optional
 
 import requests
 from unilabos.utils.log import info
-from unilabos.config.config import MQConfig, HTTPConfig, BasicConfig
+from unilabos.config.config import HTTPConfig, BasicConfig
 from unilabos.utils import logger
 
 
 class HTTPClient:
     """HTTP客户端，用于与远程服务器通信"""
-    backend_go = False  # 是否使用Go后端
 
     def __init__(self, remote_addr: Optional[str] = None, auth: Optional[str] = None) -> None:
         """
@@ -30,15 +30,11 @@ class HTTPClient:
             self.auth = auth
         else:
             auth_secret = BasicConfig.auth_secret()
-            if auth_secret:
-                self.auth = auth_secret
-                self.backend_go = True
-                info(f"正在使用ak sk作为授权信息 {auth_secret}")
-            else:
-                self.auth = MQConfig.lab_id
+            self.auth = auth_secret
+            info(f"正在使用ak sk作为授权信息：[{auth_secret}]")
         info(f"HTTPClient 初始化完成: remote_addr={self.remote_addr}")
 
-    def resource_edge_add(self, resources: List[Dict[str, Any]], database_process_later: bool) -> requests.Response:
+    def resource_edge_add(self, resources: List[Dict[str, Any]]) -> requests.Response:
         """
         添加资源
 
@@ -48,17 +44,15 @@ class HTTPClient:
         Returns:
             Response: API响应对象
         """
-        database_param = 1 if database_process_later else 0
         response = requests.post(
-            f"{self.remote_addr}/lab/resource/edge/batch_create/?database_process_later={database_param}"
-            if not self.backend_go else f"{self.remote_addr}/lab/material/edge",
+            f"{self.remote_addr}/lab/material/edge",
             json={
                 "edges": resources,
-            } if self.backend_go else resources,
-            headers={"Authorization": f"{'lab' if not self.backend_go else 'Lab'} {self.auth}"},
+            },
+            headers={"Authorization": f"Lab {self.auth}"},
             timeout=100,
         )
-        if self.backend_go and response.status_code == 200:
+        if response.status_code == 200:
             res = response.json()
             if "code" in res and res["code"] != 0:
                 logger.error(f"添加物料关系失败: {response.text}")
@@ -66,7 +60,7 @@ class HTTPClient:
             logger.error(f"添加物料关系失败: {response.status_code}, {response.text}")
         return response
 
-    def resource_add(self, resources: List[Dict[str, Any]], database_process_later: bool) -> requests.Response:
+    def resource_add(self, resources: List[Dict[str, Any]]) -> requests.Response:
         """
         添加资源
 
@@ -77,12 +71,12 @@ class HTTPClient:
             Response: API响应对象
         """
         response = requests.post(
-            f"{self.remote_addr}/lab/resource/?database_process_later={1 if database_process_later else 0}" if not self.backend_go else f"{self.remote_addr}/lab/material",
-            json=resources if not self.backend_go else {"nodes": resources},
-            headers={"Authorization": f"{'lab' if not self.backend_go else 'Lab'} {self.auth}"},
+            f"{self.remote_addr}/lab/material",
+            json={"nodes": resources},
+            headers={"Authorization": f"Lab {self.auth}"},
             timeout=100,
         )
-        if self.backend_go and response.status_code == 200:
+        if response.status_code == 200:
             res = response.json()
             if "code" in res and res["code"] != 0:
                 logger.error(f"添加物料失败: {response.text}")
@@ -102,9 +96,9 @@ class HTTPClient:
             Dict: 返回的资源数据
         """
         response = requests.get(
-            f"{self.remote_addr}/lab/resource/?edge_format=1" if not self.backend_go else f"{self.remote_addr}/lab/material",
+            f"{self.remote_addr}/lab/material",
             params={"id": id, "with_children": with_children},
-            headers={"Authorization": f"{'lab' if not self.backend_go else 'Lab'} {self.auth}"},
+            headers={"Authorization": f"Lab {self.auth}"},
             timeout=20,
         )
         return response.json()
@@ -122,7 +116,7 @@ class HTTPClient:
         response = requests.delete(
             f"{self.remote_addr}/lab/resource/batch_delete/",
             params={"id": id},
-            headers={"Authorization": f"{'lab' if not self.backend_go else 'Lab'} {self.auth}"},
+            headers={"Authorization": f"Lab {self.auth}"},
             timeout=20,
         )
         return response
@@ -137,10 +131,11 @@ class HTTPClient:
         Returns:
             Response: API响应对象
         """
+        return self.resource_add(resources)
         response = requests.patch(
             f"{self.remote_addr}/lab/resource/batch_update/?edge_format=1",
             json=resources,
-            headers={"Authorization": f"{'lab' if not self.backend_go else 'Lab'} {self.auth}"},
+            headers={"Authorization": f"Lab {self.auth}"},
             timeout=100,
         )
         return response
@@ -164,7 +159,7 @@ class HTTPClient:
             response = requests.post(
                 f"{self.remote_addr}/api/account/file_upload/{scene}",
                 files=files,
-                headers={"Authorization": f"{'lab' if not self.backend_go else 'Lab'} {self.auth}"},
+                headers={"Authorization": f"Lab {self.auth}"},
                 timeout=30,  # 上传文件可能需要更长的超时时间
             )
         return response
@@ -180,9 +175,9 @@ class HTTPClient:
             Response: API响应对象
         """
         response = requests.post(
-            f"{self.remote_addr}/lab/registry/" if not self.backend_go else f"{self.remote_addr}/lab/resource",
+            f"{self.remote_addr}/lab/resource",
             json=registry_data,
-            headers={"Authorization": f"{'lab' if not self.backend_go else 'Lab'} {self.auth}"},
+            headers={"Authorization": f"Lab {self.auth}"},
             timeout=30,
         )
         if response.status_code not in [200, 201]:
@@ -201,7 +196,7 @@ class HTTPClient:
         """
         response = requests.get(
             f"{self.remote_addr}/lab/resource/graph_info/",
-            headers={"Authorization": f"{'lab' if not self.backend_go else 'Lab'} {self.auth}"},
+            headers={"Authorization": f"Lab {self.auth}"},
             timeout=(3, 30),
         )
         if response.status_code != 200:
