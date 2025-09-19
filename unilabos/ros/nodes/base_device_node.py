@@ -5,7 +5,7 @@ import threading
 import time
 import traceback
 import uuid
-from typing import get_type_hints, TypeVar, Generic, Dict, Any, Type, TypedDict, Optional
+from typing import get_type_hints, TypeVar, Generic, Dict, Any, Type, TypedDict, Optional, List, Union
 
 from concurrent.futures import ThreadPoolExecutor
 import asyncio
@@ -673,7 +673,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                 for k, v in goal.get_fields_and_field_types().items():
                     if v in ["unilabos_msgs/Resource", "sequence<unilabos_msgs/Resource>"]:
                         self.lab_logger().info(f"查询资源状态: Key: {k} Type: {v}")
-                        current_resources = []
+                        current_resources: Union[List[Resource], List[List[Resource]]] = []
                         # TODO: resource后面需要分组
                         only_one_resource = False
                         try:
@@ -683,7 +683,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                                     r.id = i["id"]  # splash optional
                                     r.with_children = True
                                     response = await self._resource_clients["resource_get"].call_async(r)
-                                    current_resources.extend(response.resources)
+                                    current_resources.append(response.resources)
                             else:
                                 only_one_resource = True
                                 r = ResourceGet.Request()
@@ -698,15 +698,16 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                         except Exception:
                             logger.error(f"资源查询失败，默认使用本地资源")
                         # 删除对response.resources的检查，因为它总是存在
-                        resources_list = [convert_from_ros_msg(rs) for rs in current_resources]  # type: ignore  # FIXME
-                        self.lab_logger().debug(f"资源查询结果: {len(resources_list)} 个资源")
                         type_hint = action_paramtypes[k]
                         final_type = get_type_class(type_hint)
-                        # 判断 ACTION 是否需要特殊的物料类型如 pylabrobot.resources.Resource，并做转换
                         if only_one_resource:
+                            resources_list: List[Dict[str, Any]] = [convert_from_ros_msg(rs) for rs in current_resources]  # type: ignore
+                            self.lab_logger().debug(f"资源查询结果: {len(resources_list)} 个资源")
                             final_resource = convert_resources_to_type(resources_list, final_type)
+                        # 判断 ACTION 是否需要特殊的物料类型如 pylabrobot.resources.Resource，并做转换
                         else:
-                            final_resource = [convert_resources_to_type([i], final_type)[0] for i in resources_list]
+                            resources_list: List[List[Dict[str, Any]]] = [[convert_from_ros_msg(rs) for rs in sub_res_list] for sub_res_list in current_resources]  # type: ignore
+                            final_resource = [convert_resources_to_type(sub_res_list, final_type)[0] for sub_res_list in resources_list]
                         try:
                             action_kwargs[k] = self.resource_tracker.figure_resource(final_resource, try_mode=False)
                         except Exception as e:
