@@ -1422,7 +1422,7 @@ if __name__ == "__main__":
         new_tip_rack: PRCXI9300Container = PRCXI9300Container.deserialize(tip_racks)
         return new_tip_rack
 
-    plate1 = get_well_container("PlateT1")
+    plate1 = get_tip_rack("RackT1")
     plate1.load_state(
         {"Material": {"uuid": "068b3815e36b4a72a59bae017011b29f", "Code": "ZX-001-10+", "Name": "10μL加长 Tip头"}}
     )
@@ -1443,7 +1443,7 @@ if __name__ == "__main__":
         {"Material": {"uuid": "b05b3b2aafd94ec38ea0cd3215ecea8f", "Code": "ZX-78-096", "Name": "细菌培养皿"}}
     )
 
-    plate5 = get_well_container("PlateT5")
+    plate5 = get_tip_rack("RackT5")
     plate5.load_state(
         {
             "Material": {
