@@ -1411,10 +1411,12 @@ if __name__ == "__main__":
         new_plate: PRCXI9300Container = PRCXI9300Container.deserialize(well_containers)
         return new_plate
 
-    def get_tip_rack(name: str) -> PRCXI9300Container:
-        tip_racks = opentrons_96_tiprack_10ul("name").serialize()
+    def get_tip_rack(name: str, child_prefix: str="tip") -> PRCXI9300Container:
+        tip_racks = opentrons_96_tiprack_10ul(name).serialize()
         tip_rack = PRCXI9300Container(
-            name=name, size_x=50, size_y=50, size_z=10, category="tip_rack", ordering=tip_racks["ordering"]
+            name=name, size_x=50, size_y=50, size_z=10, category="tip_rack", ordering=collections.OrderedDict({
+                k: f"{child_prefix}_{k}" for k, v in tip_racks["ordering"].items()
+            })
         )
         tip_rack_serialized = tip_rack.serialize()
         tip_rack_serialized["parent_name"] = deck.name
@@ -1470,7 +1472,7 @@ if __name__ == "__main__":
         name="plateT7", size_x=50, size_y=50, size_z=10, category="plate", ordering=collections.OrderedDict()
     )
     plate7.load_state({"Material": {"uuid": "04211a2dc93547fe9bf6121eac533650"}})
-    plate8 = get_tip_rack("RackT8")
+    plate8 = get_tip_rack("PlateT8")
     plate8.load_state({"Material": {"uuid": "04211a2dc93547fe9bf6121eac533650"}})
     plate9 = get_well_container("PlateT9")
     plate9.load_state(
