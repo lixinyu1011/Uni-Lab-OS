@@ -158,10 +158,6 @@ class WorkstationBase(ABC):
         # PLR 物料系统
         self.deck: Optional[Deck] = None
         self.plr_resources: Dict[str, PLRResource] = {}
-
-        # 资源同步器（可选）
-        self.resource_synchronizer = ResourceSynchronizer(self)  # 要在driver中自行初始化，只有workstation用
-
         # 硬件接口
         self.hardware_interface: Union[Any, str] = None
 
@@ -174,67 +170,19 @@ class WorkstationBase(ABC):
         # 支持的工作流（静态预定义）
         self.supported_workflows: Dict[str, WorkflowInfo] = {}
 
+    def post_init(self, ros_node: ROS2WorkstationNode) -> None:
         # 初始化物料系统
+        self._ros_node = ros_node
         self._initialize_material_system()
-
-        # 注册支持的工作流
-        self._register_supported_workflows()
-
-        logger.info(f"工作站 {device_id} 初始化完成（简化版）")
 
     def _initialize_material_system(self):
         """初始化物料系统 - 使用 graphio 转换"""
-        try:
-            from unilabos.resources.graphio import resource_ulab_to_plr
-
-            # 1. 合并 deck_config 和 children 创建完整的资源树
-            complete_resource_config = self._create_complete_resource_config()
-
-            # 2. 使用 graphio 转换为 PLR 资源
-            self.deck = resource_ulab_to_plr(complete_resource_config, plr_model=True)
-
-            # 3. 建立资源映射
-            self._build_resource_mappings(self.deck)
-
-            # 4. 如果有资源同步器，执行初始同步
-            if self.resource_synchronizer:
-                # 这里可以异步执行，暂时跳过
-                pass
-
-            logger.info(f"工作站 {self.device_id} 物料系统初始化成功，创建了 {len(self.plr_resources)} 个资源")
-
-        except Exception as e:
-            logger.error(f"工作站 {self.device_id} 物料系统初始化失败: {e}")
-            raise
+        pass
 
     def _create_complete_resource_config(self) -> Dict[str, Any]:
         """创建完整的资源配置 - 合并 deck_config 和 children"""
         # 创建主 deck 配置
-        deck_resource = {
-            "id": f"{self.device_id}_deck",
-            "name": f"{self.device_id}_deck",
-            "type": "deck",
-            "position": {"x": 0, "y": 0, "z": 0},
-            "config": {
-                "size_x": self.deck_config.get("size_x", 1000.0),
-                "size_y": self.deck_config.get("size_y", 1000.0),
-                "size_z": self.deck_config.get("size_z", 100.0),
-                **{k: v for k, v in self.deck_config.items() if k not in ["size_x", "size_y", "size_z"]},
-            },
-            "data": {},
-            "children": [],
-            "parent": None,
-        }
-
-        # 添加子资源
-        if self._children:
-            children_list = []
-            for child_id, child_config in self._children.items():
-                child_resource = self._normalize_child_resource(child_id, child_config, deck_resource["id"])
-                children_list.append(child_resource)
-            deck_resource["children"] = children_list
-
-        return deck_resource
+        return {}
 
     def _normalize_child_resource(self, resource_id: str, config: Dict[str, Any], parent_id: str) -> Dict[str, Any]:
         """标准化子资源配置"""
@@ -284,12 +232,12 @@ class WorkstationBase(ABC):
     def set_hardware_interface(self, hardware_interface: Union[Any, str]):
         """设置硬件接口"""
         self.hardware_interface = hardware_interface
-        logger.info(f"工作站 {self.device_id} 硬件接口设置: {type(hardware_interface).__name__}")
+        logger.info(f"工作站 {self._ros_node.device_id} 硬件接口设置: {type(hardware_interface).__name__}")
 
     def set_workstation_node(self, workstation_node: "ROS2WorkstationNode"):
         """设置协议节点引用（用于代理模式）"""
         self._ros_node = workstation_node
-        logger.info(f"工作站 {self.device_id} 关联协议节点")
+        logger.info(f"工作站 {self._ros_node.device_id} 关联协议节点")
 
     # ============ 设备操作接口 ============
 
@@ -351,18 +299,18 @@ class WorkstationBase(ABC):
     async def sync_with_external_system(self) -> bool:
         """与外部物料系统同步"""
         if not self.resource_synchronizer:
-            logger.info(f"工作站 {self.device_id} 没有配置资源同步器")
+            logger.info(f"工作站 {self._ros_node.device_id} 没有配置资源同步器")
             return True
 
         try:
             success = await self.resource_synchronizer.sync_from_external()
             if success:
-                logger.info(f"工作站 {self.device_id} 外部同步成功")
+                logger.info(f"工作站 {self._ros_node.device_id} 外部同步成功")
             else:
-                logger.warning(f"工作站 {self.device_id} 外部同步失败")
+                logger.warning(f"工作站 {self._ros_node.device_id} 外部同步失败")
             return success
         except Exception as e:
-            logger.error(f"工作站 {self.device_id} 外部同步异常: {e}")
+            logger.error(f"工作站 {self._ros_node.device_id} 外部同步异常: {e}")
             return False
 
     # ============ 简化的工作流控制 ============
@@ -380,23 +328,23 @@ class WorkstationBase(ABC):
 
             if success:
                 self.current_workflow_status = WorkflowStatus.RUNNING
-                logger.info(f"工作站 {self.device_id} 工作流 {workflow_name} 启动成功")
+                logger.info(f"工作站 {self._ros_node.device_id} 工作流 {workflow_name} 启动成功")
             else:
                 self.current_workflow_status = WorkflowStatus.ERROR
-                logger.error(f"工作站 {self.device_id} 工作流 {workflow_name} 启动失败")
+                logger.error(f"工作站 {self._ros_node.device_id} 工作流 {workflow_name} 启动失败")
 
             return success
 
         except Exception as e:
             self.current_workflow_status = WorkflowStatus.ERROR
-            logger.error(f"工作站 {self.device_id} 执行工作流失败: {e}")
+            logger.error(f"工作站 {self._ros_node.device_id} 执行工作流失败: {e}")
             return False
 
     def stop_workflow(self, emergency: bool = False) -> bool:
         """停止工作流"""
         try:
             if self.current_workflow_status in [WorkflowStatus.IDLE, WorkflowStatus.STOPPED]:
-                logger.warning(f"工作站 {self.device_id} 没有正在运行的工作流")
+                logger.warning(f"工作站 {self._ros_node.device_id} 没有正在运行的工作流")
                 return True
 
             self.current_workflow_status = WorkflowStatus.STOPPING
@@ -406,16 +354,16 @@ class WorkstationBase(ABC):
 
             if success:
                 self.current_workflow_status = WorkflowStatus.STOPPED
-                logger.info(f"工作站 {self.device_id} 工作流停止成功 (紧急: {emergency})")
+                logger.info(f"工作站 {self._ros_node.device_id} 工作流停止成功 (紧急: {emergency})")
             else:
                 self.current_workflow_status = WorkflowStatus.ERROR
-                logger.error(f"工作站 {self.device_id} 工作流停止失败")
+                logger.error(f"工作站 {self._ros_node.device_id} 工作流停止失败")
 
             return success
 
         except Exception as e:
             self.current_workflow_status = WorkflowStatus.ERROR
-            logger.error(f"工作站 {self.device_id} 停止工作流失败: {e}")
+            logger.error(f"工作站 {self._ros_node.device_id} 停止工作流失败: {e}")
             return False
 
     # ============ 状态属性 ============
@@ -441,49 +389,7 @@ class WorkstationBase(ABC):
             return 0.0
         return time.time() - self.workflow_start_time
 
-    # ============ 抽象方法 - 子类必须实现 ============
 
-    @abstractmethod
-    def _register_supported_workflows(self):
-        """注册支持的工作流 - 子类必须实现"""
-        pass
-
-    @abstractmethod
-    def _execute_workflow_impl(self, workflow_name: str, parameters: Dict[str, Any]) -> bool:
-        """执行工作流的具体实现 - 子类必须实现"""
-        pass
-
-    @abstractmethod
-    def _stop_workflow_impl(self, emergency: bool = False) -> bool:
-        """停止工作流的具体实现 - 子类必须实现"""
-        pass
-
-class WorkstationExample(WorkstationBase):
-    """工作站示例实现"""
-
-    def _register_supported_workflows(self):
-        """注册支持的工作流"""
-        self.supported_workflows["example_workflow"] = WorkflowInfo(
-            name="example_workflow",
-            description="这是一个示例工作流",
-            estimated_duration=300.0,
-            required_materials=["sample_plate"],
-            output_product="processed_plate",
-            parameters_schema={"param1": "string", "param2": "integer"},
-        )
-
-    def _execute_workflow_impl(self, workflow_name: str, parameters: Dict[str, Any]) -> bool:
-        """执行工作流的具体实现"""
-        if workflow_name not in self.supported_workflows:
-            logger.error(f"工作站 {self.device_id} 不支持工作流: {workflow_name}")
-            return False
-
-        # 这里添加实际的工作流逻辑
-        logger.info(f"工作站 {self.device_id} 正在执行工作流: {workflow_name} with parameters {parameters}")
-        return True
-
-    def _stop_workflow_impl(self, emergency: bool = False) -> bool:
-        """停止工作流的具体实现"""
-        # 这里添加实际的停止逻辑
-        logger.info(f"工作站 {self.device_id} 正在停止工作流 (紧急: {emergency})")
-        return True
+class ProtocolNode(WorkstationBase):
+    def __init__(self, station_resource: Optional[PLRResource], *args, **kwargs):
+        super().__init__(station_resource, *args, **kwargs)

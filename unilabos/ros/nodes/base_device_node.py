@@ -980,7 +980,6 @@ class ROS2DeviceNode:
             )
         else:
             from unilabos.devices.workstation.workstation_base import WorkstationBase
-
             if issubclass(self._driver_class, WorkstationBase):  # 是WorkstationNode的子节点，就要调用WorkstationNodeCreator
                 self.driver_is_workstation = True
                 self._driver_creator = WorkstationNodeCreator(driver_class, children=children, resource_tracker=self.resource_tracker)
