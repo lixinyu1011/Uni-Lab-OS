@@ -24,7 +24,7 @@ from unilabos.ros.msgs.message_converter import (
     convert_from_ros_msg_with_mapping,
 )
 from unilabos.ros.nodes.base_device_node import BaseROS2DeviceNode, DeviceNodeResourceTracker, ROS2DeviceNode
-from unilabos.utils.type_check import serialize_result_info
+from unilabos.utils.type_check import serialize_result_info, get_result_info_str
 
 if TYPE_CHECKING:
     from unilabos.devices.workstation.workstation_base import WorkstationBase
@@ -203,12 +203,12 @@ class ROS2WorkstationNode(BaseROS2DeviceNode):
             execution_error = ""
             execution_success = False
             protocol_return_value = None
-            self.get_logger().info(f"Executing {protocol_name} action...")
+            self.lab_logger().info(f"Executing {protocol_name} action...")
             action_value_mapping = self._action_value_mappings[protocol_name]
             step_results = []
             try:
-                print("+" * 30)
-                print(protocol_steps_generator)
+                self.lab_logger().warning("+" * 30)
+                self.lab_logger().info(protocol_steps_generator)
                 # 从目标消息中提取参数, 并调用Protocol生成器(根据设备连接图)生成action步骤
                 goal = goal_handle.request
                 protocol_kwargs = convert_from_ros_msg_with_mapping(goal, action_value_mapping["goal"])
@@ -334,7 +334,7 @@ class ROS2WorkstationNode(BaseROS2DeviceNode):
                     setattr(
                         result,
                         attr_name,
-                        serialize_result_info(execution_error, execution_success, protocol_return_value),
+                        get_result_info_str(execution_error, execution_success, protocol_return_value),
                     )
 
             self.lab_logger().info(f"协议 {protocol_name} 完成并返回结果")

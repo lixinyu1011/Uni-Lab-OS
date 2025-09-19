@@ -683,7 +683,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
             if action_name not in ["create_resource_detailed", "create_resource"]:
                 for k, v in goal.get_fields_and_field_types().items():
                     if v in ["unilabos_msgs/Resource", "sequence<unilabos_msgs/Resource>"]:
-                        self.lab_logger().info(f"查询资源状态: Key: {k} Type: {v}")
+                        self.lab_logger().info(f"{action_name} 查询资源状态: Key: {k} Type: {v}")
                         current_resources: Union[List[Resource], List[List[Resource]]] = []
                         # TODO: resource后面需要分组
                         only_one_resource = False
@@ -722,7 +722,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                         try:
                             action_kwargs[k] = self.resource_tracker.figure_resource(final_resource, try_mode=False)
                         except Exception as e:
-                            self.lab_logger().error(f"物料实例获取失败: {e}\n{traceback.format_exc()}")
+                            self.lab_logger().error(f"{action_name} 物料实例获取失败: {e}\n{traceback.format_exc()}")
                             error_skip = True
                             execution_error = traceback.format_exc()
                             break
