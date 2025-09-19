@@ -7,7 +7,7 @@ balance.mettler_toledo_xpr:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result:
           success: success
         schema:
@@ -34,7 +34,7 @@ balance.mettler_toledo_xpr:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result:
           unit: unit
           weight: weight
@@ -68,7 +68,7 @@ balance.mettler_toledo_xpr:
           immediate_tare: immediate_tare
         goal_default:
           immediate_tare: true
-        handles: []
+        handles: {}
         result:
           unit: unit
           weight: weight
@@ -106,7 +106,7 @@ balance.mettler_toledo_xpr:
           command: command
         goal_default:
           command: ''
-        handles: []
+        handles: {}
         result:
           return_info: return_info
           success: success
@@ -151,7 +151,7 @@ balance.mettler_toledo_xpr:
           immediate: immediate
         goal_default:
           immediate: false
-        handles: []
+        handles: {}
         result:
           success: success
         schema:
@@ -184,7 +184,7 @@ balance.mettler_toledo_xpr:
           immediate: immediate
         goal_default:
           immediate: false
-        handles: []
+        handles: {}
         result:
           success: success
         schema:
