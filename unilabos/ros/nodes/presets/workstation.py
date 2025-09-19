@@ -29,6 +29,8 @@ from unilabos.utils.type_check import serialize_result_info
 if TYPE_CHECKING:
     from unilabos.devices.workstation.workstation_base import WorkstationBase
 
+class ROS2WorkstationNodeTempError(Exception):
+    pass
 
 class ROS2WorkstationNode(BaseROS2DeviceNode):
     """
@@ -259,11 +261,14 @@ class ROS2WorkstationNode(BaseROS2DeviceNode):
                             time.sleep(action["action_kwargs"]["time"])
                             step_results.append({"step": i + 1, "action": "wait", "result": "completed"})
                         else:
-                            result = await self.execute_single_action(**action)
-                            step_results.append({"step": i + 1, "action": action["action_name"], "result": result})
-                            ret_info = json.loads(getattr(result, "return_info", "{}"))
-                            if not ret_info.get("suc", False):
-                                raise RuntimeError(f"Step {i + 1} failed.")
+                            try:
+                                result = await self.execute_single_action(**action)
+                                step_results.append({"step": i + 1, "action": action["action_name"], "result": result})
+                                ret_info = json.loads(getattr(result, "return_info", "{}"))
+                                if not ret_info.get("suc", False):
+                                    raise RuntimeError(f"Step {i + 1} failed.")
+                            except ROS2WorkstationNodeTempError as ex:
+                                step_results.append({"step": i + 1, "action": action["action_name"], "result": ex.args[0]})
                     elif isinstance(action, list):
                         # 如果是并行动作，同时执行
                         actions = action
@@ -340,6 +345,9 @@ class ROS2WorkstationNode(BaseROS2DeviceNode):
     async def execute_single_action(self, device_id, action_name, action_kwargs):
         """执行单个动作"""
         # 构建动作ID
+        if action_name == "log_message":
+            self.lab_logger().info(f"[Protocol Log] {action_kwargs}")
+            raise ROS2WorkstationNodeTempError(f"[Protocol Log] {action_kwargs}")
         if device_id in ["", None, "self"]:
             action_id = f"/devices/{self.device_id}/{action_name}"
         else:
