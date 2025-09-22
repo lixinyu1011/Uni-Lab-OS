@@ -1093,7 +1093,7 @@ class WebSocketClient(BaseCommunicationClient):
             },
         }
         self.message_processor.send_message(message)
-        logger.trace(f"[WebSocketClient] Device status published: {device_id}.{property_name}")
+        logger.debug(f"[WebSocketClient] Device status published: {device_id}.{property_name}")
 
     def publish_job_status(
         self, feedback_data: dict, item: QueueItem, status: str, return_info: Optional[dict] = None

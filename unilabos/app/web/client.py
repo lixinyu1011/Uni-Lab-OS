@@ -66,7 +66,6 @@ class HTTPClient:
 
         Args:
             resources: 要添加的资源列表
-            database_process_later: 后台处理资源
         Returns:
             Response: API响应对象
         """
@@ -131,14 +130,19 @@ class HTTPClient:
         Returns:
             Response: API响应对象
         """
-        return self.resource_add(resources)
-        response = requests.patch(
-            f"{self.remote_addr}/lab/resource/batch_update/?edge_format=1",
+        response = requests.put(
+            f"{self.remote_addr}/lab/material",
             json=resources,
             headers={"Authorization": f"Lab {self.auth}"},
             timeout=100,
         )
-        return response
+        if response.status_code == 200:
+            res = response.json()
+            if "code" in res and res["code"] != 0:
+                logger.error(f"添加物料失败: {response.text}")
+        if response.status_code != 200:
+            logger.error(f"添加物料失败: {response.text}")
+        return response.json()
 
     def upload_file(self, file_path: str, scene: str = "models") -> requests.Response:
         """
