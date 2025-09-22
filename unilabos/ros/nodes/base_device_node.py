@@ -5,11 +5,7 @@ import threading
 import time
 import traceback
 import uuid
-<<<<<<< HEAD
-from typing import List, get_type_hints, TypeVar, Generic, Dict, Any, Type, TypedDict, Optional
-=======
 from typing import get_type_hints, TypeVar, Generic, Dict, Any, Type, TypedDict, Optional, List, Union
->>>>>>> 4dceffabfd7213a881059ac54fa633e600466550
 
 from concurrent.futures import ThreadPoolExecutor
 import asyncio
@@ -401,11 +397,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                         logger.info(f"更新物料{container_query_dict['name']}的数据{parent['data']} dict")
                     else:
                         logger.info(f"更新物料{container_query_dict['name']}出现不支持的数据类型{type(parent)} {parent}")
-<<<<<<< HEAD
-            response = await rclient.call_async(request)
-=======
             response: ResourceAdd.Response = await rclient.call_async(request)
->>>>>>> 4dceffabfd7213a881059ac54fa633e600466550
             # 应该先add_resource了
             final_response = {
                 "created_resources": [ROS2MessageInstance(i).get_python_dict() for i in request.resources],
@@ -454,14 +446,11 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                         ):
                             empty_liquid_info_in[liquid_input_slot] = (liquid_type, liquid_volume)
                         plr_instance.set_well_liquids(empty_liquid_info_in)
-<<<<<<< HEAD
-=======
                         input_wells_ulr = [
                             convert_to_ros_msg(Resource, resource_plr_to_ulab(plr_instance.get_well(LIQUID_INPUT_SLOT), with_children=False)) for r in LIQUID_INPUT_SLOT
                         ]
                         final_response["liquid_input_resources"] = [ROS2MessageInstance(i).get_python_dict() for i in input_wells_ulr]
                         res.response = json.dumps(final_response)
->>>>>>> 4dceffabfd7213a881059ac54fa633e600466550
                     if isinstance(parent, OTDeck) and "slot" in other_calling_param:
                         other_calling_param["slot"] = int(other_calling_param["slot"])
                         parent.assign_child_at_slot(plr_instance, **other_calling_param)

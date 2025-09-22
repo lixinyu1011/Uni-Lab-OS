@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 hplc.agilent:
   category:
   - characterization_chromatic
@@ -223,7 +221,6 @@ hplc.agilent:
       - data_file
       type: object
   version: 1.0.0
->>>>>>> 4dceffabfd7213a881059ac54fa633e600466550
 hplc.agilent-zhida:
   category:
   - characterization_chromatic

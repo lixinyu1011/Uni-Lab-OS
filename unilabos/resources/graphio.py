@@ -15,17 +15,12 @@ try:
 except Exception:
     Resource = None
 
-<<<<<<< HEAD
-from unilabos.resources.container import RegularContainer
-from unilabos.ros.msgs.message_converter import convert_to_ros_msg
-=======
 try:
     from unilabos.resources.container import RegularContainer
     from unilabos.ros.msgs.message_converter import convert_to_ros_msg
 except Exception:
     RegularContainer = None
     convert_to_ros_msg = None
->>>>>>> 4dceffabfd7213a881059ac54fa633e600466550
 
 try:
     from pylabrobot.resources.resource import Resource as ResourcePLR
