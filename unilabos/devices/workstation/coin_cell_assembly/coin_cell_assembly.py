@@ -21,7 +21,7 @@ from unilabos.ros.nodes.presets.workstation import ROS2WorkstationNode
 class CoinCellAssemblyWorkstation(WorkstationBase):
     def __init__(
         self,
-        station_resource: CoincellDeck,
+        deck: CoincellDeck,
         address: str = "192.168.1.20",
         port: str = "502",
         debug_mode: bool = True,
@@ -30,12 +30,12 @@ class CoinCellAssemblyWorkstation(WorkstationBase):
     ):
         super().__init__(
             #桌子
-            station_resource=station_resource,
+            deck=deck,
             *args,
             **kwargs,
         )
         self.debug_mode = debug_mode
-        self.station_resource = station_resource
+        self.deck = deck
         """ 连接初始化 """
         modbus_client = TCPClient(addr=address, port=port)
         print("modbus_client", modbus_client)
@@ -74,7 +74,7 @@ class CoinCellAssemblyWorkstation(WorkstationBase):
         self._ros_node = ros_node
         #self.deck = create_a_coin_cell_deck()
         ROS2DeviceNode.run_async_func(self._ros_node.update_resource, True, **{
-            "resources": [self.station_resource]
+            "resources": [self.deck]
         })
 
     # 批量操作在这里写
@@ -84,7 +84,7 @@ class CoinCellAssemblyWorkstation(WorkstationBase):
 
     
     async def fill_plate(self):
-        plate_1: MaterialPlate = self.station_resource.children[0].children[0]
+        plate_1: MaterialPlate = self.deck.children[0].children[0]
         #plate_1
         return await self._ros_node.update_resource(plate_1)
 
@@ -341,7 +341,7 @@ class CoinCellAssemblyWorkstation(WorkstationBase):
     def modify_deck_name(self, resource_name: str):
         # figure_res = self._ros_node.resource_tracker.figure_resource({"name": resource_name})
         # print(f"!!! figure_res: {type(figure_res)}")
-        self.station_resource.children[1]
+        self.deck.children[1]
         return
 
     @property
@@ -814,8 +814,8 @@ class CoinCellAssemblyWorkstation(WorkstationBase):
 
                 #这里定义物料系统
                 # TODO:读完再将电池数加一还是进入循环就将电池数加一需要考虑
-                liaopan1 = self.station_resource.get_resource("liaopan1")
-                liaopan4 = self.station_resource.get_resource("liaopan4")
+                liaopan1 = self.deck.get_resource("liaopan1")
+                liaopan4 = self.deck.get_resource("liaopan4")
                 jipian1 = liaopan1.children[coin_num_N].children[0]
                 jipian4 = liaopan4.children[coin_num_N].children[0]
                 #print(jipian1)
@@ -828,7 +828,7 @@ class CoinCellAssemblyWorkstation(WorkstationBase):
                 battery.assign_child_resource(jipian1, location=None)
                 battery.assign_child_resource(jipian4, location=None)
                 
-                zidanjia6 = self.station_resource.get_resource("zi_dan_jia6")
+                zidanjia6 = self.deck.get_resource("zi_dan_jia6")
 
                 zidanjia6.children[0].assign_child_resource(battery, location=None)
                
@@ -878,11 +878,11 @@ class CoinCellAssemblyWorkstation(WorkstationBase):
     
     def fun_wuliao_test(self) -> bool: 
         #找到data_init中构建的2个物料盘
-        #liaopan1 = self.station_resource.get_resource("liaopan1")
-        #liaopan4 = self.station_resource.get_resource("liaopan4")
+        #liaopan1 = self.deck.get_resource("liaopan1")
+        #liaopan4 = self.deck.get_resource("liaopan4")
         #for coin_num_N in range(16):
-        #    liaopan1 = self.station_resource.get_resource("liaopan1")
-        #    liaopan4 = self.station_resource.get_resource("liaopan4")
+        #    liaopan1 = self.deck.get_resource("liaopan1")
+        #    liaopan4 = self.deck.get_resource("liaopan4")
         #    jipian1 = liaopan1.children[coin_num_N].children[0]
         #    jipian4 = liaopan4.children[coin_num_N].children[0]
         #    #print(jipian1)
@@ -895,10 +895,10 @@ class CoinCellAssemblyWorkstation(WorkstationBase):
         #    battery.assign_child_resource(jipian1, location=None)
         #    battery.assign_child_resource(jipian4, location=None)
         #    
-        #    zidanjia6 = self.station_resource.get_resource("zi_dan_jia6")
+        #    zidanjia6 = self.deck.get_resource("zi_dan_jia6")
         #    zidanjia6.children[0].assign_child_resource(battery, location=None)
         #    ROS2DeviceNode.run_async_func(self._ros_node.update_resource, True, **{
-        #        "resources": [self.station_resource]
+        #        "resources": [self.deck]
         #    })
         #    time.sleep(2)
         for i in range(20):
@@ -1133,7 +1133,7 @@ if __name__ == "__main__":
     ##print(jipian2.parent)
     from unilabos.resources.graphio import resource_ulab_to_plr, convert_resources_to_type
 
-    with open("./button_battery_station_resources_unilab.json", "r", encoding="utf-8") as f:
+    with open("./button_battery_decks_unilab.json", "r", encoding="utf-8") as f:
         bioyond_resources_unilab = json.load(f)
     print(f"成功读取 JSON 文件，包含 {len(bioyond_resources_unilab)} 个资源")
     ulab_resources = convert_resources_to_type(bioyond_resources_unilab, List[PLRResource])

@@ -147,13 +147,13 @@ class WorkstationBase(ABC):
 
     def __init__(
         self,
-        station_resource: PLRResource,
+        deck: PLRResource,
         *args,
         **kwargs,  # 必须有kwargs
     ):
         # 基本配置
-        print(station_resource)
-        self.deck_config = station_resource
+        print(deck)
+        self.deck_config = deck
 
         # PLR 物料系统
         self.deck: Optional[Deck] = None
@@ -391,5 +391,5 @@ class WorkstationBase(ABC):
 
 
 class ProtocolNode(WorkstationBase):
-    def __init__(self, station_resource: Optional[PLRResource], *args, **kwargs):
-        super().__init__(station_resource, *args, **kwargs)
+    def __init__(self, deck: Optional[PLRResource], *args, **kwargs):
+        super().__init__(deck, *args, **kwargs)

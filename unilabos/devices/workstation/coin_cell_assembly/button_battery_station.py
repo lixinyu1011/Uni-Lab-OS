@@ -1283,7 +1283,7 @@ if __name__ == "__main__":
     
     # 检查序列化后的资源
 
-    json.dump({"nodes": resources, "links": []}, open("button_battery_station_resources_unilab.json", "w"), indent=2)
+    json.dump({"nodes": resources, "links": []}, open("button_battery_decks_unilab.json", "w"), indent=2)
    
       
     #print(resources)

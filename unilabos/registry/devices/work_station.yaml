@@ -6034,10 +6034,10 @@ workstation:
   init_param_schema:
     config:
       properties:
-        station_resource:
+        deck:
           type: string
       required:
-      - station_resource
+      - deck
       type: object
     data:
       properties: {}
