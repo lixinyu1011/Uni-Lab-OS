@@ -1,0 +1,481 @@
+reaction_station_bioyong:
+  category:
+  - reaction_station_bioyong
+  class:
+    action_value_mappings:
+      drip_back:
+        feedback: {}
+        goal:
+          assign_material_name: assign_material_name
+          time: time
+          torque_variation: torque_variation
+          volume: volume
+        goal_default:
+          assign_material_name: ''
+          time: ''
+          torque_variation: ''
+          volume: ''
+        handles: {}
+        result:
+          return_info: return_info
+        schema:
+          description: ''
+          properties:
+            feedback:
+              properties: {}
+              required: []
+              title: ReactionStationDripBack_Feedback
+              type: object
+            goal:
+              properties:
+                assign_material_name:
+                  type: string
+                time:
+                  type: string
+                torque_variation:
+                  type: string
+                volume:
+                  type: string
+              required:
+              - volume
+              - assign_material_name
+              - time
+              - torque_variation
+              title: ReactionStationDripBack_Goal
+              type: object
+            result:
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: ReactionStationDripBack_Result
+              type: object
+          required:
+          - goal
+          title: ReactionStationDripBack
+          type: object
+        type: ReactionStationDripBack
+      liquid_feeding_beaker:
+        feedback: {}
+        goal:
+          assign_material_name: assign_material_name
+          time: time
+          torque_variation: torque_variation
+          volume: volume
+        goal_default:
+          assign_material_name: ''
+          time: ''
+          titration_type: ''
+          torque_variation: ''
+          volume: ''
+        handles: {}
+        result:
+          return_info: return_info
+        schema:
+          description: ''
+          properties:
+            feedback:
+              properties: {}
+              required: []
+              title: ReactionStationLiquidFeed_Feedback
+              type: object
+            goal:
+              properties:
+                assign_material_name:
+                  type: string
+                time:
+                  type: string
+                titration_type:
+                  type: string
+                torque_variation:
+                  type: string
+                volume:
+                  type: string
+              required:
+              - titration_type
+              - volume
+              - assign_material_name
+              - time
+              - torque_variation
+              title: ReactionStationLiquidFeed_Goal
+              type: object
+            result:
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: ReactionStationLiquidFeed_Result
+              type: object
+          required:
+          - goal
+          title: ReactionStationLiquidFeed
+          type: object
+        type: ReactionStationLiquidFeed
+      liquid_feeding_solvents:
+        feedback: {}
+        goal:
+          assign_material_name: assign_material_name
+          time: time
+          torque_variation: torque_variation
+          volume: volume
+        goal_default:
+          assign_material_name: ''
+          time: ''
+          titration_type: ''
+          torque_variation: ''
+          volume: ''
+        handles: {}
+        result:
+          return_info: return_info
+        schema:
+          description: ''
+          properties:
+            feedback:
+              properties: {}
+              required: []
+              title: ReactionStationLiquidFeed_Feedback
+              type: object
+            goal:
+              properties:
+                assign_material_name:
+                  type: string
+                time:
+                  type: string
+                titration_type:
+                  type: string
+                torque_variation:
+                  type: string
+                volume:
+                  type: string
+              required:
+              - titration_type
+              - volume
+              - assign_material_name
+              - time
+              - torque_variation
+              title: ReactionStationLiquidFeed_Goal
+              type: object
+            result:
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: ReactionStationLiquidFeed_Result
+              type: object
+          required:
+          - goal
+          title: ReactionStationLiquidFeed
+          type: object
+        type: ReactionStationLiquidFeed
+      liquid_feeding_titration:
+        feedback: {}
+        goal:
+          assign_material_name: assign_material_name
+          time: time
+          torque_variation: torque_variation
+          volume: volume
+        goal_default:
+          assign_material_name: ''
+          time: ''
+          titration_type: ''
+          torque_variation: ''
+          volume: ''
+        handles: {}
+        result:
+          return_info: return_info
+        schema:
+          description: ''
+          properties:
+            feedback:
+              properties: {}
+              required: []
+              title: ReactionStationLiquidFeed_Feedback
+              type: object
+            goal:
+              properties:
+                assign_material_name:
+                  type: string
+                time:
+                  type: string
+                titration_type:
+                  type: string
+                torque_variation:
+                  type: string
+                volume:
+                  type: string
+              required:
+              - titration_type
+              - volume
+              - assign_material_name
+              - time
+              - torque_variation
+              title: ReactionStationLiquidFeed_Goal
+              type: object
+            result:
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: ReactionStationLiquidFeed_Result
+              type: object
+          required:
+          - goal
+          title: ReactionStationLiquidFeed
+          type: object
+        type: ReactionStationLiquidFeed
+      liquid_feeding_vials_non_titration:
+        feedback: {}
+        goal:
+          assign_material_name: assign_material_name
+          time: time
+          torque_variation: torque_variation
+          volume: volume
+        goal_default:
+          assign_material_name: ''
+          time: ''
+          titration_type: ''
+          torque_variation: ''
+          volume: ''
+        handles: {}
+        result:
+          return_info: return_info
+        schema:
+          description: ''
+          properties:
+            feedback:
+              properties: {}
+              required: []
+              title: ReactionStationLiquidFeed_Feedback
+              type: object
+            goal:
+              properties:
+                assign_material_name:
+                  type: string
+                time:
+                  type: string
+                titration_type:
+                  type: string
+                torque_variation:
+                  type: string
+                volume:
+                  type: string
+              required:
+              - titration_type
+              - volume
+              - assign_material_name
+              - time
+              - torque_variation
+              title: ReactionStationLiquidFeed_Goal
+              type: object
+            result:
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: ReactionStationLiquidFeed_Result
+              type: object
+          required:
+          - goal
+          title: ReactionStationLiquidFeed
+          type: object
+        type: ReactionStationLiquidFeed
+      process_and_execute_workflow:
+        feedback: {}
+        goal:
+          task_name: task_name
+          workflow_name: workflow_name
+        goal_default:
+          task_name: ''
+          workflow_name: ''
+        handles: {}
+        result:
+          return_info: return_info
+        schema:
+          description: ''
+          properties:
+            feedback:
+              properties: {}
+              required: []
+              title: ReactionStationProExecu_Feedback
+              type: object
+            goal:
+              properties:
+                task_name:
+                  type: string
+                workflow_name:
+                  type: string
+              required:
+              - workflow_name
+              - task_name
+              title: ReactionStationProExecu_Goal
+              type: object
+            result:
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: ReactionStationProExecu_Result
+              type: object
+          required:
+          - goal
+          title: ReactionStationProExecu
+          type: object
+        type: ReactionStationProExecu
+      reactor_taken_in:
+        feedback: {}
+        goal:
+          assign_material_name: assign_material_name
+          cutoff: cutoff
+          temperature: temperature
+        goal_default:
+          assign_material_name: ''
+          cutoff: ''
+          temperature: ''
+        handles: {}
+        result:
+          return_info: return_info
+        schema:
+          description: ''
+          properties:
+            feedback:
+              properties: {}
+              required: []
+              title: ReactionStationReaTackIn_Feedback
+              type: object
+            goal:
+              properties:
+                assign_material_name:
+                  type: string
+                cutoff:
+                  type: string
+                temperature:
+                  type: string
+              required:
+              - cutoff
+              - temperature
+              - assign_material_name
+              title: ReactionStationReaTackIn_Goal
+              type: object
+            result:
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: ReactionStationReaTackIn_Result
+              type: object
+          required:
+          - goal
+          title: ReactionStationReaTackIn
+          type: object
+        type: ReactionStationReaTackIn
+      reactor_taken_out:
+        feedback: {}
+        goal: {}
+        goal_default:
+          command: ''
+        handles: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback:
+              properties:
+                status:
+                  type: string
+              required:
+              - status
+              title: SendCmd_Feedback
+              type: object
+            goal:
+              properties:
+                command:
+                  type: string
+              required:
+              - command
+              title: SendCmd_Goal
+              type: object
+            result:
+              properties:
+                return_info:
+                  type: string
+                success:
+                  type: boolean
+              required:
+              - return_info
+              - success
+              title: SendCmd_Result
+              type: object
+          required:
+          - goal
+          title: SendCmd
+          type: object
+        type: SendCmd
+      solid_feeding_vials:
+        feedback: {}
+        goal:
+          assign_material_name: assign_material_name
+          material_id: material_id
+          time: time
+          torque_variation: torque_variation
+        goal_default:
+          assign_material_name: ''
+          material_id: ''
+          time: ''
+          torque_variation: ''
+        handles: {}
+        result:
+          return_info: return_info
+        schema:
+          description: ''
+          properties:
+            feedback:
+              properties: {}
+              required: []
+              title: ReactionStationSolidFeedVial_Feedback
+              type: object
+            goal:
+              properties:
+                assign_material_name:
+                  type: string
+                material_id:
+                  type: string
+                time:
+                  type: string
+                torque_variation:
+                  type: string
+              required:
+              - assign_material_name
+              - material_id
+              - time
+              - torque_variation
+              title: ReactionStationSolidFeedVial_Goal
+              type: object
+            result:
+              properties:
+                return_info:
+                  type: string
+              required:
+              - return_info
+              title: ReactionStationSolidFeedVial_Result
+              type: object
+          required:
+          - goal
+          title: ReactionStationSolidFeedVial
+          type: object
+        type: ReactionStationSolidFeedVial
+    module: unilabos.devices.reaction_station.reaction_station_bioyong:BioyongV1RPC
+    status_types: {}
+    type: python
+  config_info: []
+  description: reaction_station_bioyong Device
+  handles: []
+  icon: ''
+  init_param_schema: {}
+  version: 1.0.0
