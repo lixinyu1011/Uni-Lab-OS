@@ -8,9 +8,88 @@ from typing import Dict, Any, List, Optional, Union
 import json
 
 from unilabos.devices.workstation.workstation_base import WorkstationBase, ResourceSynchronizer
-from unilabos.ros.nodes.resource_tracker import DeviceNodeResourceTracker
+from unilabos.devices.workstation.bioyond_studio.bioyond_rpc import BioyondV1RPC
 from unilabos.utils.log import logger
 from unilabos.resources.graphio import resource_bioyond_to_plr
+
+from .config import API_CONFIG, WORKFLOW_MAPPINGS
+
+
+class BioyondResourceSynchronizer(ResourceSynchronizer):
+    """Bioyond资源同步器
+
+    负责与Bioyond系统进行物料数据的同步
+    """
+
+    def __init__(self, workstation: 'BioyondWorkstation'):
+        super().__init__(workstation)
+        self.bioyond_api_client = None
+        self.sync_interval = 60  # 默认60秒同步一次
+        self.last_sync_time = 0
+
+    def initialize(self) -> bool:
+        """初始化Bioyond资源同步器"""
+        try:
+            self.bioyond_api_client = self.workstation.hardware_interface
+            if self.bioyond_api_client is None:
+                logger.error("Bioyond API客户端未初始化")
+                return False
+
+            # 设置同步间隔
+            self.sync_interval = self.workstation.bioyond_config.get("sync_interval", 60)
+
+            logger.info("Bioyond资源同步器初始化完成")
+            return True
+        except Exception as e:
+            logger.error(f"Bioyond资源同步器初始化失败: {e}")
+            return False
+
+    def sync_from_external(self) -> bool:
+        """从Bioyond系统同步物料数据"""
+        try:
+            if self.bioyond_api_client is None:
+                logger.error("Bioyond API客户端未初始化")
+                return False
+
+            bioyond_data = self.bioyond_api_client.fetch_materials()
+            if not bioyond_data:
+                logger.warning("从Bioyond获取的物料数据为空")
+                return False
+
+            # 转换为UniLab格式
+            unilab_resources = resource_bioyond_to_plr(bioyond_data, deck=self.workstation.deck)
+
+            logger.info(f"从Bioyond同步了 {len(unilab_resources)} 个资源")
+            return True
+        except Exception as e:
+            logger.error(f"从Bioyond同步物料数据失败: {e}")
+            return False
+
+    def sync_to_external(self, resource: Any) -> bool:
+        """将本地物料数据变更同步到Bioyond系统"""
+        try:
+            if self.bioyond_api_client is None:
+                logger.error("Bioyond API客户端未初始化")
+                return False
+
+            # 调用入库、出库操作
+            # bioyond_format_data = self._convert_resource_to_bioyond_format(resource)
+            # success = await self.bioyond_api_client.update_material(bioyond_format_data)
+            #
+            # if success
+        except:
+            pass
+
+    def handle_external_change(self, change_info: Dict[str, Any]) -> bool:
+        """处理Bioyond系统的变更通知"""
+        try:
+            # 这里可以实现对Bioyond变更的处理逻辑
+            logger.info(f"处理Bioyond变更通知: {change_info}")
+
+            return True
+        except Exception as e:
+            logger.error(f"处理Bioyond变更通知失败: {e}")
+            return False
 
 
 class BioyondWorkstation(WorkstationBase):
@@ -26,40 +105,29 @@ class BioyondWorkstation(WorkstationBase):
         *args,
         **kwargs,
     ):
-        # 设置Bioyond配置
-        self.bioyond_config = bioyond_config or {
-            "base_url": "http://localhost:8080",
-            "api_key": "",
-            "sync_interval": 30,
-            "timeout": 30
-        }
-        
-        # 设置默认deck配置
-        
+        self._create_communication_module(bioyond_config)
+
         # 初始化父类
         super().__init__(
-            #桌子
+            # 桌子
             deck=deck,
             *args,
             **kwargs,
         )
+        self.resource_synchronizer = BioyondResourceSynchronizer(self)
+        self.resource_synchronizer.sync_from_external()
         
         # TODO: self._ros_node里面拿属性
         logger.info(f"Bioyond工作站初始化完成")
 
-    def _create_communication_module(self):
+    def _create_communication_module(self, config: Optional[Dict[str, Any]] = None) -> None:
         """创建Bioyond通信模块"""
-        # 暂时返回None，因为工作站基类没有强制要求通信模块
+        self.bioyond_config = config or {
+            **API_CONFIG,
+            "workflow_mappings": WORKFLOW_MAPPINGS
+        }
+        self.hardware_interface = BioyondV1RPC(self.bioyond_config)
         return None
-    
-    def _create_material_management_module(self) -> BioyondMaterialManagement:
-        """创建Bioyond物料管理模块"""
-        # 获取必要的属性，如果不存在则使用默认值
-        device_id = getattr(self, 'device_id', 'bioyond_workstation')
-        resource_tracker = getattr(self, 'resource_tracker', None)
-        children_config = getattr(self, '_children', {})
-        
-       
     
     def _register_supported_workflows(self):
         """注册Bioyond支持的工作流"""
