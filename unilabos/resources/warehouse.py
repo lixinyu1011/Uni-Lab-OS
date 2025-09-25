@@ -24,6 +24,9 @@ class WareHouse(Carrier[ResourceHolder]):
         category: str = "warehouse",
         model: Optional[str] = None,
     ):
+        self.num_items_x = num_items_x
+        self.num_items_y = num_items_y
+        self.num_items_z = num_items_z
         # 创建16个板架位 (4层 x 4位置)
         locations = []
 

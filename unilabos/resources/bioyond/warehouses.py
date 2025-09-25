@@ -18,12 +18,12 @@ def bioyond_warehouse_1x4x4(name: str) -> WareHouse:
     )
 
 
-def bioyond_warehouse_1x3x2(name: str) -> WareHouse:
-    """创建BioYond 3x1x2仓库"""
+def bioyond_warehouse_1x4x2(name: str) -> WareHouse:
+    """创建BioYond 4x1x2仓库"""
     return WareHouse(
         name=name,
         num_items_x=1,
-        num_items_y=3,
+        num_items_y=4,
         num_items_z=2,
         dx=137.0,
         dy=96.0,
