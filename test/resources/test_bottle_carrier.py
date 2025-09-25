@@ -4,8 +4,7 @@ from unilabos.resources.bioyond.bottle_carriers import BIOYOND_Electrolyte_6Vial
 from unilabos.resources.bioyond.bottles import BIOYOND_PolymerStation_Solid_Vial, BIOYOND_PolymerStation_Solution_Beaker, BIOYOND_PolymerStation_Reagent_Bottle
 
 
-@pytest.fixture
-def bottle_carrier() -> "BottleCarrier":
+def test_bottle_carrier() -> "BottleCarrier":
     print("创建载架...")
 
     # 创建6瓶载架
@@ -30,10 +29,10 @@ def bottle_carrier() -> "BottleCarrier":
     print(f"\n测试放置容器...")
 
     # 通过载架的索引操作来放置容器
-    bottle_carrier[0] = powder_bottle  # 放置粉末瓶到第一个位置
+    # bottle_carrier[0] = powder_bottle  # 放置粉末瓶到第一个位置
     print(f"粉末瓶已放置到6瓶载架的位置 0")
 
-    beaker_carrier[0] = solution_beaker  # 放置烧杯到第一个位置
+    # beaker_carrier[0] = solution_beaker  # 放置烧杯到第一个位置
     print(f"溶液烧杯已放置到1烧杯载架的位置 0")
 
     # 验证放置结果

@@ -480,7 +480,7 @@ def resource_plr_to_ulab(resource_plr: "ResourcePLR", parent_name: str = None, w
     return r
 
 
-def resource_bioyond_to_plr(bioyond_materials: list[dict], type_mapping: dict = {}, location_id_mapping: dict = None) -> list[dict]:
+def resource_bioyond_to_plr(bioyond_materials: list[dict], type_mapping: dict = {}, deck: Any = None) -> list[dict]:
     """
     将 bioyond 物料格式转换为 ulab 物料格式
 
@@ -512,6 +512,17 @@ def resource_bioyond_to_plr(bioyond_materials: list[dict], type_mapping: dict = 
                 bottle.tracker.liquids = [(detail["name"], float(detail.get("quantity", 0)) if detail.get("quantity") else 0)]
                 
         plr_materials.append(plr_material)
+
+        if deck and hasattr(deck, "warehouses"):
+            for loc in material.get("locations", []):
+                if hasattr(deck, "warehouses") and loc.get("whName") in deck.warehouses:
+                    warehouse = deck.warehouses[loc["whName"]]
+                    idx = (loc.get("y", 0) - 1) * warehouse.num_items_x * warehouse.num_items_y + \
+                          (loc.get("x", 0) - 1) * warehouse.num_items_x + \
+                          (loc.get("z", 0) - 1)
+                    if 0 <= idx < warehouse.num_items_x * warehouse.num_items_y * warehouse.num_items_z:
+                        if warehouse[idx].resource is None:
+                            warehouse[idx] = plr_material
 
     return plr_materials
 

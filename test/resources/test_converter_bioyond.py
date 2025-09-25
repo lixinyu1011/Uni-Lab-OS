@@ -5,6 +5,8 @@ import os
 from unilabos.resources.graphio import resource_bioyond_to_plr
 from unilabos.registry.registry import lab_registry
 
+from unilabos.resources.bioyond.decks import BIOYOND_PolymerReactionStation_Deck
+
 lab_registry.setup()
 
 
@@ -25,7 +27,9 @@ def bioyond_materials() -> list[dict]:
 
 
 def test_bioyond_to_plr(bioyond_materials) -> list[dict]:
+    deck = BIOYOND_PolymerReactionStation_Deck("test_deck")
     print("将 BioYond 物料数据转换为 PLR 格式...")
-    output = resource_bioyond_to_plr(bioyond_materials, type_mapping=type_mapping)
+    output = resource_bioyond_to_plr(bioyond_materials, type_mapping=type_mapping, deck=deck)
+    print(deck.summary())
     print([resource.serialize() for resource in output])
     print([resource.serialize_all_state() for resource in output])
