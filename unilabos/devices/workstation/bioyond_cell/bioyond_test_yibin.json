@@ -1,0 +1,433 @@
+{
+  "data": [
+    {
+      "id": "3a1b4d56-1240-ec72-8073-467d251b65ce",
+      "typeName": "加样头(大)",
+      "code": "0005-00009",
+      "barCode": "",
+      "name": "LiDFOB",
+      "quantity": 7,
+      "lockQuantity": 0.013,
+      "unit": "个",
+      "status": 1,
+      "isUse": false,
+      "locations": [
+        {
+          "id": "3a19da56-1379-5aeb-d0cd-d3b4609d66e1",
+          "whid": "3a19da56-1378-613b-29f2-871e1a287aa5",
+          "whName": "粉末加样头堆栈",
+          "code": "0005-0011",
+          "x": 11,
+          "y": 1,
+          "z": 1,
+          "quantity": 0
+        }
+      ],
+      "detail": []
+    },
+    {
+      "id": "3a1b4d56-7835-6de2-3073-7fd8c7cff1d1",
+      "typeName": "加样头(大)",
+      "code": "0005-00010",
+      "barCode": "",
+      "name": "LiPF2O2",
+      "quantity": 52,
+      "lockQuantity": 0.056,
+      "unit": "个",
+      "status": 1,
+      "isUse": false,
+      "locations": [
+        {
+          "id": "3a19da56-1379-d64e-c6c5-c72ea4829888",
+          "whid": "3a19da56-1378-613b-29f2-871e1a287aa5",
+          "whName": "粉末加样头堆栈",
+          "code": "0005-0012",
+          "x": 12,
+          "y": 1,
+          "z": 1,
+          "quantity": 0
+        }
+      ],
+      "detail": []
+    },
+    {
+      "id": "3a1b4d56-c8bd-ef0f-990b-3875825eac82",
+      "typeName": "加样头(大)",
+      "code": "0005-00011",
+      "barCode": "",
+      "name": "LiFSI",
+      "quantity": 17,
+      "lockQuantity": 0.38,
+      "unit": "个",
+      "status": 1,
+      "isUse": false,
+      "locations": [
+        {
+          "id": "3a19da56-1379-6077-8258-bdc036870b78",
+          "whid": "3a19da56-1378-613b-29f2-871e1a287aa5",
+          "whName": "粉末加样头堆栈",
+          "code": "0005-0013",
+          "x": 13,
+          "y": 1,
+          "z": 1,
+          "quantity": 0
+        }
+      ],
+      "detail": []
+    },
+    {
+      "id": "3a1b4d57-104b-5747-0f0a-56fe5c7aae90",
+      "typeName": "加样头(大)",
+      "code": "0005-00012",
+      "barCode": "",
+      "name": "LiNO3",
+      "quantity": 7,
+      "lockQuantity": 0,
+      "unit": "个",
+      "status": 1,
+      "isUse": false,
+      "locations": [
+        {
+          "id": "3a19da56-1379-ba54-6d78-fd770a671ffc",
+          "whid": "3a19da56-1378-613b-29f2-871e1a287aa5",
+          "whName": "粉末加样头堆栈",
+          "code": "0005-0014",
+          "x": 14,
+          "y": 1,
+          "z": 1,
+          "quantity": 0
+        }
+      ],
+      "detail": []
+    },
+    {
+      "id": "3a1b5c0e-d9c2-10fe-6846-bad99e3bb8f5",
+      "typeName": "液",
+      "code": "0006-00013",
+      "barCode": "",
+      "name": "DEC",
+      "quantity": 50,
+      "lockQuantity": 2.057,
+      "unit": "瓶",
+      "status": 1,
+      "isUse": false,
+      "locations": [
+        {
+          "id": "3a19da43-57b5-3e41-c181-5119dddaf50c",
+          "whid": "3a19da43-57b4-a2a8-3f52-91dbbeb836db",
+          "whName": "配液站内试剂仓库",
+          "code": "0003-0005",
+          "x": 2,
+          "y": 2,
+          "z": 1,
+          "quantity": 0
+        }
+      ],
+      "detail": []
+    },
+    {
+      "id": "3a1b5c10-27fc-9c63-c495-916c090bcd2c",
+      "typeName": "高粘液",
+      "code": "0016-00005",
+      "barCode": "",
+      "name": "EC",
+      "quantity": 50,
+      "lockQuantity": 2.057,
+      "unit": "瓶",
+      "status": 1,
+      "isUse": false,
+      "locations": [
+        {
+          "id": "3a19da43-57b5-659f-621f-1dcf3f640363",
+          "whid": "3a19da43-57b4-a2a8-3f52-91dbbeb836db",
+          "whName": "配液站内试剂仓库",
+          "code": "0003-0008",
+          "x": 3,
+          "y": 2,
+          "z": 1,
+          "quantity": 0
+        }
+      ],
+      "detail": []
+    },
+    {
+      "id": "3a1b5c10-d4f3-01ac-1e64-5b4be2add4b1",
+      "typeName": "液",
+      "code": "0006-00014",
+      "barCode": "",
+      "name": "EMC",
+      "quantity": 50,
+      "lockQuantity": 2.057,
+      "unit": "瓶",
+      "status": 1,
+      "isUse": false,
+      "locations": [
+        {
+          "id": "3a19da43-57b5-5e75-552f-8dbd0ad1075f",
+          "whid": "3a19da43-57b4-a2a8-3f52-91dbbeb836db",
+          "whName": "配液站内试剂仓库",
+          "code": "0003-0003",
+          "x": 1,
+          "y": 3,
+          "z": 1,
+          "quantity": 0
+        }
+      ],
+      "detail": []
+    },
+    {
+      "id": "3a1b5c11-4275-cad8-ba3a-910d72c589c5",
+      "typeName": "液",
+      "code": "0006-00015",
+      "barCode": "",
+      "name": "EP",
+      "quantity": 50,
+      "lockQuantity": 2.057,
+      "unit": "瓶",
+      "status": 1,
+      "isUse": false,
+      "locations": [
+        {
+          "id": "3a19da43-57b5-269b-282d-fba61fe8ce96",
+          "whid": "3a19da43-57b4-a2a8-3f52-91dbbeb836db",
+          "whName": "配液站内试剂仓库",
+          "code": "0003-0006",
+          "x": 2,
+          "y": 3,
+          "z": 1,
+          "quantity": 0
+        }
+      ],
+      "detail": []
+    },
+    {
+      "id": "3a1b5c12-19fd-be9b-5e24-6cfabeca6da1",
+      "typeName": "液",
+      "code": "0006-00016",
+      "barCode": "",
+      "name": "FEC",
+      "quantity": 50,
+      "lockQuantity": 2.057,
+      "unit": "瓶",
+      "status": 1,
+      "isUse": false,
+      "locations": [
+        {
+          "id": "3a19da43-57b5-855a-6e71-f398e376dee1",
+          "whid": "3a19da43-57b4-a2a8-3f52-91dbbeb836db",
+          "whName": "配液站内试剂仓库",
+          "code": "0003-0009",
+          "x": 3,
+          "y": 3,
+          "z": 1,
+          "quantity": 0
+        }
+      ],
+      "detail": []
+    },
+    {
+      "id": "3a1ba9c6-47cc-583a-df62-2c643b8c8394",
+      "typeName": "液",
+      "code": "0006-00017",
+      "barCode": "",
+      "name": "FEC",
+      "quantity": 99999,
+      "lockQuantity": 0,
+      "unit": "瓶",
+      "status": 1,
+      "isUse": false,
+      "locations": [
+        {
+          "id": "3a19da43-57b5-294f-d663-154a1cc32270",
+          "whid": "3a19da43-57b4-a2a8-3f52-91dbbeb836db",
+          "whName": "配液站内试剂仓库",
+          "code": "0003-0001",
+          "x": 1,
+          "y": 1,
+          "z": 1,
+          "quantity": 0
+        }
+      ],
+      "detail": []
+    },
+    {
+      "id": "3a1ba9c7-0ea7-d666-c41f-0547f42aa8d6",
+      "typeName": "液",
+      "code": "0006-00018",
+      "barCode": "",
+      "name": "F2EA",
+      "quantity": 99999,
+      "lockQuantity": 2.057,
+      "unit": "瓶",
+      "status": 1,
+      "isUse": false,
+      "locations": [
+        {
+          "id": "3a19da43-57b5-8441-db94-b4d3875a4b6c",
+          "whid": "3a19da43-57b4-a2a8-3f52-91dbbeb836db",
+          "whName": "配液站内试剂仓库",
+          "code": "0003-0004",
+          "x": 2,
+          "y": 1,
+          "z": 1,
+          "quantity": 0
+        }
+      ],
+      "detail": []
+    },
+    {
+      "id": "3a1ba9c7-c00d-eeae-d613-b3d19320b4b5",
+      "typeName": "液",
+      "code": "0006-00019",
+      "barCode": "",
+      "name": "DME",
+      "quantity": 1,
+      "lockQuantity": 0.5,
+      "unit": "瓶",
+      "status": 1,
+      "isUse": false,
+      "locations": [
+        {
+          "id": "3a19da43-57b5-7c1e-d02e-c40e8c33f8a1",
+          "whid": "3a19da43-57b4-a2a8-3f52-91dbbeb836db",
+          "whName": "配液站内试剂仓库",
+          "code": "0003-0007",
+          "x": 3,
+          "y": 1,
+          "z": 1,
+          "quantity": 0
+        }
+      ],
+      "detail": []
+    },
+    {
+      "id": "3a1ba9c8-50f4-3c84-3e4f-a128c4da4d41",
+      "typeName": "液",
+      "code": "0006-00020",
+      "barCode": "",
+      "name": "TTE",
+      "quantity": 99999,
+      "lockQuantity": 2.057,
+      "unit": "瓶",
+      "status": 1,
+      "isUse": false,
+      "locations": [
+        {
+          "id": "3a19da51-8f4e-1da7-beb0-80a4a01e67a8",
+          "whid": "3a19da51-8f4d-cee1-39cb-9051331b718e",
+          "whName": "试剂替换仓库",
+          "code": "0004-0002",
+          "x": 2,
+          "y": 1,
+          "z": 1,
+          "quantity": 0
+        }
+      ],
+      "detail": []
+    },
+    {
+      "id": "3a1ba9c8-e3c8-1f2d-8684-7180fc151ee7",
+      "typeName": "液",
+      "code": "0006-00021",
+      "barCode": "",
+      "name": "PS",
+      "quantity": 9999,
+      "lockQuantity": 2.057,
+      "unit": "瓶",
+      "status": 1,
+      "isUse": false,
+      "locations": [
+        {
+          "id": "3a19da51-8f4e-337d-2675-bfac46880b06",
+          "whid": "3a19da51-8f4d-cee1-39cb-9051331b718e",
+          "whName": "试剂替换仓库",
+          "code": "0004-0003",
+          "x": 3,
+          "y": 1,
+          "z": 1,
+          "quantity": 0
+        }
+      ],
+      "detail": []
+    },
+    {
+      "id": "3a1ba9c9-cccd-8f06-e828-3ae415a93cc0",
+      "typeName": "液",
+      "code": "0006-00022",
+      "barCode": "",
+      "name": "VC",
+      "quantity": 99999,
+      "lockQuantity": 2.057,
+      "unit": "瓶",
+      "status": 1,
+      "isUse": false,
+      "locations": [
+        {
+          "id": "3a19da51-8f4e-e514-b92c-9c44dc5e489d",
+          "whid": "3a19da51-8f4d-cee1-39cb-9051331b718e",
+          "whName": "试剂替换仓库",
+          "code": "0004-0004",
+          "x": 4,
+          "y": 1,
+          "z": 1,
+          "quantity": 0
+        }
+      ],
+      "detail": []
+    },
+    {
+      "id": "3a1ba9cc-6c83-1967-7130-537a0ede747b",
+      "typeName": "液",
+      "code": "0006-00023",
+      "barCode": "",
+      "name": "HTCN",
+      "quantity": 9999,
+      "lockQuantity": 2.057,
+      "unit": "瓶",
+      "status": 1,
+      "isUse": false,
+      "locations": [
+        {
+          "id": "3a19da51-8f4e-22d1-dd5b-9774ddc80402",
+          "whid": "3a19da51-8f4d-cee1-39cb-9051331b718e",
+          "whName": "试剂替换仓库",
+          "code": "0004-0005",
+          "x": 5,
+          "y": 1,
+          "z": 1,
+          "quantity": 0
+        }
+      ],
+      "detail": []
+    },
+    {
+      "id": "3a1ba9cf-8f18-fd13-b44b-34103de15d99",
+      "typeName": "液",
+      "code": "0006-00024",
+      "barCode": "",
+      "name": "ADN",
+      "quantity": 9999,
+      "lockQuantity": 2.057,
+      "unit": "瓶",
+      "status": 1,
+      "isUse": false,
+      "locations": [
+        {
+          "id": "3a19da51-8f4e-273a-4871-dff41c29bfd9",
+          "whid": "3a19da51-8f4d-cee1-39cb-9051331b718e",
+          "whName": "试剂替换仓库",
+          "code": "0004-0006",
+          "x": 6,
+          "y": 1,
+          "z": 1,
+          "quantity": 0
+        }
+      ],
+      "detail": []
+    }
+  ],
+  "code": 1,
+  "message": "",
+  "timestamp": 1757922951478
+}
+
