@@ -12,7 +12,7 @@ from unilabos.devices.workstation.bioyond_studio.bioyond_rpc import BioyondV1RPC
 from unilabos.utils.log import logger
 from unilabos.resources.graphio import resource_bioyond_to_plr
 
-from .config import API_CONFIG, WORKFLOW_MAPPINGS
+from unilabos.devices.workstation.bioyond_studio.config import API_CONFIG, WORKFLOW_MAPPINGS
 
 
 class BioyondResourceSynchronizer(ResourceSynchronizer):
@@ -101,7 +101,7 @@ class BioyondWorkstation(WorkstationBase):
     def __init__(
         self,
         bioyond_config: Optional[Dict[str, Any]] = None,
-        deck: Optional[str, Any] = None,
+        deck: Optional[Any] = None,
         *args,
         **kwargs,
     ):
@@ -238,28 +238,6 @@ class BioyondWorkstation(WorkstationBase):
             return {
                 "status": "error",
                 "message": str(e)
-            }
-    
-    def get_bioyond_status(self) -> Dict[str, Any]:
-        """获取Bioyond系统状态"""
-        try:
-            material_manager = self.material_management
-            
-            return {
-                "bioyond_connected": material_manager.bioyond_api_client is not None,
-                "sync_interval": material_manager.sync_interval,
-                "total_resources": len(material_manager.plr_resources),
-                "deck_size": {
-                    "x": material_manager.plr_deck.size_x,
-                    "y": material_manager.plr_deck.size_y,
-                    "z": material_manager.plr_deck.size_z
-                },
-                "bioyond_config": self.bioyond_config
-            }
-        except Exception as e:
-            logger.error(f"获取Bioyond状态失败: {e}")
-            return {
-                "error": str(e)
             }
     
     def load_bioyond_data_from_file(self, file_path: str) -> bool:

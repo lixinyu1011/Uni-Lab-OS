@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from unilabos.device_comms.rpc import BaseRequest
 from typing import Optional, List, Dict, Any
 import json
-from config import WORKFLOW_TO_SECTION_MAP, WORKFLOW_STEP_IDS, LOCATION_MAPPING
+from unilabos.devices.workstation.bioyond_studio.config import WORKFLOW_TO_SECTION_MAP, WORKFLOW_STEP_IDS, LOCATION_MAPPING
 
 
 class SimpleLogger:
