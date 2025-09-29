@@ -1,6 +1,6 @@
-from pylabrobot.resources import create_homogeneous_resources, Coordinate, ResourceHolder
+from pylabrobot.resources import create_homogeneous_resources, Coordinate, ResourceHolder, create_ordered_items_2d
 
-from unilabos.resources.bottle_carrier import Bottle, BottleCarrier
+from unilabos.resources.itemized_carrier import Bottle, BottleCarrier
 from unilabos.resources.bioyond.bottles import BIOYOND_PolymerStation_Solid_Vial, BIOYOND_PolymerStation_Solution_Beaker, BIOYOND_PolymerStation_Reagent_Bottle
 # 命名约定：试剂瓶-Bottle，烧杯-Beaker，烧瓶-Flask，小瓶-Vial
 
@@ -22,27 +22,29 @@ def BIOYOND_Electrolyte_6VialCarrier(name: str) -> BottleCarrier:
     start_x = (carrier_size_x - (3 - 1) * bottle_spacing_x - bottle_diameter) / 2
     start_y = (carrier_size_y - (2 - 1) * bottle_spacing_y - bottle_diameter) / 2
 
-    # 创建6个位置坐标 (2行 x 3列)
-    locations = []
-    for row in range(2):
-        for col in range(3):
-            x = start_x + col * bottle_spacing_x
-            y = start_y + row * bottle_spacing_y
-            z = 5.0  # 架位底部
-            locations.append(Coordinate(x, y, z))
+    sites = create_ordered_items_2d(
+        klass=ResourceHolder,
+        num_items_x=3,
+        num_items_y=2,
+        dx=start_x,
+        dy=start_y,
+        dz=5.0,
+        item_dx=bottle_spacing_x,
+        item_dy=bottle_spacing_y,
+
+        size_x=bottle_diameter,
+        size_y=bottle_diameter,
+        size_z=carrier_size_z,
+    )
+    for k, v in sites.items():
+        v.name = f"{name}_{v.name}"
 
     carrier = BottleCarrier(
         name=name,
         size_x=carrier_size_x,
         size_y=carrier_size_y,
         size_z=carrier_size_z,
-        sites=create_homogeneous_resources(
-            klass=ResourceHolder,
-            locations=locations,
-            resource_size_x=bottle_diameter,
-            resource_size_y=bottle_diameter,
-            name_prefix=name,
-        ),
+        sites=sites,
         model="BIOYOND_Electrolyte_6VialCarrier",
     )
     carrier.num_items_x = 3
@@ -107,27 +109,29 @@ def BIOYOND_PolymerStation_6VialCarrier(name: str) -> BottleCarrier:
     start_x = (carrier_size_x - (3 - 1) * bottle_spacing_x - bottle_diameter) / 2
     start_y = (carrier_size_y - (2 - 1) * bottle_spacing_y - bottle_diameter) / 2
 
-    # 创建6个位置坐标 (2行 x 3列)
-    locations = []
-    for row in range(2):
-        for col in range(3):
-            x = start_x + col * bottle_spacing_x
-            y = start_y + row * bottle_spacing_y
-            z = 5.0  # 架位底部
-            locations.append(Coordinate(x, y, z))
+    sites = create_ordered_items_2d(
+        klass=ResourceHolder,
+        num_items_x=3,
+        num_items_y=2,
+        dx=start_x,
+        dy=start_y,
+        dz=5.0,
+        item_dx=bottle_spacing_x,
+        item_dy=bottle_spacing_y,
+
+        size_x=bottle_diameter,
+        size_y=bottle_diameter,
+        size_z=carrier_size_z,
+    )
+    for k, v in sites.items():
+        v.name = f"{name}_{v.name}"
 
     carrier = BottleCarrier(
         name=name,
         size_x=carrier_size_x,
         size_y=carrier_size_y,
         size_z=carrier_size_z,
-        sites=create_homogeneous_resources(
-            klass=ResourceHolder,
-            locations=locations,
-            resource_size_x=bottle_diameter,
-            resource_size_y=bottle_diameter,
-            name_prefix=name,
-        ),
+        sites=sites,
         model="BIOYOND_PolymerStation_6VialCarrier",
     )
     carrier.num_items_x = 3
