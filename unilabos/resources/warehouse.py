@@ -1,11 +1,11 @@
-import json
 from typing import Optional, List
-from pylabrobot.resources import Coordinate, Resource
-from pylabrobot.resources.carrier import Carrier, PlateHolder, ResourceHolder, create_homogeneous_resources
-from pylabrobot.resources.deck import Deck
+from pylabrobot.resources import Coordinate
+from pylabrobot.resources.carrier import ResourceHolder, create_homogeneous_resources
+
+from unilabos.resources.itemized_carrier import ItemizedCarrier
 
 
-class WareHouse(Carrier[ResourceHolder]):
+class WareHouse(ItemizedCarrier):
     """4x4x1堆栈载体类 - 可容纳16个板位的载体（4层x4行x1列）"""
 
     def __init__(
@@ -21,6 +21,7 @@ class WareHouse(Carrier[ResourceHolder]):
         item_dy: float = 10.0,
         item_dz: float = 10.0,
         removed_positions: Optional[List[int]] = None,
+        empty: bool = False,
         category: str = "warehouse",
         model: Optional[str] = None,
     ):
@@ -44,13 +45,7 @@ class WareHouse(Carrier[ResourceHolder]):
 
         sites = create_homogeneous_resources(
             klass=ResourceHolder,
-            locations=[
-                Coordinate(4.0, 8.5, 86.15),
-                Coordinate(4.0, 104.5, 86.15),
-                Coordinate(4.0, 200.5, 86.15),
-                Coordinate(4.0, 296.5, 86.15),
-                Coordinate(4.0, 392.5, 86.15),
-            ],
+            locations=locations,
             resource_size_x=127.0,
             resource_size_y=86.0,
             name_prefix=name,
@@ -61,12 +56,14 @@ class WareHouse(Carrier[ResourceHolder]):
             size_x=dx + item_dx * num_items_x,
             size_y=dy + item_dy * num_items_y,
             size_z=dz + item_dz * num_items_z,
+            # ordered_items=ordered_items,
+            # ordering=ordering,
             sites=sites,
             category=category,
             model=model,
         )
 
-    def get_site_by_layer_position(self, row: int, col: int, layer: int) -> PlateHolder:
+    def get_site_by_layer_position(self, row: int, col: int, layer: int) -> ResourceHolder:
         if not (0 <= layer < 4 and 0 <= row < 4 and 0 <= col < 1):
             raise ValueError("无效的位置: layer={}, row={}, col={}".format(layer, row, col))
 

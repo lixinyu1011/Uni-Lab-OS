@@ -4,6 +4,7 @@ import json
 from typing import Union, Any, Dict
 import numpy as np
 import networkx as nx
+from pylabrobot.resources import ResourceHolder
 from unilabos_msgs.msg import Resource
 
 from unilabos.resources.container import RegularContainer
@@ -507,7 +508,7 @@ def resource_bioyond_to_plr(bioyond_materials: list[dict], type_mapping: dict = 
                 number = (detail.get("z", 0) - 1) * plr_material.num_items_x * plr_material.num_items_y + \
                          (detail.get("x", 0) - 1) * plr_material.num_items_x + \
                          (detail.get("y", 0) - 1)
-                bottle = plr_material[number].resource
+                bottle = plr_material[number]
                 bottle.code = detail.get("code", "")
                 bottle.tracker.liquids = [(detail["name"], float(detail.get("quantity", 0)) if detail.get("quantity") else 0)]
                 
@@ -520,8 +521,8 @@ def resource_bioyond_to_plr(bioyond_materials: list[dict], type_mapping: dict = 
                     idx = (loc.get("y", 0) - 1) * warehouse.num_items_x * warehouse.num_items_y + \
                           (loc.get("x", 0) - 1) * warehouse.num_items_x + \
                           (loc.get("z", 0) - 1)
-                    if 0 <= idx < warehouse.num_items_x * warehouse.num_items_y * warehouse.num_items_z:
-                        if warehouse[idx].resource is None:
+                    if 0 <= idx < warehouse.capacity:
+                        if warehouse[idx] is None or isinstance(warehouse[idx], ResourceHolder):
                             warehouse[idx] = plr_material
 
     return plr_materials

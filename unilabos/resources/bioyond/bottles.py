@@ -1,4 +1,4 @@
-from unilabos.resources.bottle_carrier import Bottle, BottleCarrier
+from unilabos.resources.itemized_carrier import Bottle, BottleCarrier
 # 工厂函数
 
 
