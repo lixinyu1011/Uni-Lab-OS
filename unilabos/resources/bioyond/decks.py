@@ -36,9 +36,18 @@ class BIOYOND_PolymerReactionStation_Deck(Deck):
 
 
 class BIOYOND_PolymerPreparationStation_Deck(Deck):
-    def __init__(self, name: str = "PolymerPreparationStation_Deck") -> None:
+    def __init__(
+        self, 
+        name: str = "PolymerPreparationStation_Deck",
+        size_x: float = 2700.0,
+        size_y: float = 1080.0,
+        size_z: float = 1500.0,
+        category: str = "deck",
+        setup: bool = False
+    ) -> None:
         super().__init__(name=name, size_x=2700.0, size_y=1080.0, size_z=1500.0)
-        self.warehouses = {}
+        if setup:
+            self.setup()
 
     def setup(self) -> None:
         # 添加仓库

@@ -99,7 +99,7 @@ class ItemizedCarrier(ResourcePLR):
           raise ValueError(f"resource {resource} has no location")
         if resource is not None:
           self.child_locations[spot] = resource.location
-          self.child_size[spot] = {"width": resource.size_x, "height": resource.size_y, "depth": resource.size_z}
+          self.child_size[spot] = {"width": resource._size_x, "height": resource._size_y, "depth": resource._size_z}
         else:
           self.child_locations[spot] = Coordinate.zero()
           self.child_size[spot] = {"width": 0, "height": 0, "depth": 0}
