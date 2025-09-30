@@ -4,15 +4,20 @@ Bioyond Workstation Implementation
 
 集成Bioyond物料管理的工作站示例
 """
+import traceback
 from typing import Dict, Any, List, Optional, Union
 import json
 
 from unilabos.devices.workstation.workstation_base import WorkstationBase, ResourceSynchronizer
 from unilabos.devices.workstation.bioyond_studio.bioyond_rpc import BioyondV1RPC
+from unilabos.resources.warehouse import WareHouse
 from unilabos.utils.log import logger
 from unilabos.resources.graphio import resource_bioyond_to_plr
 
-from unilabos.devices.workstation.bioyond_studio.config import API_CONFIG, WORKFLOW_MAPPINGS
+from unilabos.ros.nodes.base_device_node import ROS2DeviceNode, BaseROS2DeviceNode
+from unilabos.ros.nodes.presets.workstation import ROS2WorkstationNode
+
+from unilabos.devices.workstation.bioyond_studio.config import API_CONFIG, WORKFLOW_MAPPINGS, MATERIAL_TYPE_MAPPINGS
 
 
 class BioyondResourceSynchronizer(ResourceSynchronizer):
@@ -26,6 +31,7 @@ class BioyondResourceSynchronizer(ResourceSynchronizer):
         self.bioyond_api_client = None
         self.sync_interval = 60  # 默认60秒同步一次
         self.last_sync_time = 0
+        self.initialize()
 
     def initialize(self) -> bool:
         """初始化Bioyond资源同步器"""
@@ -36,7 +42,7 @@ class BioyondResourceSynchronizer(ResourceSynchronizer):
                 return False
 
             # 设置同步间隔
-            self.sync_interval = self.workstation.bioyond_config.get("sync_interval", 60)
+            self.sync_interval = self.workstation.bioyond_config.get("sync_interval", 600)
 
             logger.info("Bioyond资源同步器初始化完成")
             return True
@@ -51,18 +57,19 @@ class BioyondResourceSynchronizer(ResourceSynchronizer):
                 logger.error("Bioyond API客户端未初始化")
                 return False
 
-            bioyond_data = self.bioyond_api_client.fetch_materials()
+            bioyond_data = self.bioyond_api_client.stock_material('{"typeMode": 2, "includeDetail": true}')
             if not bioyond_data:
                 logger.warning("从Bioyond获取的物料数据为空")
                 return False
 
             # 转换为UniLab格式
-            unilab_resources = resource_bioyond_to_plr(bioyond_data, deck=self.workstation.deck)
+            unilab_resources = resource_bioyond_to_plr(bioyond_data, type_mapping=self.workstation.bioyond_config["material_type_mappings"], deck=self.workstation.deck)
 
             logger.info(f"从Bioyond同步了 {len(unilab_resources)} 个资源")
             return True
         except Exception as e:
             logger.error(f"从Bioyond同步物料数据失败: {e}")
+            traceback.print_exc()
             return False
 
     def sync_to_external(self, resource: Any) -> bool:
@@ -105,8 +112,6 @@ class BioyondWorkstation(WorkstationBase):
         *args,
         **kwargs,
     ):
-        self._create_communication_module(bioyond_config)
-
         # 初始化父类
         super().__init__(
             # 桌子
@@ -114,19 +119,34 @@ class BioyondWorkstation(WorkstationBase):
             *args,
             **kwargs,
         )
+        self.deck.warehouses = {}
+        for resource in self.deck.children:
+            if isinstance(resource, WareHouse):
+                self.deck.warehouses[resource.name] = resource
+        
+        self._create_communication_module(bioyond_config)
         self.resource_synchronizer = BioyondResourceSynchronizer(self)
         self.resource_synchronizer.sync_from_external()
         
         # TODO: self._ros_node里面拿属性
         logger.info(f"Bioyond工作站初始化完成")
+    
+    def post_init(self, ros_node: ROS2WorkstationNode):
+        self._ros_node = ros_node
+        #self.deck = create_a_coin_cell_deck()
+        ROS2DeviceNode.run_async_func(self._ros_node.update_resource, True, **{
+            "resources": [self.deck]
+        })
 
     def _create_communication_module(self, config: Optional[Dict[str, Any]] = None) -> None:
         """创建Bioyond通信模块"""
         self.bioyond_config = config or {
             **API_CONFIG,
-            "workflow_mappings": WORKFLOW_MAPPINGS
+            "workflow_mappings": WORKFLOW_MAPPINGS,
+            "material_type_mappings": MATERIAL_TYPE_MAPPINGS
         }
         self.hardware_interface = BioyondV1RPC(self.bioyond_config)
+        
         return None
     
     def _register_supported_workflows(self):

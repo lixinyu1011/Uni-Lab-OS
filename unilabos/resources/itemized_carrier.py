@@ -71,6 +71,9 @@ class ItemizedCarrier(ResourcePLR):
     size_x: float,
     size_y: float,
     size_z: float,
+    num_items_x: int = 0,
+    num_items_y: int = 0,
+    num_items_z: int = 0,
     sites: Optional[Dict[Union[int, str], Optional[ResourcePLR]]] = None,
     category: Optional[str] = "carrier",
     model: Optional[str] = None,
@@ -83,18 +86,27 @@ class ItemizedCarrier(ResourcePLR):
       category=category,
       model=model,
     )
-    sites = sites or {}
-    self.sites: List[Optional[ResourcePLR]] = list(sites.values())
-    self._ordering = sites
-    self.num_items = len(self.sites)
-    self.child_locations: Dict[str, Coordinate] = {}
-    for spot, resource in sites.items():
-      if resource is not None and getattr(resource, "location", None) is None:
-        raise ValueError(f"resource {resource} has no location")
-      if resource is not None:
-        self.child_locations[spot] = resource.location
-      else:
-        self.child_locations[spot] = Coordinate.zero()
+    self.num_items = len(sites)
+    self.num_items_x, self.num_items_y, self.num_items_z = num_items_x, num_items_y, num_items_z
+    if isinstance(sites, dict):
+      sites = sites or {}
+      self.sites: List[Optional[ResourcePLR]] = list(sites.values())
+      self._ordering = sites
+      self.child_locations: Dict[str, Coordinate] = {}
+      for spot, resource in sites.items():
+        if resource is not None and getattr(resource, "location", None) is None:
+          raise ValueError(f"resource {resource} has no location")
+        if resource is not None:
+          self.child_locations[spot] = resource.location
+        else:
+          self.child_locations[spot] = Coordinate.zero()
+    elif isinstance(sites, list):
+      # deserialize时走这里；还需要根据 self.sites 索引children
+      self.child_locations = {site["label"]: Coordinate(**site["position"]) for site in sites}
+      self.sites = [site["occupied_by"] for site in sites]
+      self._ordering = {site["label"]: site["position"] for site in sites}
+    else:
+      print("sites:", sites)
 
   @property
   def capacity(self):
@@ -112,7 +124,20 @@ class ItemizedCarrier(ResourcePLR):
     reassign: bool = True,
     spot: Optional[int] = None,
   ):
-    idx = spot if spot is not None else len(self.sites)
+    idx = spot
+    # 如果只给 location，根据坐标和 deserialize 后的 self.sites（持有names）来寻找 resource 该摆放的位置
+    if spot is not None:
+      idx = spot
+    else:
+      for i, site in enumerate(self.sites):
+        site_location = list(self.child_locations.values())[i]
+        if type(site) == str and site == resource.name:
+          idx = i
+          break
+        if site_location == location:
+          idx = i
+          break
+        
     if not reassign and self.sites[idx] is not None:
       raise ValueError(f"a site with index {idx} already exists")
     super().assign_child_resource(resource, location=location, reassign=reassign)
@@ -288,9 +313,15 @@ class ItemizedCarrier(ResourcePLR):
   def serialize(self):
     return {
       **super().serialize(),
-      "slots": [{
+      "num_items_x": self.num_items_x,
+      "num_items_y": self.num_items_y,
+      "num_items_z": self.num_items_z,
+      "sites": [{
         "label": str(identifier),
         "visible": True if self[identifier] is not None else False,
+        "occupied_by": self[identifier].name 
+                        if isinstance(self[identifier], ResourcePLR) and not isinstance(self[identifier], ResourceHolder) else 
+                        self[identifier] if isinstance(self[identifier], str) else None,
         "position": {"x": location.x, "y": location.y, "z": location.z},
         "size": {"width": self._size_x, "height": self._size_y, "depth": self._size_z},
         "content_type": ["bottle", "container", "tube", "bottle_carrier", "tip_rack"]
