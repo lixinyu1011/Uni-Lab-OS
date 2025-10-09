@@ -130,7 +130,7 @@ class ROS2WorkstationNode(BaseROS2DeviceNode):
                             f"添加了{write}方法(来源：{name} {communicate_hardware_info['read']})"
                         )
 
-        self.lab_logger().info(f"ROS2ProtocolNode {device_id} initialized with protocols: {self.protocol_names}")
+        self.lab_logger().info(f"ROS2WorkstationNode {device_id} initialized with protocols: {self.protocol_names}")
 
     def _setup_protocol_names(self, protocol_type):
         # 处理协议类型

@@ -7,9 +7,12 @@ import sys
 import threading
 import time
 from copy import deepcopy
+from typing import Dict, Any, List
 
+import networkx as nx
 import yaml
 
+from unilabos.ros.nodes.resource_tracker import ResourceTreeSet, ResourceDict
 
 # 首先添加项目根目录到路径
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -225,6 +228,15 @@ def main():
     else:
         HTTPConfig.remote_addr = args_dict.get("addr", "")
 
+    # 设置BasicConfig参数
+    if args_dict.get("ak", ""):
+        BasicConfig.ak = args_dict.get("ak", "")
+        print_status("传入了ak参数，优先采用传入参数！", "info")
+    if args_dict.get("sk", ""):
+        BasicConfig.sk = args_dict.get("sk", "")
+        print_status("传入了sk参数，优先采用传入参数！", "info")
+
+    # 使用远程资源启动
     if args_dict["use_remote_resource"]:
         print_status("使用远程资源启动", "info")
         from unilabos.app.web import http_client
@@ -236,13 +248,6 @@ def main():
         else:
             print_status("远程资源不存在，本地将进行首次上报！", "info")
 
-    # 设置BasicConfig参数
-    if args_dict.get("ak", ""):
-        BasicConfig.ak = args_dict.get("ak", "")
-        print_status("传入了ak参数，优先采用传入参数！", "info")
-    if args_dict.get("sk", ""):
-        BasicConfig.sk = args_dict.get("sk", "")
-        print_status("传入了sk参数，优先采用传入参数！", "info")
     BasicConfig.working_dir = working_dir
     BasicConfig.is_host_mode = not args_dict.get("is_slave", False)
     BasicConfig.slave_no_host = args_dict.get("slave_no_host", False)
@@ -278,6 +283,10 @@ def main():
     if not BasicConfig.ak or not BasicConfig.sk:
         print_status("后续运行必须拥有一个实验室，请前往 https://uni-lab.bohrium.com 注册实验室！", "warning")
         os._exit(1)
+    graph: nx.Graph
+    resource_tree_set: ResourceTreeSet
+    resource_links: List[Dict[str, Any]]
+
     if args_dict["graph"] is None:
         request_startup_json = http_client.request_startup_json()
         if not request_startup_json:
@@ -287,57 +296,53 @@ def main():
             os._exit(1)
         else:
             print_status("联网获取设备加载文件成功", "info")
-        graph, data = read_node_link_json(request_startup_json)
+        graph, resource_tree_set, resource_links = read_node_link_json(request_startup_json)
     else:
         file_path = args_dict["graph"]
         if file_path.endswith(".json"):
-            graph, data = read_node_link_json(file_path)
+            graph, resource_tree_set, resource_links = read_node_link_json(file_path)
         else:
-            graph, data = read_graphml(file_path)
+            graph, resource_tree_set, resource_links = read_graphml(file_path)
     import unilabos.resources.graphio as graph_res
 
     graph_res.physical_setup_graph = graph
-    resource_edge_info = modify_to_backend_format(data["links"])
+    resource_edge_info = modify_to_backend_format(resource_links)
     materials = lab_registry.obtain_registry_resource_info()
     materials.extend(lab_registry.obtain_registry_device_info())
     materials = {k["id"]: k for k in materials}
-    nodes = {k["id"]: k for k in data["nodes"]}
+    # 从 ResourceTreeSet 中获取节点信息
+    nodes = {node.res_content.id: node.res_content for node in resource_tree_set.all_nodes}
     edge_info = len(resource_edge_info)
     for ind, i in enumerate(resource_edge_info[::-1]):
-        source_node = nodes[i["source"]]
-        target_node = nodes[i["target"]]
+        source_node: ResourceDict = nodes[i["source"]]
+        target_node: ResourceDict = nodes[i["target"]]
         source_handle = i["sourceHandle"]
         target_handle = i["targetHandle"]
         source_handler_keys = [
-            h["handler_key"] for h in materials[source_node["class"]]["handles"] if h["io_type"] == "source"
+            h["handler_key"] for h in materials[source_node.klass]["handles"] if h["io_type"] == "source"
         ]
         target_handler_keys = [
-            h["handler_key"] for h in materials[target_node["class"]]["handles"] if h["io_type"] == "target"
+            h["handler_key"] for h in materials[target_node.klass]["handles"] if h["io_type"] == "target"
         ]
         if source_handle not in source_handler_keys:
             print_status(
-                f"节点 {source_node['id']} 的source端点 {source_handle} 不存在，请检查，支持的端点 {source_handler_keys}",
+                f"节点 {source_node.id} 的source端点 {source_handle} 不存在，请检查，支持的端点 {source_handler_keys}",
                 "error",
             )
             resource_edge_info.pop(edge_info - ind - 1)
             continue
         if target_handle not in target_handler_keys:
             print_status(
-                f"节点 {target_node['id']} 的target端点 {target_handle} 不存在，请检查，支持的端点 {target_handler_keys}",
+                f"节点 {target_node.id} 的target端点 {target_handle} 不存在，请检查，支持的端点 {target_handler_keys}",
                 "error",
             )
             resource_edge_info.pop(edge_info - ind - 1)
             continue
 
-    devices_and_resources = dict_from_graph(graph_res.physical_setup_graph)
-    # args_dict["resources_config"] = initialize_resources(list(deepcopy(devices_and_resources).values()))
-    args_dict["resources_config"] = list(devices_and_resources.values())
-    args_dict["devices_config"] = dict_to_nested_dict(deepcopy(devices_and_resources), devices_only=False)
+    # 使用 ResourceTreeSet 代替 list
+    args_dict["resources_config"] = resource_tree_set
+    args_dict["devices_config"] = resource_tree_set
     args_dict["graph"] = graph_res.physical_setup_graph
-
-    print_status(f"{len(args_dict['resources_config'])} Resources loaded:", "info")
-    for i in args_dict["resources_config"]:
-        print_status(f"DeviceId: {i['id']}, Class: {i['class']}", "info")
 
     if BasicConfig.upload_registry:
         # 设备注册到服务端 - 需要 ak 和 sk
@@ -351,9 +356,7 @@ def main():
         else:
             print_status("未提供 ak 和 sk，跳过设备注册", "info")
     else:
-        print_status(
-            "本次启动注册表不报送云端，如果您需要联网调试，请在启动命令增加--upload_registry", "warning"
-        )
+        print_status("本次启动注册表不报送云端，如果您需要联网调试，请在启动命令增加--upload_registry", "warning")
 
     if args_dict["controllers"] is not None:
         args_dict["controllers_config"] = yaml.safe_load(open(args_dict["controllers"], encoding="utf-8"))
@@ -383,13 +386,16 @@ def main():
     # web visiualize 2D
     if args_dict["visual"] != "disable":
         enable_rviz = args_dict["visual"] == "rviz"
+        devices_and_resources = dict_from_graph(graph_res.physical_setup_graph)
         if devices_and_resources is not None:
             from unilabos.device_mesh.resource_visalization import (
                 ResourceVisualization,
             )  # 此处开启后，logger会变更为INFO，有需要请调整
 
             resource_visualization = ResourceVisualization(
-                devices_and_resources, args_dict["resources_config"], enable_rviz=enable_rviz
+                devices_and_resources,
+                [n.res_content for n in args_dict["resources_config"].all_nodes],  # type: ignore  # FIXME
+                enable_rviz=enable_rviz,
             )
             args_dict["resources_mesh_config"] = resource_visualization.resource_model
             start_backend(**args_dict)
