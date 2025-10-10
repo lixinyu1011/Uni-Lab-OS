@@ -5,15 +5,19 @@ Automated Liquid Handling Station Resource Classes - Simplified Version
 
 from __future__ import annotations
 
-from typing import Dict, Optional
+from typing import Dict, List, Optional, TypeVar, Union, Sequence, Tuple
 
-from pylabrobot.resources.coordinate import Coordinate
-from pylabrobot.resources.container import Container
-from pylabrobot.resources.resource_holder import ResourceHolder
+import pylabrobot
+
 from pylabrobot.resources import Resource as ResourcePLR
+from pylabrobot.resources import Well, ResourceHolder
+from pylabrobot.resources.coordinate import Coordinate
 
 
-class Bottle(Container):
+LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+
+class Bottle(Well):
     """瓶子类 - 简化版，不追踪瓶盖"""
 
     def __init__(
@@ -37,6 +41,8 @@ class Bottle(Container):
             max_volume=max_volume,
             category=category,
             model=model,
+            bottom_type="flat",
+            cross_section_type="circle"
         )
         self.diameter = diameter
         self.height = height
@@ -49,13 +55,6 @@ class Bottle(Container):
             "height": self.height,
             "barcode": self.barcode,
         }
-
-
-from string import ascii_uppercase as LETTERS
-from typing import Dict, List, Optional, Type, TypeVar, Union, Sequence, Tuple
-
-import pylabrobot
-from pylabrobot.resources.resource_holder import ResourceHolder
 
 T = TypeVar("T", bound=ResourceHolder)
 

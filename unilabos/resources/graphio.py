@@ -614,6 +614,11 @@ def resource_bioyond_to_plr(bioyond_materials: list[dict], type_mapping: dict = 
                 bottle.tracker.liquids = [
                     (detail["name"], float(detail.get("quantity", 0)) if detail.get("quantity") else 0)
                 ]
+        else:
+            bottle = plr_material[0] if plr_material.capacity > 0 else plr_material
+            bottle.tracker.liquids = [
+                (material["name"], float(material.get("quantity", 0)) if material.get("quantity") else 0)
+            ]
 
         plr_materials.append(plr_material)
 
@@ -631,6 +636,36 @@ def resource_bioyond_to_plr(bioyond_materials: list[dict], type_mapping: dict = 
                             warehouse[idx] = plr_material
 
     return plr_materials
+
+
+def resource_plr_to_bioyond(plr_materials: list[ResourcePLR], type_mapping: dict = {}, warehouse_mapping: dict = {}) -> list[dict]:
+    bioyond_materials = []
+    for plr_material in plr_materials:
+        material = {
+            "name": plr_material.name,
+            "typeName": plr_material.__class__.__name__,
+            "code": plr_material.code,
+            "quantity": 0,
+            "detail": [],
+            "locations": [],
+        }
+        if hasattr(plr_material, "capacity") and plr_material.capacity > 1:
+            for idx in range(plr_material.capacity):
+                bottle = plr_material[idx]
+                detail = {
+                    "x": (idx // (plr_material.num_items_x * plr_material.num_items_y)) + 1,
+                    "y": ((idx % (plr_material.num_items_x * plr_material.num_items_y)) // plr_material.num_items_x) + 1,
+                    "z": (idx % plr_material.num_items_x) + 1,
+                    "code": bottle.code if hasattr(bottle, "code") else "",
+                    "quantity": sum(qty for _, qty in bottle.tracker.liquids) if hasattr(bottle, "tracker") else 0,
+                }
+                material["detail"].append(detail)
+            material["quantity"] = 1.0
+        else:
+            bottle = plr_material[0] if plr_material.capacity > 0 else plr_material
+            material["quantity"] = sum(qty for _, qty in bottle.tracker.liquids) if hasattr(plr_material, "tracker") else 0
+        bioyond_materials.append(material)
+    return bioyond_materials
 
 
 def initialize_resource(resource_config: dict, resource_type: Any = None) -> Union[list[dict], ResourcePLR]:
