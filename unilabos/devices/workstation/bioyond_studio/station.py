@@ -10,12 +10,14 @@ import json
 
 from unilabos.devices.workstation.workstation_base import WorkstationBase, ResourceSynchronizer
 from unilabos.devices.workstation.bioyond_studio.bioyond_rpc import BioyondV1RPC
+from unilabos.registry.placeholder_type import ResourceSlot, DeviceSlot
 from unilabos.resources.warehouse import WareHouse
 from unilabos.utils.log import logger
 from unilabos.resources.graphio import resource_bioyond_to_plr
 
 from unilabos.ros.nodes.base_device_node import ROS2DeviceNode, BaseROS2DeviceNode
 from unilabos.ros.nodes.presets.workstation import ROS2WorkstationNode
+from pylabrobot.resources.resource import Resource as ResourcePLR
 
 from unilabos.devices.workstation.bioyond_studio.config import (
     API_CONFIG, WORKFLOW_MAPPINGS, MATERIAL_TYPE_MAPPINGS,
@@ -151,6 +153,13 @@ class BioyondWorkstation(WorkstationBase):
         #self.deck = create_a_coin_cell_deck()
         ROS2DeviceNode.run_async_func(self._ros_node.update_resource, True, **{
             "resources": [self.deck]
+        })
+
+    def transfer_resource_to_another(self, resource_a: ResourceSlot, device_id: DeviceSlot, resource_b: ResourceSlot):
+        ROS2DeviceNode.run_async_func(self._ros_node.transfer_resource_to_another, True, **{
+            "plr_resources": [resource_a],
+            "target_device_id": device_id,
+            "target_resource_uuid": getattr(resource_b, "unilabos_uuid", None),
         })
 
     def _configure_station_type(self, station_config: Optional[Dict[str, Any]] = None) -> None:

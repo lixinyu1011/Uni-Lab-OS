@@ -7,11 +7,14 @@ import importlib
 from pathlib import Path
 from typing import Any, Dict, List, Union, Tuple
 
+import msgcenterpy
 import yaml
+from unilabos_msgs.msg import Resource
 
 from unilabos.config.config import BasicConfig
 from unilabos.resources.graphio import resource_plr_to_ulab, tree_to_list
-from unilabos.ros.msgs.message_converter import msg_converter_manager, ros_action_to_json_schema, String
+from unilabos.ros.msgs.message_converter import msg_converter_manager, ros_action_to_json_schema, String, \
+    ros_message_to_json_schema
 from unilabos.utils import logger
 from unilabos.utils.decorator import singleton
 from unilabos.utils.import_manager import get_enhanced_class_info, get_class
@@ -426,7 +429,10 @@ class Registry:
             param_type = arg_info.get("type", "")
             param_default = arg_info.get("default")
             param_required = arg_info.get("required", True)
-            schema["properties"][param_name] = self._generate_schema_from_info(param_name, param_type, param_default)
+            if param_type == "unilabos.registry.placeholder_type:ResourceSlot":
+                schema["properties"][param_name] = ros_message_to_json_schema(Resource, param_name)
+            else:
+                schema["properties"][param_name] = self._generate_schema_from_info(param_name, param_type, param_default)
             if param_required:
                 schema["required"].append(param_name)
 
@@ -536,13 +542,17 @@ class Registry:
                                         "schema": self._generate_unilab_json_command_schema(v["args"], k),
                                         "goal_default": {i["name"]: i["default"] for i in v["args"]},
                                         "handles": [],
+                                        "placeholder_keys": {
+                                            i["name"]: "unilabos_resources" if i["type"] == "unilabos.registry.placeholder_type:ResourceSlot" else "unilabos_devices"
+                                            for i in v["args"]
+                                            if i.get("type", "") in ["unilabos.registry.placeholder_type:ResourceSlot", "unilabos.registry.placeholder_type:DeviceSlot"]
+                                        }
                                     }
                                     # 不生成已配置action的动作
                                     for k, v in enhanced_info["action_methods"].items()
                                     if k not in device_config["class"]["action_value_mappings"]
                                 }
                             )
-
                             # 恢复原有的description信息（auto开头的不修改）
                             for action_name, description in old_descriptions.items():
                                 if action_name in device_config["class"]["action_value_mappings"]:  # 有一些会被删除

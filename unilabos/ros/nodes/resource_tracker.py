@@ -455,6 +455,59 @@ class ResourceTreeSet(object):
         return plr_resources
 
     @classmethod
+    def from_raw_list(cls, raw_list: List[Dict[str, Any]]) -> "ResourceTreeSet":
+        """
+        从原始字典列表创建 ResourceTreeSet，自动建立 parent-children 关系
+
+        Args:
+            raw_list: 原始字典列表，每个字典代表一个资源节点
+
+        Returns:
+            ResourceTreeSet 实例
+
+        Raises:
+            ValueError: 当建立关系时发现不一致
+        """
+        # 第一步：将字典列表转换为 ResourceDictInstance 列表
+        instances = [ResourceDictInstance.get_resource_instance_from_dict(node_dict) for node_dict in raw_list]
+
+        # 第二步：建立映射关系
+        uuid_to_instance: Dict[str, ResourceDictInstance] = {}
+        id_to_instance: Dict[str, ResourceDictInstance] = {}
+
+        for raw_node, instance in zip(raw_list, instances):
+            # 建立 uuid 映射
+            if instance.res_content.uuid:
+                uuid_to_instance[instance.res_content.uuid] = instance
+            # 建立 id 映射
+            if instance.res_content.id:
+                id_to_instance[instance.res_content.id] = instance
+
+        # 第三步：建立 parent-children 关系
+        for raw_node, instance in zip(raw_list, instances):
+            # 优先使用 parent_uuid 进行匹配，如果不存在则使用 parent (id)
+            parent_uuid = raw_node.get("parent_uuid")
+            parent_id = raw_node.get("parent")
+            parent_instance = None
+
+            # 优先用 parent_uuid 匹配
+            if parent_uuid and parent_uuid in uuid_to_instance:
+                parent_instance = uuid_to_instance[parent_uuid]
+            # 否则用 parent (id) 匹配
+            elif parent_id and parent_id in id_to_instance:
+                parent_instance = id_to_instance[parent_id]
+
+            # 设置 parent 引用并建立 children 关系
+            if parent_instance:
+                instance.res_content.parent = parent_instance.res_content
+                # 将当前节点添加到父节点的 children 列表（避免重复添加）
+                if instance not in parent_instance.children:
+                    parent_instance.children.append(instance)
+
+        # 第四步：使用 from_nested_list 创建 ResourceTreeSet
+        return cls.from_nested_list(instances)
+
+    @classmethod
     def from_nested_list(cls, nested_list: List[ResourceDictInstance]) -> "ResourceTreeSet":
         """
         从扁平化的资源列表创建ResourceTreeSet，自动按根节点分组
@@ -497,6 +550,16 @@ class ResourceTreeSet(object):
         """
         return [node for tree in self.trees for node in tree.get_all_nodes()]
 
+    @property
+    def all_nodes_uuid(self) -> List[str]:
+        """
+        获取所有树中的所有节点
+
+        Returns:
+            所有节点的资源实例列表
+        """
+        return [node.res_content.uuid for tree in self.trees for node in tree.get_all_nodes()]
+
     def find_by_uuid(self, target_uuid: str) -> Optional[ResourceDictInstance]:
         """
         在所有树中通过uuid查找节点
@@ -512,6 +575,116 @@ class ResourceTreeSet(object):
             if result:
                 return result
         return None
+
+    def merge_remote_resources(self, remote_tree_set: "ResourceTreeSet") -> "ResourceTreeSet":
+        """
+        将远端物料同步到本地物料中（以子树为单位）
+
+        同步规则：
+        1. 一级节点（根节点）：如果不存在的物料，引入整个子树
+        2. 一级设备下的二级物料：如果不存在，引入整个子树
+        3. 二级设备下的三级物料：如果不存在，引入整个子树
+        如果存在则跳过并提示
+
+        Args:
+            remote_tree_set: 远端的资源树集合
+
+        Returns:
+            合并后的资源树集合（self）
+        """
+        # 构建本地映射：一级 device id -> 根节点实例
+        local_device_map: Dict[str, ResourceDictInstance] = {}
+        for root_node in self.root_nodes:
+            if root_node.res_content.type == "device":
+                local_device_map[root_node.res_content.id] = root_node
+
+        # 记录需要添加的新根节点（不属于任何 device 的物料）
+        new_root_nodes: List[ResourceDictInstance] = []
+
+        # 遍历远端根节点
+        for remote_root in remote_tree_set.root_nodes:
+            remote_root_id = remote_root.res_content.id
+            remote_root_type = remote_root.res_content.type
+
+            if remote_root_type == "device":
+                # 情况1: 一级是 device
+                if remote_root_id not in local_device_map:
+                    logger.warning(f"Device '{remote_root_id}' 在本地不存在，跳过该 device 下的物料同步")
+                    continue
+
+                local_device = local_device_map[remote_root_id]
+
+                # 构建本地一级 device 下的子节点映射
+                local_children_map = {child.res_content.name: child for child in local_device.children}
+
+                # 遍历远端一级 device 的子节点
+                for remote_child in remote_root.children:
+                    remote_child_name = remote_child.res_content.name
+                    remote_child_type = remote_child.res_content.type
+
+                    if remote_child_type == "device":
+                        # 情况2: 二级是 device
+                        if remote_child_name not in local_children_map:
+                            logger.warning(f"Device '{remote_root_id}/{remote_child_name}' 在本地不存在，跳过")
+                            continue
+
+                        local_sub_device = local_children_map[remote_child_name]
+
+                        # 构建本地二级 device 下的子节点映射
+                        local_sub_children_map = {child.res_content.name: child for child in local_sub_device.children}
+
+                        # 遍历远端二级 device 的子节点（三级物料）
+                        added_count = 0
+                        for remote_material in remote_child.children:
+                            remote_material_name = remote_material.res_content.name
+
+                            # 情况3: 三级物料
+                            if remote_material_name not in local_sub_children_map:
+                                # 引入整个子树
+                                remote_material.res_content.parent = local_sub_device.res_content
+                                local_sub_device.children.append(remote_material)
+                                added_count += 1
+                            else:
+                                logger.info(
+                                    f"物料 '{remote_root_id}/{remote_child_name}/{remote_material_name}' "
+                                    f"已存在，跳过"
+                                )
+
+                        if added_count > 0:
+                            logger.info(
+                                f"Device '{remote_root_id}/{remote_child_name}': "
+                                f"从远端同步了 {added_count} 个物料子树"
+                            )
+                    else:
+                        # 情况2: 二级是物料（不是 device）
+                        if remote_child_name not in local_children_map:
+                            # 引入整个子树
+                            remote_child.res_content.parent = local_device.res_content
+                            local_device.children.append(remote_child)
+                            logger.info(f"Device '{remote_root_id}': 从远端同步物料子树 '{remote_child_name}'")
+                        else:
+                            logger.info(f"物料 '{remote_root_id}/{remote_child_name}' 已存在，跳过")
+            else:
+                # 情况1: 一级节点是物料（不是 device）
+                # 检查是否已存在
+                existing = False
+                for local_root in self.root_nodes:
+                    if local_root.res_content.name == remote_root.res_content.name:
+                        existing = True
+                        logger.info(f"根节点物料 '{remote_root.res_content.name}' 已存在，跳过")
+                        break
+
+                if not existing:
+                    # 引入整个子树
+                    new_root_nodes.append(remote_root)
+                    logger.info(f"添加远端独立物料根节点子树: '{remote_root_id}'")
+
+        # 将新的根节点添加到本地树集合
+        if new_root_nodes:
+            for new_root in new_root_nodes:
+                self.trees.append(ResourceTreeInstance(new_root))
+
+        return self
 
     def dump(self) -> List[List[Dict[str, Any]]]:
         """

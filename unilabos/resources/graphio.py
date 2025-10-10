@@ -9,10 +9,7 @@ from unilabos_msgs.msg import Resource
 
 from unilabos.resources.container import RegularContainer
 from unilabos.ros.msgs.message_converter import convert_to_ros_msg
-from unilabos.ros.nodes.resource_tracker import (
-    ResourceDictInstance,
-    ResourceTreeSet,
-)
+from unilabos.ros.nodes.resource_tracker import ResourceTreeSet
 from unilabos.utils.banner_print import print_status
 
 try:
@@ -54,57 +51,24 @@ def canonicalize_nodes_data(
                 if child in id2idx:
                     nodes[id2idx[child]]["parent"] = parent
 
-    # 第三步：使用 ResourceInstanceDictFlatten 标准化每个节点
-    standardized_instances = []
-    known_nodes: Dict[str, ResourceDictInstance] = {}  # {node_id: ResourceDictInstance}
-    uuid_to_instance: Dict[str, ResourceDictInstance] = {}  # {uuid: ResourceDictInstance}
-
+    # 第三步：打印节点信息（用于调试）
     for node in nodes:
         try:
             print_status(f"DeviceId: {node['id']}, Class: {node['class']}", "info")
-            # 使用标准化方法
-            resource_instance = ResourceDictInstance.get_resource_instance_from_dict(node)
-            known_nodes[node["id"]] = resource_instance
-            uuid_to_instance[resource_instance.res_content.uuid] = resource_instance
-            standardized_instances.append(resource_instance)
         except Exception as e:
-            print_status(f"Failed to standardize node {node.get('id', 'unknown')}:\n{traceback.format_exc()}", "error")
-            continue
+            print_status(f"Failed to read node {node.get('id', 'unknown')}: {e}", "error")
 
-    # 第四步：建立 parent 和 children 关系
-    for node in nodes:
-        node_id = node["id"]
-        if node_id not in known_nodes:
-            continue
+    # 第四步：使用 from_raw_list 创建 ResourceTreeSet（自动处理标准化、parent-children关系）
+    try:
+        resource_tree_set = ResourceTreeSet.from_raw_list(nodes)
+    except Exception as e:
+        print_status(f"Failed to create ResourceTreeSet:\n{traceback.format_exc()}", "error")
+        raise
 
-        current_instance = known_nodes[node_id]
-
-        # 优先使用 parent_uuid 进行匹配，如果不存在则使用 parent
-        parent_uuid = node.get("parent_uuid")
-        parent_id = node.get("parent")
-        parent_instance = None
-
-        # 优先用 parent_uuid 匹配
-        if parent_uuid and parent_uuid in uuid_to_instance:
-            parent_instance = uuid_to_instance[parent_uuid]
-        # 否则用 parent_id 匹配
-        elif parent_id and parent_id in known_nodes:
-            parent_instance = known_nodes[parent_id]
-
-        # 设置 parent 引用
-        if parent_instance:
-            current_instance.res_content.parent = parent_instance.res_content
-            # 将当前节点添加到父节点的 children 列表
-            parent_instance.children.append(current_instance)
-
-    # 第五步：创建 ResourceTreeSet
-    resource_tree_set = ResourceTreeSet.from_nested_list(standardized_instances)
     return resource_tree_set
 
 
-def canonicalize_links_ports(
-    links: List[Dict[str, Any]], resource_tree_set: ResourceTreeSet
-) -> List[Dict[str, Any]]:
+def canonicalize_links_ports(links: List[Dict[str, Any]], resource_tree_set: ResourceTreeSet) -> List[Dict[str, Any]]:
     """
     标准化边/连接的端口信息
 
@@ -593,18 +557,24 @@ def resource_bioyond_to_plr(bioyond_materials: list[dict], type_mapping: dict = 
     plr_materials = []
 
     for material in bioyond_materials:
-        className = type_mapping.get(material.get("typeName"), "RegularContainer") if type_mapping else "RegularContainer"
+        className = (
+            type_mapping.get(material.get("typeName"), "RegularContainer") if type_mapping else "RegularContainer"
+        )
 
-        plr_material: ResourcePLR = initialize_resource({"name": material["name"], "class": className}, resource_type=ResourcePLR)
+        plr_material: ResourcePLR = initialize_resource(
+            {"name": material["name"], "class": className}, resource_type=ResourcePLR
+        )
         plr_material.code = material.get("code", "") and material.get("barCode", "") or ""
 
         # 处理子物料（detail）
         if material.get("detail") and len(material["detail"]) > 0:
             child_ids = []
             for detail in material["detail"]:
-                number = (detail.get("z", 0) - 1) * plr_material.num_items_x * plr_material.num_items_y + \
-                         (detail.get("x", 0) - 1) * plr_material.num_items_x + \
-                         (detail.get("y", 0) - 1)
+                number = (
+                    (detail.get("z", 0) - 1) * plr_material.num_items_x * plr_material.num_items_y
+                    + (detail.get("x", 0) - 1) * plr_material.num_items_x
+                    + (detail.get("y", 0) - 1)
+                )
                 bottle = plr_material[number]
                 bottle.code = detail.get("code", "")
                 bottle.tracker.liquids = [
@@ -617,9 +587,11 @@ def resource_bioyond_to_plr(bioyond_materials: list[dict], type_mapping: dict = 
             for loc in material.get("locations", []):
                 if hasattr(deck, "warehouses") and loc.get("whName") in deck.warehouses:
                     warehouse = deck.warehouses[loc["whName"]]
-                    idx = (loc.get("y", 0) - 1) * warehouse.num_items_x * warehouse.num_items_y + \
-                          (loc.get("x", 0) - 1) * warehouse.num_items_x + \
-                          (loc.get("z", 0) - 1)
+                    idx = (
+                        (loc.get("y", 0) - 1) * warehouse.num_items_x * warehouse.num_items_y
+                        + (loc.get("x", 0) - 1) * warehouse.num_items_x
+                        + (loc.get("z", 0) - 1)
+                    )
                     if 0 <= idx < warehouse.capacity:
                         if warehouse[idx] is None or isinstance(warehouse[idx], ResourceHolder):
                             warehouse[idx] = plr_material

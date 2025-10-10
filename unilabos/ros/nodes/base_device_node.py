@@ -345,111 +345,6 @@ class BaseROS2DeviceNode(Node, Generic[T]):
             res.response = ""
             return res
 
-        async def s2c_resource_tree(req: SerialCommand_Request, res: SerialCommand_Response):
-            """
-            处理资源树更新请求
-
-            支持三种操作：
-            - add: 添加新资源到资源树
-            - update: 更新现有资源
-            - remove: 从资源树中移除资源
-            """
-            try:
-                data = json.loads(req.command)
-                results = []
-
-                for i in data:
-                    action = i.get("action")  # remove, add, update
-                    resources_uuid: List[str] = i.get("data")  # 资源数据
-                    self.lab_logger().info(
-                        f"[Resource Tree Update] Processing {action} operation, "
-                        f"resources count: {len(resources_uuid)}"
-                    )
-                    tree_set = None
-                    if action in ["add", "update"]:
-                        response: SerialCommand.Response = await self._resource_clients[
-                            "c2s_update_resource_tree"
-                        ].call_async(
-                            SerialCommand.Request(
-                                command=json.dumps(
-                                    {"data": {"data": resources_uuid, "with_children": False}, "action": "get"}
-                                )
-                            )
-                        )  # type: ignore
-                        raw_nodes = json.loads(response.response)
-                        nodes = [ResourceDictInstance.get_resource_instance_from_dict(n) for n in raw_nodes]
-                        uuids_to_nodes = {u["uuid"]: n for u, n in zip(raw_nodes, nodes)}
-                        for u, n in zip(raw_nodes, nodes):
-                            n.res_content.parent = uuids_to_nodes.get(u["parent_uuid"]).res_content if u["parent_uuid"] in uuids_to_nodes else None
-                            print(n.res_content.parent)
-                        tree_set = ResourceTreeSet.from_nested_list(nodes)
-                    try:
-                        if action == "add":
-                            # 添加资源到资源跟踪器
-                            plr_resources = tree_set.to_plr_resources()
-                            for plr_resource, tree in zip(plr_resources, tree_set.trees):
-                                self.resource_tracker.add_resource(plr_resource)
-                                parent_uuid = tree.root_node.res_content.parent_uuid
-                                if parent_uuid:
-                                    parent_resource: ResourcePLR = self.resource_tracker.uuid_to_resources.get(parent_uuid)
-                                    if parent_resource is None:
-                                        self.lab_logger().warning(f"物料{plr_resource}请求挂载{tree.root_node.res_content.name}的父节点{parent_uuid}不存在")
-                                    else:
-                                        try:
-                                            parent_resource.assign_child_resource(plr_resource, location=None)
-                                        except Exception as e:
-                                            self.lab_logger().warning(
-                                                f"物料{plr_resource}请求挂载{tree.root_node.res_content.name}的父节点{parent_resource}[{parent_uuid}]失败！\n{traceback.format_exc()}")
-                            func = getattr(self.driver_instance, "resource_tree_add", None)
-                            if callable(func):
-                                func(plr_resources)
-                                results.append({"success": True, "action": "add"})
-                        elif action == "update":
-                            # 更新资源
-                            plr_resources = tree_set.to_plr_resources()
-                            for plr_resource, tree in zip(plr_resources, tree_set.trees):
-                                states = plr_resource.serialize_all_state()
-                                original_instance: ResourcePLR = self.resource_tracker.figure_resource({"uuid": tree.root_node.res_content.uuid}, try_mode=False)
-                                original_instance.load_all_state(states)
-                                self.lab_logger().info(f"更新了资源属性 {plr_resource}[{tree.root_node.res_content.uuid}] 及其子节点 {len(original_instance.get_all_children())} 个")
-
-                            func = getattr(self.driver_instance, "resource_tree_update", None)
-                            if callable(func):
-                                func(tree_set)
-                                results.append({"success": True, "action": "update"})
-                        elif action == "remove":
-                            # 移除资源
-                            func = getattr(self.driver_instance, "resource_tree_remove", None)
-                            if callable(func):
-                                resources_instances: List[ResourcePLR] = [self.resource_tracker.uuid_to_resources[i] for
-                                                                         i in resources_uuid]
-                                self.resource_tracker.add_resource()
-                                [r.parent.unassign_child_resource(r) for r in resources_instances if r is not None]
-                                func(resources_instances)
-                                [r.parent.unassign_child_resource(r) for r in resources_instances if r is not None]
-                                results.append({"success": True, "action": "remove"})
-                    except Exception as e:
-                        error_msg = f"Error processing {action} operation: {str(e)}"
-                        self.lab_logger().error(f"[Resource Tree Update] {error_msg}")
-                        self.lab_logger().error(traceback.format_exc())
-                        results.append({"success": False, "action": action, "error": error_msg})
-
-                # 返回处理结果
-                result_json = {"results": results, "total": len(data)}
-                res.response = json.dumps(result_json, ensure_ascii=False)
-                self.lab_logger().info(f"[Resource Tree Update] Completed processing {len(data)} operations")
-
-            except json.JSONDecodeError as e:
-                error_msg = f"Invalid JSON format: {str(e)}"
-                self.lab_logger().error(f"[Resource Tree Update] {error_msg}")
-                res.response = json.dumps({"success": False, "error": error_msg}, ensure_ascii=False)
-            except Exception as e:
-                error_msg = f"Unexpected error: {str(e)}"
-                self.lab_logger().error(f"[Resource Tree Update] {error_msg}")
-                self.lab_logger().error(traceback.format_exc())
-                res.response = json.dumps({"success": False, "error": error_msg}, ensure_ascii=False)
-
-            return res
 
         async def append_resource(req: SerialCommand_Request, res: SerialCommand_Response):
             # 物料传输到对应的node节点
@@ -644,7 +539,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
             "s2c_resource_tree": self.create_service(
                 SerialCommand,
                 f"/srv{self.namespace}/s2c_resource_tree",
-                s2c_resource_tree,  # type: ignore
+                self.s2c_resource_tree,  # type: ignore
                 callback_group=self.callback_group,
             ),
         }
@@ -666,6 +561,159 @@ class BaseROS2DeviceNode(Node, Generic[T]):
             self.lab_logger().error(f"更新资源uuid失败: {e}")
             self.lab_logger().error(traceback.format_exc())
         self.lab_logger().debug(f"资源更新结果: {response}")
+
+    async def s2c_resource_tree(self, req: SerialCommand_Request, res: SerialCommand_Response):
+        """
+        处理资源树更新请求
+
+        支持三种操作：
+        - add: 添加新资源到资源树
+        - update: 更新现有资源
+        - remove: 从资源树中移除资源
+        """
+        try:
+            data = json.loads(req.command)
+            results = []
+
+            for i in data:
+                action = i.get("action")  # remove, add, update
+                resources_uuid: List[str] = i.get("data")  # 资源数据
+                self.lab_logger().info(
+                    f"[Resource Tree Update] Processing {action} operation, "
+                    f"resources count: {len(resources_uuid)}"
+                )
+                tree_set = None
+                if action in ["add", "update"]:
+                    response: SerialCommand.Response = await self._resource_clients[
+                        "c2s_update_resource_tree"
+                    ].call_async(
+                        SerialCommand.Request(
+                            command=json.dumps(
+                                {"data": {"data": resources_uuid, "with_children": False}, "action": "get"}
+                            )
+                        )
+                    )  # type: ignore
+                    raw_nodes = json.loads(response.response)
+                    tree_set = ResourceTreeSet.from_raw_list(raw_nodes)
+                try:
+                    if action == "add":
+                        # 添加资源到资源跟踪器
+                        plr_resources = tree_set.to_plr_resources()
+                        for plr_resource, tree in zip(plr_resources, tree_set.trees):
+                            self.resource_tracker.add_resource(plr_resource)
+                            parent_uuid = tree.root_node.res_content.parent_uuid
+                            if parent_uuid:
+                                parent_resource: ResourcePLR = self.resource_tracker.uuid_to_resources.get(parent_uuid)
+                                if parent_resource is None:
+                                    self.lab_logger().warning(
+                                        f"物料{plr_resource}请求挂载{tree.root_node.res_content.name}的父节点{parent_uuid}不存在")
+                                else:
+                                    try:
+                                        parent_resource.assign_child_resource(plr_resource, location=None)
+                                    except Exception as e:
+                                        self.lab_logger().warning(
+                                            f"物料{plr_resource}请求挂载{tree.root_node.res_content.name}的父节点{parent_resource}[{parent_uuid}]失败！\n{traceback.format_exc()}")
+                        func = getattr(self.driver_instance, "resource_tree_add", None)
+                        if callable(func):
+                            func(plr_resources)
+                            results.append({"success": True, "action": "add"})
+                    elif action == "update":
+                        # 更新资源
+                        plr_resources = tree_set.to_plr_resources()
+                        for plr_resource, tree in zip(plr_resources, tree_set.trees):
+                            states = plr_resource.serialize_all_state()
+                            original_instance: ResourcePLR = self.resource_tracker.figure_resource(
+                                {"uuid": tree.root_node.res_content.uuid}, try_mode=False)
+                            original_instance.load_all_state(states)
+                            self.lab_logger().info(
+                                f"更新了资源属性 {plr_resource}[{tree.root_node.res_content.uuid}] 及其子节点 {len(original_instance.get_all_children())} 个")
+
+                        func = getattr(self.driver_instance, "resource_tree_update", None)
+                        if callable(func):
+                            func(plr_resources)
+                            results.append({"success": True, "action": "update"})
+                    elif action == "remove":
+                        # 移除资源
+                        plr_resources: List[ResourcePLR] = [self.resource_tracker.uuid_to_resources[i] for
+                                                            i in resources_uuid]
+                        func = getattr(self.driver_instance, "resource_tree_remove", None)
+                        if callable(func):
+                            func(plr_resources)
+                        for plr_resource in plr_resources:
+                            plr_resource.parent.unassign_child_resource(plr_resource)
+                            self.resource_tracker.remove_resource(plr_resource)
+                        results.append({"success": True, "action": "remove"})
+                except Exception as e:
+                    error_msg = f"Error processing {action} operation: {str(e)}"
+                    self.lab_logger().error(f"[Resource Tree Update] {error_msg}")
+                    self.lab_logger().error(traceback.format_exc())
+                    results.append({"success": False, "action": action, "error": error_msg})
+
+            # 返回处理结果
+            result_json = {"results": results, "total": len(data)}
+            res.response = json.dumps(result_json, ensure_ascii=False)
+            self.lab_logger().info(f"[Resource Tree Update] Completed processing {len(data)} operations")
+
+        except json.JSONDecodeError as e:
+            error_msg = f"Invalid JSON format: {str(e)}"
+            self.lab_logger().error(f"[Resource Tree Update] {error_msg}")
+            res.response = json.dumps({"success": False, "error": error_msg}, ensure_ascii=False)
+        except Exception as e:
+            error_msg = f"Unexpected error: {str(e)}"
+            self.lab_logger().error(f"[Resource Tree Update] {error_msg}")
+            self.lab_logger().error(traceback.format_exc())
+            res.response = json.dumps({"success": False, "error": error_msg}, ensure_ascii=False)
+
+        return res
+
+    async def transfer_resource_to_another(self, plr_resources: List["ResourcePLR"], target_device_id, target_resource_uuid: str):
+        # 准备工作
+        uids = []
+        for plr_resource in plr_resources:
+            uid = getattr(plr_resource, "unilabos_uuid", None)
+            if uid is None:
+                raise ValueError(f"物料{plr_resource}没有unilabos_uuid属性，无法转运")
+            uids.append(uid)
+        srv_address = f"/srv{target_device_id}/s2c_resource_tree"
+        sclient = self.create_client(SerialCommand, srv_address)
+        # 等待服务可用（设置超时）
+        if not sclient.wait_for_service(timeout_sec=5.0):
+            self.lab_logger().error(f"[{self.device_id} Node-Resource] Service {srv_address} not available")
+            raise ValueError(f"[{self.device_id} Node-Resource] Service {srv_address} not available")
+
+        # 先从当前节点移除资源
+        await self.s2c_resource_tree(SerialCommand_Request(command=json.dumps([{
+            "action": "remove",
+            "data": uids  # 只移除父节点
+        }], ensure_ascii=False)), SerialCommand_Response())
+
+        # 通知云端转运资源
+        tree_set = ResourceTreeSet.from_plr_resources(plr_resources)
+        for root_node in tree_set.root_nodes:
+            root_node.res_content.parent = None
+            root_node.res_content.parent_uuid = target_resource_uuid
+        r = SerialCommand.Request()
+        r.command = json.dumps({"data": {"data": tree_set.dump()}, "action": "update"})  # 和Update Resource一致
+        response: SerialCommand_Response = await self._resource_clients["c2s_update_resource_tree"].call_async(r)  # type: ignore
+        self.lab_logger().info(f"资源云端转运到{target_device_id}结果: {response.response}")
+
+        # 创建请求
+        request = SerialCommand.Request()
+        request.command = json.dumps([{
+            "action": "add",
+            "data": tree_set.all_nodes_uuid  # 只添加父节点，子节点会自动添加
+        }], ensure_ascii=False)
+
+        future = sclient.call_async(request)
+        timeout = 30.0
+        start_time = time.time()
+        while not future.done():
+            if time.time() - start_time > timeout:
+                self.lab_logger().error(f"[{self.device_id} Node-Resource] Timeout waiting for response from {target_device_id}")
+                return False
+            time.sleep(0.05)
+        self.lab_logger().info(f"资源本地增加到{target_device_id}结果: {response.response}")
+        return None
 
     def register_device(self):
         """向注册表中注册设备信息"""

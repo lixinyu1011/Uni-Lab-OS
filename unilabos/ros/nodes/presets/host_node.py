@@ -247,7 +247,6 @@ class HostNode(BaseROS2DeviceNode):
                         else:
                             resource_instance = self.resource_tracker.figure_resource({"name": node.res_content.name})
                             self._resource_tracker.loop_update_uuid(resource_instance, uuid_mapping)
-
         except Exception as ex:
             self.lab_logger().error("[Host Node-Resource] 添加物料出错！")
             self.lab_logger().error(traceback.format_exc())
@@ -1323,7 +1322,7 @@ class HostNode(BaseROS2DeviceNode):
                 if time.time() - start_time > timeout:
                     self.lab_logger().error(f"[Host Node-Resource] Timeout waiting for response from {device_id}")
                     return False
-                time.sleep(0.01)
+                time.sleep(0.05)
 
             response = future.result()
             self.lab_logger().info(

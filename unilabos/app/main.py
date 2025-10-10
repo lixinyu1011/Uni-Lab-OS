@@ -6,7 +6,6 @@ import signal
 import sys
 import threading
 import time
-from copy import deepcopy
 from typing import Dict, Any, List
 
 import networkx as nx
@@ -262,8 +261,6 @@ def main():
         read_node_link_json,
         read_graphml,
         dict_from_graph,
-        dict_to_nested_dict,
-        initialize_resources,
     )
     from unilabos.app.communication import get_communication_client
     from unilabos.registry.registry import build_registry
@@ -286,9 +283,8 @@ def main():
     graph: nx.Graph
     resource_tree_set: ResourceTreeSet
     resource_links: List[Dict[str, Any]]
-
+    request_startup_json = http_client.request_startup_json()
     if args_dict["graph"] is None:
-        request_startup_json = http_client.request_startup_json()
         if not request_startup_json:
             print_status(
                 "未指定设备加载文件路径，尝试从HTTP获取失败，请检查网络或者使用-g参数指定设备加载文件路径", "error"
@@ -338,6 +334,13 @@ def main():
             )
             resource_edge_info.pop(edge_info - ind - 1)
             continue
+
+    # 如果从远端获取了物料信息，则与本地物料进行同步
+    if request_startup_json and "nodes" in request_startup_json:
+        print_status("开始同步远端物料到本地...", "info")
+        remote_tree_set = ResourceTreeSet.from_raw_list(request_startup_json["nodes"])
+        resource_tree_set.merge_remote_resources(remote_tree_set)
+        print_status("远端物料同步完成", "info")
 
     # 使用 ResourceTreeSet 代替 list
     args_dict["resources_config"] = resource_tree_set

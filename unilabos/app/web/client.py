@@ -80,7 +80,7 @@ class HTTPClient:
             info(f"首次添加资源，当前远程地址: {self.remote_addr}")
             response = requests.post(
                 f"{self.remote_addr}/edge/material",
-                json={"nodes": [x for xs in resources.dump() for x in xs], "mount_uuid": mount_uuid},
+                json={"nodes": resources.dump()[0], "mount_uuid": mount_uuid},
                 headers={"Authorization": f"Lab {self.auth}"},
                 timeout=100,
             )
@@ -102,6 +102,8 @@ class HTTPClient:
                 data = res["data"]
                 for i in data:
                     uuid_mapping[i["uuid"]] = i["cloud_uuid"]
+                    if i["cloud_uuid"] == i["uuid"]:
+                        print(i["cloud_uuid"], i["uuid"])
         else:
             logger.error(f"添加物料失败: {response.text}")
         for u, n in old_uuids.items():
@@ -298,7 +300,7 @@ class HTTPClient:
             Response: API响应对象
         """
         response = requests.get(
-            f"{self.remote_addr}/lab/resource/graph_info/",
+            f"{self.remote_addr}/edge/material/download",
             headers={"Authorization": f"Lab {self.auth}"},
             timeout=(3, 30),
         )
