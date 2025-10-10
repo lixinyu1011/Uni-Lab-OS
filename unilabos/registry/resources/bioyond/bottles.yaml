@@ -1,0 +1,24 @@
+BIOYOND_PolymerStation_Solid_Stock:
+  class:
+    module: unilabos.resources.bioyond.bottles:BIOYOND_PolymerStation_Solid_Stock
+    type: pylabrobot
+
+BIOYOND_PolymerStation_Solid_Vial:
+  class:
+    module: unilabos.resources.bioyond.bottles:BIOYOND_PolymerStation_Solid_Vial
+    type: pylabrobot
+
+BIOYOND_PolymerStation_Liquid_Vial:
+  class:
+    module: unilabos.resources.bioyond.bottles:BIOYOND_PolymerStation_Liquid_Vial
+    type: pylabrobot
+
+BIOYOND_PolymerStation_Solution_Beaker:
+  class:
+    module: unilabos.resources.bioyond.bottles:BIOYOND_PolymerStation_Solution_Beaker
+    type: pylabrobot
+
+BIOYOND_PolymerStation_Reagent_Bottle:
+  class:
+    module: unilabos.resources.bioyond.bottles:BIOYOND_PolymerStation_Reagent_Bottle
+    type: pylabrobot

@@ -14,7 +14,7 @@ lab_registry.setup()
 type_mapping = {
     "烧杯": "BIOYOND_PolymerStation_1FlaskCarrier",
     "试剂瓶": "BIOYOND_PolymerStation_1BottleCarrier",
-    "样品板": "BIOYOND_PolymerStation_6VialCarrier",
+    "样品板": "BIOYOND_PolymerStation_6StockCarrier",
     "分装板": "BIOYOND_PolymerStation_6VialCarrier",
     "样品瓶": "BIOYOND_PolymerStation_Solid_Stock",
     "90%分装小瓶": "BIOYOND_PolymerStation_Solid_Vial",
@@ -22,9 +22,9 @@ type_mapping = {
 }
 
 type_uuid_mapping = {
-    "烧杯": "BIOYOND_PolymerStation_1FlaskCarrier",
-    "试剂瓶": "BIOYOND_PolymerStation_1BottleCarrier",
-    "样品板": "BIOYOND_PolymerStation_6VialCarrier",
+    "烧杯": "",
+    "试剂瓶": "",
+    "样品板": "",
     "分装板": "3a14196e-5dfe-6e21-0c79-fe2036d052c4",
     "样品瓶": "3a14196a-cf7d-8aea-48d8-b9662c7dba94",
     "90%分装小瓶": "3a14196c-cdcf-088d-dc7d-5cf38f0ad9ea",
