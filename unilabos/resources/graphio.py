@@ -594,7 +594,7 @@ def resource_bioyond_to_plr(bioyond_materials: list[dict], type_mapping: dict = 
 
     for material in bioyond_materials:
         className = type_mapping.get(material.get("typeName"), "RegularContainer") if type_mapping else "RegularContainer"
-        
+
         plr_material: ResourcePLR = initialize_resource({"name": material["name"], "class": className}, resource_type=ResourcePLR)
         plr_material.code = material.get("code", "") and material.get("barCode", "") or ""
 
