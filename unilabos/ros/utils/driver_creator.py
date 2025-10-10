@@ -150,7 +150,7 @@ class PyLabRobotCreator(DeviceClassCreator[T]):
                             target_type = import_manager.get_class(type_path)
                             contain_model = not issubclass(target_type, Deck)
                             resource, target_type = self._process_resource_mapping(resource, target_type)
-                            resource_instance: Resource = resource_ulab_to_plr(resource, contain_model)
+                            resource_instance: Resource = resource_ulab_to_plr(resource, contain_model)  # 带state
                             states[prefix_path] = resource_instance.serialize_all_state()
                             # 使用 prefix_path 作为 key 存储资源状态
                             if to_dict:
@@ -159,7 +159,7 @@ class PyLabRobotCreator(DeviceClassCreator[T]):
                                 return serialized
                             else:
                                 self.resource_tracker.add_resource(resource_instance)
-                                # 立即设置UUID
+                                # 立即设置UUID，state已经在resource_ulab_to_plr中处理过了
                                 if name_to_uuid:
                                     self.resource_tracker.loop_set_uuid(resource_instance, name_to_uuid)
                             return resource_instance
@@ -244,7 +244,7 @@ class PyLabRobotCreator(DeviceClassCreator[T]):
                             v[kk] = vv
                     self.device_instance.load_all_state(v)
                 self.resource_tracker.add_resource(self.device_instance)
-                self.post_create()
+                self.post_create()  # 对应DeviceClassCreator进行调用
                 return self.device_instance  # type: ignore
             except Exception as e:
                 # 先静默继续，尝试另外一种创建方法
@@ -265,7 +265,7 @@ class PyLabRobotCreator(DeviceClassCreator[T]):
                         data[param_name]["_resource_type"] = self.device_cls.__module__ + ":" + arg_value
                         logger.debug(f"自动补充 _resource_type: {data[param_name]['_resource_type']}")
                 processed_data = self._process_resource_references(data, to_dict=False, name_to_uuid=name_to_uuid)
-                self.device_instance = super(PyLabRobotCreator, self).create_instance(processed_data)
+                self.device_instance = super(PyLabRobotCreator, self).create_instance(processed_data)  # 补全变量后直接调用，调用的自身的attach_resource
             except Exception as e:
                 logger.error(f"PyLabRobot创建实例失败: {e}")
                 logger.error(f"PyLabRobot创建实例堆栈: {traceback.format_exc()}")
