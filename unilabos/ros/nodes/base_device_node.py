@@ -1281,6 +1281,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
         # 通过资源跟踪器获取本地实例
         res = self.resource_tracker.figure_resource(plr_resource, try_mode=True)
         if len(res) == 0:
+            # todo: 后续通过decoration来区分，减少warning
             self.lab_logger().warning(f"资源转换未能索引到实例: {resource_data}，返回新建实例")
             return plr_resource
         elif len(res) == 1:
