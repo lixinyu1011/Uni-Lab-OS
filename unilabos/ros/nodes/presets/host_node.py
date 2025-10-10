@@ -160,13 +160,13 @@ class HostNode(BaseROS2DeviceNode):
             ),
             "/devices/host_node/_execute_driver_command": ActionClient(
                 self,
-                lab_registry.EmptyIn,
+                lab_registry.StrSingleInput,
                 "/devices/host_node/_execute_driver_command",
                 callback_group=self.callback_group,
             ),
             "/devices/host_node/_execute_driver_command_async": ActionClient(
                 self,
-                lab_registry.EmptyIn,
+                lab_registry.StrSingleInput,
                 "/devices/host_node/_execute_driver_command_async",
                 callback_group=self.callback_group,
             ),

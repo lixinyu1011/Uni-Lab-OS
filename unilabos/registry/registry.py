@@ -55,6 +55,7 @@ class Registry:
             "ResourceCreateFromOuterEasy", "host_node", f"动作 create_resource"
         )
         self.EmptyIn = self._replace_type_with_class("EmptyIn", "host_node", f"")
+        self.StrSingleInput = self._replace_type_with_class("StrSingleInput", "host_node", f"")
         self.device_type_registry = {}
         self.device_module_to_registry = {}
         self.resource_type_registry = {}
