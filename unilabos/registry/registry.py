@@ -9,6 +9,8 @@ from typing import Any, Dict, List, Union, Tuple
 
 import msgcenterpy
 import yaml
+from rosidl_parser.definition import UnboundedSequence
+from unilabos_msgs.action import LiquidHandlerTransfer
 from unilabos_msgs.msg import Resource
 
 from unilabos.config.config import BasicConfig
@@ -431,6 +433,11 @@ class Registry:
             param_required = arg_info.get("required", True)
             if param_type == "unilabos.registry.placeholder_type:ResourceSlot":
                 schema["properties"][param_name] = ros_message_to_json_schema(Resource, param_name)
+            elif param_type == ("list", "unilabos.registry.placeholder_type:ResourceSlot"):
+                schema["properties"][param_name] = {
+                    "items": ros_message_to_json_schema(Resource, param_name),
+                    "type": "array"
+                }
             else:
                 schema["properties"][param_name] = self._generate_schema_from_info(param_name, param_type, param_default)
             if param_required:
@@ -543,9 +550,9 @@ class Registry:
                                         "goal_default": {i["name"]: i["default"] for i in v["args"]},
                                         "handles": [],
                                         "placeholder_keys": {
-                                            i["name"]: "unilabos_resources" if i["type"] == "unilabos.registry.placeholder_type:ResourceSlot" else "unilabos_devices"
+                                            i["name"]: "unilabos_resources" if i["type"] == "unilabos.registry.placeholder_type:ResourceSlot" or i["type"] == ("list", "unilabos.registry.placeholder_type:ResourceSlot") else "unilabos_devices"
                                             for i in v["args"]
-                                            if i.get("type", "") in ["unilabos.registry.placeholder_type:ResourceSlot", "unilabos.registry.placeholder_type:DeviceSlot"]
+                                            if i.get("type", "") in ["unilabos.registry.placeholder_type:ResourceSlot", "unilabos.registry.placeholder_type:DeviceSlot", ("list", "unilabos.registry.placeholder_type:ResourceSlot"), ("list", "unilabos.registry.placeholder_type:DeviceSlot")]
                                         }
                                     }
                                     # 不生成已配置action的动作

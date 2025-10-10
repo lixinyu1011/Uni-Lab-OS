@@ -9,7 +9,10 @@ from unilabos_msgs.msg import Resource
 
 from unilabos.resources.container import RegularContainer
 from unilabos.ros.msgs.message_converter import convert_to_ros_msg
-from unilabos.ros.nodes.resource_tracker import ResourceTreeSet
+from unilabos.ros.nodes.resource_tracker import (
+    ResourceDictInstance,
+    ResourceTreeSet,
+)
 from unilabos.utils.banner_print import print_status
 
 try:
@@ -51,20 +54,51 @@ def canonicalize_nodes_data(
                 if child in id2idx:
                     nodes[id2idx[child]]["parent"] = parent
 
-    # 第三步：打印节点信息（用于调试）
+    # 第三步：使用 ResourceInstanceDictFlatten 标准化每个节点
+    standardized_instances = []
+    known_nodes: Dict[str, ResourceDictInstance] = {}  # {node_id: ResourceDictInstance}
+    uuid_to_instance: Dict[str, ResourceDictInstance] = {}  # {uuid: ResourceDictInstance}
+
     for node in nodes:
         try:
             print_status(f"DeviceId: {node['id']}, Class: {node['class']}", "info")
+            # 使用标准化方法
+            resource_instance = ResourceDictInstance.get_resource_instance_from_dict(node)
+            known_nodes[node["id"]] = resource_instance
+            uuid_to_instance[resource_instance.res_content.uuid] = resource_instance
+            standardized_instances.append(resource_instance)
         except Exception as e:
-            print_status(f"Failed to read node {node.get('id', 'unknown')}: {e}", "error")
+            print_status(f"Failed to standardize node {node.get('id', 'unknown')}:\n{traceback.format_exc()}", "error")
+            continue
 
-    # 第四步：使用 from_raw_list 创建 ResourceTreeSet（自动处理标准化、parent-children关系）
-    try:
-        resource_tree_set = ResourceTreeSet.from_raw_list(nodes)
-    except Exception as e:
-        print_status(f"Failed to create ResourceTreeSet:\n{traceback.format_exc()}", "error")
-        raise
+    # 第四步：建立 parent 和 children 关系
+    for node in nodes:
+        node_id = node["id"]
+        if node_id not in known_nodes:
+            continue
 
+        current_instance = known_nodes[node_id]
+
+        # 优先使用 parent_uuid 进行匹配，如果不存在则使用 parent
+        parent_uuid = node.get("parent_uuid")
+        parent_id = node.get("parent")
+        parent_instance = None
+
+        # 优先用 parent_uuid 匹配
+        if parent_uuid and parent_uuid in uuid_to_instance:
+            parent_instance = uuid_to_instance[parent_uuid]
+        # 否则用 parent_id 匹配
+        elif parent_id and parent_id in known_nodes:
+            parent_instance = known_nodes[parent_id]
+
+        # 设置 parent 引用
+        if parent_instance:
+            current_instance.res_content.parent = parent_instance.res_content
+            # 将当前节点添加到父节点的 children 列表
+            parent_instance.children.append(current_instance)
+
+    # 第五步：创建 ResourceTreeSet
+    resource_tree_set = ResourceTreeSet.from_nested_list(standardized_instances)
     return resource_tree_set
 
 

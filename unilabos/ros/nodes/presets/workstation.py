@@ -29,8 +29,10 @@ from unilabos.utils.type_check import serialize_result_info, get_result_info_str
 if TYPE_CHECKING:
     from unilabos.devices.workstation.workstation_base import WorkstationBase
 
+
 class ROS2WorkstationNodeTempError(Exception):
     pass
+
 
 class ROS2WorkstationNode(BaseROS2DeviceNode):
     """
@@ -63,10 +65,7 @@ class ROS2WorkstationNode(BaseROS2DeviceNode):
             driver_instance=driver_instance,
             device_id=device_id,
             status_types=status_types,
-            action_value_mappings={
-                **action_value_mappings,
-                **self.protocol_action_mappings
-            },
+            action_value_mappings={**action_value_mappings, **self.protocol_action_mappings},
             hardware_interface=hardware_interface,
             print_publish=print_publish,
             resource_tracker=resource_tracker,
@@ -89,7 +88,8 @@ class ROS2WorkstationNode(BaseROS2DeviceNode):
                 d = self.initialize_device(device_id, device_config)
             except Exception as ex:
                 self.lab_logger().error(
-                    f"[Protocol Node] Failed to initialize device {device_id}: {ex}\n{traceback.format_exc()}")
+                    f"[Protocol Node] Failed to initialize device {device_id}: {ex}\n{traceback.format_exc()}"
+                )
                 d = None
             if d is None:
                 continue
@@ -109,10 +109,9 @@ class ROS2WorkstationNode(BaseROS2DeviceNode):
             if d:
                 hardware_interface = d.ros_node_instance._hardware_interface
                 if (
-                        hasattr(d.driver_instance, hardware_interface["name"])
-                        and hasattr(d.driver_instance, hardware_interface["write"])
-                        and (
-                        hardware_interface["read"] is None or hasattr(d.driver_instance, hardware_interface["read"]))
+                    hasattr(d.driver_instance, hardware_interface["name"])
+                    and hasattr(d.driver_instance, hardware_interface["write"])
+                    and (hardware_interface["read"] is None or hasattr(d.driver_instance, hardware_interface["read"]))
                 ):
 
                     name = getattr(d.driver_instance, hardware_interface["name"])
@@ -160,7 +159,8 @@ class ROS2WorkstationNode(BaseROS2DeviceNode):
             node.resource_tracker = self.resource_tracker  # 站内应当共享资源跟踪器
             for action_name, action_mapping in node._action_value_mappings.items():
                 if action_name.startswith("auto-") or str(action_mapping.get("type", "")).startswith(
-                        "UniLabJsonCommand"):
+                    "UniLabJsonCommand"
+                ):
                     continue
                 action_id = f"/devices/{device_id_abs}/{action_name}"
                 if action_id not in self._action_clients:
@@ -245,8 +245,10 @@ class ROS2WorkstationNode(BaseROS2DeviceNode):
                         logs.append(step)
                     elif isinstance(step, list):
                         logs.append(step)
-                self.lab_logger().info(f"Goal received: {protocol_kwargs}, running steps: "
-                                       f"{json.dumps(logs, indent=4, ensure_ascii=False)}")
+                self.lab_logger().info(
+                    f"Goal received: {protocol_kwargs}, running steps: "
+                    f"{json.dumps(logs, indent=4, ensure_ascii=False)}"
+                )
 
                 time_start = time.time()
                 time_overall = 100
@@ -268,7 +270,9 @@ class ROS2WorkstationNode(BaseROS2DeviceNode):
                                 if not ret_info.get("suc", False):
                                     raise RuntimeError(f"Step {i + 1} failed.")
                             except ROS2WorkstationNodeTempError as ex:
-                                step_results.append({"step": i + 1, "action": action["action_name"], "result": ex.args[0]})
+                                step_results.append(
+                                    {"step": i + 1, "action": action["action_name"], "result": ex.args[0]}
+                                )
                     elif isinstance(action, list):
                         # 如果是并行动作，同时执行
                         actions = action
@@ -307,8 +311,12 @@ class ROS2WorkstationNode(BaseROS2DeviceNode):
             except Exception as e:
                 # 捕获并记录错误信息
                 str_step_results = [
-                    {k: dict(message_to_ordereddict(v)) if k == "result" and hasattr(v, "SLOT_TYPES") else v for k, v in
-                     i.items()} for i in step_results]
+                    {
+                        k: dict(message_to_ordereddict(v)) if k == "result" and hasattr(v, "SLOT_TYPES") else v
+                        for k, v in i.items()
+                    }
+                    for i in step_results
+                ]
                 execution_error = f"{traceback.format_exc()}\n\nStep Result: {pformat(str_step_results)}"
                 execution_success = False
                 self.lab_logger().error(f"协议 {protocol_name} 执行出错: {str(e)} \n{traceback.format_exc()}")
@@ -381,7 +389,7 @@ class ROS2WorkstationNode(BaseROS2DeviceNode):
     """还没有改过的部分"""
 
     def _setup_hardware_proxy(
-            self, device: ROS2DeviceNode, communication_device: ROS2DeviceNode, read_method, write_method
+        self, device: ROS2DeviceNode, communication_device: ROS2DeviceNode, read_method, write_method
     ):
         """为设备设置硬件接口代理"""
         # extra_info = [getattr(device.driver_instance, info) for info in communication_device.ros_node_instance._hardware_interface.get("extra_info", [])]
@@ -405,17 +413,3 @@ class ROS2WorkstationNode(BaseROS2DeviceNode):
         if write_method:
             # bound_write = MethodType(_write, device.driver_instance)
             setattr(device.driver_instance, write_method, _write)
-
-    async def _update_resources(self, goal, protocol_kwargs):
-        """更新资源状态"""
-        for k, v in goal.get_fields_and_field_types().items():
-            if v in ["unilabos_msgs/Resource", "sequence<unilabos_msgs/Resource>"]:
-                if protocol_kwargs[k] is not None:
-                    try:
-                        r = ResourceUpdate.Request()
-                        r.resources = [
-                            convert_to_ros_msg(Resource, rs) for rs in nested_dict_to_list(protocol_kwargs[k])
-                        ]
-                        await self._resource_clients["resource_update"].call_async(r)
-                    except Exception as e:
-                        self.lab_logger().error(f"更新资源失败: {e}")

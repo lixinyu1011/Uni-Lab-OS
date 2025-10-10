@@ -45,7 +45,7 @@ def convert_argv_dashes_to_underscores(args: argparse.ArgumentParser):
     for i, arg in enumerate(sys.argv):
         for option_string in option_strings:
             if arg.startswith(option_string):
-                new_arg = arg[:2] + arg[2 : len(option_string)].replace("-", "_") + arg[len(option_string) :]
+                new_arg = arg[:2] + arg[2:len(option_string)].replace("-", "_") + arg[len(option_string):]
                 sys.argv[i] = new_arg
                 break
 
@@ -335,12 +335,11 @@ def main():
             resource_edge_info.pop(edge_info - ind - 1)
             continue
 
-    # 如果从远端获取了物料信息，则与本地物料进行同步
-    if request_startup_json and "nodes" in request_startup_json:
-        print_status("开始同步远端物料到本地...", "info")
-        remote_tree_set = ResourceTreeSet.from_raw_list(request_startup_json["nodes"])
-        resource_tree_set.merge_remote_resources(remote_tree_set)
-        print_status("远端物料同步完成", "info")
+    tree_set = ResourceTreeSet.from_raw_list(request_startup_json["nodes"])
+    for root_node in tree_set.root_nodes:  希望和本地的resources_config进行同步，根节点device
+    id能对上的且是resource的，则自动添加进来，根节点上不是device的，也包含进来
+    device_id = root_node.
+    # tree_set.all_nodes
 
     # 使用 ResourceTreeSet 代替 list
     args_dict["resources_config"] = resource_tree_set

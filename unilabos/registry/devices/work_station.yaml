@@ -7134,6 +7134,7 @@ workstation.bioyond:
           mount_device_id: null
           mount_resource: null
           resource: null
+          sites: null
         handles: {}
         placeholder_keys:
           mount_device_id: unilabos_devices
@@ -7149,155 +7150,164 @@ workstation.bioyond:
                 mount_device_id:
                   type: object
                 mount_resource:
-                  properties:
-                    category:
-                      type: string
-                    children:
-                      items:
+                  items:
+                    properties:
+                      category:
                         type: string
-                      type: array
-                    config:
-                      type: string
-                    data:
-                      type: string
-                    id:
-                      type: string
-                    name:
-                      type: string
-                    parent:
-                      type: string
-                    pose:
-                      properties:
-                        orientation:
-                          properties:
-                            w:
-                              type: number
-                            x:
-                              type: number
-                            y:
-                              type: number
-                            z:
-                              type: number
-                          required:
-                          - x
-                          - y
-                          - z
-                          - w
-                          title: orientation
-                          type: object
-                        position:
-                          properties:
-                            x:
-                              type: number
-                            y:
-                              type: number
-                            z:
-                              type: number
-                          required:
-                          - x
-                          - y
-                          - z
-                          title: position
-                          type: object
-                      required:
-                      - position
-                      - orientation
-                      title: pose
-                      type: object
-                    sample_id:
-                      type: string
-                    type:
-                      type: string
-                  required:
-                  - id
-                  - name
-                  - sample_id
-                  - children
-                  - parent
-                  - type
-                  - category
-                  - pose
-                  - config
-                  - data
-                  title: mount_resource
-                  type: object
+                      children:
+                        items:
+                          type: string
+                        type: array
+                      config:
+                        type: string
+                      data:
+                        type: string
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      parent:
+                        type: string
+                      pose:
+                        properties:
+                          orientation:
+                            properties:
+                              w:
+                                type: number
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            - w
+                            title: orientation
+                            type: object
+                          position:
+                            properties:
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            title: position
+                            type: object
+                        required:
+                        - position
+                        - orientation
+                        title: pose
+                        type: object
+                      sample_id:
+                        type: string
+                      type:
+                        type: string
+                    required:
+                    - id
+                    - name
+                    - sample_id
+                    - children
+                    - parent
+                    - type
+                    - category
+                    - pose
+                    - config
+                    - data
+                    title: mount_resource
+                    type: object
+                  type: array
                 resource:
-                  properties:
-                    category:
-                      type: string
-                    children:
-                      items:
+                  items:
+                    properties:
+                      category:
                         type: string
-                      type: array
-                    config:
-                      type: string
-                    data:
-                      type: string
-                    id:
-                      type: string
-                    name:
-                      type: string
-                    parent:
-                      type: string
-                    pose:
-                      properties:
-                        orientation:
-                          properties:
-                            w:
-                              type: number
-                            x:
-                              type: number
-                            y:
-                              type: number
-                            z:
-                              type: number
-                          required:
-                          - x
-                          - y
-                          - z
-                          - w
-                          title: orientation
-                          type: object
-                        position:
-                          properties:
-                            x:
-                              type: number
-                            y:
-                              type: number
-                            z:
-                              type: number
-                          required:
-                          - x
-                          - y
-                          - z
-                          title: position
-                          type: object
-                      required:
-                      - position
-                      - orientation
-                      title: pose
-                      type: object
-                    sample_id:
-                      type: string
-                    type:
-                      type: string
-                  required:
-                  - id
-                  - name
-                  - sample_id
-                  - children
-                  - parent
-                  - type
-                  - category
-                  - pose
-                  - config
-                  - data
-                  title: resource
-                  type: object
+                      children:
+                        items:
+                          type: string
+                        type: array
+                      config:
+                        type: string
+                      data:
+                        type: string
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      parent:
+                        type: string
+                      pose:
+                        properties:
+                          orientation:
+                            properties:
+                              w:
+                                type: number
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            - w
+                            title: orientation
+                            type: object
+                          position:
+                            properties:
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            title: position
+                            type: object
+                        required:
+                        - position
+                        - orientation
+                        title: pose
+                        type: object
+                      sample_id:
+                        type: string
+                      type:
+                        type: string
+                    required:
+                    - id
+                    - name
+                    - sample_id
+                    - children
+                    - parent
+                    - type
+                    - category
+                    - pose
+                    - config
+                    - data
+                    title: resource
+                    type: object
+                  type: array
+                sites:
+                  items:
+                    type: string
+                  type: array
               required:
               - resource
-              - mount_device_id
               - mount_resource
+              - sites
+              - mount_device_id
               type: object
             result: {}
           required:
