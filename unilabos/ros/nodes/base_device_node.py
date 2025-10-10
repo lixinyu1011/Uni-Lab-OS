@@ -953,7 +953,6 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                                 error(
                                     f"异步任务 {ACTION.__name__} 报错了\n{traceback.format_exc()}\n原始输入：{action_kwargs}"
                                 )
-                                error(traceback.format_exc())
 
                         future.add_done_callback(_handle_future_exception)
                     except Exception as e:
@@ -970,6 +969,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                             action_return_value = fut.result()
                             execution_success = True
                         except Exception as e:
+                            execution_error = traceback.format_exc()
                             error(
                                 f"同步任务 {ACTION.__name__} 报错了\n{traceback.format_exc()}\n原始输入：{action_kwargs}"
                             )
