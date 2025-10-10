@@ -15,7 +15,6 @@ from rclpy.service import Service
 from unilabos_msgs.msg import Resource  # type: ignore
 from unilabos_msgs.srv import (
     ResourceAdd,
-    ResourceGet,
     ResourceDelete,
     ResourceUpdate,
     ResourceList,
@@ -44,6 +43,7 @@ from unilabos.ros.nodes.resource_tracker import (
 )
 from unilabos.utils.exception import DeviceClassInvalid
 from unilabos.utils.type_check import serialize_result_info
+from unilabos.registry.placeholder_type import ResourceSlot, DeviceSlot
 
 if TYPE_CHECKING:
     from unilabos.app.ws_client import QueueItem, WSResourceChatData
@@ -152,6 +152,12 @@ class HostNode(BaseROS2DeviceNode):
                 "/devices/host_node/test_latency",
                 callback_group=self.callback_group,
             ),
+            "/devices/host_node/test_resource": ActionClient(
+                self,
+                lab_registry.EmptyIn,
+                "/devices/host_node/test_resource",
+                callback_group=self.callback_group,
+            ),
         }  # 用来存储多个ActionClient实例
         self._action_value_mappings: Dict[str, Dict] = (
             {}
@@ -234,7 +240,8 @@ class HostNode(BaseROS2DeviceNode):
                     )
                     # resources_config 通过各个设备的 resource_tracker 进行uuid更新，利用uuid_mapping
                     # resources_config 的 root node 是
-                    for node in resources_config.root_nodes:
+                    for tree in resources_config.trees:
+                        node = tree.root_node
                         if node.res_content.type == "device":
                             for sub_node in node.children:
                                 # 只有二级子设备
@@ -245,8 +252,11 @@ class HostNode(BaseROS2DeviceNode):
                                         {"name": sub_node.res_content.name})
                                     device_tracker.loop_update_uuid(resource_instance, uuid_mapping)
                         else:
-                            resource_instance = self.resource_tracker.figure_resource({"name": node.res_content.name})
-                            self._resource_tracker.loop_update_uuid(resource_instance, uuid_mapping)
+                            try:
+                                for plr_resource in ResourceTreeSet([tree]).to_plr_resources():
+                                    self.resource_tracker.add_resource(plr_resource)
+                            except Exception as ex:
+                                self.lab_logger().warning("[Host Node-Resource] 根节点物料序列化失败！")
         except Exception as ex:
             self.lab_logger().error("[Host Node-Resource] 添加物料出错！")
             self.lab_logger().error(traceback.format_exc())
@@ -799,7 +809,7 @@ class HostNode(BaseROS2DeviceNode):
                 ResourceAdd, "/resources/add", self._resource_add_callback, callback_group=ReentrantCallbackGroup()
             ),
             "resource_get": self.create_service(
-                ResourceGet, "/resources/get", self._resource_get_callback, callback_group=ReentrantCallbackGroup()
+                SerialCommand, "/resources/get", self._resource_get_callback, callback_group=ReentrantCallbackGroup()
             ),
             "resource_delete": self.create_service(
                 ResourceDelete,
@@ -1011,7 +1021,7 @@ class HostNode(BaseROS2DeviceNode):
         resources = [convert_to_ros_msg(Resource, resource) for resource in r]
         return resources
 
-    def _resource_get_callback(self, request: ResourceGet.Request, response: ResourceGet.Response):
+    def _resource_get_callback(self, request: SerialCommand.Request, response: SerialCommand.Response):
         """
         获取资源回调
 
@@ -1025,20 +1035,12 @@ class HostNode(BaseROS2DeviceNode):
             响应对象，包含查询到的资源
         """
         try:
-            http_req = self.bridges[-1].resource_get(request.id, request.with_children)
-            response.resources = self._resource_get_process(http_req)
+            data = json.loads(request.command)
+            http_req = self.bridges[-1].resource_get(data["id"], data["with_children"])
+            response.response = json.dumps(http_req["data"])
             return response
         except Exception as e:
             self.lab_logger().error(f"[Host Node-Resource] Error retrieving from bridge: {str(e)}")
-        # 从 ResourceTreeSet 中查找资源
-        resources_list = (
-            [node.res_content.model_dump(by_alias=True) for node in self.resources_config.all_nodes]
-            if self.resources_config
-            else []
-        )
-        r = [resource for resource in resources_list if resource.get("id") == request.id]
-        self.lab_logger().debug(f"[Host Node-Resource] Retrieved from local: {len(r)} resources")
-        response.resources = [convert_to_ros_msg(Resource, resource) for resource in r]
         return response
 
     def _resource_delete_callback(self, request, response):
@@ -1238,6 +1240,12 @@ class HostNode(BaseROS2DeviceNode):
             ),
             "test_count": len(ping_results),
             "status": "success",
+        }
+
+    def test_resource(self, resource: ResourceSlot, resources: List[ResourceSlot], device: DeviceSlot, devices: List[DeviceSlot]):
+        return {
+            "resources": ResourceTreeSet.from_plr_resources([resource, *resources]).dump(),
+            "devices": [device, *devices],
         }
 
     def handle_pong_response(self, pong_data: dict):
