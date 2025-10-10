@@ -155,11 +155,11 @@ class BioyondWorkstation(WorkstationBase):
             "resources": [self.deck]
         })
 
-    def transfer_resource_to_another(self, resource_a: ResourceSlot, device_id: DeviceSlot, resource_b: ResourceSlot):
+    def transfer_resource_to_another(self, resource: ResourceSlot, mount_device_id: DeviceSlot, mount_resource: ResourceSlot):
         ROS2DeviceNode.run_async_func(self._ros_node.transfer_resource_to_another, True, **{
-            "plr_resources": [resource_a],
-            "target_device_id": device_id,
-            "target_resource_uuid": getattr(resource_b, "unilabos_uuid", None),
+            "plr_resources": [resource],
+            "target_device_id": mount_device_id,
+            "target_resource_uuid": getattr(mount_resource, "unilabos_uuid", None),
         })
 
     def _configure_station_type(self, station_config: Optional[Dict[str, Any]] = None) -> None:

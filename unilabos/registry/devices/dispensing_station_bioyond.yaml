@@ -886,14 +886,14 @@ dispensing_station.bioyond:
         feedback: {}
         goal: {}
         goal_default:
-          device_id: null
-          resource_a: null
-          resource_b: null
+          mount_device_id: null
+          mount_resource: null
+          resource: null
         handles: {}
         placeholder_keys:
-          device_id: unilabos_devices
-          resource_a: unilabos_resources
-          resource_b: unilabos_resources
+          mount_device_id: unilabos_devices
+          mount_resource: unilabos_resources
+          resource: unilabos_resources
         result: {}
         schema:
           description: ''
@@ -901,9 +901,9 @@ dispensing_station.bioyond:
             feedback: {}
             goal:
               properties:
-                device_id:
+                mount_device_id:
                   type: object
-                resource_a:
+                mount_resource:
                   properties:
                     category:
                       type: string
@@ -974,9 +974,9 @@ dispensing_station.bioyond:
                   - pose
                   - config
                   - data
-                  title: resource_a
+                  title: mount_resource
                   type: object
-                resource_b:
+                resource:
                   properties:
                     category:
                       type: string
@@ -1047,12 +1047,12 @@ dispensing_station.bioyond:
                   - pose
                   - config
                   - data
-                  title: resource_b
+                  title: resource
                   type: object
               required:
-              - resource_a
-              - device_id
-              - resource_b
+              - resource
+              - mount_device_id
+              - mount_resource
               type: object
             result: {}
           required:
