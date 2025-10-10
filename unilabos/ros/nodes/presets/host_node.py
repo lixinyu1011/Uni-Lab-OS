@@ -158,6 +158,18 @@ class HostNode(BaseROS2DeviceNode):
                 "/devices/host_node/test_resource",
                 callback_group=self.callback_group,
             ),
+            "/devices/host_node/_execute_driver_command": ActionClient(
+                self,
+                lab_registry.EmptyIn,
+                "/devices/host_node/_execute_driver_command",
+                callback_group=self.callback_group,
+            ),
+            "/devices/host_node/_execute_driver_command_async": ActionClient(
+                self,
+                lab_registry.EmptyIn,
+                "/devices/host_node/_execute_driver_command_async",
+                callback_group=self.callback_group,
+            ),
         }  # 用来存储多个ActionClient实例
         self._action_value_mappings: Dict[str, Dict] = (
             {}

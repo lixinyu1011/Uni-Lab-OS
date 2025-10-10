@@ -734,7 +734,16 @@ class Registry:
             device_info_copy = copy.deepcopy(device_info)
             if "class" in device_info_copy and "action_value_mappings" in device_info_copy["class"]:
                 action_mappings = device_info_copy["class"]["action_value_mappings"]
-                for action_name, action_config in action_mappings.items():
+                # 过滤掉内置的驱动命令动作
+                builtin_actions = ["_execute_driver_command", "_execute_driver_command_async"]
+                filtered_action_mappings = {
+                    action_name: action_config
+                    for action_name, action_config in action_mappings.items()
+                    if action_name not in builtin_actions
+                }
+                device_info_copy["class"]["action_value_mappings"] = filtered_action_mappings
+
+                for action_name, action_config in filtered_action_mappings.items():
                     if "schema" in action_config and action_config["schema"]:
                         schema = action_config["schema"]
                         # 确保schema结构存在
