@@ -386,13 +386,33 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                     try:
                         if action == "add":
                             # 添加资源到资源跟踪器
-                            plr_resource = tree_set.to_plr_resources()  # FIXME: 转成plr的实例
+                            plr_resources = tree_set.to_plr_resources()
+                            for plr_resource, tree in zip(plr_resources, tree_set.trees):
+                                self.resource_tracker.add_resource(plr_resource)
+                                parent_uuid = tree.root_node.res_content.parent_uuid
+                                if parent_uuid:
+                                    parent_resource: ResourcePLR = self.resource_tracker.uuid_to_resources.get(parent_uuid)
+                                    if parent_resource is None:
+                                        self.lab_logger().warning(f"物料{plr_resource}请求挂载{tree.root_node.res_content.name}的父节点{parent_uuid}不存在")
+                                    else:
+                                        try:
+                                            parent_resource.assign_child_resource(plr_resource, location=None)
+                                        except Exception as e:
+                                            self.lab_logger().warning(
+                                                f"物料{plr_resource}请求挂载{tree.root_node.res_content.name}的父节点{parent_resource}[{parent_uuid}]失败！\n{traceback.format_exc()}")
                             func = getattr(self.driver_instance, "resource_tree_add", None)
                             if callable(func):
-                                func(tree_set)
+                                func(plr_resources)
                                 results.append({"success": True, "action": "add"})
                         elif action == "update":
                             # 更新资源
+                            plr_resources = tree_set.to_plr_resources()
+                            for plr_resource, tree in zip(plr_resources, tree_set.trees):
+                                states = plr_resource.serialize_all_state()
+                                original_instance: ResourcePLR = self.resource_tracker.figure_resource({"uuid": tree.root_node.res_content.uuid}, try_mode=False)
+                                original_instance.load_all_state(states)
+                                self.lab_logger().info(f"更新了资源属性 {plr_resource}[{tree.root_node.res_content.uuid}] 及其子节点 {len(original_instance.get_all_children())} 个")
+
                             func = getattr(self.driver_instance, "resource_tree_update", None)
                             if callable(func):
                                 func(tree_set)
@@ -401,10 +421,12 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                             # 移除资源
                             func = getattr(self.driver_instance, "resource_tree_remove", None)
                             if callable(func):
-                                resources_instance: List[ResourcePLR] = [self.resource_tracker.uuid_to_resources[i] for
+                                resources_instances: List[ResourcePLR] = [self.resource_tracker.uuid_to_resources[i] for
                                                                          i in resources_uuid]
-                                func(resources_instance)
-                                [r.parent.unassign_child_resource(r) for r in resources_instance if r is not None]
+                                self.resource_tracker.add_resource()
+                                [r.parent.unassign_child_resource(r) for r in resources_instances if r is not None]
+                                func(resources_instances)
+                                [r.parent.unassign_child_resource(r) for r in resources_instances if r is not None]
                                 results.append({"success": True, "action": "remove"})
                     except Exception as e:
                         error_msg = f"Error processing {action} operation: {str(e)}"

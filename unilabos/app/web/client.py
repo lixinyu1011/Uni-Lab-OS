@@ -107,6 +107,8 @@ class HTTPClient:
         for u, n in old_uuids.items():
             if u in uuid_mapping:
                 n.res_content.uuid = uuid_mapping[u]
+                for c in n.children:
+                    c.res_content.parent_uuid = n.res_content.uuid
             else:
                 logger.warning(f"资源UUID未更新: {u}")
         return uuid_mapping

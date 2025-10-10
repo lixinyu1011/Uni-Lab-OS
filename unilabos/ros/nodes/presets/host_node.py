@@ -175,9 +175,6 @@ class HostNode(BaseROS2DeviceNode):
         for device_config in devices_config.root_nodes:
             device_id = device_config.res_content.id
             if device_config.res_content.type != "device":
-                self.lab_logger().debug(
-                    f"[Host Node] Skipping type {device_config.res_content.type} {device_id} already existed, skipping."
-                )
                 continue
             if device_id not in self.devices_names:
                 self.initialize_device(device_id, device_config)
