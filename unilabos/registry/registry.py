@@ -159,24 +159,20 @@ class Registry:
                                         "feedback": {},
                                         "goal": {
                                             "properties": {
-                                                "resource": {
-                                                    "properties": ros_message_to_json_schema(Resource, "resource"),
-                                                    "type": "object"
-                                                },
+                                                "resource": ros_message_to_json_schema(Resource, "resource"),
                                                 "resources": {
                                                     "items": {
                                                         "properties": ros_message_to_json_schema(Resource, "resources"),
-                                                        "title": "mount_resource",
                                                         "type": "object"
                                                     },
                                                     "type": "array"
                                                 },
                                                 "device": {
-                                                    "type": "object"
+                                                    "type": "string"
                                                 },
                                                 "devices": {
                                                     "items": {
-                                                        "type": "object"
+                                                        "type": "string"
                                                     },
                                                     "type": "array"
                                                 },
@@ -188,6 +184,12 @@ class Registry:
                                     "required": ["goal"],
                                     "title": "transfer_resource_to_another参数",
                                     "type": "object",
+                                },
+                                "placeholder_keys": {
+                                    "device": "unilabos_devices",
+                                    "devices": "unilabos_devices",
+                                    "resource": "unilabos_resources",
+                                    "resources": "unilabos_resources",
                                 },
                                 "goal_default": {},
                                 "handles": {},
