@@ -189,8 +189,8 @@ def slave(
                         # 只有二级子设备
                         if sub_node.res_content.type != "device":
                             device_tracker = devices_instances[node.res_content.id].resource_tracker
-                            resource_instance = device_tracker.figure_resource(  # todo: 要换成uuid进行figure
-                                {"name": sub_node.res_content.name})
+                            resource_instance = device_tracker.figure_resource(
+                                {"uuid": sub_node.res_content.uuid})
                             device_tracker.loop_update_uuid(resource_instance, uuid_mapping)
                 else:
                     logger.error("Slave模式不允许新增非设备节点下的物料")

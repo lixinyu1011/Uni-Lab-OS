@@ -260,8 +260,8 @@ class HostNode(BaseROS2DeviceNode):
                                 if sub_node.res_content.type != "device":
                                     # slave节点走c2s更新接口，拿到add自行update uuid
                                     device_tracker = self.devices_instances[node.res_content.id].resource_tracker
-                                    resource_instance = device_tracker.figure_resource(  # todo: 要换成uuid进行figure
-                                        {"name": sub_node.res_content.name})
+                                    resource_instance = device_tracker.figure_resource(
+                                        {"uuid": sub_node.res_content.uuid})
                                     device_tracker.loop_update_uuid(resource_instance, uuid_mapping)
                         else:
                             try:

@@ -131,7 +131,6 @@ class Registry:
                                         }
                                     ]
                                 },
-                                # todo: support nested keys, switch to non ros message schema
                                 "placeholder_keys": {
                                     "res_id": "unilabos_resources",  # 将当前实验室的全部物料id作为下拉框可选择
                                     "device_id": "unilabos_devices",  # 将当前实验室的全部设备id作为下拉框可选择

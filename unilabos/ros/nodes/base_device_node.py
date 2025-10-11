@@ -256,9 +256,10 @@ class BaseROS2DeviceNode(Node, Generic[T]):
 
     node_name: str
     namespace: str
-    # TODO 要删除，添加时间相关的属性，避免动态添加属性的警告
-    time_spent = 0.0
-    time_remaining = 0.0
+    # 内部共享变量
+    _time_spent = 0.0
+    _time_remaining = 0.0
+    # 是否创建Action
     create_action_server = True
 
     def __init__(
@@ -998,8 +999,8 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                     goal_handle.canceled()
                     return action_type.Result()
 
-                self.time_spent = time.time() - time_start
-                self.time_remaining = time_overall - self.time_spent
+                self._time_spent = time.time() - time_start
+                self._time_remaining = time_overall - self._time_spent
 
                 # 发布反馈
                 feedback_values = {}
@@ -1393,7 +1394,6 @@ class ROS2DeviceNode:
             or driver_class.__name__ == "PRCXI9300Handler"
         )
 
-        # TODO: 要在创建之前预先请求服务器是否有当前id的物料，放到resource_tracker中，让pylabrobot进行创建
         # 创建设备类实例
         if use_pylabrobot_creator:
             # 先对pylabrobot的子资源进行加载，不然subclass无法认出
