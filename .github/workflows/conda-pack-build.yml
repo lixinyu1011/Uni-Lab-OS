@@ -42,7 +42,7 @@ jobs:
     defaults:
       run:
         # Windows uses cmd for better conda/mamba compatibility, Unix uses bash
-        shell: ${{ matrix.platform == 'win-64' && 'cmd /C CALL {0}' || 'bash -el {0}' }}
+        shell: ${{ matrix.platform == 'win-64' && 'cmd' || 'bash' }}
 
     steps:
       - name: Check if platform should be built
@@ -73,7 +73,6 @@ jobs:
           channels: conda-forge,robostack-staging,uni-lab,defaults
           channel-priority: flexible
           activate-environment: unilab
-          auto-activate-base: true
           auto-update-conda: false
           show-channel-urls: true
 
@@ -135,59 +134,59 @@ jobs:
         if: steps.should_build.outputs.should_build == 'true' && matrix.platform == 'win-64'
         run: |
           echo Uninstalling existing unilabos...
-          conda run -n unilab pip uninstall unilabos -y || echo unilabos not installed via pip
+          mamba run -n unilab pip uninstall unilabos -y || echo unilabos not installed via pip
           echo Installing unilabos from source (branch: ${{ github.event.inputs.branch }})...
-          conda run -n unilab pip install .
+          mamba run -n unilab pip install .
           echo Verifying installation...
-          conda run -n unilab pip show unilabos
+          mamba run -n unilab pip show unilabos
 
       - name: Install latest unilabos from source (Unix)
         if: steps.should_build.outputs.should_build == 'true' && matrix.platform != 'win-64'
         shell: bash
         run: |
           echo "Uninstalling existing unilabos..."
-          conda run -n unilab pip uninstall unilabos -y || echo "unilabos not installed via pip"
+          mamba run -n unilab pip uninstall unilabos -y || echo "unilabos not installed via pip"
           echo "Installing unilabos from source (branch: ${{ github.event.inputs.branch }})..."
-          conda run -n unilab pip install .
+          mamba run -n unilab pip install .
           echo "Verifying installation..."
-          conda run -n unilab pip show unilabos
+          mamba run -n unilab pip show unilabos
 
       - name: Display environment info (Windows)
         if: steps.should_build.outputs.should_build == 'true' && matrix.platform == 'win-64'
         run: |
           echo === Environment Information ===
-          conda env list
+          mamba env list
           echo.
           echo === Installed Packages ===
-          conda list -n unilab | findstr /C:"unilabos" /C:"ros-humble-unilabos-msgs" || conda list -n unilab
+          mamba list -n unilab | findstr /C:"unilabos" /C:"ros-humble-unilabos-msgs" || mamba list -n unilab
           echo.
           echo === Python Packages ===
-          conda run -n unilab pip list | findstr unilabos || conda run -n unilab pip list
+          mamba run -n unilab pip list | findstr unilabos || mamba run -n unilab pip list
 
       - name: Display environment info (Unix)
         if: steps.should_build.outputs.should_build == 'true' && matrix.platform != 'win-64'
         shell: bash
         run: |
           echo "=== Environment Information ==="
-          conda env list
+          mamba env list
           echo ""
           echo "=== Installed Packages ==="
-          conda list -n unilab | grep -E "(unilabos|ros-humble-unilabos-msgs)" || conda list -n unilab
+          mamba list -n unilab | grep -E "(unilabos|ros-humble-unilabos-msgs)" || mamba list -n unilab
           echo ""
           echo "=== Python Packages ==="
-          conda run -n unilab pip list | grep unilabos || conda run -n unilab pip list
+          mamba run -n unilab pip list | grep unilabos || mamba run -n unilab pip list
 
       - name: Verify environment integrity (Windows)
         if: steps.should_build.outputs.should_build == 'true' && matrix.platform == 'win-64'
         run: |
           echo Verifying Python version...
-          conda run -n unilab python -c "import sys; print(f'Python version: {sys.version}')"
+          mamba run -n unilab python -c "import sys; print(f'Python version: {sys.version}')"
           echo Verifying unilabos import...
-          conda run -n unilab python -c "import unilabos; print(f'UniLabOS version: {unilabos.__version__}')" || echo Warning: Could not import unilabos
+          mamba run -n unilab python -c "import unilabos; print(f'UniLabOS version: {unilabos.__version__}')" || echo Warning: Could not import unilabos
           echo Checking critical packages...
-          conda run -n unilab python -c "import rclpy; print('ROS2 rclpy: OK')"
+          mamba run -n unilab python -c "import rclpy; print('ROS2 rclpy: OK')"
           echo Running comprehensive verification script...
-          conda run -n unilab python scripts\verify_installation.py || echo Warning: Verification script reported issues
+          mamba run -n unilab python scripts\verify_installation.py --auto-install || echo Warning: Verification script reported issues
           echo Environment verification complete!
 
       - name: Verify environment integrity (Unix)
@@ -195,20 +194,20 @@ jobs:
         shell: bash
         run: |
           echo "Verifying Python version..."
-          conda run -n unilab python -c "import sys; print(f'Python version: {sys.version}')"
+          mamba run -n unilab python -c "import sys; print(f'Python version: {sys.version}')"
           echo "Verifying unilabos import..."
-          conda run -n unilab python -c "import unilabos; print(f'UniLabOS version: {unilabos.__version__}')" || echo "Warning: Could not import unilabos"
+          mamba run -n unilab python -c "import unilabos; print(f'UniLabOS version: {unilabos.__version__}')" || echo "Warning: Could not import unilabos"
           echo "Checking critical packages..."
-          conda run -n unilab python -c "import rclpy; print('ROS2 rclpy: OK')"
+          mamba run -n unilab python -c "import rclpy; print('ROS2 rclpy: OK')"
           echo "Running comprehensive verification script..."
-          conda run -n unilab python scripts/verify_installation.py || echo "Warning: Verification script reported issues"
+          mamba run -n unilab python scripts/verify_installation.py --auto-install || echo "Warning: Verification script reported issues"
           echo "Environment verification complete!"
 
       - name: Pack conda environment (Windows)
         if: steps.should_build.outputs.should_build == 'true' && matrix.platform == 'win-64'
         run: |
           echo Packing unilab environment with conda-pack...
-          conda activate unilab
+          mamba install conda-pack -c conda-forge -y
           conda pack -n unilab -o unilab-env-${{ matrix.platform }}.tar.gz --ignore-missing-files
           echo Pack file created:
           dir unilab-env-${{ matrix.platform }}.tar.gz
@@ -218,7 +217,7 @@ jobs:
         shell: bash
         run: |
           echo "Packing unilab environment with conda-pack..."
-          conda activate unilab
+          mamba install conda-pack -c conda-forge -y
           conda pack -n unilab -o unilab-env-${{ matrix.platform }}.tar.gz --ignore-missing-files
           echo "Pack file created:"
           ls -lh unilab-env-${{ matrix.platform }}.tar.gz
@@ -283,46 +282,6 @@ jobs:
           echo ""
           echo "Distribution package contents:"
           ls -lh dist-package/
-          echo ""
-
-      - name: Finalize Windows distribution package
-        if: steps.should_build.outputs.should_build == 'true' && matrix.platform == 'win-64'
-        run: |
-          echo ==========================================
-          echo Windows distribution package ready
-          echo.
-          echo Package will be uploaded as artifact
-          echo GitHub Actions will automatically create ZIP
-          echo.
-          echo Contents:
-          dir /b dist-package
-          echo.
-          echo Users will download a ZIP containing:
-          echo   - install_unilab.bat
-          echo   - unilab-env-${{ matrix.platform }}.tar.gz
-          echo   - verify_installation.py
-          echo   - README.txt
-          echo ==========================================
-
-      - name: Create Unix/Linux TAR.GZ archive
-        if: steps.should_build.outputs.should_build == 'true' && matrix.platform != 'win-64'
-        shell: bash
-        run: |
-          echo "=========================================="
-          echo "Creating Unix/Linux TAR.GZ archive..."
-          echo "Archive: unilab-pack-${{ matrix.platform }}.tar.gz"
-          echo "Contents: install_unilab.sh + unilab-env-${{ matrix.platform }}.tar.gz + extras"
-          tar -czf unilab-pack-${{ matrix.platform }}.tar.gz -C dist-package .
-          echo "=========================================="
-
-          echo ""
-          echo "Final package created:"
-          ls -lh unilab-pack-*
-          echo ""
-          echo "Users can now:"
-          echo "  1. Download unilab-pack-${{ matrix.platform }}.tar.gz"
-          echo "  2. Extract it: tar -xzf unilab-pack-${{ matrix.platform }}.tar.gz"
-          echo "  3. Run: bash install_unilab.sh"
           echo ""
 
       - name: Upload distribution package
