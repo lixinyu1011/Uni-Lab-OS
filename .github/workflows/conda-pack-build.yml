@@ -68,7 +68,7 @@ jobs:
           miniconda-version: latest
           python-version: '3.11.11'
           channels: conda-forge,robostack-staging,uni-lab,defaults
-          channel-priority: strict
+          channel-priority: flexible
           activate-environment: unilab
           auto-activate-base: true
           auto-update-conda: false
