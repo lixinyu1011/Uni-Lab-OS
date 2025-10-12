@@ -65,7 +65,7 @@ jobs:
         if: steps.should_build.outputs.should_build == 'true'
         uses: conda-incubator/setup-miniconda@v3
         with:
-          miniforge-version: latest
+          miniconda-version: latest
           python-version: '3.11.11'
           channels: conda-forge,robostack-staging,uni-lab,defaults
           channel-priority: strict
@@ -74,16 +74,11 @@ jobs:
           auto-update-conda: false
           show-channel-urls: true
 
-      - name: Install conda-pack
-        if: steps.should_build.outputs.should_build == 'true'
-        run: |
-          conda install -c conda-forge conda-pack -y
-
-      - name: Install unilabos and dependencies
+      - name: Install conda-pack, unilabos and dependencies
         if: steps.should_build.outputs.should_build == 'true'
         run: |
           echo "Installing unilabos and dependencies to unilab environment..."
-          conda install uni-lab::unilabos -c uni-lab -c robostack-staging -c conda-forge -y
+          conda install uni-lab::unilabos conda-pack -c uni-lab -c robostack-staging -c conda-forge -y
 
       - name: Get latest ros-humble-unilabos-msgs version
         if: steps.should_build.outputs.should_build == 'true'
@@ -231,12 +226,14 @@ jobs:
         run: |
           echo "=========================================="
           if [ "${{ matrix.platform }}" == "win-64" ]; then
-            echo "Creating Windows ZIP archive..."
+            echo "Creating Windows ZIP archive (ZIP64 support for large files)..."
             echo "Archive: unilab-pack-win-64.zip"
             echo "Contents: install_unilab.bat + unilab-env-win-64.tar.gz + extras"
-            cd dist-package
-            powershell -Command "Compress-Archive -Path * -DestinationPath ../unilab-pack-${{ matrix.platform }}.zip -Force"
-            cd ..
+            echo ""
+            
+            # Use Python script with ZIP64 support instead of PowerShell Compress-Archive
+            # PowerShell Compress-Archive has a 2GB limitation
+            python scripts/create_zip_archive.py dist-package unilab-pack-${{ matrix.platform }}.zip
           else
             echo "Creating Unix/Linux TAR.GZ archive..."
             echo "Archive: unilab-pack-${{ matrix.platform }}.tar.gz"

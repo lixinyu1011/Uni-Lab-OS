@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 UniLabOS Installation Verification Script
 =========================================
@@ -17,6 +18,10 @@ Usage:
 import sys
 import importlib
 
+# Use ASCII-safe symbols that work across all platforms
+CHECK_MARK = "[OK]"
+CROSS_MARK = "[FAIL]"
+
 
 def check_package(package_name: str, display_name: str = None) -> bool:
     """
@@ -34,10 +39,10 @@ def check_package(package_name: str, display_name: str = None) -> bool:
 
     try:
         importlib.import_module(package_name)
-        print(f"  ✓ {display_name}")
+        print(f"  {CHECK_MARK} {display_name}")
         return True
     except ImportError:
-        print(f"  ✗ {display_name}")
+        print(f"  {CROSS_MARK} {display_name}")
         return False
 
 
@@ -47,10 +52,10 @@ def check_python_version() -> bool:
     version_str = f"{version.major}.{version.minor}.{version.micro}"
 
     if version.major == 3 and version.minor >= 11:
-        print(f"  ✓ Python {version_str}")
+        print(f"  {CHECK_MARK} Python {version_str}")
         return True
     else:
-        print(f"  ✗ Python {version_str} (requires Python 3.8+)")
+        print(f"  {CROSS_MARK} Python {version_str} (requires Python 3.8+)")
         return False
 
 
@@ -80,23 +85,23 @@ def main():
     try:
         from unilabos.utils.environment_check import EnvironmentChecker
 
-        print("  ✓ UniLabOS installed")
+        print(f"  {CHECK_MARK} UniLabOS installed")
 
         checker = EnvironmentChecker()
         env_check_passed = checker.check_all_packages()
 
         if env_check_passed:
-            print("  ✓ All required packages available")
+            print(f"  {CHECK_MARK} All required packages available")
         else:
-            print(f"  ✗ Missing {len(checker.missing_packages)} package(s):")
+            print(f"  {CROSS_MARK} Missing {len(checker.missing_packages)} package(s):")
             for import_name, _ in checker.missing_packages:
                 print(f"    - {import_name}")
             all_passed = False
     except ImportError:
-        print("  ✗ UniLabOS not installed")
+        print(f"  {CROSS_MARK} UniLabOS not installed")
         all_passed = False
     except Exception as e:
-        print(f"  ✗ Environment check failed: {str(e)}")
+        print(f"  {CROSS_MARK} Environment check failed: {str(e)}")
         all_passed = False
     print()
 
@@ -106,14 +111,14 @@ def main():
     print("=" * 60)
 
     if all_passed:
-        print("\n✓ All checks passed! Your UniLabOS installation is ready.")
+        print(f"\n{CHECK_MARK} All checks passed! Your UniLabOS installation is ready.")
         print("\nNext steps:")
         print("  1. Review the documentation: docs/user_guide/launch.md")
         print("  2. Try the examples: docs/boot_examples/")
         print("  3. Configure your devices: unilabos_data/startup_config.json")
         return 0
     else:
-        print("\n✗ Some checks failed. Please review the errors above.")
+        print(f"\n{CROSS_MARK} Some checks failed. Please review the errors above.")
         print("\nTroubleshooting:")
         print("  1. Ensure you're in the correct conda environment: conda activate unilab")
         print("  2. Check the installation documentation: docs/user_guide/installation.md")
