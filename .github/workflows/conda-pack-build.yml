@@ -1,0 +1,178 @@
+name: Build Conda-Pack Environment
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: '选择要构建的分支'
+        required: true
+        default: 'dev'
+        type: string
+      platforms:
+        description: '选择构建平台 (逗号分隔): linux-64, osx-64, osx-arm64, win-64'
+        required: false
+        default: 'win-64'
+        type: string
+
+jobs:
+  build-conda-pack:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux-64
+            env_file: unilabos-linux-64.yaml
+            script_ext: sh
+          - os: macos-13 # Intel
+            platform: osx-64
+            env_file: unilabos-osx-64.yaml
+            script_ext: sh
+          - os: macos-latest # ARM64
+            platform: osx-arm64
+            env_file: unilabos-osx-arm64.yaml
+            script_ext: sh
+          - os: windows-latest
+            platform: win-64
+            env_file: unilabos-win64.yaml
+            script_ext: bat
+
+    runs-on: ${{ matrix.os }}
+
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - name: Check if platform should be built
+        id: should_build
+        run: |
+          if [[ -z "${{ github.event.inputs.platforms }}" ]]; then
+            echo "should_build=true" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event.inputs.platforms }}" == *"${{ matrix.platform }}"* ]]; then
+            echo "should_build=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_build=false" >> $GITHUB_OUTPUT
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.should_build.outputs.should_build == 'true'
+        with:
+          ref: ${{ github.event.inputs.branch }}
+          fetch-depth: 0
+
+      - name: Setup Miniconda
+        if: steps.should_build.outputs.should_build == 'true'
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniconda-version: 'latest'
+          python-version: '3.11.11'
+          channels: conda-forge,robostack-staging,uni-lab,defaults
+          channel-priority: strict
+          activate-environment: unilab
+          auto-activate-base: false
+          auto-update-conda: false
+          show-channel-urls: true
+
+      - name: Install conda-pack
+        if: steps.should_build.outputs.should_build == 'true'
+        run: |
+          conda install -c conda-forge conda-pack -y
+
+      - name: Install unilabos and dependencies
+        if: steps.should_build.outputs.should_build == 'true'
+        run: |
+          echo "Installing unilabos and dependencies to unilab environment..."
+          conda install uni-lab::unilabos -c uni-lab -c robostack-staging -c conda-forge -y
+
+      - name: Get latest ros-humble-unilabos-msgs version
+        if: steps.should_build.outputs.should_build == 'true'
+        id: msgs_version
+        run: |
+          INSTALLED_VERSION=$(conda list ros-humble-unilabos-msgs | grep ros-humble-unilabos-msgs | awk '{print $2}')
+          echo "installed_version=$INSTALLED_VERSION" >> $GITHUB_OUTPUT
+          echo "Installed ros-humble-unilabos-msgs version: $INSTALLED_VERSION"
+
+      - name: Check for newer ros-humble-unilabos-msgs
+        if: steps.should_build.outputs.should_build == 'true'
+        run: |
+          echo "Checking for available ros-humble-unilabos-msgs versions..."
+          conda search ros-humble-unilabos-msgs -c uni-lab -c robostack-staging -c conda-forge --info || echo "Search completed"
+
+          echo "Updating ros-humble-unilabos-msgs to latest version..."
+          conda update ros-humble-unilabos-msgs -c uni-lab -c robostack-staging -c conda-forge -y || echo "Already at latest version"
+
+      - name: Install latest unilabos from source
+        if: steps.should_build.outputs.should_build == 'true'
+        run: |
+          echo "Uninstalling existing unilabos..."
+          pip uninstall unilabos -y || echo "unilabos not installed via pip"
+
+          echo "Installing unilabos from source (branch: ${{ github.event.inputs.branch }})..."
+          pip install .
+
+          echo "Verifying installation..."
+          pip show unilabos
+
+      - name: Display environment info
+        if: steps.should_build.outputs.should_build == 'true'
+        run: |
+          echo "=== Environment Information ==="
+          conda env list
+          echo ""
+          echo "=== Installed Packages ==="
+          conda list | grep -E "(unilabos|ros-humble-unilabos-msgs)" || conda list
+          echo ""
+          echo "=== Python Packages ==="
+          pip list | grep unilabos || pip list
+
+      - name: Verify environment integrity
+        if: steps.should_build.outputs.should_build == 'true'
+        run: |
+          echo "Verifying Python version..."
+          python -c "import sys; print(f'Python version: {sys.version}')"
+
+          echo "Verifying unilabos import..."
+          python -c "import unilabos; print(f'UniLabOS version: {unilabos.__version__}')" || echo "Warning: Could not import unilabos"
+
+          echo "Checking critical packages..."
+          python -c "import rclpy; print('ROS2 rclpy: OK')"
+
+          echo "Running comprehensive verification script..."
+          python scripts/verify_installation.py || echo "Warning: Verification script reported issues"
+
+          echo "Environment verification complete!"
+
+      - name: Pack conda environment
+        if: steps.should_build.outputs.should_build == 'true'
+        run: |
+          echo "Packing unilab environment with conda-pack..."
+          conda pack -n unilab -o unilab-env-${{ matrix.platform }}.tar.gz --ignore-missing-files
+
+          echo "Pack file created:"
+          ls -lh unilab-env-${{ matrix.platform }}.tar.gz
+
+      - name: Upload packed environment
+        if: steps.should_build.outputs.should_build == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: unilab-env-${{ matrix.platform }}-${{ github.event.inputs.branch }}
+          path: unilab-env-${{ matrix.platform }}.tar.gz
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Display package info
+        if: steps.should_build.outputs.should_build == 'true'
+        run: |
+          echo "=========================================="
+          echo "Build Summary"
+          echo "=========================================="
+          echo "Platform: ${{ matrix.platform }}"
+          echo "Branch: ${{ github.event.inputs.branch }}"
+          echo "Python version: 3.11.11"
+          echo "Package size:"
+          ls -lh unilab-env-${{ matrix.platform }}.tar.gz
+          echo ""
+          echo "This package contains the complete unilab environment."
+          echo "Download and extract to use the environment."
+          echo "=========================================="
