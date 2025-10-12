@@ -89,7 +89,7 @@ jobs:
         run: |
           echo "Installing unilabos and dependencies to unilab environment..."
           echo "Using mamba for faster and more reliable dependency resolution..."
-          mamba install -n unilab uni-lab::unilabos -c uni-lab -c robostack-staging -c conda-forge -y
+          mamba install -n unilab uni-lab::unilabos conda-pack -c uni-lab -c robostack-staging -c conda-forge -y
 
       - name: Get latest ros-humble-unilabos-msgs version (Windows)
         if: steps.should_build.outputs.should_build == 'true' && matrix.platform == 'win-64'
@@ -326,12 +326,8 @@ jobs:
           echo "Distribution package contents:"
           ls -lh dist-package/
           echo ""
-          echo "Package size (tar.gz):"
-          ls -lh unilab-pack-*.tar.gz
-          echo ""
           echo "Artifact name: unilab-pack-${{ matrix.platform }}-${{ github.event.inputs.branch }}"
           echo ""
           echo "After download:"
-          echo "  - Windows/macOS: Extract ZIP, then: tar -xzf unilab-pack-${{ matrix.platform }}.tar.gz"
-          echo "  - Linux: Extract ZIP (or download tar.gz directly), run install_unilab.sh"
+          echo "  install_unilab.sh"
           echo "=========================================="
