@@ -208,7 +208,7 @@ jobs:
         if: steps.should_build.outputs.should_build == 'true' && matrix.platform == 'win-64'
         run: |
           echo Packing unilab environment with conda-pack...
-          mamba run -n unilab --live-stream conda pack -n unilab -o unilab-env-${{ matrix.platform }}.tar.gz --ignore-missing-files
+          mamba run --live-stream -n unilab conda pack -n unilab -o unilab-env-${{ matrix.platform }}.tar.gz --ignore-missing-files
           echo Pack file created:
           dir unilab-env-${{ matrix.platform }}.tar.gz
 
@@ -217,7 +217,7 @@ jobs:
         shell: bash
         run: |
           echo "Packing unilab environment with conda-pack..."
-          mamba run -n unilab --live-stream conda pack -n unilab -o unilab-env-${{ matrix.platform }}.tar.gz --ignore-missing-files
+          mamba run --live-stream -n unilab conda pack -n unilab -o unilab-env-${{ matrix.platform }}.tar.gz --ignore-missing-files
           echo "Pack file created:"
           ls -lh unilab-env-${{ matrix.platform }}.tar.gz
 
