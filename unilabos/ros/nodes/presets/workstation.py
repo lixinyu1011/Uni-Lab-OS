@@ -1,13 +1,8 @@
 import json
 import time
 import traceback
-<<<<<<<< HEAD:unilabos/ros/nodes/presets/workstation.py
 from pprint import pformat
 from typing import List, Dict, Any, Optional, TYPE_CHECKING
-========
-from pprint import pprint, saferepr, pformat
-from typing import Union
->>>>>>>> main:unilabos/ros/nodes/presets/protocol_node.py
 
 import rclpy
 from rosidl_runtime_py import message_to_ordereddict
@@ -198,13 +193,8 @@ class ROS2WorkstationNode(BaseROS2DeviceNode):
             execute_callback=self._create_protocol_execute_callback(action_name, protocol_steps_generator),
             callback_group=ReentrantCallbackGroup(),
         )
-<<<<<<<< HEAD:unilabos/ros/nodes/presets/workstation.py
         self.lab_logger().trace(f"发布动作: {action_name}, 类型: {str_action_type}")
         return
-========
-
-        self.lab_logger().trace(f"发布动作: {action_name}, 类型: {str_action_type}")
->>>>>>>> main:unilabos/ros/nodes/presets/protocol_node.py
 
     def _create_protocol_execute_callback(self, protocol_name, protocol_steps_generator):
         async def execute_protocol(goal_handle: ServerGoalHandle):
@@ -255,15 +245,10 @@ class ROS2WorkstationNode(BaseROS2DeviceNode):
                         logs.append(step)
                     elif isinstance(step, list):
                         logs.append(step)
-<<<<<<<< HEAD:unilabos/ros/nodes/presets/workstation.py
                 self.lab_logger().info(
                     f"Goal received: {protocol_kwargs}, running steps: "
                     f"{json.dumps(logs, indent=4, ensure_ascii=False)}"
                 )
-========
-                self.lab_logger().info(f"Goal received: {protocol_kwargs}, running steps: "
-                                       f"{json.dumps(logs, indent=4, ensure_ascii=False)}")
->>>>>>>> main:unilabos/ros/nodes/presets/protocol_node.py
 
                 time_start = time.time()
                 time_overall = 100
@@ -278,7 +263,6 @@ class ROS2WorkstationNode(BaseROS2DeviceNode):
                             time.sleep(action["action_kwargs"]["time"])
                             step_results.append({"step": i + 1, "action": "wait", "result": "completed"})
                         else:
-<<<<<<<< HEAD:unilabos/ros/nodes/presets/workstation.py
                             try:
                                 result = await self.execute_single_action(**action)
                                 step_results.append({"step": i + 1, "action": action["action_name"], "result": result})
@@ -289,13 +273,6 @@ class ROS2WorkstationNode(BaseROS2DeviceNode):
                                 step_results.append(
                                     {"step": i + 1, "action": action["action_name"], "result": ex.args[0]}
                                 )
-========
-                            result = await self.execute_single_action(**action)
-                            step_results.append({"step": i + 1, "action": action["action_name"], "result": result})
-                            ret_info = json.loads(getattr(result, "return_info", "{}"))
-                            if not ret_info.get("suc", False):
-                                raise RuntimeError(f"Step {i + 1} failed.")
->>>>>>>> main:unilabos/ros/nodes/presets/protocol_node.py
                     elif isinstance(action, list):
                         # 如果是并行动作，同时执行
                         actions = action
@@ -333,7 +310,6 @@ class ROS2WorkstationNode(BaseROS2DeviceNode):
 
             except Exception as e:
                 # 捕获并记录错误信息
-<<<<<<<< HEAD:unilabos/ros/nodes/presets/workstation.py
                 str_step_results = [
                     {
                         k: dict(message_to_ordereddict(v)) if k == "result" and hasattr(v, "SLOT_TYPES") else v
@@ -341,9 +317,6 @@ class ROS2WorkstationNode(BaseROS2DeviceNode):
                     }
                     for i in step_results
                 ]
-========
-                str_step_results = [{k: dict(message_to_ordereddict(v)) if k == "result" and hasattr(v, "SLOT_TYPES") else v for k, v in i.items()} for i in step_results]
->>>>>>>> main:unilabos/ros/nodes/presets/protocol_node.py
                 execution_error = f"{traceback.format_exc()}\n\nStep Result: {pformat(str_step_results)}"
                 execution_success = False
                 self.lab_logger().error(f"协议 {protocol_name} 执行出错: {str(e)} \n{traceback.format_exc()}")
