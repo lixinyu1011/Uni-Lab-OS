@@ -65,7 +65,7 @@ jobs:
         if: steps.should_build.outputs.should_build == 'true'
         uses: conda-incubator/setup-miniconda@v3
         with:
-          miniconda-version: 'latest'
+          miniforge-version: latest
           python-version: '3.11.11'
           channels: conda-forge,robostack-staging,uni-lab,defaults
           channel-priority: strict
@@ -77,13 +77,13 @@ jobs:
       - name: Install conda-pack
         if: steps.should_build.outputs.should_build == 'true'
         run: |
-          conda install -c conda-forge conda-pack -y
+          mamba install -c conda-forge conda-pack -y
 
       - name: Install unilabos and dependencies
         if: steps.should_build.outputs.should_build == 'true'
         run: |
           echo "Installing unilabos and dependencies to unilab environment..."
-          conda install uni-lab::unilabos -c uni-lab -c robostack-staging -c conda-forge -y
+          mamba install uni-lab::unilabos -c uni-lab -c robostack-staging -c conda-forge -y
 
       - name: Get latest ros-humble-unilabos-msgs version
         if: steps.should_build.outputs.should_build == 'true'
@@ -97,10 +97,10 @@ jobs:
         if: steps.should_build.outputs.should_build == 'true'
         run: |
           echo "Checking for available ros-humble-unilabos-msgs versions..."
-          conda search ros-humble-unilabos-msgs -c uni-lab -c robostack-staging -c conda-forge --info || echo "Search completed"
+          mamba search ros-humble-unilabos-msgs -c uni-lab -c robostack-staging -c conda-forge --info || echo "Search completed"
 
           echo "Updating ros-humble-unilabos-msgs to latest version..."
-          conda update ros-humble-unilabos-msgs -c uni-lab -c robostack-staging -c conda-forge -y || echo "Already at latest version"
+          mamba update ros-humble-unilabos-msgs -c uni-lab -c robostack-staging -c conda-forge -y || echo "Already at latest version"
 
       - name: Install latest unilabos from source
         if: steps.should_build.outputs.should_build == 'true'
