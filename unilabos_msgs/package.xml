@@ -5,6 +5,7 @@
   <version>0.10.7</version>
   <description>ROS2 Messages package for unilabos devices</description>
   <maintainer email="changjh@pku.edu.cn">Junhan Chang</maintainer>
+  <maintainer email="18435084+Xuwznln@users.noreply.github.com">Xuwznln</maintainer>
   <license>MIT</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
