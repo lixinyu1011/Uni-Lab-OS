@@ -4741,7 +4741,6 @@ virtual_stirrer:
     status_types:
       current_speed: float
       current_vessel: str
-      device_info: dict
       is_stirring: bool
       max_speed: float
       min_speed: float
@@ -4776,8 +4775,6 @@ virtual_stirrer:
           type: number
         current_vessel:
           type: string
-        device_info:
-          type: object
         is_stirring:
           type: boolean
         max_speed:
@@ -4799,7 +4796,6 @@ virtual_stirrer:
       - remaining_time
       - max_speed
       - min_speed
-      - device_info
       type: object
   version: 1.0.0
 virtual_transfer_pump:
