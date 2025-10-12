@@ -42,7 +42,7 @@ jobs:
     defaults:
       run:
         # Windows uses cmd for better conda/mamba compatibility, Unix uses bash
-        shell: ${{ matrix.platform == 'win-64' && 'cmd /C CALL {0}' || 'bash -el {0}' }}
+        shell: ${{ matrix.platform == 'win-64' && 'cmd' || 'bash' }}
 
     steps:
       - name: Check if platform should be built
@@ -187,7 +187,7 @@ jobs:
           echo Checking critical packages...
           conda run -n unilab python -c "import rclpy; print('ROS2 rclpy: OK')"
           echo Running comprehensive verification script...
-          conda run -n unilab python scripts\verify_installation.py || echo Warning: Verification script reported issues
+          conda run -n unilab python scripts\verify_installation.py --auto-install || echo Warning: Verification script reported issues
           echo Environment verification complete!
 
       - name: Verify environment integrity (Unix)
@@ -201,7 +201,7 @@ jobs:
           echo "Checking critical packages..."
           conda run -n unilab python -c "import rclpy; print('ROS2 rclpy: OK')"
           echo "Running comprehensive verification script..."
-          conda run -n unilab python scripts/verify_installation.py || echo "Warning: Verification script reported issues"
+          conda run -n unilab python scripts/verify_installation.py --auto-install || echo "Warning: Verification script reported issues"
           echo "Environment verification complete!"
 
       - name: Pack conda environment (Windows)
