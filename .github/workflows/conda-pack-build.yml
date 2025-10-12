@@ -70,7 +70,7 @@ jobs:
           channels: conda-forge,robostack-staging,uni-lab,defaults
           channel-priority: strict
           activate-environment: unilab
-          auto-activate-base: false
+          auto-activate: false
           auto-update-conda: false
           show-channel-urls: true
 
