@@ -73,6 +73,7 @@ jobs:
           channels: conda-forge,robostack-staging,uni-lab,defaults
           channel-priority: flexible
           activate-environment: unilab
+          auto-activate-base: true
           auto-update-conda: false
           show-channel-urls: true
 
@@ -185,8 +186,8 @@ jobs:
           conda run -n unilab python -c "import unilabos; print(f'UniLabOS version: {unilabos.__version__}')" || echo Warning: Could not import unilabos
           echo Checking critical packages...
           conda run -n unilab python -c "import rclpy; print('ROS2 rclpy: OK')"
-          echo Running comprehensive verification script with auto-install...
-          conda run -n unilab python scripts\verify_installation.py --auto-install || echo Warning: Verification script reported issues
+          echo Running comprehensive verification script...
+          conda run -n unilab python scripts\verify_installation.py || echo Warning: Verification script reported issues
           echo Environment verification complete!
 
       - name: Verify environment integrity (Unix)
@@ -199,14 +200,15 @@ jobs:
           conda run -n unilab python -c "import unilabos; print(f'UniLabOS version: {unilabos.__version__}')" || echo "Warning: Could not import unilabos"
           echo "Checking critical packages..."
           conda run -n unilab python -c "import rclpy; print('ROS2 rclpy: OK')"
-          echo "Running comprehensive verification script with auto-install..."
-          conda run -n unilab python scripts/verify_installation.py --auto-install || echo "Warning: Verification script reported issues"
+          echo "Running comprehensive verification script..."
+          conda run -n unilab python scripts/verify_installation.py || echo "Warning: Verification script reported issues"
           echo "Environment verification complete!"
 
       - name: Pack conda environment (Windows)
         if: steps.should_build.outputs.should_build == 'true' && matrix.platform == 'win-64'
         run: |
           echo Packing unilab environment with conda-pack...
+          conda activate unilab
           conda pack -n unilab -o unilab-env-${{ matrix.platform }}.tar.gz --ignore-missing-files
           echo Pack file created:
           dir unilab-env-${{ matrix.platform }}.tar.gz
@@ -216,6 +218,7 @@ jobs:
         shell: bash
         run: |
           echo "Packing unilab environment with conda-pack..."
+          conda activate unilab
           conda pack -n unilab -o unilab-env-${{ matrix.platform }}.tar.gz --ignore-missing-files
           echo "Pack file created:"
           ls -lh unilab-env-${{ matrix.platform }}.tar.gz
