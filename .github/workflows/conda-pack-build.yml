@@ -61,11 +61,12 @@ jobs:
           ref: ${{ github.event.inputs.branch }}
           fetch-depth: 0
 
-      - name: Setup Miniconda
+      - name: Setup Miniforge (with mamba)
         if: steps.should_build.outputs.should_build == 'true'
         uses: conda-incubator/setup-miniconda@v3
         with:
-          miniconda-version: latest
+          miniforge-version: latest
+          use-mamba: true
           python-version: '3.11.11'
           channels: conda-forge,robostack-staging,uni-lab,defaults
           channel-priority: flexible
@@ -78,7 +79,8 @@ jobs:
         if: steps.should_build.outputs.should_build == 'true'
         run: |
           echo "Installing unilabos and dependencies to unilab environment..."
-          conda install uni-lab::unilabos conda-pack -c uni-lab -c robostack-staging -c conda-forge -y
+          echo "Using mamba for faster and more reliable dependency resolution..."
+          mamba install uni-lab::unilabos conda-pack -c uni-lab -c robostack-staging -c conda-forge -y
 
       - name: Get latest ros-humble-unilabos-msgs version
         if: steps.should_build.outputs.should_build == 'true'
@@ -92,10 +94,10 @@ jobs:
         if: steps.should_build.outputs.should_build == 'true'
         run: |
           echo "Checking for available ros-humble-unilabos-msgs versions..."
-          conda search ros-humble-unilabos-msgs -c uni-lab -c robostack-staging -c conda-forge --info || echo "Search completed"
+          mamba search ros-humble-unilabos-msgs -c uni-lab -c robostack-staging -c conda-forge --info || echo "Search completed"
 
           echo "Updating ros-humble-unilabos-msgs to latest version..."
-          conda update ros-humble-unilabos-msgs -c uni-lab -c robostack-staging -c conda-forge -y || echo "Already at latest version"
+          mamba update ros-humble-unilabos-msgs -c uni-lab -c robostack-staging -c conda-forge -y || echo "Already at latest version"
 
       - name: Install latest unilabos from source
         if: steps.should_build.outputs.should_build == 'true'
