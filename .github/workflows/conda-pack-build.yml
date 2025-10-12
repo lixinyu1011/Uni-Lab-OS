@@ -41,8 +41,8 @@ jobs:
 
     defaults:
       run:
-        # Windows needs PowerShell for conda/mamba, Unix uses bash
-        shell: ${{ matrix.platform == 'win-64' && 'pwsh' || 'bash -el {0}' }}
+        # Windows uses cmd for better conda/mamba compatibility, Unix uses bash
+        shell: ${{ matrix.platform == 'win-64' && 'cmd /C CALL {0}' || 'bash -el {0}' }}
 
     steps:
       - name: Check if platform should be built
@@ -77,8 +77,16 @@ jobs:
           auto-update-conda: false
           show-channel-urls: true
 
-      - name: Install conda-pack, unilabos and dependencies
-        if: steps.should_build.outputs.should_build == 'true'
+      - name: Install conda-pack, unilabos and dependencies (Windows)
+        if: steps.should_build.outputs.should_build == 'true' && matrix.platform == 'win-64'
+        run: |
+          echo Installing unilabos and dependencies to unilab environment...
+          echo Using mamba for faster and more reliable dependency resolution...
+          mamba install uni-lab::unilabos conda-pack -c uni-lab -c robostack-staging -c conda-forge -y
+
+      - name: Install conda-pack, unilabos and dependencies (Unix)
+        if: steps.should_build.outputs.should_build == 'true' && matrix.platform != 'win-64'
+        shell: bash
         run: |
           echo "Installing unilabos and dependencies to unilab environment..."
           echo "Using mamba for faster and more reliable dependency resolution..."
@@ -88,10 +96,11 @@ jobs:
         if: steps.should_build.outputs.should_build == 'true' && matrix.platform == 'win-64'
         id: msgs_version_win
         run: |
-          Write-Host "Checking installed ros-humble-unilabos-msgs version..."
-          $version = (conda list ros-humble-unilabos-msgs --json | ConvertFrom-Json)[0].version
-          Write-Output "installed_version=$version" >> $env:GITHUB_OUTPUT
-          Write-Host "Installed ros-humble-unilabos-msgs version: $version"
+          echo Checking installed ros-humble-unilabos-msgs version...
+          conda list ros-humble-unilabos-msgs
+          for /f "tokens=2" %%i in ('conda list ros-humble-unilabos-msgs --json ^| python -c "import sys, json; pkgs=json.load(sys.stdin); print(pkgs[0]['version'] if pkgs else 'not-found')"') do set VERSION=%%i
+          echo installed_version=%VERSION% >> %GITHUB_OUTPUT%
+          echo Installed ros-humble-unilabos-msgs version: %VERSION%
 
       - name: Get latest ros-humble-unilabos-msgs version (Unix)
         if: steps.should_build.outputs.should_build == 'true' && matrix.platform != 'win-64'
@@ -103,29 +112,59 @@ jobs:
           echo "installed_version=$VERSION" >> $GITHUB_OUTPUT
           echo "Installed ros-humble-unilabos-msgs version: $VERSION"
 
-      - name: Check for newer ros-humble-unilabos-msgs
-        if: steps.should_build.outputs.should_build == 'true'
+      - name: Check for newer ros-humble-unilabos-msgs (Windows)
+        if: steps.should_build.outputs.should_build == 'true' && matrix.platform == 'win-64'
+        run: |
+          echo Checking for available ros-humble-unilabos-msgs versions...
+          mamba search ros-humble-unilabos-msgs -c uni-lab -c robostack-staging -c conda-forge --info || echo Search completed
+          echo Updating ros-humble-unilabos-msgs to latest version...
+          mamba update ros-humble-unilabos-msgs -c uni-lab -c robostack-staging -c conda-forge -y || echo Already at latest version
+
+      - name: Check for newer ros-humble-unilabos-msgs (Unix)
+        if: steps.should_build.outputs.should_build == 'true' && matrix.platform != 'win-64'
+        shell: bash
         run: |
           echo "Checking for available ros-humble-unilabos-msgs versions..."
           mamba search ros-humble-unilabos-msgs -c uni-lab -c robostack-staging -c conda-forge --info || echo "Search completed"
-
           echo "Updating ros-humble-unilabos-msgs to latest version..."
           mamba update ros-humble-unilabos-msgs -c uni-lab -c robostack-staging -c conda-forge -y || echo "Already at latest version"
 
-      - name: Install latest unilabos from source
-        if: steps.should_build.outputs.should_build == 'true'
+      - name: Install latest unilabos from source (Windows)
+        if: steps.should_build.outputs.should_build == 'true' && matrix.platform == 'win-64'
+        run: |
+          echo Uninstalling existing unilabos...
+          pip uninstall unilabos -y || echo unilabos not installed via pip
+          echo Installing unilabos from source (branch: ${{ github.event.inputs.branch }})...
+          pip install .
+          echo Verifying installation...
+          pip show unilabos
+
+      - name: Install latest unilabos from source (Unix)
+        if: steps.should_build.outputs.should_build == 'true' && matrix.platform != 'win-64'
+        shell: bash
         run: |
           echo "Uninstalling existing unilabos..."
           pip uninstall unilabos -y || echo "unilabos not installed via pip"
-
           echo "Installing unilabos from source (branch: ${{ github.event.inputs.branch }})..."
           pip install .
-
           echo "Verifying installation..."
           pip show unilabos
 
-      - name: Display environment info
-        if: steps.should_build.outputs.should_build == 'true'
+      - name: Display environment info (Windows)
+        if: steps.should_build.outputs.should_build == 'true' && matrix.platform == 'win-64'
+        run: |
+          echo === Environment Information ===
+          conda env list
+          echo.
+          echo === Installed Packages ===
+          conda list | findstr /C:"unilabos" /C:"ros-humble-unilabos-msgs" || conda list
+          echo.
+          echo === Python Packages ===
+          pip list | findstr unilabos || pip list
+
+      - name: Display environment info (Unix)
+        if: steps.should_build.outputs.should_build == 'true' && matrix.platform != 'win-64'
+        shell: bash
         run: |
           echo "=== Environment Information ==="
           conda env list
@@ -136,61 +175,79 @@ jobs:
           echo "=== Python Packages ==="
           pip list | grep unilabos || pip list
 
-      - name: Verify environment integrity
-        if: steps.should_build.outputs.should_build == 'true'
+      - name: Verify environment integrity (Windows)
+        if: steps.should_build.outputs.should_build == 'true' && matrix.platform == 'win-64'
+        run: |
+          echo Verifying Python version...
+          python -c "import sys; print(f'Python version: {sys.version}')"
+          echo Verifying unilabos import...
+          python -c "import unilabos; print(f'UniLabOS version: {unilabos.__version__}')" || echo Warning: Could not import unilabos
+          echo Checking critical packages...
+          python -c "import rclpy; print('ROS2 rclpy: OK')"
+          echo Running comprehensive verification script...
+          python scripts\verify_installation.py || echo Warning: Verification script reported issues
+          echo Environment verification complete!
+
+      - name: Verify environment integrity (Unix)
+        if: steps.should_build.outputs.should_build == 'true' && matrix.platform != 'win-64'
+        shell: bash
         run: |
           echo "Verifying Python version..."
           python -c "import sys; print(f'Python version: {sys.version}')"
-
           echo "Verifying unilabos import..."
           python -c "import unilabos; print(f'UniLabOS version: {unilabos.__version__}')" || echo "Warning: Could not import unilabos"
-
           echo "Checking critical packages..."
           python -c "import rclpy; print('ROS2 rclpy: OK')"
-
           echo "Running comprehensive verification script..."
           python scripts/verify_installation.py || echo "Warning: Verification script reported issues"
-
           echo "Environment verification complete!"
 
-      - name: Pack conda environment
-        if: steps.should_build.outputs.should_build == 'true'
+      - name: Pack conda environment (Windows)
+        if: steps.should_build.outputs.should_build == 'true' && matrix.platform == 'win-64'
+        run: |
+          echo Packing unilab environment with conda-pack...
+          conda pack -n unilab -o unilab-env-${{ matrix.platform }}.tar.gz --ignore-missing-files
+          echo Pack file created:
+          dir unilab-env-${{ matrix.platform }}.tar.gz
+
+      - name: Pack conda environment (Unix)
+        if: steps.should_build.outputs.should_build == 'true' && matrix.platform != 'win-64'
+        shell: bash
         run: |
           echo "Packing unilab environment with conda-pack..."
           conda pack -n unilab -o unilab-env-${{ matrix.platform }}.tar.gz --ignore-missing-files
-
           echo "Pack file created:"
           ls -lh unilab-env-${{ matrix.platform }}.tar.gz
 
       - name: Prepare Windows distribution package
         if: steps.should_build.outputs.should_build == 'true' && matrix.platform == 'win-64'
         run: |
-          Write-Host "=========================================="
-          Write-Host "Creating distribution package..."
-          Write-Host "Platform: ${{ matrix.platform }}"
-          Write-Host "=========================================="
-          New-Item -ItemType Directory -Force -Path dist-package | Out-Null
+          echo ==========================================
+          echo Creating distribution package...
+          echo Platform: ${{ matrix.platform }}
+          echo ==========================================
+          mkdir dist-package 2>nul || cd .
 
-          # Copy packed environment
-          Write-Host "Adding: unilab-env-${{ matrix.platform }}.tar.gz"
-          Copy-Item unilab-env-${{ matrix.platform }}.tar.gz dist-package/
+          rem Copy packed environment
+          echo Adding: unilab-env-${{ matrix.platform }}.tar.gz
+          copy unilab-env-${{ matrix.platform }}.tar.gz dist-package\
 
-          # Copy installation script
-          Write-Host "Adding: install_unilab.bat"
-          Copy-Item scripts/install_unilab.bat dist-package/
+          rem Copy installation script
+          echo Adding: install_unilab.bat
+          copy scripts\install_unilab.bat dist-package\
 
-          # Copy verification script
-          Write-Host "Adding: verify_installation.py"
-          Copy-Item scripts/verify_installation.py dist-package/
+          rem Copy verification script
+          echo Adding: verify_installation.py
+          copy scripts\verify_installation.py dist-package\
 
-          # Create README using Python script
-          Write-Host "Creating: README.txt"
-          python scripts/create_readme.py ${{ matrix.platform }} ${{ github.event.inputs.branch }} dist-package/README.txt
+          rem Create README using Python script
+          echo Creating: README.txt
+          python scripts\create_readme.py ${{ matrix.platform }} ${{ github.event.inputs.branch }} dist-package\README.txt
 
-          Write-Host ""
-          Write-Host "Distribution package contents:"
-          Get-ChildItem dist-package | Format-Table Name, Length
-          Write-Host ""
+          echo.
+          echo Distribution package contents:
+          dir /b dist-package
+          echo.
 
       - name: Prepare Unix/Linux distribution package
         if: steps.should_build.outputs.should_build == 'true' && matrix.platform != 'win-64'
@@ -227,26 +284,26 @@ jobs:
       - name: Create Windows ZIP archive
         if: steps.should_build.outputs.should_build == 'true' && matrix.platform == 'win-64'
         run: |
-          Write-Host "=========================================="
-          Write-Host "Creating Windows ZIP archive (ZIP64 support for large files)..."
-          Write-Host "Archive: unilab-pack-${{ matrix.platform }}.zip"
-          Write-Host "Contents: install_unilab.bat + unilab-env-${{ matrix.platform }}.tar.gz + extras"
-          Write-Host ""
+          echo ==========================================
+          echo Creating Windows ZIP archive (ZIP64 support for large files)...
+          echo Archive: unilab-pack-${{ matrix.platform }}.zip
+          echo Contents: install_unilab.bat + unilab-env-${{ matrix.platform }}.tar.gz + extras
+          echo.
 
-          # Use Python script with ZIP64 support instead of PowerShell Compress-Archive
-          # PowerShell Compress-Archive has a 2GB limitation
-          python scripts/create_zip_archive.py dist-package unilab-pack-${{ matrix.platform }}.zip
+          rem Use Python script with ZIP64 support instead of PowerShell Compress-Archive
+          rem PowerShell Compress-Archive has a 2GB limitation
+          python scripts\create_zip_archive.py dist-package unilab-pack-${{ matrix.platform }}.zip
 
-          Write-Host "=========================================="
-          Write-Host ""
-          Write-Host "Final package created:"
-          Get-ChildItem unilab-pack-* | Format-Table Name, Length
-          Write-Host ""
-          Write-Host "Users can now:"
-          Write-Host "  1. Download unilab-pack-${{ matrix.platform }}.zip"
-          Write-Host "  2. Extract it"
-          Write-Host "  3. Run install_unilab.bat"
-          Write-Host ""
+          echo ==========================================
+          echo.
+          echo Final package created:
+          dir unilab-pack-*
+          echo.
+          echo Users can now:
+          echo   1. Download unilab-pack-${{ matrix.platform }}.zip
+          echo   2. Extract it
+          echo   3. Run install_unilab.bat
+          echo.
 
       - name: Create Unix/Linux TAR.GZ archive
         if: steps.should_build.outputs.should_build == 'true' && matrix.platform != 'win-64'
@@ -278,8 +335,32 @@ jobs:
           retention-days: 90
           if-no-files-found: error
 
-      - name: Display package info
-        if: steps.should_build.outputs.should_build == 'true'
+      - name: Display package info (Windows)
+        if: steps.should_build.outputs.should_build == 'true' && matrix.platform == 'win-64'
+        run: |
+          echo ==========================================
+          echo Build Summary
+          echo ==========================================
+          echo Platform: ${{ matrix.platform }}
+          echo Branch: ${{ github.event.inputs.branch }}
+          echo Python version: 3.11.11
+          echo.
+          echo Package contents:
+          echo   - unilab-pack-${{ matrix.platform }}.zip
+          echo   - unilab-env-${{ matrix.platform }}.tar.gz (packed environment)
+          echo   - install_unilab.bat
+          echo   - verify_installation.py
+          echo   - README.txt
+          echo.
+          echo Package size:
+          dir unilab-pack-*
+          echo.
+          echo Download the artifact and run the install script!
+          echo ==========================================
+
+      - name: Display package info (Unix)
+        if: steps.should_build.outputs.should_build == 'true' && matrix.platform != 'win-64'
+        shell: bash
         run: |
           echo "=========================================="
           echo "Build Summary"
@@ -289,18 +370,14 @@ jobs:
           echo "Python version: 3.11.11"
           echo ""
           echo "Package contents:"
-          if [ "${{ matrix.platform }}" == "win-64" ]; then
-            echo "  - unilab-pack-${{ matrix.platform }}.zip"
-          else
-            echo "  - unilab-pack-${{ matrix.platform }}.tar.gz"
-          fi
+          echo "  - unilab-pack-${{ matrix.platform }}.tar.gz"
           echo "  - unilab-env-${{ matrix.platform }}.tar.gz (packed environment)"
-          echo "  - install_unilab script"
+          echo "  - install_unilab.sh"
           echo "  - verify_installation.py"
           echo "  - README.txt"
           echo ""
           echo "Package size:"
-          ls -lh unilab-pack-* 2>/dev/null || ls -lh unilab-env-${{ matrix.platform }}.tar.gz
+          ls -lh unilab-pack-*
           echo ""
           echo "Download the artifact and run the install script!"
           echo "=========================================="

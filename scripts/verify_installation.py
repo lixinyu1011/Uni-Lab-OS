@@ -16,6 +16,32 @@ Usage:
 """
 
 import sys
+import os
+
+# IMPORTANT: Set UTF-8 encoding BEFORE any other imports
+# This ensures all subsequent imports (including unilabos) can output UTF-8 characters
+if sys.platform == "win32":
+    # Method 1: Reconfigure stdout/stderr to use UTF-8 with error handling
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, OSError):
+        pass
+
+    # Method 2: Set environment variable for subprocess and console
+    os.environ["PYTHONIOENCODING"] = "utf-8"
+
+    # Method 3: Try to change Windows console code page to UTF-8
+    try:
+        import ctypes
+
+        # Set console code page to UTF-8 (CP 65001)
+        ctypes.windll.kernel32.SetConsoleCP(65001)
+        ctypes.windll.kernel32.SetConsoleOutputCP(65001)
+    except (ImportError, AttributeError, OSError):
+        pass
+
+# Now import other modules
 import importlib
 
 # Use ASCII-safe symbols that work across all platforms
@@ -55,7 +81,7 @@ def check_python_version() -> bool:
         print(f"  {CHECK_MARK} Python {version_str}")
         return True
     else:
-        print(f"  {CROSS_MARK} Python {version_str} (requires Python 3.8+)")
+        print(f"  {CROSS_MARK} Python {version_str} (requires Python 3.11+)")
         return False
 
 
@@ -122,7 +148,7 @@ def main():
         print("\nTroubleshooting:")
         print("  1. Ensure you're in the correct conda environment: conda activate unilab")
         print("  2. Check the installation documentation: docs/user_guide/installation.md")
-        print("  3. Try reinstalling: pip install -e .")
+        print("  3. Try reinstalling: pip install .")
         return 1
 
 
