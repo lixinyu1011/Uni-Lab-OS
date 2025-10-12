@@ -10,11 +10,25 @@ REM Get the directory where this script is located
 set "SCRIPT_DIR=%~dp0"
 cd /d "%SCRIPT_DIR%"
 
-REM Find conda installation using 'where conda'
+REM Find conda installation
 echo Searching for conda installation...
+
+REM Method 1: Try to get conda base using 'conda info --base'
+set "CONDA_BASE="
+for /f "tokens=*" %%i in ('conda info --base 2^>nul') do (
+    set "CONDA_BASE=%%i"
+)
+
+if not "%CONDA_BASE%"=="" (
+    echo Found conda at: %CONDA_BASE% (via conda info)
+    goto :conda_found
+)
+
+REM Method 2: Use 'where conda' and parse the path
+echo Trying alternative method...
 for /f "tokens=*" %%i in ('where conda 2^>nul') do (
     set "CONDA_PATH=%%i"
-    goto :found_conda
+    goto :parse_conda_path
 )
 
 echo ERROR: Could not find conda installation!
@@ -23,20 +37,51 @@ echo.
 pause
 exit /b 1
 
-:found_conda
-REM Extract base directory from conda path
-REM Path looks like: C:\Users\10230\miniforge3\Library\bin\conda.bat
-REM or: C:\Users\10230\miniforge3\Scripts\conda.exe
-for %%i in ("%CONDA_PATH%") do set "CONDA_FILE=%%~nxi"
-for %%i in ("%CONDA_PATH%") do set "CONDA_BASE=%%~dpi"
+:parse_conda_path
+REM Parse conda path to find base directory
+REM Common paths:
+REM   C:\Users\hp\miniforge3\Library\bin\conda.bat
+REM   C:\Users\hp\miniforge3\Scripts\conda.exe
+REM   C:\Users\hp\miniforge3\condabin\conda.bat
 
-REM Go up two levels to get base directory
-for %%i in ("%CONDA_BASE%..") do set "CONDA_BASE=%%~fi"
-if "%CONDA_FILE%"=="conda.bat" (
-    for %%i in ("%CONDA_BASE%..") do set "CONDA_BASE=%%~fi"
+echo Found conda executable at: %CONDA_PATH%
+
+REM Check if path contains \Library\bin\ (typical for conda.bat)
+echo %CONDA_PATH% | findstr /C:"\Library\bin\" >nul
+if not errorlevel 1 (
+    REM Path like: C:\Users\hp\miniforge3\Library\bin\conda.bat
+    REM Need to go up 3 levels: bin -> Library -> miniforge3
+    for %%i in ("%CONDA_PATH%") do set "CONDA_BASE=%%~dpi"
+    for %%i in ("%CONDA_BASE%..\..\..") do set "CONDA_BASE=%%~fi"
+    goto :conda_found
 )
 
-echo Found conda at: %CONDA_BASE%
+REM Check if path contains \Scripts\ (typical for conda.exe)
+echo %CONDA_PATH% | findstr /C:"\Scripts\" >nul
+if not errorlevel 1 (
+    REM Path like: C:\Users\hp\miniforge3\Scripts\conda.exe
+    REM Need to go up 2 levels: Scripts -> miniforge3
+    for %%i in ("%CONDA_PATH%") do set "CONDA_BASE=%%~dpi"
+    for %%i in ("%CONDA_BASE%..\.") do set "CONDA_BASE=%%~fi"
+    goto :conda_found
+)
+
+REM Check if path contains \condabin\ (typical for conda.bat)
+echo %CONDA_PATH% | findstr /C:"\condabin\" >nul
+if not errorlevel 1 (
+    REM Path like: C:\Users\hp\miniforge3\condabin\conda.bat
+    REM Need to go up 2 levels: condabin -> miniforge3
+    for %%i in ("%CONDA_PATH%") do set "CONDA_BASE=%%~dpi"
+    for %%i in ("%CONDA_BASE%..\.") do set "CONDA_BASE=%%~fi"
+    goto :conda_found
+)
+
+REM Default: assume it's 2 levels up
+for %%i in ("%CONDA_PATH%") do set "CONDA_BASE=%%~dpi"
+for %%i in ("%CONDA_BASE%..\.") do set "CONDA_BASE=%%~fi"
+
+:conda_found
+echo Found conda base directory: %CONDA_BASE%
 echo.
 
 REM Set target environment path
