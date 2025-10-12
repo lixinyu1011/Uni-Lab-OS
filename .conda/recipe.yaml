@@ -31,11 +31,14 @@ requirements:
   - python ==3.11.11
   - pip
   - setuptools
+  - zstd
+  - zstandard
   run:
   - conda-forge::python ==3.11.11
   - compilers
   - cmake
   - zstd
+  - zstandard
   - ninja
   - if: unix
     then:
