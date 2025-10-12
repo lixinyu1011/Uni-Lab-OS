@@ -162,6 +162,28 @@ if errorlevel 1 (
 )
 
 echo.
+echo Checking UniLabOS entry point...
+REM Check if unilab-script.py exists
+set "UNILAB_SCRIPT=%ENV_PATH%\Scripts\unilab-script.py"
+if not exist "%UNILAB_SCRIPT%" (
+    echo WARNING: unilab-script.py not found, creating it...
+    (
+        echo # -*- coding: utf-8 -*-
+        echo import re
+        echo import sys
+        echo.
+        echo from unilabos.app.main import main
+        echo.
+        echo if __name__ == '__main__':
+        echo     sys.argv[0] = re.sub^(r'(-script\.pyw?^|\.exe^)?$', '', sys.argv[0]^)
+        echo     sys.exit^(main^(^)^)
+    ) > "%UNILAB_SCRIPT%"
+    echo Created: %UNILAB_SCRIPT%
+) else (
+    echo Found: %UNILAB_SCRIPT%
+)
+
+echo.
 echo ================================================
 echo Installation completed successfully!
 echo ================================================
