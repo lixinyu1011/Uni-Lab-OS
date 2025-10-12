@@ -8,7 +8,7 @@ import importlib
 import subprocess
 import sys
 
-from .banner_print import print_status
+from unilabos.utils.banner_print import print_status
 
 
 class EnvironmentChecker:

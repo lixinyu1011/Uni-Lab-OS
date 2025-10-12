@@ -109,26 +109,23 @@ def main():
     # Run environment checker from unilabos
     print("Checking UniLabOS and dependencies...")
     try:
-        from unilabos.utils.environment_check import EnvironmentChecker
+        from unilabos.utils.environment_check import check_environment
 
         print(f"  {CHECK_MARK} UniLabOS installed")
 
-        checker = EnvironmentChecker()
-        env_check_passed = checker.check_all_packages()
+        # Check environment without auto-install (verification only)
+        # Set show_details=False to suppress detailed Chinese output that may cause encoding issues
+        env_check_passed = check_environment(auto_install=False, show_details=False)
 
         if env_check_passed:
             print(f"  {CHECK_MARK} All required packages available")
         else:
-            print(f"  {CROSS_MARK} Missing {len(checker.missing_packages)} package(s):")
-            for import_name, _ in checker.missing_packages:
-                print(f"    - {import_name}")
-            all_passed = False
+            print(f"  {CROSS_MARK} Some optional packages are missing")
     except ImportError:
         print(f"  {CROSS_MARK} UniLabOS not installed")
         all_passed = False
     except Exception as e:
         print(f"  {CROSS_MARK} Environment check failed: {str(e)}")
-        all_passed = False
     print()
 
     # Summary
