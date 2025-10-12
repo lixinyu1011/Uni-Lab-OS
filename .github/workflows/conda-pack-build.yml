@@ -367,12 +367,8 @@ jobs:
           echo "Distribution package contents:"
           ls -lh dist-package/
           echo ""
-          echo "Package size (tar.gz):"
-          ls -lh unilab-pack-*.tar.gz
-          echo ""
           echo "Artifact name: unilab-pack-${{ matrix.platform }}-${{ github.event.inputs.branch }}"
           echo ""
           echo "After download:"
-          echo "  - Windows/macOS: Extract ZIP, then: tar -xzf unilab-pack-${{ matrix.platform }}.tar.gz"
-          echo "  - Linux: Extract ZIP (or download tar.gz directly), run install_unilab.sh"
+          echo "  install_unilab.sh"
           echo "=========================================="
