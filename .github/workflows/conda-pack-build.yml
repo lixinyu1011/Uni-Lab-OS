@@ -41,11 +41,13 @@ jobs:
 
     defaults:
       run:
-        shell: bash -l {0}
+        # Windows needs PowerShell for conda/mamba, Unix uses bash
+        shell: ${{ matrix.platform == 'win-64' && 'pwsh' || 'bash -el {0}' }}
 
     steps:
       - name: Check if platform should be built
         id: should_build
+        shell: bash
         run: |
           if [[ -z "${{ github.event.inputs.platforms }}" ]]; then
             echo "should_build=true" >> $GITHUB_OUTPUT
@@ -86,9 +88,8 @@ jobs:
         if: steps.should_build.outputs.should_build == 'true'
         id: msgs_version
         run: |
-          INSTALLED_VERSION=$(conda list ros-humble-unilabos-msgs | grep ros-humble-unilabos-msgs | awk '{print $2}')
-          echo "installed_version=$INSTALLED_VERSION" >> $GITHUB_OUTPUT
-          echo "Installed ros-humble-unilabos-msgs version: $INSTALLED_VERSION"
+          echo "Checking installed ros-humble-unilabos-msgs version..."
+          python scripts/get_package_version.py ros-humble-unilabos-msgs
 
       - name: Check for newer ros-humble-unilabos-msgs
         if: steps.should_build.outputs.should_build == 'true'
@@ -149,8 +150,39 @@ jobs:
           echo "Pack file created:"
           ls -lh unilab-env-${{ matrix.platform }}.tar.gz
 
-      - name: Prepare distribution package (scripts + environment)
-        if: steps.should_build.outputs.should_build == 'true'
+      - name: Prepare Windows distribution package
+        if: steps.should_build.outputs.should_build == 'true' && matrix.platform == 'win-64'
+        run: |
+          Write-Host "=========================================="
+          Write-Host "Creating distribution package..."
+          Write-Host "Platform: ${{ matrix.platform }}"
+          Write-Host "=========================================="
+          New-Item -ItemType Directory -Force -Path dist-package | Out-Null
+
+          # Copy packed environment
+          Write-Host "Adding: unilab-env-${{ matrix.platform }}.tar.gz"
+          Copy-Item unilab-env-${{ matrix.platform }}.tar.gz dist-package/
+
+          # Copy installation script
+          Write-Host "Adding: install_unilab.bat"
+          Copy-Item scripts/install_unilab.bat dist-package/
+
+          # Copy verification script
+          Write-Host "Adding: verify_installation.py"
+          Copy-Item scripts/verify_installation.py dist-package/
+
+          # Create README using Python script
+          Write-Host "Creating: README.txt"
+          python scripts/create_readme.py ${{ matrix.platform }} ${{ github.event.inputs.branch }} dist-package/README.txt
+
+          Write-Host ""
+          Write-Host "Distribution package contents:"
+          Get-ChildItem dist-package | Format-Table Name, Length
+          Write-Host ""
+
+      - name: Prepare Unix/Linux distribution package
+        if: steps.should_build.outputs.should_build == 'true' && matrix.platform != 'win-64'
+        shell: bash
         run: |
           echo "=========================================="
           echo "Creating distribution package..."
@@ -162,104 +194,67 @@ jobs:
           echo "Adding: unilab-env-${{ matrix.platform }}.tar.gz"
           cp unilab-env-${{ matrix.platform }}.tar.gz dist-package/
 
-          # Copy installation script (platform specific)
-          if [ "${{ matrix.platform }}" == "win-64" ]; then
-            echo "Adding: install_unilab.bat"
-            cp scripts/install_unilab.bat dist-package/
-          else
-            echo "Adding: install_unilab.sh"
-            cp scripts/install_unilab.sh dist-package/
-            chmod +x dist-package/install_unilab.sh
-          fi
+          # Copy installation script
+          echo "Adding: install_unilab.sh"
+          cp scripts/install_unilab.sh dist-package/
+          chmod +x dist-package/install_unilab.sh
 
           # Copy verification script
           echo "Adding: verify_installation.py"
           cp scripts/verify_installation.py dist-package/
 
-          # Create README
+          # Create README using Python script
           echo "Creating: README.txt"
-          cat > dist-package/README.txt << 'EOFREADME'
-          UniLabOS Conda-Pack Environment
-          ================================
-
-          This package contains a pre-built UniLabOS environment.
-
-          Installation Instructions:
-          --------------------------
-
-          Windows:
-            1. Extract unilab-pack-win-64.zip
-            2. Double-click install_unilab.bat (or run in cmd)
-            3. Follow the prompts
-
-          macOS/Linux:
-            1. Extract unilab-pack-{platform}.tar.gz
-            2. Run: bash install_unilab.sh
-            3. Follow the prompts
-
-          The installation script will:
-            - Automatically find your conda installation
-            - Extract the environment to conda's envs/unilab directory
-            - Run conda-unpack to finalize setup
-
-          After installation:
-            conda activate unilab
-            python verify_installation.py
-
-          Package Contents:
-            - install_unilab script (automatic installation)
-            - unilab-env-{platform}.tar.gz (packed environment)
-            - verify_installation.py (verification tool)
-            - README.txt (this file)
-
-          Branch: ${{ github.event.inputs.branch }}
-          Platform: ${{ matrix.platform }}
-          Python: 3.11.11
-          Build Date: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
-          EOFREADME
+          python scripts/create_readme.py ${{ matrix.platform }} ${{ github.event.inputs.branch }} dist-package/README.txt
 
           echo ""
           echo "Distribution package contents:"
           ls -lh dist-package/
           echo ""
 
-      - name: Create final distribution archive (ZIP/TAR.GZ)
-        if: steps.should_build.outputs.should_build == 'true'
+      - name: Create Windows ZIP archive
+        if: steps.should_build.outputs.should_build == 'true' && matrix.platform == 'win-64'
+        run: |
+          Write-Host "=========================================="
+          Write-Host "Creating Windows ZIP archive (ZIP64 support for large files)..."
+          Write-Host "Archive: unilab-pack-${{ matrix.platform }}.zip"
+          Write-Host "Contents: install_unilab.bat + unilab-env-${{ matrix.platform }}.tar.gz + extras"
+          Write-Host ""
+
+          # Use Python script with ZIP64 support instead of PowerShell Compress-Archive
+          # PowerShell Compress-Archive has a 2GB limitation
+          python scripts/create_zip_archive.py dist-package unilab-pack-${{ matrix.platform }}.zip
+
+          Write-Host "=========================================="
+          Write-Host ""
+          Write-Host "Final package created:"
+          Get-ChildItem unilab-pack-* | Format-Table Name, Length
+          Write-Host ""
+          Write-Host "Users can now:"
+          Write-Host "  1. Download unilab-pack-${{ matrix.platform }}.zip"
+          Write-Host "  2. Extract it"
+          Write-Host "  3. Run install_unilab.bat"
+          Write-Host ""
+
+      - name: Create Unix/Linux TAR.GZ archive
+        if: steps.should_build.outputs.should_build == 'true' && matrix.platform != 'win-64'
+        shell: bash
         run: |
           echo "=========================================="
-          if [ "${{ matrix.platform }}" == "win-64" ]; then
-            echo "Creating Windows ZIP archive (ZIP64 support for large files)..."
-            echo "Archive: unilab-pack-win-64.zip"
-            echo "Contents: install_unilab.bat + unilab-env-win-64.tar.gz + extras"
-            echo ""
-            
-            # Use Python script with ZIP64 support instead of PowerShell Compress-Archive
-            # PowerShell Compress-Archive has a 2GB limitation
-            python scripts/create_zip_archive.py dist-package unilab-pack-${{ matrix.platform }}.zip
-          else
-            echo "Creating Unix/Linux TAR.GZ archive..."
-            echo "Archive: unilab-pack-${{ matrix.platform }}.tar.gz"
-            echo "Contents: install_unilab.sh + unilab-env-${{ matrix.platform }}.tar.gz + extras"
-            tar -czf unilab-pack-${{ matrix.platform }}.tar.gz -C dist-package .
-          fi
+          echo "Creating Unix/Linux TAR.GZ archive..."
+          echo "Archive: unilab-pack-${{ matrix.platform }}.tar.gz"
+          echo "Contents: install_unilab.sh + unilab-env-${{ matrix.platform }}.tar.gz + extras"
+          tar -czf unilab-pack-${{ matrix.platform }}.tar.gz -C dist-package .
           echo "=========================================="
 
           echo ""
           echo "Final package created:"
           ls -lh unilab-pack-*
           echo ""
-
-          if [ "${{ matrix.platform }}" == "win-64" ]; then
-            echo "Users can now:"
-            echo "  1. Download unilab-pack-win-64.zip"
-            echo "  2. Extract it"
-            echo "  3. Run install_unilab.bat"
-          else
-            echo "Users can now:"
-            echo "  1. Download unilab-pack-${{ matrix.platform }}.tar.gz"
-            echo "  2. Extract it: tar -xzf unilab-pack-${{ matrix.platform }}.tar.gz"
-            echo "  3. Run: bash install_unilab.sh"
-          fi
+          echo "Users can now:"
+          echo "  1. Download unilab-pack-${{ matrix.platform }}.tar.gz"
+          echo "  2. Extract it: tar -xzf unilab-pack-${{ matrix.platform }}.tar.gz"
+          echo "  3. Run: bash install_unilab.sh"
           echo ""
 
       - name: Upload distribution package
