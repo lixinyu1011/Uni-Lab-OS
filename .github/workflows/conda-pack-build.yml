@@ -152,12 +152,123 @@ jobs:
           echo "Pack file created:"
           ls -lh unilab-env-${{ matrix.platform }}.tar.gz
 
-      - name: Upload packed environment
+      - name: Prepare distribution package (scripts + environment)
+        if: steps.should_build.outputs.should_build == 'true'
+        run: |
+          echo "=========================================="
+          echo "Creating distribution package..."
+          echo "Platform: ${{ matrix.platform }}"
+          echo "=========================================="
+          mkdir -p dist-package
+
+          # Copy packed environment
+          echo "Adding: unilab-env-${{ matrix.platform }}.tar.gz"
+          cp unilab-env-${{ matrix.platform }}.tar.gz dist-package/
+
+          # Copy installation script (platform specific)
+          if [ "${{ matrix.platform }}" == "win-64" ]; then
+            echo "Adding: install_unilab.bat"
+            cp scripts/install_unilab.bat dist-package/
+          else
+            echo "Adding: install_unilab.sh"
+            cp scripts/install_unilab.sh dist-package/
+            chmod +x dist-package/install_unilab.sh
+          fi
+
+          # Copy verification script
+          echo "Adding: verify_installation.py"
+          cp scripts/verify_installation.py dist-package/
+
+          # Create README
+          echo "Creating: README.txt"
+          cat > dist-package/README.txt << 'EOFREADME'
+          UniLabOS Conda-Pack Environment
+          ================================
+
+          This package contains a pre-built UniLabOS environment.
+
+          Installation Instructions:
+          --------------------------
+
+          Windows:
+            1. Extract unilab-pack-win-64.zip
+            2. Double-click install_unilab.bat (or run in cmd)
+            3. Follow the prompts
+
+          macOS/Linux:
+            1. Extract unilab-pack-{platform}.tar.gz
+            2. Run: bash install_unilab.sh
+            3. Follow the prompts
+
+          The installation script will:
+            - Automatically find your conda installation
+            - Extract the environment to conda's envs/unilab directory
+            - Run conda-unpack to finalize setup
+
+          After installation:
+            conda activate unilab
+            python verify_installation.py
+
+          Package Contents:
+            - install_unilab script (automatic installation)
+            - unilab-env-{platform}.tar.gz (packed environment)
+            - verify_installation.py (verification tool)
+            - README.txt (this file)
+
+          Branch: ${{ github.event.inputs.branch }}
+          Platform: ${{ matrix.platform }}
+          Python: 3.11.11
+          Build Date: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          EOFREADME
+
+          echo ""
+          echo "Distribution package contents:"
+          ls -lh dist-package/
+          echo ""
+
+      - name: Create final distribution archive (ZIP/TAR.GZ)
+        if: steps.should_build.outputs.should_build == 'true'
+        run: |
+          echo "=========================================="
+          if [ "${{ matrix.platform }}" == "win-64" ]; then
+            echo "Creating Windows ZIP archive..."
+            echo "Archive: unilab-pack-win-64.zip"
+            echo "Contents: install_unilab.bat + unilab-env-win-64.tar.gz + extras"
+            cd dist-package
+            powershell -Command "Compress-Archive -Path * -DestinationPath ../unilab-pack-${{ matrix.platform }}.zip -Force"
+            cd ..
+          else
+            echo "Creating Unix/Linux TAR.GZ archive..."
+            echo "Archive: unilab-pack-${{ matrix.platform }}.tar.gz"
+            echo "Contents: install_unilab.sh + unilab-env-${{ matrix.platform }}.tar.gz + extras"
+            tar -czf unilab-pack-${{ matrix.platform }}.tar.gz -C dist-package .
+          fi
+          echo "=========================================="
+
+          echo ""
+          echo "Final package created:"
+          ls -lh unilab-pack-*
+          echo ""
+
+          if [ "${{ matrix.platform }}" == "win-64" ]; then
+            echo "Users can now:"
+            echo "  1. Download unilab-pack-win-64.zip"
+            echo "  2. Extract it"
+            echo "  3. Run install_unilab.bat"
+          else
+            echo "Users can now:"
+            echo "  1. Download unilab-pack-${{ matrix.platform }}.tar.gz"
+            echo "  2. Extract it: tar -xzf unilab-pack-${{ matrix.platform }}.tar.gz"
+            echo "  3. Run: bash install_unilab.sh"
+          fi
+          echo ""
+
+      - name: Upload distribution package
         if: steps.should_build.outputs.should_build == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: unilab-env-${{ matrix.platform }}-${{ github.event.inputs.branch }}
-          path: unilab-env-${{ matrix.platform }}.tar.gz
+          name: unilab-pack-${{ matrix.platform }}-${{ github.event.inputs.branch }}
+          path: unilab-pack-*
           retention-days: 90
           if-no-files-found: error
 
@@ -170,9 +281,20 @@ jobs:
           echo "Platform: ${{ matrix.platform }}"
           echo "Branch: ${{ github.event.inputs.branch }}"
           echo "Python version: 3.11.11"
-          echo "Package size:"
-          ls -lh unilab-env-${{ matrix.platform }}.tar.gz
           echo ""
-          echo "This package contains the complete unilab environment."
-          echo "Download and extract to use the environment."
+          echo "Package contents:"
+          if [ "${{ matrix.platform }}" == "win-64" ]; then
+            echo "  - unilab-pack-${{ matrix.platform }}.zip"
+          else
+            echo "  - unilab-pack-${{ matrix.platform }}.tar.gz"
+          fi
+          echo "  - unilab-env-${{ matrix.platform }}.tar.gz (packed environment)"
+          echo "  - install_unilab script"
+          echo "  - verify_installation.py"
+          echo "  - README.txt"
+          echo ""
+          echo "Package size:"
+          ls -lh unilab-pack-* 2>/dev/null || ls -lh unilab-env-${{ matrix.platform }}.tar.gz
+          echo ""
+          echo "Download the artifact and run the install script!"
           echo "=========================================="
