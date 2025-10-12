@@ -544,6 +544,41 @@ laiyu_liquid:
           title: LiquidHandlerAspirate
           type: object
         type: LiquidHandlerAspirate
+      auto-add_resource:
+        feedback: {}
+        goal: {}
+        goal_default:
+          name: null
+          position: null
+          resource_type: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                name:
+                  type: string
+                position:
+                  items:
+                    type: number
+                  type: array
+                resource_type:
+                  type: string
+              required:
+              - name
+              - resource_type
+              - position
+              type: object
+            result: {}
+          required:
+          - goal
+          title: add_resource参数
+          type: object
+        type: UniLabJsonCommand
       dispense:
         feedback: {}
         goal:
@@ -1761,12 +1796,13 @@ laiyu_liquid:
           title: LiquidHandlerTransfer
           type: object
         type: LiquidHandlerTransfer
-    module: unilabos.devices.laiyu_liquid.core.LaiYu_Liquid:LaiYuLiquid
+    module: unilabos.devices.laiyu_liquid.core.laiyu_liquid_main:LaiYuLiquid
     status_types:
-      current_position: list
+      current_position: String
       current_volume: float
       is_connected: bool
       is_initialized: bool
+      status: dict
       tip_attached: bool
     type: python
   config_info:
@@ -1852,110 +1888,33 @@ laiyu_liquid:
   init_param_schema:
     config:
       properties:
-        acceleration:
-          default: 50.0
-          description: 加速度
-          type: number
-        address:
-          default: 1
-          description: 设备地址
-          type: integer
-        baudrate:
-          default: 9600
-          description: 波特率
-          type: integer
-        deck_depth:
-          default: 160.0
-          description: 工作台深度
-          type: number
-        deck_height:
-          default: 250.0
-          description: 工作台高度
-          type: number
-        deck_width:
-          default: 340.0
-          description: 工作台宽度
-          type: number
-        liquid_detection:
-          default: true
-          description: 液面检测功能
-          type: boolean
-        max_speed:
-          default: 100.0
-          description: 最大速度
-          type: number
-        max_volume:
-          default: 77000.0
-          description: 最大体积
-          type: number
-        min_volume:
-          default: 0.1
-          description: 最小体积
-          type: number
-        port:
-          default: /dev/cu.usbserial-3130
-          description: RS485转USB端口
+        config:
           type: string
-        safe_height:
-          default: 50.0
-          description: 安全高度
-          type: number
-        safety_margin_x_max:
-          default: 10.0
-          description: X轴最大安全边距
-          type: number
-        safety_margin_x_min:
-          default: 10.0
-          description: X轴最小安全边距
-          type: number
-        safety_margin_y_max:
-          default: 10.0
-          description: Y轴最大安全边距
-          type: number
-        safety_margin_y_min:
-          default: 10.0
-          description: Y轴最小安全边距
-          type: number
-        safety_margin_z_clearance:
-          default: 20.0
-          description: Z轴安全间隙
-          type: number
-        timeout:
-          default: 5.0
-          description: 通信超时时间
-          type: number
-        tip_pickup_depth:
-          default: 10.0
-          description: 吸头拾取深度
-          type: number
-      required:
-      - port
+      required: []
       type: object
     data:
       properties:
         current_position:
-          description: 当前XYZ位置
           items:
             type: number
           type: array
         current_volume:
-          description: 当前液体体积
           type: number
         is_connected:
-          description: 设备连接状态
           type: boolean
         is_initialized:
-          description: 设备初始化状态
           type: boolean
+        status:
+          type: object
         tip_attached:
-          description: 是否装载吸头
           type: boolean
       required:
       - current_position
-      - tip_attached
       - current_volume
       - is_connected
       - is_initialized
+      - tip_attached
+      - status
       type: object
   model:
     mesh: laiyu_liquid_handler
