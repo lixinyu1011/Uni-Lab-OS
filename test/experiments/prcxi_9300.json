@@ -22,8 +22,8 @@
                 "axis": "Left",
                 "channel_num": 8,
                 "setup": false,
-                "debug": false,
-                "simulator": false,
+                "debug": true,
+                "simulator": true,
                 "matrix_id": "71593"
             },
             "data": {},

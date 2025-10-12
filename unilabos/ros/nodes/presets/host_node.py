@@ -1,11 +1,11 @@
 import collections
-import copy
+from dataclasses import dataclass, field
 import json
 import threading
 import time
 import traceback
 import uuid
-from typing import Optional, Dict, Any, List, ClassVar, Set, Union
+from typing import TYPE_CHECKING, Optional, Dict, Any, List, ClassVar, Set, Union
 
 from action_msgs.msg import GoalStatus
 from geometry_msgs.msg import Point
@@ -15,16 +15,14 @@ from rclpy.service import Service
 from unilabos_msgs.msg import Resource  # type: ignore
 from unilabos_msgs.srv import (
     ResourceAdd,
-    ResourceGet,
     ResourceDelete,
     ResourceUpdate,
     ResourceList,
     SerialCommand,
 )  # type: ignore
+from unilabos_msgs.srv._serial_command import SerialCommand_Request, SerialCommand_Response
 from unique_identifier_msgs.msg import UUID
 
-from unilabos.app.register import register_devices_and_resources
-from unilabos.config.config import BasicConfig
 from unilabos.registry.registry import lab_registry
 from unilabos.resources.graphio import initialize_resource
 from unilabos.resources.registry import add_schema
@@ -38,8 +36,22 @@ from unilabos.ros.msgs.message_converter import (
 )
 from unilabos.ros.nodes.base_device_node import BaseROS2DeviceNode, ROS2DeviceNode, DeviceNodeResourceTracker
 from unilabos.ros.nodes.presets.controller_node import ControllerNode
+from unilabos.ros.nodes.resource_tracker import (
+    ResourceDictInstance,
+    ResourceTreeSet,
+    ResourceTreeInstance,
+)
 from unilabos.utils.exception import DeviceClassInvalid
 from unilabos.utils.type_check import serialize_result_info
+from unilabos.registry.placeholder_type import ResourceSlot, DeviceSlot
+
+if TYPE_CHECKING:
+    from unilabos.app.ws_client import QueueItem, WSResourceChatData
+
+
+@dataclass
+class DeviceActionStatus:
+    job_ids: Dict[str, float] = field(default_factory=dict)
 
 
 class HostNode(BaseROS2DeviceNode):
@@ -51,6 +63,10 @@ class HostNode(BaseROS2DeviceNode):
 
     _instance: ClassVar[Optional["HostNode"]] = None
     _ready_event: ClassVar[threading.Event] = threading.Event()
+    _device_action_status: ClassVar[collections.defaultdict[str, DeviceActionStatus]] = collections.defaultdict(
+        DeviceActionStatus
+    )
+    _resource_tracker: ClassVar[DeviceNodeResourceTracker] = DeviceNodeResourceTracker()  # 资源管理器实例
 
     @classmethod
     def get_instance(cls, timeout=None) -> Optional["HostNode"]:
@@ -61,8 +77,8 @@ class HostNode(BaseROS2DeviceNode):
     def __init__(
         self,
         device_id: str,
-        devices_config: Dict[str, Any],
-        resources_config: list,
+        devices_config: ResourceTreeSet,
+        resources_config: ResourceTreeSet,
         resources_edge_config: list[dict],
         physical_setup_graph: Optional[Dict[str, Any]] = None,
         controllers_config: Optional[Dict[str, Any]] = None,
@@ -92,7 +108,7 @@ class HostNode(BaseROS2DeviceNode):
             action_value_mappings=lab_registry.device_type_registry["host_node"]["class"]["action_value_mappings"],
             hardware_interface={},
             print_publish=False,
-            resource_tracker=DeviceNodeResourceTracker(),  # host node并不是通过initialize 包一层传进来的
+            resource_tracker=self._resource_tracker,  # host node并不是通过initialize 包一层传进来的
         )
 
         # 设置单例实例
@@ -101,7 +117,7 @@ class HostNode(BaseROS2DeviceNode):
         # 初始化配置
         self.server_latest_timestamp = 0.0  #
         self.devices_config = devices_config
-        self.resources_config = resources_config
+        self.resources_config = resources_config  # 直接保存 ResourceTreeSet
         self.resources_edge_config = resources_edge_config
         self.physical_setup_graph = physical_setup_graph
         if controllers_config is None:
@@ -136,6 +152,24 @@ class HostNode(BaseROS2DeviceNode):
                 "/devices/host_node/test_latency",
                 callback_group=self.callback_group,
             ),
+            "/devices/host_node/test_resource": ActionClient(
+                self,
+                lab_registry.EmptyIn,
+                "/devices/host_node/test_resource",
+                callback_group=self.callback_group,
+            ),
+            "/devices/host_node/_execute_driver_command": ActionClient(
+                self,
+                lab_registry.StrSingleInput,
+                "/devices/host_node/_execute_driver_command",
+                callback_group=self.callback_group,
+            ),
+            "/devices/host_node/_execute_driver_command_async": ActionClient(
+                self,
+                lab_registry.StrSingleInput,
+                "/devices/host_node/_execute_driver_command_async",
+                callback_group=self.callback_group,
+            ),
         }  # 用来存储多个ActionClient实例
         self._action_value_mappings: Dict[str, Dict] = (
             {}
@@ -151,21 +185,14 @@ class HostNode(BaseROS2DeviceNode):
 
         self.device_status = {}  # 用来存储设备状态
         self.device_status_timestamps = {}  # 用来存储设备状态最后更新时间
-        if BasicConfig.upload_registry:
-            from unilabos.app.mq import mqtt_client
-            register_devices_and_resources(mqtt_client, lab_registry)
-        else:
-            self.lab_logger().warning("本次启动注册表不报送云端，如果您需要联网调试，请使用unilab-register命令进行单独报送，或者在启动命令增加--upload_registry")
-        time.sleep(1) # 等待MQTT连接稳定
+        time.sleep(1)  # 等待通信连接稳定
         # 首次发现网络中的设备
         self._discover_devices()
 
         # 初始化所有本机设备节点，多一次过滤，防止重复初始化
-        for device_id, device_config in devices_config.items():
-            if device_config.get("type", "device") != "device":
-                self.lab_logger().debug(
-                    f"[Host Node] Skipping type {device_config['type']} {device_id} already existed, skipping."
-                )
+        for device_config in devices_config.root_nodes:
+            device_id = device_config.res_content.id
+            if device_config.res_content.type != "device":
                 continue
             if device_id not in self.devices_names:
                 self.initialize_device(device_id, device_config)
@@ -180,56 +207,81 @@ class HostNode(BaseROS2DeviceNode):
             ].items():
                 controller_config["update_rate"] = update_rate
                 self.initialize_controller(controller_id, controller_config)
-        resources_config.insert(
-            0,
-            {
-                "id": "host_node",
-                "name": "host_node",
-                "parent": None,
-                "type": "device",
-                "class": "host_node",
-                "position": {"x": 0, "y": 0, "z": 0},
-                "config": {},
-                "data": {},
-                "children": [],
-            },
-        )
-        resource_with_parent_name = []
-        resource_ids_to_instance = {i["id"]: i for i in resources_config}
-        resource_name_to_with_parent_name = {}
-        for res in resources_config:
-            # if res.get("parent") and res.get("type") == "device" and res.get("class"):
-            #     parent_id = res.get("parent")
-            #     parent_res = resource_ids_to_instance[parent_id]
-            #     if parent_res.get("type") == "device" and parent_res.get("class"):
-            #         resource_with_parent_name.append(copy.deepcopy(res))
-            #         resource_name_to_with_parent_name[resource_with_parent_name[-1]["id"]] = f"{parent_res['id']}/{res['id']}"
-            #         resource_with_parent_name[-1]["id"] = f"{parent_res['id']}/{res['id']}"
-            #         continue
-            resource_with_parent_name.append(copy.deepcopy(res))
-        # for edge in self.resources_edge_config:
-        #     edge["source"] = resource_name_to_with_parent_name.get(edge.get("source"), edge.get("source"))
-        #     edge["target"] = resource_name_to_with_parent_name.get(edge.get("target"), edge.get("target"))
+        # 创建 host_node 作为一个单独的 ResourceTree
+
+        host_node_dict = {
+            "id": "host_node",
+            "uuid": str(uuid.uuid4()),
+            "parent_uuid": "",
+            "name": "host_node",
+            "type": "device",
+            "class": "host_node",
+            "config": {},
+            "data": {},
+            "children": [],
+            "description": "",
+            "schema": {},
+            "model": {},
+            "icon": "",
+        }
+
+        # 创建 host_node 的 ResourceTree
+        host_node_instance = ResourceDictInstance.get_resource_instance_from_dict(host_node_dict)
+        host_node_tree = ResourceTreeInstance(host_node_instance)
+        resources_config.trees.insert(0, host_node_tree)
         try:
             for bridge in self.bridges:
-                if hasattr(bridge, "resource_add"):
+                if hasattr(bridge, "resource_tree_add") and resources_config:
                     from unilabos.app.web.client import HTTPClient
+
                     client: HTTPClient = bridge
                     resource_start_time = time.time()
-                    resource_add_res = client.resource_add(add_schema(resource_with_parent_name), False)
+                    # 传递 ResourceTreeSet 对象，在 client 中转换为字典并获取 UUID 映射
+                    uuid_mapping = client.resource_tree_add(resources_config, "", True)
                     resource_end_time = time.time()
                     self.lab_logger().info(
                         f"[Host Node-Resource] 物料上传 {round(resource_end_time - resource_start_time, 5) * 1000} ms"
                     )
-                    resource_add_res = client.resource_edge_add(self.resources_edge_config, False)
+                    for edge in self.resources_edge_config:
+                        edge["source_uuid"] = uuid_mapping.get(edge["source_uuid"], edge["source_uuid"])
+                        edge["target_uuid"] = uuid_mapping.get(edge["target_uuid"], edge["target_uuid"])
+                    resource_add_res = client.resource_edge_add(self.resources_edge_config)
                     resource_edge_end_time = time.time()
                     self.lab_logger().info(
                         f"[Host Node-Resource] 物料关系上传 {round(resource_edge_end_time - resource_end_time, 5) * 1000} ms"
                     )
+                    # resources_config 通过各个设备的 resource_tracker 进行uuid更新，利用uuid_mapping
+                    # resources_config 的 root node 是
+                    # 创建反向映射：new_uuid -> old_uuid
+                    reverse_uuid_mapping = {new_uuid: old_uuid for old_uuid, new_uuid in uuid_mapping.items()}
+                    for tree in resources_config.trees:
+                        node = tree.root_node
+                        if node.res_content.type == "device":
+                            for sub_node in node.children:
+                                # 只有二级子设备
+                                if sub_node.res_content.type != "device":
+                                    # slave节点走c2s更新接口，拿到add自行update uuid
+                                    device_tracker = self.devices_instances[node.res_content.id].resource_tracker
+                                    # sub_node.res_content.uuid 已经是新UUID，需要用旧UUID去查找
+                                    old_uuid = reverse_uuid_mapping.get(sub_node.res_content.uuid)
+                                    if old_uuid:
+                                        # 找到旧UUID，使用UUID查找
+                                        resource_instance = device_tracker.figure_resource({"uuid": old_uuid})
+                                    else:
+                                        # 未找到旧UUID，使用name查找
+                                        resource_instance = device_tracker.figure_resource(
+                                            {"name": sub_node.res_content.name}
+                                        )
+                                    device_tracker.loop_update_uuid(resource_instance, uuid_mapping)
+                        else:
+                            try:
+                                for plr_resource in ResourceTreeSet([tree]).to_plr_resources():
+                                    self.resource_tracker.add_resource(plr_resource)
+                            except Exception as ex:
+                                self.lab_logger().warning("[Host Node-Resource] 根节点物料序列化失败！")
         except Exception as ex:
             self.lab_logger().error("[Host Node-Resource] 添加物料出错！")
             self.lab_logger().error(traceback.format_exc())
-
         # 创建定时器，定期发现设备
         self._discovery_timer = self.create_timer(
             discovery_interval, self._discovery_devices_callback, callback_group=ReentrantCallbackGroup()
@@ -278,23 +330,23 @@ class HostNode(BaseROS2DeviceNode):
                 self.devices_names[edge_device_id] = namespace
                 self._create_action_clients_for_device(device_id, namespace)
                 self._online_devices.add(device_key)
-                sclient = self.create_client(SerialCommand, f"/srv{namespace}/query_host_name")
+                sclient = self.create_client(SerialCommand, f"/srv{namespace}/re_register_device")
                 threading.Thread(
                     target=self._send_re_register,
                     args=(sclient,),
                     daemon=True,
-                    name=f"ROSDevice{self.device_id}_query_host_name_{namespace}",
+                    name=f"ROSDevice{self.device_id}_re_register_device_{namespace}",
                 ).start()
             elif device_key not in self._online_devices:
                 # 设备重新上线
                 self.lab_logger().info(f"[Host Node] Device reconnected: {device_key}")
                 self._online_devices.add(device_key)
-                sclient = self.create_client(SerialCommand, f"/srv{namespace}/query_host_name")
+                sclient = self.create_client(SerialCommand, f"/srv{namespace}/re_register_device")
                 threading.Thread(
                     target=self._send_re_register,
                     args=(sclient,),
                     daemon=True,
-                    name=f"ROSDevice{self.device_id}_query_host_name_{namespace}",
+                    name=f"ROSDevice{self.device_id}_re_register_device_{namespace}",
                 ).start()
 
         # 检测离线设备
@@ -340,9 +392,10 @@ class HostNode(BaseROS2DeviceNode):
                     self.lab_logger().trace(f"[Host Node] Created ActionClient (Discovery): {action_id}")
                     action_name = action_id[len(namespace) + 1 :]
                     edge_device_id = namespace[9:]
-                    # from unilabos.app.mq import mqtt_client
+                    # from unilabos.app.comm_factory import get_communication_client
+                    # comm_client = get_communication_client()
                     # info_with_schema = ros_action_to_json_schema(action_type)
-                    # mqtt_client.publish_actions(action_name, {
+                    # comm_client.publish_actions(action_name, {
                     #     "device_id": edge_device_id,
                     #     "device_type": "",
                     #     "action_name": action_name,
@@ -358,14 +411,16 @@ class HostNode(BaseROS2DeviceNode):
         bind_parent_ids: list[str],
         bind_locations: list[Point],
         other_calling_params: list[str],
-    ):
+    ) -> List[str]:
         responses = []
         for resource, device_id, bind_parent_id, bind_location, other_calling_param in zip(
             resources, device_ids, bind_parent_ids, bind_locations, other_calling_params
         ):
             # 这里要求device_id传入必须是edge_device_id
             if device_id not in self.devices_names:
-                self.lab_logger().error(f"[Host Node] Device {device_id} not found in devices_names. Create resource failed.")
+                self.lab_logger().error(
+                    f"[Host Node] Device {device_id} not found in devices_names. Create resource failed."
+                )
                 raise ValueError(f"[Host Node] Device {device_id} not found in devices_names. Create resource failed.")
 
             device_key = f"{self.devices_names[device_id]}/{device_id}"
@@ -393,8 +448,8 @@ class HostNode(BaseROS2DeviceNode):
                 },
                 ensure_ascii=False,
             )
-            response = await sclient.call_async(request)
-            responses.append(response)
+            response: SerialCommand.Response = await sclient.call_async(request)
+            responses.append(response.response)
         return responses
 
     async def create_resource(
@@ -425,10 +480,12 @@ class HostNode(BaseROS2DeviceNode):
             res_creation_input.update(
                 {
                     "data": {
-                        "liquids": [{
-                        "liquid_type": liquid_type[0] if liquid_type else None,
-                        "liquid_volume": liquid_volume[0] if liquid_volume else None,
-                        }]
+                        "liquids": [
+                            {
+                                "liquid_type": liquid_type[0] if liquid_type else None,
+                                "liquid_volume": liquid_volume[0] if liquid_volume else None,
+                            }
+                        ]
                     }
                 }
             )
@@ -451,11 +508,22 @@ class HostNode(BaseROS2DeviceNode):
             )
         ]
 
-        response = await self.create_resource_detailed(resources, device_ids, bind_parent_id, bind_location, other_calling_param)
+        response: List[str] = await self.create_resource_detailed(
+            resources, device_ids, bind_parent_id, bind_location, other_calling_param
+        )
 
-        return response
+        try:
+            new_li = []
+            for i in response:
+                res = json.loads(i)
+                new_li.append(res)
+            return {"resources": new_li, "liquid_input_resources": new_li}
+        except Exception as ex:
+            pass
+        _n = "\n"
+        raise ValueError(f"创建资源时失败！\n{_n.join(response)}")
 
-    def initialize_device(self, device_id: str, device_config: Dict[str, Any]) -> None:
+    def initialize_device(self, device_id: str, device_config: ResourceDictInstance) -> None:
         """
         根据配置初始化设备，
 
@@ -468,9 +536,8 @@ class HostNode(BaseROS2DeviceNode):
         """
         self.lab_logger().info(f"[Host Node] Initializing device: {device_id}")
 
-        device_config_copy = copy.deepcopy(device_config)
         try:
-            d = initialize_device_from_dict(device_id, device_config_copy)
+            d = initialize_device_from_dict(device_id, device_config.get_nested_dict())
         except DeviceClassInvalid as e:
             self.lab_logger().error(f"[Host Node] Device class invalid: {e}")
             d = None
@@ -482,7 +549,9 @@ class HostNode(BaseROS2DeviceNode):
         self.devices_instances[device_id] = d
         # noinspection PyProtectedMember
         for action_name, action_value_mapping in d._ros_node._action_value_mappings.items():
-            if action_name.startswith("auto-") or str(action_value_mapping.get("type", "")).startswith("UniLabJsonCommand"):
+            if action_name.startswith("auto-") or str(action_value_mapping.get("type", "")).startswith(
+                "UniLabJsonCommand"
+            ):
                 continue
             action_id = f"/devices/{device_id}/{action_name}"
             if action_id not in self._action_clients:
@@ -491,9 +560,10 @@ class HostNode(BaseROS2DeviceNode):
                 self.lab_logger().trace(
                     f"[Host Node] Created ActionClient (Local): {action_id}"
                 )  # 子设备再创建用的是Discover发现的
-                # from unilabos.app.mq import mqtt_client
+                # from unilabos.app.comm_factory import get_communication_client
+                # comm_client = get_communication_client()
                 # info_with_schema = ros_action_to_json_schema(action_type)
-                # mqtt_client.publish_actions(action_name, {
+                # comm_client.publish_actions(action_name, {
                 #     "device_id": device_id,
                 #     "device_type": device_config["class"],
                 #     "action_name": action_name,
@@ -523,7 +593,7 @@ class HostNode(BaseROS2DeviceNode):
 
                 # 解析设备名和属性名
                 parts = topic.split("/")
-                if len(parts) >= 4:  # 可能有ProtocolNode，创建更长的设备
+                if len(parts) >= 4:  # 可能有WorkstationNode，创建更长的设备
                     device_id = "/".join(parts[2:-1])
                     property_name = parts[-1]
 
@@ -591,46 +661,39 @@ class HostNode(BaseROS2DeviceNode):
                     if hasattr(bridge, "publish_device_status"):
                         bridge.publish_device_status(self.device_status, device_id, property_name)
                         if bCreate:
-                            self.lab_logger().trace(
-                                f"Status created: {device_id}.{property_name} = {msg.data}"
-                            )
+                            self.lab_logger().trace(f"Status created: {device_id}.{property_name} = {msg.data}")
                         else:
-                            self.lab_logger().debug(
-                               f"Status updated: {device_id}.{property_name} = {msg.data}"
-                            )
+                            self.lab_logger().debug(f"Status updated: {device_id}.{property_name} = {msg.data}")
 
     def send_goal(
         self,
-        device_id: str,
+        item: "QueueItem",
         action_type: str,
-        action_name: str,
         action_kwargs: Dict[str, Any],
-        goal_uuid: Optional[str] = None,
         server_info: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
         向设备发送目标请求
 
         Args:
-            device_id: 设备ID
             action_type: 动作类型
-            action_name: 动作名称
             action_kwargs: 动作参数
-            goal_uuid: 目标UUID，如果为None则自动生成
             server_info: 服务器发送信息，包含发送时间戳等
         """
-        if BasicConfig.direct_end:
-            raise ValueError("direct_end")
-
+        u = uuid.UUID(item.job_id)
+        device_id = item.device_id
+        action_name = item.action_name
         if action_type.startswith("UniLabJsonCommand"):
             if action_name.startswith("auto-"):
                 action_name = action_name[5:]
             action_id = f"/devices/{device_id}/_execute_driver_command"
             action_kwargs = {
-                "string": json.dumps({
-                    "function_name": action_name,
-                    "function_args": action_kwargs,
-                })
+                "string": json.dumps(
+                    {
+                        "function_name": action_name,
+                        "function_args": action_kwargs,
+                    }
+                )
             }
             if action_type.startswith("UniLabJsonCommandAsync"):
                 action_id = f"/devices/{device_id}/_execute_driver_command_async"
@@ -647,79 +710,73 @@ class HostNode(BaseROS2DeviceNode):
 
         self.lab_logger().info(f"[Host Node] Sending goal for {action_id}: {goal_msg}")
         action_client.wait_for_server()
-
-        uuid_str = goal_uuid
-        if goal_uuid is not None:
-            u = uuid.UUID(goal_uuid)
-            goal_uuid_obj = UUID(uuid=list(u.bytes))
-        else:
-            goal_uuid_obj = None
+        goal_uuid_obj = UUID(uuid=list(u.bytes))
 
         future = action_client.send_goal_async(
             goal_msg,
-            feedback_callback=lambda feedback_msg: self.feedback_callback(action_id, uuid_str, feedback_msg),
+            feedback_callback=lambda feedback_msg: self.feedback_callback(item, action_id, feedback_msg),
             goal_uuid=goal_uuid_obj,
         )
-        future.add_done_callback(lambda future: self.goal_response_callback(action_id, uuid_str, future))
+        future.add_done_callback(lambda future: self.goal_response_callback(item, action_id, future))
 
-    def goal_response_callback(self, action_id: str, uuid_str: Optional[str], future) -> None:
+    def goal_response_callback(self, item: "QueueItem", action_id: str, future) -> None:
         """目标响应回调"""
         goal_handle = future.result()
         if not goal_handle.accepted:
-            self.lab_logger().warning(f"[Host Node] Goal {action_id} ({uuid_str}) rejected")
+            self.lab_logger().warning(f"[Host Node] Goal {item.action_name} ({item.job_id}) rejected")
             return
 
-        self.lab_logger().info(f"[Host Node] Goal {action_id} ({uuid_str}) accepted")
-        if uuid_str:
-            self._goals[uuid_str] = goal_handle
-            goal_handle.get_result_async().add_done_callback(
-                lambda future: self.get_result_callback(action_id, uuid_str, future)
-            )
+        self.lab_logger().info(f"[Host Node] Goal {action_id} ({item.job_id}) accepted")
+        self._goals[item.job_id] = goal_handle
+        goal_handle.get_result_async().add_done_callback(
+            lambda future: self.get_result_callback(item, action_id, future)
+        )
 
-    def feedback_callback(self, action_id: str, uuid_str: Optional[str], feedback_msg) -> None:
+    def feedback_callback(self, item: "QueueItem", action_id: str, feedback_msg) -> None:
         """反馈回调"""
         feedback_data = convert_from_ros_msg(feedback_msg)
         feedback_data.pop("goal_id")
-        self.lab_logger().debug(f"[Host Node] Feedback for {action_id} ({uuid_str}): {feedback_data}")
+        self.lab_logger().trace(f"[Host Node] Feedback for {action_id} ({item.job_id}): {feedback_data}")
 
-        if uuid_str:
-            for bridge in self.bridges:
-                if hasattr(bridge, "publish_job_status"):
-                    bridge.publish_job_status(feedback_data, uuid_str, "running")
+        for bridge in self.bridges:
+            if hasattr(bridge, "publish_job_status"):
+                bridge.publish_job_status(feedback_data, item, "running")
 
-    def get_result_callback(self, action_id: str, uuid_str: Optional[str], future) -> None:
+    def get_result_callback(self, item: "QueueItem", action_id: str, future) -> None:
         """获取结果回调"""
+        job_id = item.job_id
         result_msg = future.result().result
         result_data = convert_from_ros_msg(result_msg)
         status = "success"
         return_info_str = result_data.get("return_info")
-
         if return_info_str is not None:
             try:
-                ret = json.loads(return_info_str)
-                suc = ret.get("suc", False)
+                return_info = json.loads(return_info_str)
+                suc = return_info.get("suc", False)
                 if not suc:
                     status = "failed"
             except json.JSONDecodeError:
                 status = "failed"
+                return_info = serialize_result_info("", False, result_data)
+                self.lab_logger().critical("错误的return_info类型，请断点修复")
         else:
             # 无 return_info 字段时，回退到 success 字段（若存在）
             suc_field = result_data.get("success")
             if isinstance(suc_field, bool):
                 status = "success" if suc_field else "failed"
-                return_info_str = serialize_result_info("", suc_field, result_data)
+                return_info = serialize_result_info("", suc_field, result_data)
             else:
                 # 最保守的回退：标记失败并返回空JSON
                 status = "failed"
-                return_info_str = serialize_result_info("缺少return_info", False, result_data)
+                return_info = serialize_result_info("缺少return_info", False, result_data)
 
-        self.lab_logger().info(f"[Host Node] Result for {action_id} ({uuid_str}): {status}")
+        self.lab_logger().info(f"[Host Node] Result for {action_id} ({job_id}): {status}")
         self.lab_logger().debug(f"[Host Node] Result data: {result_data}")
 
-        if uuid_str:
+        if job_id:
             for bridge in self.bridges:
                 if hasattr(bridge, "publish_job_status"):
-                    bridge.publish_job_status(result_data, uuid_str, status, return_info_str)
+                    bridge.publish_job_status(result_data, item, status, return_info)
 
     def cancel_goal(self, goal_uuid: str) -> None:
         """取消目标"""
@@ -729,14 +786,14 @@ class HostNode(BaseROS2DeviceNode):
         else:
             self.lab_logger().warning(f"[Host Node] Goal {goal_uuid} not found, cannot cancel")
 
-    def get_goal_status(self, uuid_str: str) -> int:
+    def get_goal_status(self, job_id: str) -> int:
         """获取目标状态"""
-        if uuid_str in self._goals:
-            g = self._goals[uuid_str]
+        if job_id in self._goals:
+            g = self._goals[job_id]
             status = g.status
-            self.lab_logger().debug(f"[Host Node] Goal status for {uuid_str}: {status}")
+            self.lab_logger().debug(f"[Host Node] Goal status for {job_id}: {status}")
             return status
-        self.lab_logger().warning(f"[Host Node] Goal {uuid_str} not found, status unknown")
+        self.lab_logger().warning(f"[Host Node] Goal {job_id} not found, status unknown")
         return GoalStatus.STATUS_UNKNOWN
 
     """Controller Node"""
@@ -774,7 +831,7 @@ class HostNode(BaseROS2DeviceNode):
                 ResourceAdd, "/resources/add", self._resource_add_callback, callback_group=ReentrantCallbackGroup()
             ),
             "resource_get": self.create_service(
-                ResourceGet, "/resources/get", self._resource_get_callback, callback_group=ReentrantCallbackGroup()
+                SerialCommand, "/resources/get", self._resource_get_callback, callback_group=ReentrantCallbackGroup()
             ),
             "resource_delete": self.create_service(
                 ResourceDelete,
@@ -797,7 +854,126 @@ class HostNode(BaseROS2DeviceNode):
                 self._node_info_update_callback,
                 callback_group=ReentrantCallbackGroup(),
             ),
+            "c2s_update_resource_tree": self.create_service(
+                SerialCommand,
+                "/c2s_update_resource_tree",
+                self._resource_tree_update_callback,
+                callback_group=ReentrantCallbackGroup(),
+            ),
         }
+
+    def _resource_tree_action_add_callback(self, data: dict, response: SerialCommand_Response):  # OK
+        resource_tree_set = ResourceTreeSet.load(data["data"])
+        mount_uuid = data["mount_uuid"]
+        first_add = data["first_add"]
+
+        self.lab_logger().info(
+            f"[Host Node-Resource] Loaded ResourceTreeSet with {len(resource_tree_set.trees)} trees, "
+            f"{len(resource_tree_set.all_nodes)} total nodes"
+        )
+
+        # 处理资源添加逻辑
+        success = False
+        uuid_mapping = {}
+        if len(self.bridges) > 0:
+            from unilabos.app.web.client import HTTPClient
+
+            client: HTTPClient = self.bridges[-1]
+            resource_start_time = time.time()
+            uuid_mapping = client.resource_tree_add(resource_tree_set, mount_uuid, first_add)
+            success = True
+            resource_end_time = time.time()
+            self.lab_logger().info(
+                f"[Host Node-Resource] 物料创建上传 {round(resource_end_time - resource_start_time, 5) * 1000} ms"
+            )
+            if uuid_mapping:
+                self.lab_logger().info(f"[Host Node-Resource] UUID映射: {len(uuid_mapping)} 个节点")
+
+        if success:
+            from unilabos.resources.graphio import physical_setup_graph
+
+            # 将资源添加到本地图中
+            for node in resource_tree_set.all_nodes:
+                resource_dict = node.res_content.model_dump(by_alias=True)
+                if resource_dict.get("id") not in physical_setup_graph.nodes:
+                    physical_setup_graph.add_node(resource_dict["id"], **resource_dict)
+                else:
+                    physical_setup_graph.nodes[resource_dict["id"]]["data"].update(resource_dict.get("data", {}))
+
+        response.response = json.dumps(uuid_mapping) if success else "FAILED"
+        self.lab_logger().info(f"[Host Node-Resource] Resource tree add completed, success: {success}")
+
+    def _resource_tree_action_get_callback(self, data: dict, response: SerialCommand_Response):  # OK
+        uuid_list: List[str] = data["data"]
+        with_children: bool = data["with_children"]
+        from unilabos.app.web.client import http_client
+
+        resource_response = http_client.resource_tree_get(uuid_list, with_children)
+        response.response = json.dumps(resource_response)
+
+    def _resource_tree_action_remove_callback(self, data: dict, response: SerialCommand_Response):
+        """
+        子节点通知Host物料树删除
+        """
+        self.lab_logger().info(f"[Host Node-Resource] Resource tree remove request received")
+        response.response = "OK"
+        self.lab_logger().info(f"[Host Node-Resource] Resource tree remove completed")
+
+    def _resource_tree_action_update_callback(self, data: dict, response: SerialCommand_Response):
+        """
+        子节点通知Host物料树更新
+        """
+        resource_tree_set = ResourceTreeSet.load(data["data"])
+
+        self.lab_logger().info(
+            f"[Host Node-Resource] Loaded ResourceTreeSet with {len(resource_tree_set.trees)} trees, "
+            f"{len(resource_tree_set.all_nodes)} total nodes"
+        )
+
+        from unilabos.app.web.client import http_client
+
+        resource_start_time = time.time()
+        uuid_mapping = http_client.resource_tree_update(resource_tree_set, "", False)
+        success = bool(uuid_mapping)
+        resource_end_time = time.time()
+        self.lab_logger().info(
+            f"[Host Node-Resource] 物料更新上传 {round(resource_end_time - resource_start_time, 5) * 1000} ms"
+        )
+        if uuid_mapping:
+            self.lab_logger().info(f"[Host Node-Resource] UUID映射: {len(uuid_mapping)} 个节点")
+        # 还需要加入到资源图中，暂不实现，考虑资源图新的获取方式
+        response.response = json.dumps(uuid_mapping)
+        self.lab_logger().info(f"[Host Node-Resource] Resource tree add completed, success: {success}")
+
+    def _resource_tree_update_callback(self, request: SerialCommand_Request, response: SerialCommand_Response):
+        """
+        子节点通知Host物料树更新
+
+        接收序列化的 ResourceTreeSet 数据并进行处理
+        """
+        self.lab_logger().info(f"[Host Node-Resource] Resource tree add request received")
+        try:
+            # 解析请求数据
+            data = json.loads(request.command)
+            action = data["action"]
+            data = data["data"]
+            if action == "add":
+                self._resource_tree_action_add_callback(data, response)
+            elif action == "get":
+                self._resource_tree_action_get_callback(data, response)
+            elif action == "update":
+                self._resource_tree_action_update_callback(data, response)
+            elif action == "remove":
+                self._resource_tree_action_remove_callback(data, response)
+            else:
+                self.lab_logger().error(f"[Host Node-Resource] Invalid action: {action}")
+                response.response = "ERROR"
+        except Exception as e:
+            self.lab_logger().error(f"[Host Node-Resource] Error adding resource tree: {e}")
+            self.lab_logger().error(traceback.format_exc())
+            response.response = f"ERROR: {str(e)}"
+
+        return response
 
     def _node_info_update_callback(self, request, response):
         """
@@ -805,7 +981,7 @@ class HostNode(BaseROS2DeviceNode):
         """
         self.lab_logger().info(f"[Host Node] Node info update request received: {request}")
         try:
-            from unilabos.app.mq import mqtt_client
+            from unilabos.app.communication import get_communication_client
 
             info = json.loads(request.command)
             if "SYNC_SLAVE_NODE_INFO" in info:
@@ -814,9 +990,10 @@ class HostNode(BaseROS2DeviceNode):
                 edge_device_id = info["edge_device_id"]
                 self.device_machine_names[edge_device_id] = machine_name
             else:
+                comm_client = get_communication_client()
                 registry_config = info["registry_config"]
                 for device_config in registry_config:
-                    mqtt_client.publish_registry(device_config["id"], device_config)
+                    comm_client.publish_registry(device_config["id"], device_config)
             self.lab_logger().debug(f"[Host Node] Node info update: {info}")
             response.response = "OK"
         except Exception as e:
@@ -843,14 +1020,16 @@ class HostNode(BaseROS2DeviceNode):
         success = False
         if len(self.bridges) > 0:  # 边的提交待定
             from unilabos.app.web.client import HTTPClient
+
             client: HTTPClient = self.bridges[-1]
-            r = client.resource_add(add_schema(resources), False)
+            r = client.resource_add(add_schema(resources))
             success = bool(r)
 
         response.success = success
 
         if success:
             from unilabos.resources.graphio import physical_setup_graph
+
             for resource in resources:
                 if resource.get("id") not in physical_setup_graph.nodes:
                     physical_setup_graph.add_node(resource["id"], **resource)
@@ -860,7 +1039,13 @@ class HostNode(BaseROS2DeviceNode):
         self.lab_logger().info(f"[Host Node-Resource] Add request completed, success: {success}")
         return response
 
-    def _resource_get_callback(self, request: ResourceGet.Request, response: ResourceGet.Response):
+    def _resource_get_process(self, data: Dict[str, Any]):
+        r = data["data"]
+        self.lab_logger().debug(f"[Host Node-Resource] Retrieved from bridge: {len(r)} resources")
+        resources = [convert_to_ros_msg(Resource, resource) for resource in r]
+        return resources
+
+    def _resource_get_callback(self, request: SerialCommand.Request, response: SerialCommand.Response):
         """
         获取资源回调
 
@@ -873,23 +1058,13 @@ class HostNode(BaseROS2DeviceNode):
         Returns:
             响应对象，包含查询到的资源
         """
-        self.lab_logger().info(f"[Host Node-Resource] Get request for ID: {request.id}")
-
-        if len(self.bridges) > 0:
-            # 云上物料服务，根据 id 查询物料
-            try:
-                r = self.bridges[-1].resource_get(request.id, request.with_children)["data"]
-                self.lab_logger().debug(f"[Host Node-Resource] Retrieved from bridge: {len(r)} resources")
-            except Exception as e:
-                self.lab_logger().error(f"[Host Node-Resource] Error retrieving from bridge: {str(e)}")
-                r = [resource for resource in self.resources_config if resource.get("id") == request.id]
-                self.lab_logger().warning(f"[Host Node-Resource] Retrieved from local: {len(r)} resources")
-        else:
-            # 本地物料服务，根据 id 查询物料
-            r = [resource for resource in self.resources_config if resource.get("id") == request.id]
-            self.lab_logger().debug(f"[Host Node-Resource] Retrieved from local: {len(r)} resources")
-
-        response.resources = [convert_to_ros_msg(Resource, resource) for resource in r]
+        try:
+            data = json.loads(request.command)
+            http_req = self.bridges[-1].resource_get(data["id"], data["with_children"])
+            response.response = json.dumps(http_req["data"])
+            return response
+        except Exception as e:
+            self.lab_logger().error(f"[Host Node-Resource] Error retrieving from bridge: {str(e)}")
         return response
 
     def _resource_delete_callback(self, request, response):
@@ -991,9 +1166,10 @@ class HostNode(BaseROS2DeviceNode):
             send_timestamp = time.time()
 
             # 发送ping
-            from unilabos.app.mq import mqtt_client
+            from unilabos.app.communication import get_communication_client
 
-            mqtt_client.send_ping(ping_id, send_timestamp)
+            comm_client = get_communication_client()
+            comm_client.send_ping(ping_id, send_timestamp)
 
             # 等待pong响应
             timeout = 10.0
@@ -1073,6 +1249,7 @@ class HostNode(BaseROS2DeviceNode):
 
         else:
             self.lab_logger().warning("⚠️ 无法获取服务端任务下发时间，跳过任务延迟分析")
+            raw_delay_ms = -1
             corrected_delay_ms = -1
 
         self.lab_logger().info("=" * 60)
@@ -1087,6 +1264,14 @@ class HostNode(BaseROS2DeviceNode):
             ),
             "test_count": len(ping_results),
             "status": "success",
+        }
+
+    def test_resource(
+        self, resource: ResourceSlot, resources: List[ResourceSlot], device: DeviceSlot, devices: List[DeviceSlot]
+    ):
+        return {
+            "resources": ResourceTreeSet.from_plr_resources([resource, *resources]).dump(),
+            "devices": [device, *devices],
         }
 
     def handle_pong_response(self, pong_data: dict):
@@ -1108,3 +1293,76 @@ class HostNode(BaseROS2DeviceNode):
             )
         else:
             self.lab_logger().warning("⚠️ 收到无效的Pong响应（缺少ping_id）")
+
+    def notify_resource_tree_update(self, device_id: str, action: str, resource_uuid_list: List[str]) -> bool:
+        """
+        通知设备节点更新资源树
+
+        Args:
+            device_id: 目标设备ID
+            action: 操作类型 "add", "update", "remove"
+            resource_uuid_list: 资源UUIDs
+
+        Returns:
+            bool: 操作是否成功
+        """
+        try:
+            # 检查设备是否存在
+            if device_id not in self.devices_names:
+                self.lab_logger().error(f"[Host Node-Resource] Device {device_id} not found in devices_names")
+                return False
+
+            namespace = self.devices_names[device_id]
+            device_key = f"{namespace}/{device_id}"
+
+            # 检查设备是否在线
+            if device_key not in self._online_devices:
+                self.lab_logger().error(f"[Host Node-Resource] Device {device_key} is offline")
+                return False
+
+            # 构建服务地址
+            srv_address = f"/srv{namespace}/s2c_resource_tree"
+            self.lab_logger().info(f"[Host Node-Resource] Notifying {device_id} for resource tree {action} operation")
+
+            # 创建服务客户端
+            sclient = self.create_client(SerialCommand, srv_address)
+
+            # 等待服务可用（设置超时）
+            if not sclient.wait_for_service(timeout_sec=5.0):
+                self.lab_logger().error(f"[Host Node-Resource] Service {srv_address} not available")
+                return False
+
+            # 构建请求数据
+            request_data = [
+                {
+                    "action": action,
+                    "data": resource_uuid_list,
+                }
+            ]
+
+            # 创建请求
+            request = SerialCommand.Request()
+            request.command = json.dumps(request_data, ensure_ascii=False)
+
+            # 发送异步请求
+            future = sclient.call_async(request)
+
+            # 等待响应
+            timeout = 30.0
+            start_time = time.time()
+            while not future.done():
+                if time.time() - start_time > timeout:
+                    self.lab_logger().error(f"[Host Node-Resource] Timeout waiting for response from {device_id}")
+                    return False
+                time.sleep(0.05)
+
+            response = future.result()
+            self.lab_logger().info(
+                f"[Host Node-Resource] Resource tree {action} notification completed for {device_id}"
+            )
+            return True
+
+        except Exception as e:
+            self.lab_logger().error(f"[Host Node-Resource] Error notifying resource tree update: {str(e)}")
+            self.lab_logger().error(traceback.format_exc())
+            return False

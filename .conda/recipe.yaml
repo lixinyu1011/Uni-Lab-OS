@@ -1,6 +1,6 @@
 package:
   name: unilabos
-  version: 0.10.4
+  version: 0.10.7
 
 source:
   path: ../unilabos
@@ -10,7 +10,6 @@ build:
   python:
     entry_points:
      - unilab = unilabos.app.main:main
-     - unilab-register = unilabos.app.register:main
   script:
   - set PIP_NO_INDEX=
   - if: win
@@ -32,11 +31,14 @@ requirements:
   - python ==3.11.11
   - pip
   - setuptools
+  - zstd
+  - zstandard
   run:
   - conda-forge::python ==3.11.11
   - compilers
   - cmake
   - zstd
+  - zstandard
   - ninja
   - if: unix
     then:
@@ -61,7 +63,7 @@ requirements:
   - uvicorn
   - gradio
   - flask
-  - websocket
+  - websockets
   - ipython
   - jupyter
   - jupyros

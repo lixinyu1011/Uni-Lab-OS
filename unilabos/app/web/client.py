@@ -3,13 +3,15 @@ HTTP客户端模块
 
 提供与远程服务器通信的客户端功能，只有host需要用
 """
+
 import json
 import os
 from typing import List, Dict, Any, Optional
 
 import requests
+from unilabos.ros.nodes.resource_tracker import ResourceTreeSet
 from unilabos.utils.log import info
-from unilabos.config.config import MQConfig, HTTPConfig, BasicConfig
+from unilabos.config.config import HTTPConfig, BasicConfig
 from unilabos.utils import logger
 
 
@@ -24,14 +26,17 @@ class HTTPClient:
             remote_addr: 远程服务器地址，如果不提供则从配置中获取
             auth: 授权信息
         """
+        self.initialized = False
         self.remote_addr = remote_addr or HTTPConfig.remote_addr
         if auth is not None:
             self.auth = auth
         else:
-            self.auth = MQConfig.lab_id
+            auth_secret = BasicConfig.auth_secret()
+            self.auth = auth_secret
+            info(f"正在使用ak sk作为授权信息：[{auth_secret}]")
         info(f"HTTPClient 初始化完成: remote_addr={self.remote_addr}")
 
-    def resource_edge_add(self, resources: List[Dict[str, Any]], database_process_later: bool) -> requests.Response:
+    def resource_edge_add(self, resources: List[Dict[str, Any]]) -> requests.Response:
         """
         添加资源
 
@@ -41,33 +46,128 @@ class HTTPClient:
         Returns:
             Response: API响应对象
         """
-        database_param = 1 if database_process_later else 0
         response = requests.post(
-            f"{self.remote_addr}/lab/resource/edge/batch_create/?database_process_later={database_param}",
-            json=resources,
-            headers={"Authorization": f"lab {self.auth}"},
+            f"{self.remote_addr}/edge/material/edge",
+            json={
+                "edges": resources,
+            },
+            headers={"Authorization": f"Lab {self.auth}"},
             timeout=100,
         )
+        if response.status_code == 200:
+            res = response.json()
+            if "code" in res and res["code"] != 0:
+                logger.error(f"添加物料关系失败: {response.text}")
         if response.status_code != 200 and response.status_code != 201:
             logger.error(f"添加物料关系失败: {response.status_code}, {response.text}")
         return response
 
-    def resource_add(self, resources: List[Dict[str, Any]], database_process_later: bool) -> requests.Response:
+    def resource_tree_add(self, resources: ResourceTreeSet, mount_uuid: str, first_add: bool) -> Dict[str, str]:
+        """
+        添加资源
+
+        Args:
+            resources: 要添加的资源树集合（ResourceTreeSet）
+            mount_uuid: 要挂载的资源的uuid
+            first_add: 是否为首次添加资源，可以是host也可以是slave来的
+        Returns:
+            Dict[str, str]: 旧UUID到新UUID的映射关系 {old_uuid: new_uuid}
+        """
+        # 从序列化数据中提取所有节点的UUID（保存旧UUID）
+        old_uuids = {n.res_content.uuid: n for n in resources.all_nodes}
+        if not self.initialized or first_add:
+            self.initialized = True
+            info(f"首次添加资源，当前远程地址: {self.remote_addr}")
+            response = requests.post(
+                f"{self.remote_addr}/edge/material",
+                json={"nodes": [x for xs in resources.dump() for x in xs], "mount_uuid": mount_uuid},
+                headers={"Authorization": f"Lab {self.auth}"},
+                timeout=100,
+            )
+        else:
+            response = requests.put(
+                f"{self.remote_addr}/edge/material",
+                json={"nodes": [x for xs in resources.dump() for x in xs], "mount_uuid": mount_uuid},
+                headers={"Authorization": f"Lab {self.auth}"},
+                timeout=100,
+            )
+
+        # 处理响应，构建UUID映射
+        uuid_mapping = {}
+        if response.status_code == 200:
+            res = response.json()
+            if "code" in res and res["code"] != 0:
+                logger.error(f"添加物料失败: {response.text}")
+            else:
+                data = res["data"]
+                for i in data:
+                    uuid_mapping[i["uuid"]] = i["cloud_uuid"]
+        else:
+            logger.error(f"添加物料失败: {response.text}")
+        for u, n in old_uuids.items():
+            if u in uuid_mapping:
+                n.res_content.uuid = uuid_mapping[u]
+                for c in n.children:
+                    c.res_content.parent_uuid = n.res_content.uuid
+            else:
+                logger.warning(f"资源UUID未更新: {u}")
+        return uuid_mapping
+
+    def resource_tree_get(self, uuid_list: List[str], with_children: bool) -> List[Dict[str, Any]]:
+        """
+        添加资源
+
+        Args:
+            uuid_list: List[str]
+        Returns:
+            Dict[str, str]: 旧UUID到新UUID的映射关系 {old_uuid: new_uuid}
+        """
+        response = requests.post(
+            f"{self.remote_addr}/edge/material/query",
+            json={"uuids": uuid_list, "with_children": with_children},
+            headers={"Authorization": f"Lab {self.auth}"},
+            timeout=100,
+        )
+        if response.status_code == 200:
+            res = response.json()
+            if "code" in res and res["code"] != 0:
+                logger.error(f"查询物料失败: {response.text}")
+            else:
+                data = res["data"]["nodes"]
+                return data
+        else:
+            logger.error(f"查询物料失败: {response.text}")
+        return []
+
+    def resource_add(self, resources: List[Dict[str, Any]]) -> requests.Response:
         """
         添加资源
 
         Args:
             resources: 要添加的资源列表
-            database_process_later: 后台处理资源
         Returns:
             Response: API响应对象
         """
-        response = requests.post(
-            f"{self.remote_addr}/lab/resource/?database_process_later={1 if database_process_later else 0}",
-            json=resources,
-            headers={"Authorization": f"lab {self.auth}"},
-            timeout=100,
-        )
+        if not self.initialized:
+            self.initialized = True
+            info(f"首次添加资源，当前远程地址: {self.remote_addr}")
+            response = requests.post(
+                f"{self.remote_addr}/lab/material",
+                json={"nodes": resources},
+                headers={"Authorization": f"Lab {self.auth}"},
+                timeout=100,
+            )
+        else:
+            response = requests.put(
+                f"{self.remote_addr}/lab/material",
+                json={"nodes": resources},
+                headers={"Authorization": f"Lab {self.auth}"},
+                timeout=100,
+            )
+        if response.status_code == 200:
+            res = response.json()
+            if "code" in res and res["code"] != 0:
+                logger.error(f"添加物料失败: {response.text}")
         if response.status_code != 200:
             logger.error(f"添加物料失败: {response.text}")
         return response
@@ -84,9 +184,9 @@ class HTTPClient:
             Dict: 返回的资源数据
         """
         response = requests.get(
-            f"{self.remote_addr}/lab/resource/?edge_format=1",
+            f"{self.remote_addr}/lab/material",
             params={"id": id, "with_children": with_children},
-            headers={"Authorization": f"lab {self.auth}"},
+            headers={"Authorization": f"Lab {self.auth}"},
             timeout=20,
         )
         return response.json()
@@ -104,7 +204,7 @@ class HTTPClient:
         response = requests.delete(
             f"{self.remote_addr}/lab/resource/batch_delete/",
             params={"id": id},
-            headers={"Authorization": f"lab {self.auth}"},
+            headers={"Authorization": f"Lab {self.auth}"},
             timeout=20,
         )
         return response
@@ -119,13 +219,29 @@ class HTTPClient:
         Returns:
             Response: API响应对象
         """
-        response = requests.patch(
-            f"{self.remote_addr}/lab/resource/batch_update/?edge_format=1",
-            json=resources,
-            headers={"Authorization": f"lab {self.auth}"},
-            timeout=100,
-        )
-        return response
+        if not self.initialized:
+            self.initialized = True
+            info(f"首次添加资源，当前远程地址: {self.remote_addr}")
+            response = requests.post(
+                f"{self.remote_addr}/lab/material",
+                json={"nodes": resources},
+                headers={"Authorization": f"Lab {self.auth}"},
+                timeout=100,
+            )
+        else:
+            response = requests.put(
+                f"{self.remote_addr}/lab/material",
+                json={"nodes": resources},
+                headers={"Authorization": f"Lab {self.auth}"},
+                timeout=100,
+            )
+        if response.status_code == 200:
+            res = response.json()
+            if "code" in res and res["code"] != 0:
+                logger.error(f"添加物料失败: {response.text}")
+        if response.status_code != 200:
+            logger.error(f"添加物料失败: {response.text}")
+        return response.json()
 
     def upload_file(self, file_path: str, scene: str = "models") -> requests.Response:
         """
@@ -146,25 +262,25 @@ class HTTPClient:
             response = requests.post(
                 f"{self.remote_addr}/api/account/file_upload/{scene}",
                 files=files,
-                headers={"Authorization": f"lab {self.auth}"},
+                headers={"Authorization": f"Lab {self.auth}"},
                 timeout=30,  # 上传文件可能需要更长的超时时间
             )
         return response
 
-    def resource_registry(self, registry_data: Dict[str, Any]) -> requests.Response:
+    def resource_registry(self, registry_data: Dict[str, Any] | List[Dict[str, Any]]) -> requests.Response:
         """
         注册资源到服务器
 
         Args:
-            registry_data: 注册表数据，格式为 {resource_id: resource_info}
+            registry_data: 注册表数据，格式为 {resource_id: resource_info} / [{resource_info}]
 
         Returns:
             Response: API响应对象
         """
         response = requests.post(
-            f"{self.remote_addr}/lab/registry/",
+            f"{self.remote_addr}/lab/resource",
             json=registry_data,
-            headers={"Authorization": f"lab {self.auth}"},
+            headers={"Authorization": f"Lab {self.auth}"},
             timeout=30,
         )
         if response.status_code not in [200, 201]:
@@ -182,8 +298,8 @@ class HTTPClient:
             Response: API响应对象
         """
         response = requests.get(
-            f"{self.remote_addr}/lab/resource/graph_info/",
-            headers={"Authorization": f"lab {self.auth}"},
+            f"{self.remote_addr}/edge/material/download",
+            headers={"Authorization": f"Lab {self.auth}"},
             timeout=(3, 30),
         )
         if response.status_code != 200:

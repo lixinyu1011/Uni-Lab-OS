@@ -66,7 +66,7 @@ class ResultInfoEncoder(json.JSONEncoder):
             return str(obj)
 
 
-def serialize_result_info(error: str, suc: bool, return_value=None) -> str:
+def get_result_info_str(error: str, suc: bool, return_value=None) -> str:
     """
     序列化任务执行结果信息
 
@@ -81,3 +81,21 @@ def serialize_result_info(error: str, suc: bool, return_value=None) -> str:
     result_info = {"error": error, "suc": suc, "return_value": return_value}
 
     return json.dumps(result_info, ensure_ascii=False, cls=ResultInfoEncoder)
+
+
+
+def serialize_result_info(error: str, suc: bool, return_value=None) -> dict:
+    """
+    序列化任务执行结果信息
+
+    Args:
+        error: 错误信息字符串
+        suc: 是否成功的布尔值
+        return_value: 返回值，可以是任何类型
+
+    Returns:
+        JSON字符串格式的结果信息
+    """
+    result_info = {"error": error, "suc": suc, "return_value": return_value}
+
+    return json.loads(json.dumps(result_info, ensure_ascii=False, cls=ResultInfoEncoder))

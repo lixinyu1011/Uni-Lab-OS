@@ -1,17 +1,12 @@
-# MQTT配置
-class MQConfig:
-    lab_id = ""
-    instance_id = ""
-    access_key = ""
-    secret_key = ""
-    group_id = ""
-    broker_url = ""
-    port = 1883
+# unilabos的配置文件
 
-    ca_file = "./CA.crt"
-    cert_file = "./lab.crt"
-    key_file = "./lab.key"
+class BasicConfig:
+    ak = ""  # 实验室网页给您提供的ak代码，您可以在配置文件中指定，也可以通过运行unilabos时以 --ak 传入，优先按照传入参数解析
+    sk = ""  # 实验室网页给您提供的sk代码，您可以在配置文件中指定，也可以通过运行unilabos时以 --sk 传入，优先按照传入参数解析
 
-# HTTP配置
-class HTTPConfig:
-    remote_addr = "https://uni-lab.bohrium.com/api/v1"
+
+# WebSocket配置，一般无需调整
+class WSConfig:
+    reconnect_interval = 5  # 重连间隔（秒）
+    max_reconnect_attempts = 999  # 最大重连次数
+    ping_interval = 30  # ping间隔（秒）

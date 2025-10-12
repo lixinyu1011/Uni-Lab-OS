@@ -145,12 +145,22 @@ class RunzeMultiplePump:
         total_steps_vel = 48000 if mode == RunzeSyringePumpMode.AccuratePosVel else 6000
         return total_steps, total_steps_vel
 
+    def _receive(self, data: bytes) -> str:
+        """
+        Keep this method as original. Always use chr to decode, avoid "/0"
+        """
+        if not data:
+            return ""
+        # **Do not use decode method
+        ascii_string = "".join(chr(byte) for byte in data)
+        return ascii_string
+
     def send_command(self, full_command: str) -> str:
         """Send command to hardware and get response"""
         full_command_data = bytearray(full_command, "ascii")
         self.hardware_interface.write(full_command_data)
         time.sleep(0.05)
-        response = self.hardware_interface.read_until(b"\n")
+        response = self.hardware_interface.read_until(b"\n")  # \n should direct use, not \\n
         output = self._receive(response)
         return output
 
@@ -170,16 +180,11 @@ class RunzeMultiplePump:
                 raise RunzeSyringePumpConnectionError("Connection is closing")
 
             run = "R" if "?" not in command else ""
-            full_command = f"/{address}{command}{run}\r\n"
+            full_command = f"/{address}{command}{run}\r\n"  # \r\n should direct use, not \\r\\n
 
             output = self.send_command(full_command)[3:-3]
         return output
 
-    def _receive(self, data: bytes) -> str:
-        if not data:
-            return ""
-        ascii_string = "".join(chr(byte) for byte in data)
-        return ascii_string
 
     def _run(self, address: str, command: str) -> str:
         """

@@ -68,12 +68,10 @@ set(action_files
   "action/LiquidHandlerSetTipRack.action"
   "action/LiquidHandlerStamp.action"
   "action/LiquidHandlerTransfer.action"
-
   "action/LiquidHandlerTransferBiomek.action"
   "action/LiquidHandlerIncubateBiomek.action"
   "action/LiquidHandlerMoveBiomek.action"
   "action/LiquidHandlerOscillateBiomek.action"
-
   "action/LiquidHandlerAdd.action"
   "action/LiquidHandlerMix.action"
   "action/LiquidHandlerMoveTo.action"
@@ -98,6 +96,23 @@ set(action_files
 
   "action/WorkStationRun.action"
   "action/AGVTransfer.action"
+
+  "action/DispenStationSolnPrep.action"
+  "action/DispenStationVialFeed.action"
+
+  "action/PostProcessGrab.action"
+  "action/PostProcessTriggerClean.action"
+  "action/PostProcessTriggerPostPro.action"
+
+  "action/ReactionStationDripBack.action"
+  "action/ReactionStationLiquidFeedBeaker.action"
+  "action/ReactionStationLiquidFeedSolvents.action"
+  "action/ReactionStationLiquidFeedTitration.action"
+  "action/ReactionStationLiquidFeedVialsNonTitration.action"
+  "action/ReactionStationProExecu.action"
+  "action/ReactionStationReactorTakenOut.action"
+  "action/ReactionStationReaTackIn.action"
+  "action/ReactionStationSolidFeedVial.action"
 )
 
 set(srv_files

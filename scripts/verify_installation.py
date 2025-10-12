@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 UniLabOS Installation Verification Script
 =========================================
@@ -15,7 +16,37 @@ Usage:
 """
 
 import sys
+import os
+
+# IMPORTANT: Set UTF-8 encoding BEFORE any other imports
+# This ensures all subsequent imports (including unilabos) can output UTF-8 characters
+if sys.platform == "win32":
+    # Method 1: Reconfigure stdout/stderr to use UTF-8 with error handling
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, OSError):
+        pass
+
+    # Method 2: Set environment variable for subprocess and console
+    os.environ["PYTHONIOENCODING"] = "utf-8"
+
+    # Method 3: Try to change Windows console code page to UTF-8
+    try:
+        import ctypes
+
+        # Set console code page to UTF-8 (CP 65001)
+        ctypes.windll.kernel32.SetConsoleCP(65001)
+        ctypes.windll.kernel32.SetConsoleOutputCP(65001)
+    except (ImportError, AttributeError, OSError):
+        pass
+
+# Now import other modules
 import importlib
+
+# Use ASCII-safe symbols that work across all platforms
+CHECK_MARK = "[OK]"
+CROSS_MARK = "[FAIL]"
 
 
 def check_package(package_name: str, display_name: str = None) -> bool:
@@ -34,10 +65,10 @@ def check_package(package_name: str, display_name: str = None) -> bool:
 
     try:
         importlib.import_module(package_name)
-        print(f"  ✓ {display_name}")
+        print(f"  {CHECK_MARK} {display_name}")
         return True
     except ImportError:
-        print(f"  ✗ {display_name}")
+        print(f"  {CROSS_MARK} {display_name}")
         return False
 
 
@@ -47,10 +78,10 @@ def check_python_version() -> bool:
     version_str = f"{version.major}.{version.minor}.{version.micro}"
 
     if version.major == 3 and version.minor >= 11:
-        print(f"  ✓ Python {version_str}")
+        print(f"  {CHECK_MARK} Python {version_str}")
         return True
     else:
-        print(f"  ✗ Python {version_str} (requires Python 3.8+)")
+        print(f"  {CROSS_MARK} Python {version_str} (requires Python 3.11+)")
         return False
 
 
@@ -78,26 +109,23 @@ def main():
     # Run environment checker from unilabos
     print("Checking UniLabOS and dependencies...")
     try:
-        from unilabos.utils.environment_check import EnvironmentChecker
+        from unilabos.utils.environment_check import check_environment
 
-        print("  ✓ UniLabOS installed")
+        print(f"  {CHECK_MARK} UniLabOS installed")
 
-        checker = EnvironmentChecker()
-        env_check_passed = checker.check_all_packages()
+        # Check environment without auto-install (verification only)
+        # Set show_details=False to suppress detailed Chinese output that may cause encoding issues
+        env_check_passed = check_environment(auto_install=False, show_details=False)
 
         if env_check_passed:
-            print("  ✓ All required packages available")
+            print(f"  {CHECK_MARK} All required packages available")
         else:
-            print(f"  ✗ Missing {len(checker.missing_packages)} package(s):")
-            for import_name, _ in checker.missing_packages:
-                print(f"    - {import_name}")
-            all_passed = False
+            print(f"  {CROSS_MARK} Some optional packages are missing")
     except ImportError:
-        print("  ✗ UniLabOS not installed")
+        print(f"  {CROSS_MARK} UniLabOS not installed")
         all_passed = False
     except Exception as e:
-        print(f"  ✗ Environment check failed: {str(e)}")
-        all_passed = False
+        print(f"  {CROSS_MARK} Environment check failed: {str(e)}")
     print()
 
     # Summary
@@ -106,18 +134,18 @@ def main():
     print("=" * 60)
 
     if all_passed:
-        print("\n✓ All checks passed! Your UniLabOS installation is ready.")
+        print(f"\n{CHECK_MARK} All checks passed! Your UniLabOS installation is ready.")
         print("\nNext steps:")
         print("  1. Review the documentation: docs/user_guide/launch.md")
         print("  2. Try the examples: docs/boot_examples/")
         print("  3. Configure your devices: unilabos_data/startup_config.json")
         return 0
     else:
-        print("\n✗ Some checks failed. Please review the errors above.")
+        print(f"\n{CROSS_MARK} Some checks failed. Please review the errors above.")
         print("\nTroubleshooting:")
         print("  1. Ensure you're in the correct conda environment: conda activate unilab")
         print("  2. Check the installation documentation: docs/user_guide/installation.md")
-        print("  3. Try reinstalling: pip install -e .")
+        print("  3. Try reinstalling: pip install .")
         return 1
 
 

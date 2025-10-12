@@ -9,7 +9,8 @@ serial:
         goal_default:
           request: null
           response: null
-        handles: []
+        handles: {}
+        placeholder_keys: {}
         result: {}
         schema:
           description: handle_serial_request的参数schema
@@ -35,7 +36,8 @@ serial:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
+        placeholder_keys: {}
         result: {}
         schema:
           description: read_data的参数schema
@@ -56,7 +58,8 @@ serial:
         goal: {}
         goal_default:
           command: null
-        handles: []
+        handles: {}
+        placeholder_keys: {}
         result: {}
         schema:
           description: send_command的参数schema
@@ -94,7 +97,7 @@ serial:
         port:
           type: string
         resource_tracker:
-          type: string
+          type: object
       required:
       - device_id
       - port

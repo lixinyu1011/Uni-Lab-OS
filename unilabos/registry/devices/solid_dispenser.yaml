@@ -13,7 +13,7 @@ solid_dispenser.laiyu:
           compound_mass: 0.0
           powder_tube_number: 0
           target_tube_position: ''
-        handles: []
+        handles: {}
         result:
           actual_mass_mg: actual_mass_mg
         schema:
@@ -64,7 +64,8 @@ solid_dispenser.laiyu:
         goal: {}
         goal_default:
           data: null
-        handles: []
+        handles: {}
+        placeholder_keys: {}
         result: {}
         schema:
           description: Modbus CRC-16校验码计算函数。计算Modbus RTU通信协议所需的CRC-16校验码，确保数据传输的完整性和可靠性。该函数实现标准的CRC-16算法，用于构造完整的Modbus指令帧。
@@ -88,7 +89,8 @@ solid_dispenser.laiyu:
         goal: {}
         goal_default:
           command: null
-        handles: []
+        handles: {}
+        placeholder_keys: {}
         result: {}
         schema:
           description: Modbus指令发送函数。构造完整的Modbus RTU指令帧（包含CRC校验），发送给分装设备并等待响应。该函数处理底层通信协议，确保指令的正确传输和响应接收，支持最长3分钟的响应等待时间。
@@ -113,7 +115,7 @@ solid_dispenser.laiyu:
           float_input: float_input
         goal_default:
           float_in: 0.0
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
@@ -153,7 +155,7 @@ solid_dispenser.laiyu:
           string: string
         goal_default:
           string: ''
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
@@ -197,7 +199,7 @@ solid_dispenser.laiyu:
           x: 0.0
           y: 0.0
           z: 0.0
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
@@ -243,7 +245,7 @@ solid_dispenser.laiyu:
           int_input: int_input
         goal_default:
           int_input: 0
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
@@ -285,7 +287,7 @@ solid_dispenser.laiyu:
           int_input: int_input
         goal_default:
           int_input: 0
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
@@ -325,7 +327,7 @@ solid_dispenser.laiyu:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''

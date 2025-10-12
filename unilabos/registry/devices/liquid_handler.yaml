@@ -87,7 +87,7 @@ liquid_handler:
             type: ''
           use_channels:
           - 0
-        handles: []
+        handles: {}
         placeholder_keys:
           reagent_sources: unilabos_resources
           targets: unilabos_resources
@@ -355,7 +355,6 @@ liquid_handler:
         feedback: {}
         goal:
           blow_out_air_volume: blow_out_air_volume
-          end_delay: end_delay
           flow_rates: flow_rates
           liquid_height: liquid_height
           offsets: offsets
@@ -398,7 +397,7 @@ liquid_handler:
           - 0
           vols:
           - 0.0
-        handles: []
+        handles: {}
         result:
           name: name
         schema:
@@ -564,7 +563,8 @@ liquid_handler:
           protocol_name: null
           protocol_type: null
           protocol_version: null
-        handles: []
+        handles: {}
+        placeholder_keys: {}
         result: {}
         schema:
           description: 创建实验协议函数。用于建立新的液体处理实验协议，定义协议名称、描述、版本、作者、日期等基本信息。该函数支持协议模板化管理，便于实验流程的标准化和重复性。适用于实验设计、方法开发、标准操作程序建立等需要协议管理的应用场景。
@@ -607,7 +607,8 @@ liquid_handler:
         goal_default:
           msg: null
           seconds: 0
-        handles: []
+        handles: {}
+        placeholder_keys: {}
         result: {}
         schema:
           description: 自定义延时函数。在实验流程中插入可配置的等待时间，用于满足特定的反应时间、孵育时间或设备稳定时间要求。支持自定义延时消息和秒数设置，提供流程控制和时间管理功能。适用于酶反应等待、温度平衡、样品孵育等需要时间控制的实验步骤。
@@ -633,7 +634,8 @@ liquid_handler:
         goal: {}
         goal_default:
           tip_racks: null
-        handles: []
+        handles: {}
+        placeholder_keys: {}
         result: {}
         schema:
           description: 吸头迭代函数。用于自动管理和切换吸头架中的吸头，实现批量实验中的吸头自动分配和追踪。该函数监控吸头使用状态，自动切换到下一个可用吸头位置，确保实验流程的连续性。适用于高通量实验、批量处理、自动化流水线等需要大量吸头管理的应用场景。
@@ -652,12 +654,46 @@ liquid_handler:
           title: iter_tips参数
           type: object
         type: UniLabJsonCommand
+      auto-set_group:
+        feedback: {}
+        goal: {}
+        goal_default:
+          group_name: null
+          volumes: null
+          wells: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                group_name:
+                  type: string
+                volumes:
+                  type: string
+                wells:
+                  type: string
+              required:
+              - group_name
+              - wells
+              - volumes
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_group参数
+          type: object
+        type: UniLabJsonCommand
       auto-set_tiprack:
         feedback: {}
         goal: {}
         goal_default:
           tip_racks: null
-        handles: []
+        handles: {}
+        placeholder_keys: {}
         result: {}
         schema:
           description: 吸头架设置函数。用于配置和初始化液体处理系统的吸头架信息，包括吸头架位置、类型、容量等参数。该函数建立吸头资源管理系统，为后续的吸头选择和使用提供基础配置。适用于系统初始化、吸头架更换、实验配置等需要吸头资源管理的操作场景。
@@ -681,7 +717,8 @@ liquid_handler:
         goal: {}
         goal_default:
           targets: null
-        handles: []
+        handles: {}
+        placeholder_keys: {}
         result: {}
         schema:
           description: 吸头碰触函数。控制移液器吸头轻触容器边缘或底部，用于去除吸头外壁附着的液滴，提高移液精度和减少污染。该函数支持多目标位置操作，可配置碰触参数和位置偏移。适用于精密移液、减少液体残留、防止交叉污染等需要提高移液质量的实验操作。
@@ -700,6 +737,39 @@ liquid_handler:
           title: touch_tip参数
           type: object
         type: UniLabJsonCommandAsync
+      auto-transfer_group:
+        feedback: {}
+        goal: {}
+        goal_default:
+          source_group_name: null
+          target_group_name: null
+          unit_volume: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                source_group_name:
+                  type: string
+                target_group_name:
+                  type: string
+                unit_volume:
+                  type: number
+              required:
+              - source_group_name
+              - target_group_name
+              - unit_volume
+              type: object
+            result: {}
+          required:
+          - goal
+          title: transfer_group参数
+          type: object
+        type: UniLabJsonCommandAsync
       discard_tips:
         feedback: {}
         goal:
@@ -707,7 +777,7 @@ liquid_handler:
         goal_default:
           use_channels:
           - 0
-        handles: []
+        handles: {}
         result:
           name: name
         schema:
@@ -790,7 +860,7 @@ liquid_handler:
           - 0
           vols:
           - 0.0
-        handles: []
+        handles: {}
         result:
           name: name
         schema:
@@ -977,7 +1047,7 @@ liquid_handler:
             type: ''
           use_channels:
           - 0
-        handles: []
+        handles: {}
         placeholder_keys:
           tip_spots: unilabos_resources
         result:
@@ -1146,7 +1216,7 @@ liquid_handler:
                 z: 0.0
             sample_id: ''
             type: ''
-        handles: []
+        handles: {}
         result:
           name: name
         schema:
@@ -1311,7 +1381,7 @@ liquid_handler:
                 z: 0.0
             sample_id: ''
             type: ''
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
@@ -1527,7 +1597,7 @@ liquid_handler:
                 z: 0.0
             sample_id: ''
             type: ''
-        handles: []
+        handles: {}
         result:
           name: name
         schema:
@@ -1844,7 +1914,7 @@ liquid_handler:
                 z: 0.0
             sample_id: ''
             type: ''
-        handles: []
+        handles: {}
         result:
           name: name
         schema:
@@ -2156,7 +2226,7 @@ liquid_handler:
             x: 0.0
             y: 0.0
             z: 0.0
-        handles: []
+        handles: {}
         result:
           name: name
         schema:
@@ -2368,7 +2438,7 @@ liquid_handler:
                 z: 0.0
             sample_id: ''
             type: ''
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
@@ -2514,7 +2584,7 @@ liquid_handler:
             type: ''
           use_channels:
           - 0
-        handles: []
+        handles: {}
         result:
           name: name
         schema:
@@ -2676,7 +2746,7 @@ liquid_handler:
                 z: 0.0
             sample_id: ''
             type: ''
-        handles: []
+        handles: {}
         result:
           name: name
         schema:
@@ -2876,7 +2946,7 @@ liquid_handler:
                 z: 0.0
             sample_id: ''
             type: ''
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
@@ -3203,7 +3273,7 @@ liquid_handler:
                 z: 0.0
             sample_id: ''
             type: ''
-        handles: []
+        handles: {}
         placeholder_keys:
           sources: unilabos_resources
           waste_liquid: unilabos_resources
@@ -3463,7 +3533,7 @@ liquid_handler:
           allow_nonzero_volume: false
           use_channels:
           - 0
-        handles: []
+        handles: {}
         result:
           name: name
         schema:
@@ -3511,7 +3581,7 @@ liquid_handler:
           allow_nonzero_volume: allow_nonzero_volume
         goal_default:
           allow_nonzero_volume: false
-        handles: []
+        handles: {}
         result:
           name: name
         schema:
@@ -3598,7 +3668,7 @@ liquid_handler:
             sample_id: ''
             type: ''
           volume: 0.0
-        handles: []
+        handles: {}
         result:
           name: name
         schema:
@@ -3807,7 +3877,7 @@ liquid_handler:
           to_vessel: ''
           viscous: false
           volume: 0.0
-        handles: []
+        handles: {}
         schema:
           description: ''
           properties:
@@ -4431,7 +4501,8 @@ liquid_handler.biomek:
           resource_tracker: null
           resources: null
           slot_on_deck: null
-        handles: []
+        handles: {}
+        placeholder_keys: {}
         result: {}
         schema:
           description: create_resource的参数schema
@@ -4444,14 +4515,22 @@ liquid_handler.biomek:
                 bind_parent_id:
                   type: string
                 liquid_input_slot:
+                  items:
+                    type: integer
                   type: array
                 liquid_type:
+                  items:
+                    type: string
                   type: array
                 liquid_volume:
+                  items:
+                    type: integer
                   type: array
                 resource_tracker:
-                  type: string
+                  type: object
                 resources:
+                  items:
+                    type: object
                   type: array
                 slot_on_deck:
                   type: integer
@@ -4482,7 +4561,8 @@ liquid_handler.biomek:
           liquid_volume: null
           parent: null
           slot_on_deck: null
-        handles: []
+        handles: {}
+        placeholder_keys: {}
         result: {}
         schema:
           description: instrument_setup_biomek的参数schema
@@ -4495,10 +4575,16 @@ liquid_handler.biomek:
                 id:
                   type: string
                 liquid_input_wells:
+                  items:
+                    type: string
                   type: array
                 liquid_type:
+                  items:
+                    type: string
                   type: array
                 liquid_volume:
+                  items:
+                    type: integer
                   type: array
                 parent:
                   type: string
@@ -4538,7 +4624,7 @@ liquid_handler.biomek:
           protocol_name: ''
           protocol_type: ''
           protocol_version: ''
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
@@ -4766,7 +4852,7 @@ liquid_handler.biomek:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
@@ -5487,7 +5573,7 @@ liquid_handler.prcxi:
             type: ''
           use_channels:
           - 0
-        handles: []
+        handles: {}
         placeholder_keys:
           reagent_sources: unilabos_resources
           targets: unilabos_resources
@@ -5755,7 +5841,6 @@ liquid_handler.prcxi:
         feedback: {}
         goal:
           blow_out_air_volume: blow_out_air_volume
-          end_delay: end_delay
           flow_rates: flow_rates
           liquid_height: liquid_height
           offsets: offsets
@@ -5798,7 +5883,7 @@ liquid_handler.prcxi:
           - 0
           vols:
           - 0.0
-        handles: []
+        handles: {}
         placeholder_keys:
           resources: unilabos_resources
         result: {}
@@ -5965,7 +6050,8 @@ liquid_handler.prcxi:
           protocol_name: ''
           protocol_type: ''
           protocol_version: ''
-        handles: []
+        handles: {}
+        placeholder_keys: {}
         result: {}
         schema:
           description: create_protocol的参数schema
@@ -5975,6 +6061,8 @@ liquid_handler.prcxi:
               properties:
                 none_keys:
                   default: []
+                  items:
+                    type: string
                   type: array
                 protocol_author:
                   default: ''
@@ -6008,7 +6096,8 @@ liquid_handler.prcxi:
         goal_default:
           msg: null
           seconds: 0
-        handles: []
+        handles: {}
+        placeholder_keys: {}
         result: {}
         schema:
           description: custom_delay的参数schema
@@ -6034,7 +6123,8 @@ liquid_handler.prcxi:
         goal: {}
         goal_default:
           tip_racks: null
-        handles: []
+        handles: {}
+        placeholder_keys: {}
         result: {}
         schema:
           description: iter_tips的参数schema
@@ -6060,7 +6150,8 @@ liquid_handler.prcxi:
           channel: 0
           dis_to_top: 0
           well: null
-        handles: []
+        handles: {}
+        placeholder_keys: {}
         result: {}
         schema:
           description: move_to的参数schema
@@ -6075,7 +6166,7 @@ liquid_handler.prcxi:
                   default: 0
                   type: number
                 well:
-                  type: string
+                  type: object
               required:
               - well
               type: object
@@ -6089,7 +6180,8 @@ liquid_handler.prcxi:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
+        placeholder_keys: {}
         result: {}
         schema:
           description: run_protocol的参数schema
@@ -6105,12 +6197,50 @@ liquid_handler.prcxi:
           title: run_protocol参数
           type: object
         type: UniLabJsonCommandAsync
+      auto-set_group:
+        feedback: {}
+        goal: {}
+        goal_default:
+          group_name: null
+          volumes: null
+          wells: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                group_name:
+                  type: string
+                volumes:
+                  items:
+                    type: number
+                  type: array
+                wells:
+                  items:
+                    type: object
+                  type: array
+              required:
+              - group_name
+              - wells
+              - volumes
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_group参数
+          type: object
+        type: UniLabJsonCommand
       auto-touch_tip:
         feedback: {}
         goal: {}
         goal_default:
           targets: null
-        handles: []
+        handles: {}
+        placeholder_keys: {}
         result: {}
         schema:
           description: touch_tip的参数schema
@@ -6129,6 +6259,39 @@ liquid_handler.prcxi:
           title: touch_tip参数
           type: object
         type: UniLabJsonCommandAsync
+      auto-transfer_group:
+        feedback: {}
+        goal: {}
+        goal_default:
+          source_group_name: null
+          target_group_name: null
+          unit_volume: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                source_group_name:
+                  type: string
+                target_group_name:
+                  type: string
+                unit_volume:
+                  type: number
+              required:
+              - source_group_name
+              - target_group_name
+              - unit_volume
+              type: object
+            result: {}
+          required:
+          - goal
+          title: transfer_group参数
+          type: object
+        type: UniLabJsonCommandAsync
       discard_tips:
         feedback: {}
         goal:
@@ -6136,7 +6299,7 @@ liquid_handler.prcxi:
         goal_default:
           use_channels:
           - 0
-        handles: []
+        handles: {}
         result: {}
         schema:
           description: ''
@@ -6218,7 +6381,7 @@ liquid_handler.prcxi:
           - 0
           vols:
           - 0.0
-        handles: []
+        handles: {}
         placeholder_keys:
           resources: unilabos_resources
         result: {}
@@ -6406,7 +6569,7 @@ liquid_handler.prcxi:
             type: ''
           use_channels:
           - 0
-        handles: []
+        handles: {}
         placeholder_keys:
           tip_spots: unilabos_resources
         result: {}
@@ -6583,7 +6746,7 @@ liquid_handler.prcxi:
                 z: 0.0
             sample_id: ''
             type: ''
-        handles: []
+        handles: {}
         placeholder_keys:
           targets: unilabos_resources
         result: {}
@@ -6763,7 +6926,7 @@ liquid_handler.prcxi:
             type: ''
           use_channels:
           - 0
-        handles: []
+        handles: {}
         placeholder_keys:
           tip_spots: unilabos_resources
         result: {}
@@ -6975,7 +7138,7 @@ liquid_handler.prcxi:
                 z: 0.0
             sample_id: ''
             type: ''
-        handles: []
+        handles: {}
         placeholder_keys:
           sources: unilabos_resources
           waste_liquid: unilabos_resources
@@ -7257,7 +7420,7 @@ liquid_handler.prcxi:
                 z: 0.0
             sample_id: ''
             type: ''
-        handles: []
+        handles: {}
         placeholder_keys:
           wells: unilabos_resources
         result: {}
@@ -7398,7 +7561,7 @@ liquid_handler.prcxi:
                 z: 0.0
             sample_id: ''
             type: ''
-        handles: []
+        handles: {}
         placeholder_keys:
           tip_racks: unilabos_resources
         result: {}
@@ -7527,7 +7690,7 @@ liquid_handler.prcxi:
           to_vessel: ''
           viscous: false
           volume: 0.0
-        handles: []
+        handles: {}
         schema:
           description: ''
           properties:
@@ -7717,7 +7880,7 @@ liquid_handler.prcxi:
           touch_tip: false
           use_channels:
           - 0
-        handles: []
+        handles: {}
         placeholder_keys:
           sources: unilabos_resources
           targets: unilabos_resources
@@ -8099,8 +8262,11 @@ liquid_handler.prcxi:
           default: false
           type: string
         deck:
-          type: string
+          type: object
         host:
+          type: string
+        is_9320:
+          default: false
           type: string
         matrix_id:
           default: ''
@@ -8164,7 +8330,7 @@ liquid_handler.revvity:
             sample_id: ''
             type: ''
           wf_name: ''
-        handles: []
+        handles: {}
         result:
           success: success
         schema:

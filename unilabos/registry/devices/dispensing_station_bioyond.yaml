@@ -1,0 +1,1582 @@
+dispensing_station.bioyond:
+  category:
+  - work_station
+  - dispensing_station_bioyond
+  class:
+    action_value_mappings:
+      auto-add_material:
+        feedback: {}
+        goal: {}
+        goal_default:
+          material_data: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                material_data:
+                  type: object
+              required:
+              - material_data
+              type: object
+            result: {}
+          required:
+          - goal
+          title: add_material参数
+          type: object
+        type: UniLabJsonCommand
+      auto-create_order:
+        feedback: {}
+        goal: {}
+        goal_default:
+          parameters: null
+          task_name: null
+          workflow_name: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                parameters:
+                  type: object
+                task_name:
+                  type: string
+                workflow_name:
+                  type: string
+              required:
+              - workflow_name
+              - task_name
+              type: object
+            result: {}
+          required:
+          - goal
+          title: create_order参数
+          type: object
+        type: UniLabJsonCommand
+      auto-delete_material:
+        feedback: {}
+        goal: {}
+        goal_default:
+          material_data: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                material_data:
+                  type: string
+              required:
+              - material_data
+              type: object
+            result: {}
+          required:
+          - goal
+          title: delete_material参数
+          type: object
+        type: UniLabJsonCommand
+      auto-device_operation:
+        feedback: {}
+        goal: {}
+        goal_default:
+          device_id: null
+          operation: null
+          parameters: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                device_id:
+                  type: string
+                operation:
+                  type: string
+                parameters:
+                  type: object
+              required:
+              - device_id
+              - operation
+              type: object
+            result: {}
+          required:
+          - goal
+          title: device_operation参数
+          type: object
+        type: UniLabJsonCommand
+      auto-drip_back:
+        feedback: {}
+        goal: {}
+        goal_default:
+          assign_material_name: Reactor
+          temperature: 25.0
+          time: '0'
+          torque_variation: '1'
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                assign_material_name:
+                  default: Reactor
+                  type: string
+                temperature:
+                  default: 25.0
+                  type: number
+                time:
+                  default: '0'
+                  type: string
+                torque_variation:
+                  default: '1'
+                  type: string
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: drip_back参数
+          type: object
+        type: UniLabJsonCommand
+      auto-execute_bioyond_sync_workflow:
+        feedback: {}
+        goal: {}
+        goal_default:
+          parameters: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                parameters:
+                  type: object
+              required:
+              - parameters
+              type: object
+            result: {}
+          required:
+          - goal
+          title: execute_bioyond_sync_workflow参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-execute_bioyond_update_workflow:
+        feedback: {}
+        goal: {}
+        goal_default:
+          parameters: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                parameters:
+                  type: object
+              required:
+              - parameters
+              type: object
+            result: {}
+          required:
+          - goal
+          title: execute_bioyond_update_workflow参数
+          type: object
+        type: UniLabJsonCommandAsync
+      auto-liquid_feeding_beaker:
+        feedback: {}
+        goal: {}
+        goal_default:
+          material_name: ''
+          volume: ''
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                material_name:
+                  default: ''
+                  type: string
+                volume:
+                  default: ''
+                  type: string
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: liquid_feeding_beaker参数
+          type: object
+        type: UniLabJsonCommand
+      auto-liquid_feeding_solvents:
+        feedback: {}
+        goal: {}
+        goal_default:
+          material_name: ''
+          volume: ''
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                material_name:
+                  default: ''
+                  type: string
+                volume:
+                  default: ''
+                  type: string
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: liquid_feeding_solvents参数
+          type: object
+        type: UniLabJsonCommand
+      auto-liquid_feeding_titration:
+        feedback: {}
+        goal: {}
+        goal_default:
+          material_name: ''
+          time: '120'
+          titration_type: '1'
+          torque_variation: '2'
+          volume: ''
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                material_name:
+                  default: ''
+                  type: string
+                time:
+                  default: '120'
+                  type: string
+                titration_type:
+                  default: '1'
+                  type: string
+                torque_variation:
+                  default: '2'
+                  type: string
+                volume:
+                  default: ''
+                  type: string
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: liquid_feeding_titration参数
+          type: object
+        type: UniLabJsonCommand
+      auto-liquid_feeding_vials_non_titration:
+        feedback: {}
+        goal: {}
+        goal_default:
+          material_name: ''
+          volume: ''
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                material_name:
+                  default: ''
+                  type: string
+                volume:
+                  default: ''
+                  type: string
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: liquid_feeding_vials_non_titration参数
+          type: object
+        type: UniLabJsonCommand
+      auto-load_bioyond_data_from_file:
+        feedback: {}
+        goal: {}
+        goal_default:
+          file_path: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                file_path:
+                  type: string
+              required:
+              - file_path
+              type: object
+            result: {}
+          required:
+          - goal
+          title: load_bioyond_data_from_file参数
+          type: object
+        type: UniLabJsonCommand
+      auto-material_inbound:
+        feedback: {}
+        goal: {}
+        goal_default:
+          location_name: null
+          material_id: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                location_name:
+                  type: string
+                material_id:
+                  type: string
+              required:
+              - material_id
+              - location_name
+              type: object
+            result: {}
+          required:
+          - goal
+          title: material_inbound参数
+          type: object
+        type: UniLabJsonCommand
+      auto-material_outbound:
+        feedback: {}
+        goal: {}
+        goal_default:
+          location_name: null
+          material_id: null
+          quantity: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                location_name:
+                  type: string
+                material_id:
+                  type: string
+                quantity:
+                  type: integer
+              required:
+              - material_id
+              - location_name
+              - quantity
+              type: object
+            result: {}
+          required:
+          - goal
+          title: material_outbound参数
+          type: object
+        type: UniLabJsonCommand
+      auto-merge_workflow_with_parameters:
+        feedback: {}
+        goal: {}
+        goal_default:
+          name: null
+          workflows: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                name:
+                  type: string
+                workflows:
+                  items:
+                    type: object
+                  type: array
+              required:
+              - name
+              - workflows
+              type: object
+            result: {}
+          required:
+          - goal
+          title: merge_workflow_with_parameters参数
+          type: object
+        type: UniLabJsonCommand
+      auto-order_query:
+        feedback: {}
+        goal: {}
+        goal_default:
+          query_data: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                query_data:
+                  type: string
+              required:
+              - query_data
+              type: object
+            result: {}
+          required:
+          - goal
+          title: order_query参数
+          type: object
+        type: UniLabJsonCommand
+      auto-post_init:
+        feedback: {}
+        goal: {}
+        goal_default:
+          ros_node: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                ros_node:
+                  type: object
+              required:
+              - ros_node
+              type: object
+            result: {}
+          required:
+          - goal
+          title: post_init参数
+          type: object
+        type: UniLabJsonCommand
+      auto-reaction_station_drip_back:
+        feedback: {}
+        goal: {}
+        goal_default:
+          assign_material_name: null
+          time: null
+          torque_variation: null
+          volume: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                assign_material_name:
+                  type: string
+                time:
+                  type: string
+                torque_variation:
+                  type: string
+                volume:
+                  type: string
+              required:
+              - volume
+              - assign_material_name
+              - time
+              - torque_variation
+              type: object
+            result: {}
+          required:
+          - goal
+          title: reaction_station_drip_back参数
+          type: object
+        type: UniLabJsonCommand
+      auto-reaction_station_liquid_feed:
+        feedback: {}
+        goal: {}
+        goal_default:
+          assign_material_name: null
+          time: null
+          titration_type: null
+          torque_variation: null
+          volume: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                assign_material_name:
+                  type: string
+                time:
+                  type: string
+                titration_type:
+                  type: string
+                torque_variation:
+                  type: string
+                volume:
+                  type: string
+              required:
+              - titration_type
+              - volume
+              - assign_material_name
+              - time
+              - torque_variation
+              type: object
+            result: {}
+          required:
+          - goal
+          title: reaction_station_liquid_feed参数
+          type: object
+        type: UniLabJsonCommand
+      auto-reaction_station_process_execute:
+        feedback: {}
+        goal: {}
+        goal_default:
+          task_name: null
+          workflow_name: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                task_name:
+                  type: string
+                workflow_name:
+                  type: string
+              required:
+              - workflow_name
+              - task_name
+              type: object
+            result: {}
+          required:
+          - goal
+          title: reaction_station_process_execute参数
+          type: object
+        type: UniLabJsonCommand
+      auto-reaction_station_reactor_taken_out:
+        feedback: {}
+        goal: {}
+        goal_default:
+          order_id: ''
+          preintake_id: ''
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                order_id:
+                  default: ''
+                  type: string
+                preintake_id:
+                  default: ''
+                  type: string
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: reaction_station_reactor_taken_out参数
+          type: object
+        type: UniLabJsonCommand
+      auto-reaction_station_solid_feed_vial:
+        feedback: {}
+        goal: {}
+        goal_default:
+          assign_material_name: null
+          material_id: null
+          time: null
+          torque_variation: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                assign_material_name:
+                  type: string
+                material_id:
+                  type: string
+                time:
+                  type: string
+                torque_variation:
+                  type: string
+              required:
+              - assign_material_name
+              - material_id
+              - time
+              - torque_variation
+              type: object
+            result: {}
+          required:
+          - goal
+          title: reaction_station_solid_feed_vial参数
+          type: object
+        type: UniLabJsonCommand
+      auto-reaction_station_take_in:
+        feedback: {}
+        goal: {}
+        goal_default:
+          assign_material_name: null
+          cutoff: null
+          temperature: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                assign_material_name:
+                  type: string
+                cutoff:
+                  type: string
+                temperature:
+                  type: string
+              required:
+              - cutoff
+              - temperature
+              - assign_material_name
+              type: object
+            result: {}
+          required:
+          - goal
+          title: reaction_station_take_in参数
+          type: object
+        type: UniLabJsonCommand
+      auto-reactor_taken_in:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: reactor_taken_in参数
+          type: object
+        type: UniLabJsonCommand
+      auto-reactor_taken_out:
+        feedback: {}
+        goal: {}
+        goal_default:
+          order_id: ''
+          preintake_id: ''
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                order_id:
+                  default: ''
+                  type: string
+                preintake_id:
+                  default: ''
+                  type: string
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: reactor_taken_out参数
+          type: object
+        type: UniLabJsonCommand
+      auto-reset_workstation:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: reset_workstation参数
+          type: object
+        type: UniLabJsonCommand
+      auto-solid_feeding_vials:
+        feedback: {}
+        goal: {}
+        goal_default:
+          material_name: ''
+          volume: ''
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                material_name:
+                  default: ''
+                  type: string
+                volume:
+                  default: ''
+                  type: string
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: solid_feeding_vials参数
+          type: object
+        type: UniLabJsonCommand
+      auto-start_scheduler:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: start_scheduler参数
+          type: object
+        type: UniLabJsonCommand
+      auto-stock_material:
+        feedback: {}
+        goal: {}
+        goal_default:
+          location: null
+          material_id: null
+          quantity: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                location:
+                  type: string
+                material_id:
+                  type: string
+                quantity:
+                  type: integer
+              required:
+              - material_id
+              - location
+              - quantity
+              type: object
+            result: {}
+          required:
+          - goal
+          title: stock_material参数
+          type: object
+        type: UniLabJsonCommand
+      auto-stop_scheduler:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: stop_scheduler参数
+          type: object
+        type: UniLabJsonCommand
+      auto-transfer_resource_to_another:
+        feedback: {}
+        goal: {}
+        goal_default:
+          mount_device_id: null
+          mount_resource: null
+          resource: null
+          sites: null
+        handles: {}
+        placeholder_keys:
+          mount_device_id: unilabos_devices
+          mount_resource: unilabos_resources
+          resource: unilabos_resources
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                mount_device_id:
+                  type: object
+                mount_resource:
+                  items:
+                    properties:
+                      category:
+                        type: string
+                      children:
+                        items:
+                          type: string
+                        type: array
+                      config:
+                        type: string
+                      data:
+                        type: string
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      parent:
+                        type: string
+                      pose:
+                        properties:
+                          orientation:
+                            properties:
+                              w:
+                                type: number
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            - w
+                            title: orientation
+                            type: object
+                          position:
+                            properties:
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            title: position
+                            type: object
+                        required:
+                        - position
+                        - orientation
+                        title: pose
+                        type: object
+                      sample_id:
+                        type: string
+                      type:
+                        type: string
+                    required:
+                    - id
+                    - name
+                    - sample_id
+                    - children
+                    - parent
+                    - type
+                    - category
+                    - pose
+                    - config
+                    - data
+                    title: mount_resource
+                    type: object
+                  type: array
+                resource:
+                  items:
+                    properties:
+                      category:
+                        type: string
+                      children:
+                        items:
+                          type: string
+                        type: array
+                      config:
+                        type: string
+                      data:
+                        type: string
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      parent:
+                        type: string
+                      pose:
+                        properties:
+                          orientation:
+                            properties:
+                              w:
+                                type: number
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            - w
+                            title: orientation
+                            type: object
+                          position:
+                            properties:
+                              x:
+                                type: number
+                              y:
+                                type: number
+                              z:
+                                type: number
+                            required:
+                            - x
+                            - y
+                            - z
+                            title: position
+                            type: object
+                        required:
+                        - position
+                        - orientation
+                        title: pose
+                        type: object
+                      sample_id:
+                        type: string
+                      type:
+                        type: string
+                    required:
+                    - id
+                    - name
+                    - sample_id
+                    - children
+                    - parent
+                    - type
+                    - category
+                    - pose
+                    - config
+                    - data
+                    title: resource
+                    type: object
+                  type: array
+                sites:
+                  items:
+                    type: string
+                  type: array
+              required:
+              - resource
+              - mount_resource
+              - sites
+              - mount_device_id
+              type: object
+            result: {}
+          required:
+          - goal
+          title: transfer_resource_to_another参数
+          type: object
+        type: UniLabJsonCommand
+      auto-validate_workflow_parameters:
+        feedback: {}
+        goal: {}
+        goal_default:
+          workflows: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                workflows:
+                  items:
+                    type: object
+                  type: array
+              required:
+              - workflows
+              type: object
+            result: {}
+          required:
+          - goal
+          title: validate_workflow_parameters参数
+          type: object
+        type: UniLabJsonCommand
+      bioyond_sync:
+        feedback: {}
+        goal:
+          force_sync: force_sync
+          sync_type: sync_type
+        goal_default:
+          force_sync: false
+          sync_type: full
+        handles: {}
+        result: {}
+        schema:
+          description: 从Bioyond系统同步物料
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                force_sync:
+                  description: 是否强制同步
+                  type: boolean
+                sync_type:
+                  description: 同步类型
+                  enum:
+                  - full
+                  - incremental
+                  type: string
+              required:
+              - sync_type
+              type: object
+            result: {}
+          required:
+          - goal
+          title: bioyond_sync参数
+          type: object
+        type: UniLabJsonCommand
+      bioyond_update:
+        feedback: {}
+        goal:
+          material_ids: material_ids
+          sync_all: sync_all
+        goal_default:
+          material_ids: []
+          sync_all: true
+        handles: {}
+        result: {}
+        schema:
+          description: 将本地物料变更同步到Bioyond
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                material_ids:
+                  description: 要同步的物料ID列表
+                  items:
+                    type: string
+                  type: array
+                sync_all:
+                  description: 是否同步所有物料
+                  type: boolean
+              required:
+              - sync_all
+              type: object
+            result: {}
+          required:
+          - goal
+          title: bioyond_update参数
+          type: object
+        type: UniLabJsonCommand
+      create_90_10_vial_feeding_task:
+        feedback: {}
+        goal:
+          delay_time: delay_time
+          order_name: order_name
+          percent_10_1_assign_material_name: percent_10_1_assign_material_name
+          percent_10_1_liquid_material_name: percent_10_1_liquid_material_name
+          percent_10_1_target_weigh: percent_10_1_target_weigh
+          percent_10_1_volume: percent_10_1_volume
+          percent_10_2_assign_material_name: percent_10_2_assign_material_name
+          percent_10_2_liquid_material_name: percent_10_2_liquid_material_name
+          percent_10_2_target_weigh: percent_10_2_target_weigh
+          percent_10_2_volume: percent_10_2_volume
+          percent_90_1_assign_material_name: percent_90_1_assign_material_name
+          percent_90_1_target_weigh: percent_90_1_target_weigh
+          percent_90_2_assign_material_name: percent_90_2_assign_material_name
+          percent_90_2_target_weigh: percent_90_2_target_weigh
+          percent_90_3_assign_material_name: percent_90_3_assign_material_name
+          percent_90_3_target_weigh: percent_90_3_target_weigh
+          speed: speed
+          temperature: temperature
+        goal_default:
+          delay_time: '600'
+          order_name: ''
+          percent_10_1_assign_material_name: ''
+          percent_10_1_liquid_material_name: ''
+          percent_10_1_target_weigh: ''
+          percent_10_1_volume: ''
+          percent_10_2_assign_material_name: ''
+          percent_10_2_liquid_material_name: ''
+          percent_10_2_target_weigh: ''
+          percent_10_2_volume: ''
+          percent_90_1_assign_material_name: ''
+          percent_90_1_target_weigh: ''
+          percent_90_2_assign_material_name: ''
+          percent_90_2_target_weigh: ''
+          percent_90_3_assign_material_name: ''
+          percent_90_3_target_weigh: ''
+          speed: '400'
+          temperature: '20'
+        handles: {}
+        result: {}
+        schema:
+          description: 创建90%/10%小瓶投料任务
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                delay_time:
+                  default: '600'
+                  description: 延迟时间(s)
+                  type: string
+                order_name:
+                  description: 任务名称
+                  type: string
+                percent_10_1_assign_material_name:
+                  description: 10%组分1物料名称
+                  type: string
+                percent_10_1_liquid_material_name:
+                  description: 10%组分1液体物料名称
+                  type: string
+                percent_10_1_target_weigh:
+                  description: 10%组分1目标重量(g)
+                  type: string
+                percent_10_1_volume:
+                  description: 10%组分1液体体积(mL)
+                  type: string
+                percent_10_2_assign_material_name:
+                  description: 10%组分2物料名称
+                  type: string
+                percent_10_2_liquid_material_name:
+                  description: 10%组分2液体物料名称
+                  type: string
+                percent_10_2_target_weigh:
+                  description: 10%组分2目标重量(g)
+                  type: string
+                percent_10_2_volume:
+                  description: 10%组分2液体体积(mL)
+                  type: string
+                percent_90_1_assign_material_name:
+                  description: 90%组分1物料名称
+                  type: string
+                percent_90_1_target_weigh:
+                  description: 90%组分1目标重量(g)
+                  type: string
+                percent_90_2_assign_material_name:
+                  description: 90%组分2物料名称
+                  type: string
+                percent_90_2_target_weigh:
+                  description: 90%组分2目标重量(g)
+                  type: string
+                percent_90_3_assign_material_name:
+                  description: 90%组分3物料名称
+                  type: string
+                percent_90_3_target_weigh:
+                  description: 90%组分3目标重量(g)
+                  type: string
+                speed:
+                  default: '400'
+                  description: 搅拌速度(rpm)
+                  type: string
+                temperature:
+                  default: '20'
+                  description: 温度(°C)
+                  type: string
+              type: object
+            result: {}
+          required:
+          - goal
+          title: create_90_10_vial_feeding_task参数
+          type: object
+        type: UniLabJsonCommand
+      create_batch_90_10_vial_feeding_task:
+        feedback: {}
+        goal:
+          batch_data: batch_data
+        goal_default:
+          batch_data: '{}'
+        handles: {}
+        result: {}
+        schema:
+          description: 创建批量90%10%小瓶投料任务
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                batch_data:
+                  description: 批量90%10%小瓶投料任务数据(JSON格式)，包含batch_name、tasks列表和global_settings
+                  type: string
+              required:
+              - batch_data
+              type: object
+            result: {}
+          required:
+          - goal
+          title: create_batch_90_10_vial_feeding_task参数
+          type: object
+        type: UniLabJsonCommand
+      create_batch_diamine_solution_task:
+        feedback: {}
+        goal:
+          batch_data: batch_data
+        goal_default:
+          batch_data: '{}'
+        handles: {}
+        result: {}
+        schema:
+          description: 创建批量二胺溶液配制任务
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                batch_data:
+                  description: 批量二胺溶液配制任务数据(JSON格式)，包含batch_name、tasks列表和global_settings
+                  type: string
+              required:
+              - batch_data
+              type: object
+            result: {}
+          required:
+          - goal
+          title: create_batch_diamine_solution_task参数
+          type: object
+        type: UniLabJsonCommand
+      create_diamine_solution_task:
+        feedback: {}
+        goal:
+          delay_time: delay_time
+          hold_m_name: hold_m_name
+          liquid_material_name: liquid_material_name
+          material_name: material_name
+          order_name: order_name
+          speed: speed
+          target_weigh: target_weigh
+          temperature: temperature
+          volume: volume
+        goal_default:
+          delay_time: '600'
+          hold_m_name: ''
+          liquid_material_name: NMP
+          material_name: ''
+          order_name: ''
+          speed: '400'
+          target_weigh: ''
+          temperature: '20'
+          volume: ''
+        handles: {}
+        result: {}
+        schema:
+          description: 创建二胺溶液配制任务
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                delay_time:
+                  default: '600'
+                  description: 延迟时间(s)
+                  type: string
+                hold_m_name:
+                  description: 库位名称(如ODA-1)
+                  type: string
+                liquid_material_name:
+                  default: NMP
+                  description: 液体物料名称
+                  type: string
+                material_name:
+                  description: 固体物料名称
+                  type: string
+                order_name:
+                  description: 任务名称
+                  type: string
+                speed:
+                  default: '400'
+                  description: 搅拌速度(rpm)
+                  type: string
+                target_weigh:
+                  description: 固体目标重量(g)
+                  type: string
+                temperature:
+                  default: '20'
+                  description: 温度(°C)
+                  type: string
+                volume:
+                  description: 液体体积(mL)
+                  type: string
+              required:
+              - material_name
+              - target_weigh
+              - volume
+              type: object
+            result: {}
+          required:
+          - goal
+          title: create_diamine_solution_task参数
+          type: object
+        type: UniLabJsonCommand
+      create_resource:
+        feedback: {}
+        goal:
+          resource_config: resource_config
+          resource_type: resource_type
+        goal_default:
+          resource_config: {}
+          resource_type: ''
+        handles: {}
+        result: {}
+        schema:
+          description: 创建资源操作
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                resource_config:
+                  description: 资源配置
+                  type: object
+                resource_type:
+                  description: 资源类型
+                  type: string
+              required:
+              - resource_type
+              - resource_config
+              type: object
+            result: {}
+          required:
+          - goal
+          title: create_resource参数
+          type: object
+        type: UniLabJsonCommand
+      dispensing_material_inbound:
+        feedback: {}
+        goal:
+          location: location
+          material_id: material_id
+        goal_default:
+          location: ''
+          material_id: ''
+        handles: {}
+        result: {}
+        schema:
+          description: 配液站物料入库操作
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                location:
+                  description: 存储位置
+                  type: string
+                material_id:
+                  description: 物料ID
+                  type: string
+              required:
+              - material_id
+              - location
+              type: object
+            result: {}
+          required:
+          - goal
+          title: dispensing_material_inbound参数
+          type: object
+        type: UniLabJsonCommand
+      dispensing_material_outbound:
+        feedback: {}
+        goal:
+          material_id: material_id
+          quantity: quantity
+        goal_default:
+          material_id: ''
+          quantity: 0.0
+        handles: {}
+        result: {}
+        schema:
+          description: 配液站物料出库操作
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                material_id:
+                  description: 物料ID
+                  type: string
+                quantity:
+                  description: 出库数量
+                  type: number
+              required:
+              - material_id
+              - quantity
+              type: object
+            result: {}
+          required:
+          - goal
+          title: dispensing_material_outbound参数
+          type: object
+        type: UniLabJsonCommand
+      sample_waste_removal:
+        feedback: {}
+        goal:
+          sample_id: sample_id
+          waste_type: waste_type
+        goal_default:
+          sample_id: ''
+          waste_type: general
+        handles: {}
+        result: {}
+        schema:
+          description: 样品废料移除操作
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                sample_id:
+                  description: 样品ID
+                  type: string
+                waste_type:
+                  description: 废料类型
+                  enum:
+                  - general
+                  - hazardous
+                  - organic
+                  - inorganic
+                  type: string
+              required:
+              - sample_id
+              type: object
+            result: {}
+          required:
+          - goal
+          title: sample_waste_removal参数
+          type: object
+        type: UniLabJsonCommand
+    module: unilabos.devices.workstation.bioyond_studio.station:BioyondWorkstation
+    protocol_type: []
+    status_types:
+      bioyond_status: dict
+      device_list: dict
+      scheduler_status: dict
+      station_info: dict
+      workflow_parameter_template: dict
+      workstation_status: dict
+    type: python
+  config_info: []
+  description: Bioyond配液站 - 专门用于物料配制和管理的工作站
+  handles: []
+  icon: 配液站.webp
+  init_param_schema:
+    config:
+      properties:
+        bioyond_config:
+          type: string
+        deck:
+          type: string
+        station_config:
+          type: string
+      required: []
+      type: object
+    data:
+      properties:
+        bioyond_status:
+          type: object
+        device_list:
+          type: object
+        scheduler_status:
+          type: object
+        station_info:
+          type: object
+        workflow_parameter_template:
+          type: object
+        workstation_status:
+          type: object
+      required:
+      - station_info
+      - bioyond_status
+      - workflow_parameter_template
+      - scheduler_status
+      - device_list
+      - workstation_status
+      type: object
+  version: 1.0.0

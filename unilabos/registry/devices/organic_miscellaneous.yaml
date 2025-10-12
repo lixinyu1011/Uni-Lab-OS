@@ -8,7 +8,8 @@ rotavap.one:
         goal: {}
         goal_default:
           cmd: null
-        handles: []
+        handles: {}
+        placeholder_keys: {}
         result: {}
         schema:
           description: cmd_write的参数schema
@@ -31,7 +32,8 @@ rotavap.one:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
+        placeholder_keys: {}
         result: {}
         schema:
           description: main_loop的参数schema
@@ -52,7 +54,8 @@ rotavap.one:
         goal: {}
         goal_default:
           time: null
-        handles: []
+        handles: {}
+        placeholder_keys: {}
         result: {}
         schema:
           description: set_pump_time的参数schema
@@ -76,7 +79,8 @@ rotavap.one:
         goal: {}
         goal_default:
           time: null
-        handles: []
+        handles: {}
+        placeholder_keys: {}
         result: {}
         schema:
           description: set_rotate_time的参数schema
@@ -101,7 +105,7 @@ rotavap.one:
           command: command
         goal_default:
           command: ''
-        handles: []
+        handles: {}
         result:
           success: success
         schema:
@@ -171,7 +175,8 @@ separator.homemade:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: []
+        handles: {}
+        placeholder_keys: {}
         result: {}
         schema:
           description: read_sensor_loop的参数schema
@@ -193,7 +198,8 @@ separator.homemade:
         goal_default:
           condition: null
           value: null
-        handles: []
+        handles: {}
+        placeholder_keys: {}
         result: {}
         schema:
           description: valve_open的参数schema
@@ -220,7 +226,8 @@ separator.homemade:
         goal: {}
         goal_default:
           data: null
-        handles: []
+        handles: {}
+        placeholder_keys: {}
         result: {}
         schema:
           description: write的参数schema
@@ -273,7 +280,7 @@ separator.homemade:
                 z: 0.0
             sample_id: ''
             type: ''
-        handles: []
+        handles: {}
         result:
           success: success
         schema:
@@ -410,7 +417,7 @@ separator.homemade:
           command: command
         goal_default:
           command: ''
-        handles: []
+        handles: {}
         result:
           success: success
         schema:

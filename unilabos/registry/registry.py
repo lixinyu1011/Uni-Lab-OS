@@ -5,13 +5,19 @@ import sys
 import inspect
 import importlib
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union, Tuple
 
 import yaml
+from unilabos_msgs.msg import Resource
 
 from unilabos.config.config import BasicConfig
 from unilabos.resources.graphio import resource_plr_to_ulab, tree_to_list
-from unilabos.ros.msgs.message_converter import msg_converter_manager, ros_action_to_json_schema, String
+from unilabos.ros.msgs.message_converter import (
+    msg_converter_manager,
+    ros_action_to_json_schema,
+    String,
+    ros_message_to_json_schema,
+)
 from unilabos.utils import logger
 from unilabos.utils.decorator import singleton
 from unilabos.utils.import_manager import get_enhanced_class_info, get_class
@@ -20,16 +26,19 @@ from unilabos.utils.type_check import NoAliasDumper
 DEFAULT_PATHS = [Path(__file__).absolute().parent]
 
 
+class ROSMsgNotFound(Exception):
+    pass
+
+
 @singleton
 class Registry:
     def __init__(self, registry_paths=None):
         import ctypes
+
         try:
             import unilabos_msgs
         except ImportError:
-            logger.error(
-                "[UniLab Registry] unilabos_msgs模块未找到，请确保已根据官方文档安装unilabos_msgs包。"
-            )
+            logger.error("[UniLab Registry] unilabos_msgs模块未找到，请确保已根据官方文档安装unilabos_msgs包。")
             sys.exit(1)
         try:
             ctypes.CDLL(str(Path(unilabos_msgs.__file__).parent / "unilabos_msgs_s__rosidl_typesupport_c.pyd"))
@@ -46,6 +55,7 @@ class Registry:
             "ResourceCreateFromOuterEasy", "host_node", f"动作 create_resource"
         )
         self.EmptyIn = self._replace_type_with_class("EmptyIn", "host_node", f"")
+        self.StrSingleInput = self._replace_type_with_class("StrSingleInput", "host_node", f"")
         self.device_type_registry = {}
         self.device_module_to_registry = {}
         self.resource_type_registry = {}
@@ -121,7 +131,6 @@ class Registry:
                                         }
                                     ]
                                 },
-                                # todo: support nested keys, switch to non ros message schema
                                 "placeholder_keys": {
                                     "res_id": "unilabos_resources",  # 将当前实验室的全部物料id作为下拉框可选择
                                     "device_id": "unilabos_devices",  # 将当前实验室的全部设备id作为下拉框可选择
@@ -132,10 +141,50 @@ class Registry:
                                 "type": self.EmptyIn,
                                 "goal": {},
                                 "feedback": {},
-                                "result": {"latency_ms": "latency_ms", "time_diff_ms": "time_diff_ms"},
+                                "result": {},
                                 "schema": ros_action_to_json_schema(
                                     self.EmptyIn, "用于测试延迟的动作，返回延迟时间和时间差。"
                                 ),
+                                "goal_default": {},
+                                "handles": {},
+                            },
+                            "auto-test_resource": {
+                                "type": "UniLabJsonCommand",
+                                "goal": {},
+                                "feedback": {},
+                                "result": {},
+                                "schema": {
+                                    "description": "",
+                                    "properties": {
+                                        "feedback": {},
+                                        "goal": {
+                                            "properties": {
+                                                "resource": ros_message_to_json_schema(Resource, "resource"),
+                                                "resources": {
+                                                    "items": {
+                                                        "properties": ros_message_to_json_schema(
+                                                            Resource, "resources"
+                                                        ),
+                                                        "type": "object",
+                                                    },
+                                                    "type": "array",
+                                                },
+                                                "device": {"type": "string"},
+                                                "devices": {"items": {"type": "string"}, "type": "array"},
+                                            },
+                                            "type": "object",
+                                        },
+                                        "result": {},
+                                    },
+                                    "title": "test_resource",
+                                    "type": "object",
+                                },
+                                "placeholder_keys": {
+                                    "device": "unilabos_devices",
+                                    "devices": "unilabos_devices",
+                                    "resource": "unilabos_resources",
+                                    "resources": "unilabos_resources",
+                                },
                                 "goal_default": {},
                                 "handles": {},
                             },
@@ -152,6 +201,8 @@ class Registry:
                 }
             }
         )
+        # 为host_node添加内置的驱动命令动作
+        self._add_builtin_actions(self.device_type_registry["host_node"], "host_node")
         logger.trace(f"[UniLab Registry] ----------Setup----------")
         self.registry_paths = [Path(path).absolute() for path in self.registry_paths]
         for i, path in enumerate(self.registry_paths):
@@ -219,7 +270,7 @@ class Registry:
                         yaml.dump(complete_data, f, allow_unicode=True, default_flow_style=False, Dumper=NoAliasDumper)
 
                 self.resource_type_registry.update(data)
-                logger.trace(
+                logger.trace(  # type: ignore
                     f"[UniLab Registry] Resource-{current_resource_number} File-{i+1}/{len(files)} "
                     + f"Add {list(data.keys())}"
                 )
@@ -309,39 +360,75 @@ class Registry:
             return type_class
         else:
             logger.error(f"[UniLab Registry] 无法找到类型 '{type_name}' 用于设备 {device_id} 的 {field_name}")
-            sys.exit(1)
+            raise ROSMsgNotFound(f"类型 '{type_name}' 未找到，用于设备 {device_id} 的 {field_name}")
+
+    def _get_json_schema_type(self, type_str: str) -> str:
+        """
+        根据类型字符串返回对应的JSON Schema类型
+
+        Args:
+            type_str: 类型字符串
+
+        Returns:
+            JSON Schema类型字符串
+        """
+        type_lower = type_str.lower()
+        type_mapping = {
+            ("str", "string"): "string",
+            ("int", "integer"): "integer",
+            ("float", "number"): "number",
+            ("bool", "boolean"): "boolean",
+            ("list", "array"): "array",
+            ("dict", "object"): "object",
+        }
+
+        # 遍历映射找到匹配的类型
+        for type_variants, json_type in type_mapping.items():
+            if type_lower in type_variants:
+                return json_type
+
+        # 特殊处理包含冒号的类型（如ROS消息类型）
+        if ":" in type_lower:
+            return "object"
+
+        # 默认返回字符串类型
+        return "string"
 
     def _generate_schema_from_info(
         self,
         param_name: str,
-        param_type: str,
+        param_type: Union[str, Tuple[str]],
         param_default: Any,
     ) -> Dict[str, Any]:
         """
         根据参数信息生成JSON Schema
         """
         prop_schema = {}
-        # 根据类型设置schema FIXME 不完整
-        if param_type:
-            param_type_lower = param_type.lower()
-            if param_type_lower in ["str", "string"]:
-                prop_schema["type"] = "string"
-            elif param_type_lower in ["int", "integer"]:
-                prop_schema["type"] = "integer"
-            elif param_type_lower in ["float", "number"]:
-                prop_schema["type"] = "number"
-            elif param_type_lower in ["bool", "boolean"]:
-                prop_schema["type"] = "boolean"
-            elif param_type_lower in ["list", "array"]:
-                prop_schema["type"] = "array"
-            elif param_type_lower in ["dict", "object"]:
-                prop_schema["type"] = "object"
+
+        # 处理嵌套类型（Tuple[str]）
+        if isinstance(param_type, tuple):
+            if len(param_type) == 2:
+                outer_type, inner_type = param_type
+                outer_json_type = self._get_json_schema_type(outer_type)
+                inner_json_type = self._get_json_schema_type(inner_type)
+
+                prop_schema["type"] = outer_json_type
+
+                # 根据外层类型设置内层类型信息
+                if outer_json_type == "array":
+                    prop_schema["items"] = {"type": inner_json_type}
+                elif outer_json_type == "object":
+                    prop_schema["additionalProperties"] = {"type": inner_json_type}
             else:
-                # 默认为字符串类型
+                # 不是标准的嵌套类型，默认为字符串
                 prop_schema["type"] = "string"
         else:
-            # 如果没有类型信息，默认为字符串
-            prop_schema["type"] = "string"
+            # 处理非嵌套类型
+            if param_type:
+                prop_schema["type"] = self._get_json_schema_type(param_type)
+            else:
+                # 如果没有类型信息，默认为字符串
+                prop_schema["type"] = "string"
 
         # 设置默认值
         if param_default is not None:
@@ -388,7 +475,17 @@ class Registry:
             param_type = arg_info.get("type", "")
             param_default = arg_info.get("default")
             param_required = arg_info.get("required", True)
-            schema["properties"][param_name] = self._generate_schema_from_info(param_name, param_type, param_default)
+            if param_type == "unilabos.registry.placeholder_type:ResourceSlot":
+                schema["properties"][param_name] = ros_message_to_json_schema(Resource, param_name)
+            elif param_type == ("list", "unilabos.registry.placeholder_type:ResourceSlot"):
+                schema["properties"][param_name] = {
+                    "items": ros_message_to_json_schema(Resource, param_name),
+                    "type": "array",
+                }
+            else:
+                schema["properties"][param_name] = self._generate_schema_from_info(
+                    param_name, param_type, param_default
+                )
             if param_required:
                 schema["required"].append(param_name)
 
@@ -400,13 +497,50 @@ class Registry:
             "required": ["goal"],
         }
 
+    def _add_builtin_actions(self, device_config: Dict[str, Any], device_id: str):
+        """
+        为设备配置添加内置的执行驱动命令动作
+
+        Args:
+            device_config: 设备配置字典
+            device_id: 设备ID
+        """
+        from unilabos.app.web.utils.action_utils import get_yaml_from_goal_type
+
+        if "class" not in device_config:
+            return
+
+        if "action_value_mappings" not in device_config["class"]:
+            device_config["class"]["action_value_mappings"] = {}
+
+        for additional_action in ["_execute_driver_command", "_execute_driver_command_async"]:
+            device_config["class"]["action_value_mappings"][additional_action] = {
+                "type": self._replace_type_with_class("StrSingleInput", device_id, f"动作 {additional_action}"),
+                "goal": {"string": "string"},
+                "feedback": {},
+                "result": {},
+                "schema": ros_action_to_json_schema(
+                    self._replace_type_with_class("StrSingleInput", device_id, f"动作 {additional_action}")
+                ),
+                "goal_default": yaml.safe_load(
+                    io.StringIO(
+                        get_yaml_from_goal_type(
+                            self._replace_type_with_class(
+                                "StrSingleInput", device_id, f"动作 {additional_action}"
+                            ).Goal
+                        )
+                    )
+                ),
+                "handles": {},
+            }
+
     def load_device_types(self, path: os.PathLike, complete_registry: bool):
         # return
         abs_path = Path(path).absolute()
         devices_path = abs_path / "devices"
         device_comms_path = abs_path / "device_comms"
         files = list(devices_path.glob("*.yaml")) + list(device_comms_path.glob("*.yaml"))
-        logger.trace(
+        logger.trace(  # type: ignore
             f"[UniLab Registry] devices: {devices_path.exists()}, device_comms: {device_comms_path.exists()}, "
             + f"total: {len(files)}"
         )
@@ -457,10 +591,15 @@ class Registry:
                                 {k: v["return_type"] for k, v in enhanced_info["status_methods"].items()}
                             )
                         for status_name, status_type in device_config["class"]["status_types"].items():
-                            if status_type in ["Any", "None", "Unknown"]:
+                            if isinstance(status_type, tuple) or status_type in ["Any", "None", "Unknown"]:
                                 status_type = "String"  # 替换成ROS的String，便于显示
                                 device_config["class"]["status_types"][status_name] = status_type
-                            target_type = self._replace_type_with_class(status_type, device_id, f"状态 {status_name}")
+                            try:
+                                target_type = self._replace_type_with_class(
+                                    status_type, device_id, f"状态 {status_name}"
+                                )
+                            except ROSMsgNotFound:
+                                continue
                             if target_type in [
                                 dict,
                                 list,
@@ -495,13 +634,29 @@ class Registry:
                                         "schema": self._generate_unilab_json_command_schema(v["args"], k),
                                         "goal_default": {i["name"]: i["default"] for i in v["args"]},
                                         "handles": [],
+                                        "placeholder_keys": {
+                                            i["name"]: (
+                                                "unilabos_resources"
+                                                if i["type"] == "unilabos.registry.placeholder_type:ResourceSlot"
+                                                or i["type"]
+                                                == ("list", "unilabos.registry.placeholder_type:ResourceSlot")
+                                                else "unilabos_devices"
+                                            )
+                                            for i in v["args"]
+                                            if i.get("type", "")
+                                            in [
+                                                "unilabos.registry.placeholder_type:ResourceSlot",
+                                                "unilabos.registry.placeholder_type:DeviceSlot",
+                                                ("list", "unilabos.registry.placeholder_type:ResourceSlot"),
+                                                ("list", "unilabos.registry.placeholder_type:DeviceSlot"),
+                                            ]
+                                        },
                                     }
                                     # 不生成已配置action的动作
                                     for k, v in enhanced_info["action_methods"].items()
                                     if k not in device_config["class"]["action_value_mappings"]
                                 }
                             )
-
                             # 恢复原有的description信息（auto开头的不修改）
                             for action_name, description in old_descriptions.items():
                                 if action_name in device_config["class"]["action_value_mappings"]:  # 有一些会被删除
@@ -523,13 +678,22 @@ class Registry:
                         for action_name, action_config in device_config["class"]["action_value_mappings"].items():
                             if "handles" not in action_config:
                                 action_config["handles"] = {}
+                            elif isinstance(action_config["handles"], list):
+                                if len(action_config["handles"]):
+                                    logger.error(f"设备{device_id} {action_name} 的handles配置错误，应该是字典类型")
+                                    continue
+                                else:
+                                    action_config["handles"] = {}
                             if "type" in action_config:
                                 action_type_str: str = action_config["type"]
                                 # 通过Json发放指令，而不是通过特殊的ros action进行处理
                                 if not action_type_str.startswith("UniLabJsonCommand"):
-                                    target_type = self._replace_type_with_class(
-                                        action_type_str, device_id, f"动作 {action_name}"
-                                    )
+                                    try:
+                                        target_type = self._replace_type_with_class(
+                                            action_type_str, device_id, f"动作 {action_name}"
+                                        )
+                                    except ROSMsgNotFound:
+                                        continue
                                     action_str_type_mapping[action_type_str] = target_type
                                     if target_type is not None:
                                         action_config["goal_default"] = yaml.safe_load(
@@ -545,33 +709,11 @@ class Registry:
                             device_config["class"]["status_types"][status_name] = status_str_type_mapping[status_type]
                         for action_name, action_config in device_config["class"]["action_value_mappings"].items():
                             action_config["type"] = action_str_type_mapping[action_config["type"]]
-                        for additional_action in ["_execute_driver_command", "_execute_driver_command_async"]:
-                            device_config["class"]["action_value_mappings"][additional_action] = {
-                                "type": self._replace_type_with_class(
-                                    "StrSingleInput", device_id, f"动作 {additional_action}"
-                                ),
-                                "goal": {"string": "string"},
-                                "feedback": {},
-                                "result": {},
-                                "schema": ros_action_to_json_schema(
-                                    self._replace_type_with_class(
-                                        "StrSingleInput", device_id, f"动作 {additional_action}"
-                                    )
-                                ),
-                                "goal_default": yaml.safe_load(
-                                    io.StringIO(
-                                        get_yaml_from_goal_type(
-                                            self._replace_type_with_class(
-                                                "StrSingleInput", device_id, f"动作 {additional_action}"
-                                            ).Goal
-                                        )
-                                    )
-                                ),
-                                "handles": {},
-                            }
+                        # 添加内置的驱动命令动作
+                        self._add_builtin_actions(device_config, device_id)
                     device_config["file_path"] = str(file.absolute()).replace("\\", "/")
                     device_config["registry_type"] = "device"
-                    logger.trace(
+                    logger.trace(  # type: ignore
                         f"[UniLab Registry] Device-{current_device_number} File-{i+1}/{len(files)} Add {device_id} "
                         + f"[{data[device_id].get('name', '未命名设备')}]"
                     )
@@ -592,7 +734,16 @@ class Registry:
             device_info_copy = copy.deepcopy(device_info)
             if "class" in device_info_copy and "action_value_mappings" in device_info_copy["class"]:
                 action_mappings = device_info_copy["class"]["action_value_mappings"]
-                for action_name, action_config in action_mappings.items():
+                # 过滤掉内置的驱动命令动作
+                builtin_actions = ["_execute_driver_command", "_execute_driver_command_async"]
+                filtered_action_mappings = {
+                    action_name: action_config
+                    for action_name, action_config in action_mappings.items()
+                    if action_name not in builtin_actions
+                }
+                device_info_copy["class"]["action_value_mappings"] = filtered_action_mappings
+
+                for action_name, action_config in filtered_action_mappings.items():
                     if "schema" in action_config and action_config["schema"]:
                         schema = action_config["schema"]
                         # 确保schema结构存在
