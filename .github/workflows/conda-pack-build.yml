@@ -84,12 +84,24 @@ jobs:
           echo "Using mamba for faster and more reliable dependency resolution..."
           mamba install uni-lab::unilabos conda-pack -c uni-lab -c robostack-staging -c conda-forge -y
 
-      - name: Get latest ros-humble-unilabos-msgs version
-        if: steps.should_build.outputs.should_build == 'true'
-        id: msgs_version
+      - name: Get latest ros-humble-unilabos-msgs version (Windows)
+        if: steps.should_build.outputs.should_build == 'true' && matrix.platform == 'win-64'
+        id: msgs_version_win
+        run: |
+          Write-Host "Checking installed ros-humble-unilabos-msgs version..."
+          $version = (conda list ros-humble-unilabos-msgs --json | ConvertFrom-Json)[0].version
+          Write-Output "installed_version=$version" >> $env:GITHUB_OUTPUT
+          Write-Host "Installed ros-humble-unilabos-msgs version: $version"
+
+      - name: Get latest ros-humble-unilabos-msgs version (Unix)
+        if: steps.should_build.outputs.should_build == 'true' && matrix.platform != 'win-64'
+        id: msgs_version_unix
+        shell: bash
         run: |
           echo "Checking installed ros-humble-unilabos-msgs version..."
-          python scripts/get_package_version.py ros-humble-unilabos-msgs
+          VERSION=$(conda list ros-humble-unilabos-msgs --json | python -c "import sys, json; pkgs=json.load(sys.stdin); print(pkgs[0]['version'] if pkgs else 'not-found')")
+          echo "installed_version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Installed ros-humble-unilabos-msgs version: $VERSION"
 
       - name: Check for newer ros-humble-unilabos-msgs
         if: steps.should_build.outputs.should_build == 'true'
