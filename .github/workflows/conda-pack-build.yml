@@ -203,11 +203,16 @@ jobs:
           mamba run -n unilab python scripts/verify_installation.py --auto-install || echo "Warning: Verification script reported issues"
           echo "Environment verification complete!"
 
-      - name: Pack conda environment (Windows)
+      - name: Conda pack installation (Windows)
         if: steps.should_build.outputs.should_build == 'true' && matrix.platform == 'win-64'
         run: |
           echo Packing unilab environment with conda-pack...
           mamba install conda-pack -c conda-forge -y
+
+      - name: Pack conda environment (Windows)
+        if: steps.should_build.outputs.should_build == 'true' && matrix.platform == 'win-64'
+        run: |
+          echo Packing unilab environment with conda-pack...
           conda pack -n unilab -o unilab-env-${{ matrix.platform }}.tar.gz --ignore-missing-files
           echo Pack file created:
           dir unilab-env-${{ matrix.platform }}.tar.gz
