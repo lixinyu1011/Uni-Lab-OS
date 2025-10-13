@@ -9,22 +9,6 @@ API_CONFIG = {
     "api_host": ""
 }
 
-# 站点类型配置
-STATION_TYPES = {
-    "REACTION": "reaction_station",      # 仅反应站
-    "DISPENSING": "dispensing_station",  # 仅配液站
-    "HYBRID": "hybrid_station"           # 混合模式
-}
-
-# 默认站点配置
-DEFAULT_STATION_CONFIG = {
-    "station_type": STATION_TYPES["REACTION"],  # 默认反应站模式
-    "enable_reaction_station": True,            # 是否启用反应站功能
-    "enable_dispensing_station": False,         # 是否启用配液站功能
-    "station_name": "BioyondReactionStation",   # 站点名称
-    "description": "Bioyond反应工作站"          # 站点描述
-}
-
 # 工作流映射配置
 WORKFLOW_MAPPINGS = {
     "reactor_taken_out": "",
@@ -49,52 +33,75 @@ WORKFLOW_TO_SECTION_MAP = {
 }
 
 # 库位映射配置
-LOCATION_MAPPING = {
-    'A01': '',
-    'A02': '',
-    'A03': '',
-    'A04': '',
-    'A05': '',
-    'A06': '',
-    'A07': '',
-    'A08': '',
-    'B01': '',
-    'B02': '',
-    'B03': '',
-    'B04': '',
-    'B05': '',
-    'B06': '',
-    'B07': '',
-    'B08': '',
-    'C01': '',
-    'C02': '',
-    'C03': '',
-    'C04': '',
-    'C05': '',
-    'C06': '',
-    'C07': '',
-    'C08': '',
-    'D01': '',
-    'D02': '',
-    'D03': '',
-    'D04': '',
-    'D05': '',
-    'D06': '',
-    'D07': '',
-    'D08': '',
+WAREHOUSE_MAPPING = {
+    "粉末堆栈": {
+        "uuid": "",
+        "site_uuids": {
+            # 样品板
+            "A1": "3a14198e-6929-31f0-8a22-0f98f72260df",
+            "A2": "3a14198e-6929-4379-affa-9a2935c17f99",
+            "A3": "3a14198e-6929-56da-9a1c-7f5fbd4ae8af",
+            "A4": "3a14198e-6929-5e99-2b79-80720f7cfb54",
+            "B1": "3a14198e-6929-f525-9a1b-1857552b28ee",
+            "B2": "3a14198e-6929-bf98-0fd5-26e1d68bf62d",
+            "B3": "3a14198e-6929-2d86-a468-602175a2b5aa",
+            "B4": "3a14198e-6929-1a98-ae57-e97660c489ad",
+            # 分装板
+            "C1": "3a14198e-6929-46fe-841e-03dd753f1e4a",
+            "C2": "3a14198e-6929-1bc9-a9bd-3b7ca66e7f95",
+            "C3": "3a14198e-6929-72ac-32ce-9b50245682b8",
+            "C4": "3a14198e-6929-3bd8-e6c7-4a9fd93be118",
+            "D1": "3a14198e-6929-8a0b-b686-6f4a2955c4e2",
+            "D2": "3a14198e-6929-dde1-fc78-34a84b71afdf",
+            "D3": "3a14198e-6929-a0ec-5f15-c0f9f339f963",
+            "D4": "3a14198e-6929-7ac8-915a-fea51cb2e884"
+        }
+    },
+    "溶液堆栈": {
+        "uuid": "",
+        "site_uuids": {
+            "A1": "3a14198e-d724-e036-afdc-2ae39a7f3383",
+            "A2": "3a14198e-d724-afa4-fc82-0ac8a9016791",
+            "A3": "3a14198e-d724-ca48-bb9e-7e85751e55b6",
+            "A4": "3a14198e-d724-df6d-5e32-5483b3cab583",
+            "B1": "3a14198e-d724-d818-6d4f-5725191a24b5",
+            "B2": "3a14198e-d724-be8a-5e0b-012675e195c6",
+            "B3": "3a14198e-d724-cc1e-5c2c-228a130f40a8",
+            "B4": "3a14198e-d724-1e28-c885-574c3df468d0",
+            "C1": "3a14198e-d724-b5bb-adf3-4c5a0da6fb31",
+            "C2": "3a14198e-d724-ab4e-48cb-817c3c146707",
+            "C3": "3a14198e-d724-7f18-1853-39d0c62e1d33",
+            "C4": "3a14198e-d724-28a2-a760-baa896f46b66",
+            "D1": "3a14198e-d724-d378-d266-2508a224a19f",
+            "D2": "3a14198e-d724-f56e-468b-0110a8feb36a",
+            "D3": "3a14198e-d724-0cf1-dea9-a1f40fe7e13c",
+            "D4": "3a14198e-d724-0ddd-9654-f9352a421de9"
+        }
+    },
+    "试剂堆栈": {
+        "uuid": "",
+        "site_uuids": {
+            "A1": "3a14198c-c2cf-8b40-af28-b467808f1c36",
+            "A2": "3a14198c-c2d0-f3e7-871a-e470d144296f",
+            "A3": "3a14198c-c2d0-dc7d-b8d0-e1d88cee3094",
+            "A4": "3a14198c-c2d0-2070-efc8-44e245f10c6f",
+            "B1": "3a14198c-c2d0-354f-39ad-642e1a72fcb8",
+            "B2": "3a14198c-c2d0-1559-105d-0ea30682cab4",
+            "B3": "3a14198c-c2d0-725e-523d-34c037ac2440",
+            "B4": "3a14198c-c2d0-efce-0939-69ca5a7dfd39"
+        }
+    }
 }
 
 # 物料类型配置
-MATERIAL_TYPE_IDS = {
-    "样品板": "",
-    "样品": "",
-    "烧杯": ""
-}
-
 MATERIAL_TYPE_MAPPINGS = {
-    "烧杯": "BIOYOND_PolymerStation_1FlaskCarrier",
-    "试剂瓶": "BIOYOND_PolymerStation_1BottleCarrier",
-    "样品板": "BIOYOND_PolymerStation_6VialCarrier",
+    "烧杯": ("BIOYOND_PolymerStation_1FlaskCarrier", "3a14196b-24f2-ca49-9081-0cab8021bf1a"),
+    "试剂瓶": ("BIOYOND_PolymerStation_1BottleCarrier", ""),
+    "样品板": ("BIOYOND_PolymerStation_6StockCarrier", "3a14196e-b7a0-a5da-1931-35f3000281e9"),
+    "分装板": ("BIOYOND_PolymerStation_6VialCarrier", "3a14196e-5dfe-6e21-0c79-fe2036d052c4"),
+    "样品瓶": ("BIOYOND_PolymerStation_Solid_Stock", "3a14196a-cf7d-8aea-48d8-b9662c7dba94"),
+    "90%分装小瓶": ("BIOYOND_PolymerStation_Solid_Vial", "3a14196c-cdcf-088d-dc7d-5cf38f0ad9ea"),
+    "10%分装小瓶": ("BIOYOND_PolymerStation_Liquid_Vial", "3a14196c-76be-2279-4e22-7310d69aed68"),
 }
 
 # 步骤参数配置（各工作流的步骤UUID）

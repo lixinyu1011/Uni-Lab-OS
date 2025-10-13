@@ -193,7 +193,8 @@ class BioyondWorkstation(WorkstationBase):
         self.bioyond_config = config or {
             **API_CONFIG,
             "workflow_mappings": WORKFLOW_MAPPINGS,
-            "material_type_mappings": MATERIAL_TYPE_MAPPINGS
+            "material_type_mappings": MATERIAL_TYPE_MAPPINGS,
+            "warehouse_mapping": WAREHOUSE_MAPPING
         }
 
         self.hardware_interface = BioyondV1RPC(self.bioyond_config)
