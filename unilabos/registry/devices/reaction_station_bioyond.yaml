@@ -4,11 +4,11 @@ reaction_station.bioyond:
   - reaction_station_bioyond
   class:
     action_value_mappings:
-      auto-add_material:
+      auto-append_to_workflow_sequence:
         feedback: {}
         goal: {}
         goal_default:
-          material_data: null
+          web_workflow_name: null
         handles: {}
         placeholder_keys: {}
         result: {}
@@ -18,22 +18,21 @@ reaction_station.bioyond:
             feedback: {}
             goal:
               properties:
-                material_data:
-                  type: object
+                web_workflow_name:
+                  type: string
               required:
-              - material_data
+              - web_workflow_name
               type: object
             result: {}
           required:
           - goal
-          title: add_material参数
+          title: append_to_workflow_sequence参数
           type: object
         type: UniLabJsonCommand
-      auto-create_90_10_vial_feeding_task:
+      auto-clear_workflows:
         feedback: {}
         goal: {}
-        goal_default:
-          task_data: null
+        goal_default: {}
         handles: {}
         placeholder_keys: {}
         result: {}
@@ -42,470 +41,13 @@ reaction_station.bioyond:
           properties:
             feedback: {}
             goal:
-              properties:
-                task_data:
-                  type: string
-              required:
-              - task_data
-              type: object
-            result: {}
-          required:
-          - goal
-          title: create_90_10_vial_feeding_task参数
-          type: object
-        type: UniLabJsonCommand
-      auto-create_batch_90_10_vial_feeding_task:
-        feedback: {}
-        goal: {}
-        goal_default:
-          batch_data: null
-        handles: {}
-        placeholder_keys: {}
-        result: {}
-        schema:
-          description: ''
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                batch_data:
-                  type: string
-              required:
-              - batch_data
-              type: object
-            result: {}
-          required:
-          - goal
-          title: create_batch_90_10_vial_feeding_task参数
-          type: object
-        type: UniLabJsonCommand
-      auto-create_batch_diamine_solution_task:
-        feedback: {}
-        goal: {}
-        goal_default:
-          batch_data: null
-        handles: {}
-        placeholder_keys: {}
-        result: {}
-        schema:
-          description: ''
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                batch_data:
-                  type: string
-              required:
-              - batch_data
-              type: object
-            result: {}
-          required:
-          - goal
-          title: create_batch_diamine_solution_task参数
-          type: object
-        type: UniLabJsonCommand
-      auto-create_diamine_solution_task:
-        feedback: {}
-        goal: {}
-        goal_default:
-          solution_data: null
-        handles: {}
-        placeholder_keys: {}
-        result: {}
-        schema:
-          description: ''
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                solution_data:
-                  type: string
-              required:
-              - solution_data
-              type: object
-            result: {}
-          required:
-          - goal
-          title: create_diamine_solution_task参数
-          type: object
-        type: UniLabJsonCommand
-      auto-create_order:
-        feedback: {}
-        goal: {}
-        goal_default:
-          parameters: null
-          task_name: null
-          workflow_name: null
-        handles: {}
-        placeholder_keys: {}
-        result: {}
-        schema:
-          description: ''
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                parameters:
-                  type: object
-                task_name:
-                  type: string
-                workflow_name:
-                  type: string
-              required:
-              - workflow_name
-              - task_name
-              type: object
-            result: {}
-          required:
-          - goal
-          title: create_order参数
-          type: object
-        type: UniLabJsonCommand
-      auto-create_resource:
-        feedback: {}
-        goal: {}
-        goal_default:
-          resource_data: null
-        handles: {}
-        placeholder_keys: {}
-        result: {}
-        schema:
-          description: ''
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                resource_data:
-                  type: string
-              required:
-              - resource_data
-              type: object
-            result: {}
-          required:
-          - goal
-          title: create_resource参数
-          type: object
-        type: UniLabJsonCommand
-      auto-delete_material:
-        feedback: {}
-        goal: {}
-        goal_default:
-          material_data: null
-        handles: {}
-        placeholder_keys: {}
-        result: {}
-        schema:
-          description: ''
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                material_data:
-                  type: string
-              required:
-              - material_data
-              type: object
-            result: {}
-          required:
-          - goal
-          title: delete_material参数
-          type: object
-        type: UniLabJsonCommand
-      auto-device_operation:
-        feedback: {}
-        goal: {}
-        goal_default:
-          device_id: null
-          operation: null
-          parameters: null
-        handles: {}
-        placeholder_keys: {}
-        result: {}
-        schema:
-          description: ''
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                device_id:
-                  type: string
-                operation:
-                  type: string
-                parameters:
-                  type: object
-              required:
-              - device_id
-              - operation
-              type: object
-            result: {}
-          required:
-          - goal
-          title: device_operation参数
-          type: object
-        type: UniLabJsonCommand
-      auto-dispensing_material_inbound:
-        feedback: {}
-        goal: {}
-        goal_default:
-          material_data: null
-        handles: {}
-        placeholder_keys: {}
-        result: {}
-        schema:
-          description: ''
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                material_data:
-                  type: string
-              required:
-              - material_data
-              type: object
-            result: {}
-          required:
-          - goal
-          title: dispensing_material_inbound参数
-          type: object
-        type: UniLabJsonCommand
-      auto-dispensing_material_outbound:
-        feedback: {}
-        goal: {}
-        goal_default:
-          material_data: null
-        handles: {}
-        placeholder_keys: {}
-        result: {}
-        schema:
-          description: ''
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                material_data:
-                  type: string
-              required:
-              - material_data
-              type: object
-            result: {}
-          required:
-          - goal
-          title: dispensing_material_outbound参数
-          type: object
-        type: UniLabJsonCommand
-      auto-drip_back:
-        feedback: {}
-        goal: {}
-        goal_default:
-          assign_material_name: Reactor
-          temperature: 25.0
-          time: '0'
-          torque_variation: '1'
-        handles: {}
-        placeholder_keys: {}
-        result: {}
-        schema:
-          description: ''
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                assign_material_name:
-                  default: Reactor
-                  type: string
-                temperature:
-                  default: 25.0
-                  type: number
-                time:
-                  default: '0'
-                  type: string
-                torque_variation:
-                  default: '1'
-                  type: string
+              properties: {}
               required: []
               type: object
             result: {}
           required:
           - goal
-          title: drip_back参数
-          type: object
-        type: UniLabJsonCommand
-      auto-execute_bioyond_sync_workflow:
-        feedback: {}
-        goal: {}
-        goal_default:
-          parameters: null
-        handles: {}
-        placeholder_keys: {}
-        result: {}
-        schema:
-          description: ''
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                parameters:
-                  type: object
-              required:
-              - parameters
-              type: object
-            result: {}
-          required:
-          - goal
-          title: execute_bioyond_sync_workflow参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-execute_bioyond_update_workflow:
-        feedback: {}
-        goal: {}
-        goal_default:
-          parameters: null
-        handles: {}
-        placeholder_keys: {}
-        result: {}
-        schema:
-          description: ''
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                parameters:
-                  type: object
-              required:
-              - parameters
-              type: object
-            result: {}
-          required:
-          - goal
-          title: execute_bioyond_update_workflow参数
-          type: object
-        type: UniLabJsonCommandAsync
-      auto-liquid_feeding_beaker:
-        feedback: {}
-        goal: {}
-        goal_default:
-          material_name: ''
-          volume: ''
-        handles: {}
-        placeholder_keys: {}
-        result: {}
-        schema:
-          description: ''
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                material_name:
-                  default: ''
-                  type: string
-                volume:
-                  default: ''
-                  type: string
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: liquid_feeding_beaker参数
-          type: object
-        type: UniLabJsonCommand
-      auto-liquid_feeding_solvents:
-        feedback: {}
-        goal: {}
-        goal_default:
-          material_name: ''
-          volume: ''
-        handles: {}
-        placeholder_keys: {}
-        result: {}
-        schema:
-          description: ''
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                material_name:
-                  default: ''
-                  type: string
-                volume:
-                  default: ''
-                  type: string
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: liquid_feeding_solvents参数
-          type: object
-        type: UniLabJsonCommand
-      auto-liquid_feeding_titration:
-        feedback: {}
-        goal: {}
-        goal_default:
-          material_name: ''
-          time: '120'
-          titration_type: '1'
-          torque_variation: '2'
-          volume: ''
-        handles: {}
-        placeholder_keys: {}
-        result: {}
-        schema:
-          description: ''
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                material_name:
-                  default: ''
-                  type: string
-                time:
-                  default: '120'
-                  type: string
-                titration_type:
-                  default: '1'
-                  type: string
-                torque_variation:
-                  default: '2'
-                  type: string
-                volume:
-                  default: ''
-                  type: string
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: liquid_feeding_titration参数
-          type: object
-        type: UniLabJsonCommand
-      auto-liquid_feeding_vials_non_titration:
-        feedback: {}
-        goal: {}
-        goal_default:
-          material_name: ''
-          volume: ''
-        handles: {}
-        placeholder_keys: {}
-        result: {}
-        schema:
-          description: ''
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                material_name:
-                  default: ''
-                  type: string
-                volume:
-                  default: ''
-                  type: string
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: liquid_feeding_vials_non_titration参数
+          title: clear_workflows参数
           type: object
         type: UniLabJsonCommand
       auto-load_bioyond_data_from_file:
@@ -533,74 +75,11 @@ reaction_station.bioyond:
           title: load_bioyond_data_from_file参数
           type: object
         type: UniLabJsonCommand
-      auto-material_inbound:
-        feedback: {}
-        goal: {}
-        goal_default:
-          location_name: null
-          material_id: null
-        handles: {}
-        placeholder_keys: {}
-        result: {}
-        schema:
-          description: ''
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                location_name:
-                  type: string
-                material_id:
-                  type: string
-              required:
-              - material_id
-              - location_name
-              type: object
-            result: {}
-          required:
-          - goal
-          title: material_inbound参数
-          type: object
-        type: UniLabJsonCommand
-      auto-material_outbound:
-        feedback: {}
-        goal: {}
-        goal_default:
-          location_name: null
-          material_id: null
-          quantity: null
-        handles: {}
-        placeholder_keys: {}
-        result: {}
-        schema:
-          description: ''
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                location_name:
-                  type: string
-                material_id:
-                  type: string
-                quantity:
-                  type: integer
-              required:
-              - material_id
-              - location_name
-              - quantity
-              type: object
-            result: {}
-          required:
-          - goal
-          title: material_outbound参数
-          type: object
-        type: UniLabJsonCommand
       auto-merge_workflow_with_parameters:
         feedback: {}
         goal: {}
         goal_default:
-          name: null
-          workflows: null
+          json_str: null
         handles: {}
         placeholder_keys: {}
         result: {}
@@ -610,45 +89,15 @@ reaction_station.bioyond:
             feedback: {}
             goal:
               properties:
-                name:
+                json_str:
                   type: string
-                workflows:
-                  items:
-                    type: object
-                  type: array
               required:
-              - name
-              - workflows
+              - json_str
               type: object
             result: {}
           required:
           - goal
           title: merge_workflow_with_parameters参数
-          type: object
-        type: UniLabJsonCommand
-      auto-order_query:
-        feedback: {}
-        goal: {}
-        goal_default:
-          query_data: null
-        handles: {}
-        placeholder_keys: {}
-        result: {}
-        schema:
-          description: ''
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                query_data:
-                  type: string
-              required:
-              - query_data
-              type: object
-            result: {}
-          required:
-          - goal
-          title: order_query参数
           type: object
         type: UniLabJsonCommand
       auto-post_init:
@@ -676,33 +125,11 @@ reaction_station.bioyond:
           title: post_init参数
           type: object
         type: UniLabJsonCommand
-      auto-reactor_taken_in:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: {}
-        placeholder_keys: {}
-        result: {}
-        schema:
-          description: ''
-          properties:
-            feedback: {}
-            goal:
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: reactor_taken_in参数
-          type: object
-        type: UniLabJsonCommand
-      auto-reactor_taken_out:
+      auto-process_web_workflows:
         feedback: {}
         goal: {}
         goal_default:
-          order_id: ''
-          preintake_id: ''
+          json_str: null
         handles: {}
         placeholder_keys: {}
         result: {}
@@ -712,18 +139,15 @@ reaction_station.bioyond:
             feedback: {}
             goal:
               properties:
-                order_id:
-                  default: ''
+                json_str:
                   type: string
-                preintake_id:
-                  default: ''
-                  type: string
-              required: []
+              required:
+              - json_str
               type: object
             result: {}
           required:
           - goal
-          title: reactor_taken_out参数
+          title: process_web_workflows参数
           type: object
         type: UniLabJsonCommand
       auto-reset_workstation:
@@ -747,11 +171,11 @@ reaction_station.bioyond:
           title: reset_workstation参数
           type: object
         type: UniLabJsonCommand
-      auto-sample_waste_removal:
+      auto-resource_tree_add:
         feedback: {}
         goal: {}
         goal_default:
-          waste_data: null
+          resources: null
         handles: {}
         placeholder_keys: {}
         result: {}
@@ -761,119 +185,42 @@ reaction_station.bioyond:
             feedback: {}
             goal:
               properties:
-                waste_data:
+                resources:
+                  items:
+                    type: object
+                  type: array
+              required:
+              - resources
+              type: object
+            result: {}
+          required:
+          - goal
+          title: resource_tree_add参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_workflow_sequence:
+        feedback: {}
+        goal: {}
+        goal_default:
+          json_str: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                json_str:
                   type: string
               required:
-              - waste_data
+              - json_str
               type: object
             result: {}
           required:
           - goal
-          title: sample_waste_removal参数
-          type: object
-        type: UniLabJsonCommand
-      auto-solid_feeding_vials:
-        feedback: {}
-        goal: {}
-        goal_default:
-          material_name: ''
-          volume: ''
-        handles: {}
-        placeholder_keys: {}
-        result: {}
-        schema:
-          description: ''
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                material_name:
-                  default: ''
-                  type: string
-                volume:
-                  default: ''
-                  type: string
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: solid_feeding_vials参数
-          type: object
-        type: UniLabJsonCommand
-      auto-start_scheduler:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: {}
-        placeholder_keys: {}
-        result: {}
-        schema:
-          description: ''
-          properties:
-            feedback: {}
-            goal:
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: start_scheduler参数
-          type: object
-        type: UniLabJsonCommand
-      auto-stock_material:
-        feedback: {}
-        goal: {}
-        goal_default:
-          location: null
-          material_id: null
-          quantity: null
-        handles: {}
-        placeholder_keys: {}
-        result: {}
-        schema:
-          description: ''
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                location:
-                  type: string
-                material_id:
-                  type: string
-                quantity:
-                  type: integer
-              required:
-              - material_id
-              - location
-              - quantity
-              type: object
-            result: {}
-          required:
-          - goal
-          title: stock_material参数
-          type: object
-        type: UniLabJsonCommand
-      auto-stop_scheduler:
-        feedback: {}
-        goal: {}
-        goal_default: {}
-        handles: {}
-        placeholder_keys: {}
-        result: {}
-        schema:
-          description: ''
-          properties:
-            feedback: {}
-            goal:
-              properties: {}
-              required: []
-              type: object
-            result: {}
-          required:
-          - goal
-          title: stop_scheduler参数
+          title: set_workflow_sequence参数
           type: object
         type: UniLabJsonCommand
       auto-transfer_resource_to_another:
@@ -1062,33 +409,6 @@ reaction_station.bioyond:
           required:
           - goal
           title: transfer_resource_to_another参数
-          type: object
-        type: UniLabJsonCommand
-      auto-validate_workflow_parameters:
-        feedback: {}
-        goal: {}
-        goal_default:
-          workflows: null
-        handles: {}
-        placeholder_keys: {}
-        result: {}
-        schema:
-          description: ''
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                workflows:
-                  items:
-                    type: object
-                  type: array
-              required:
-              - workflows
-              type: object
-            result: {}
-          required:
-          - goal
-          title: validate_workflow_parameters参数
           type: object
         type: UniLabJsonCommand
       bioyond_sync:
@@ -1407,11 +727,8 @@ reaction_station.bioyond:
     module: unilabos.devices.workstation.bioyond_studio.station:BioyondWorkstation
     protocol_type: []
     status_types:
+      all_workflows: dict
       bioyond_status: dict
-      device_list: dict
-      scheduler_status: dict
-      station_info: dict
-      workflow_parameter_template: dict
       workstation_status: dict
     type: python
   config_info: []
@@ -1431,24 +748,15 @@ reaction_station.bioyond:
       type: object
     data:
       properties:
+        all_workflows:
+          type: object
         bioyond_status:
-          type: object
-        device_list:
-          type: object
-        scheduler_status:
-          type: object
-        station_info:
-          type: object
-        workflow_parameter_template:
           type: object
         workstation_status:
           type: object
       required:
-      - station_info
       - bioyond_status
-      - workflow_parameter_template
-      - scheduler_status
-      - device_list
+      - all_workflows
       - workstation_status
       type: object
   version: 1.0.0

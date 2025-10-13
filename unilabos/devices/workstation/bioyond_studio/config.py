@@ -134,3 +134,5 @@ WORKFLOW_STEP_IDS = {
         "observe": ""
     }
 }
+
+LOCATION_MAPPING = {}
