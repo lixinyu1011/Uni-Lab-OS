@@ -172,7 +172,7 @@ Examples:
         with open(output_path, "w", encoding="utf-8") as f:
             f.write(readme_content)
 
-        print(f"✓ README.txt created: {output_path}")
+        print(f"  README.txt created: {output_path}")
         print(f"  Platform: {args.platform}")
         print(f"  Branch:   {args.branch}")
 
