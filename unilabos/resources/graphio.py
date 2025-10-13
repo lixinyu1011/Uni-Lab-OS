@@ -2,12 +2,13 @@ import importlib
 import inspect
 import json
 import traceback
-from typing import Union, Any, Dict, List
+from typing import Union, Any, Dict, List, Tuple
 import networkx as nx
 from pylabrobot.resources import ResourceHolder
 from unilabos_msgs.msg import Resource
 
 from unilabos.resources.container import RegularContainer
+from unilabos.resources.itemized_carrier import ItemizedCarrier
 from unilabos.ros.msgs.message_converter import convert_to_ros_msg
 from unilabos.ros.nodes.resource_tracker import (
     ResourceDictInstance,
@@ -576,13 +577,13 @@ def resource_plr_to_ulab(resource_plr: "ResourcePLR", parent_name: str = None, w
     return r
 
 
-def resource_bioyond_to_plr(bioyond_materials: list[dict], type_mapping: dict = {}, deck: Any = None) -> list[dict]:
+def resource_bioyond_to_plr(bioyond_materials: list[dict], type_mapping: Dict[str, Tuple[str, str]] = {}, deck: Any = None) -> list[dict]:
     """
     将 bioyond 物料格式转换为 ulab 物料格式
 
     Args:
         bioyond_materials: bioyond 系统的物料查询结果列表
-        type_mapping: 物料类型映射字典，格式 {bioyond_type: plr_class_name}
+        type_mapping: 物料类型映射字典，格式 {bioyond_type: [plr_class_name, class_uuid]}
         location_id_mapping: 库位 ID 到名称的映射字典，格式 {location_id: location_name}
 
     Returns:
@@ -592,7 +593,7 @@ def resource_bioyond_to_plr(bioyond_materials: list[dict], type_mapping: dict = 
 
     for material in bioyond_materials:
         className = (
-            type_mapping.get(material.get("typeName"), "RegularContainer") if type_mapping else "RegularContainer"
+            type_mapping.get(material.get("typeName"), ("RegularContainer", ""))[0] if type_mapping else "RegularContainer"
         )
 
         plr_material: ResourcePLR = initialize_resource(
@@ -614,7 +615,7 @@ def resource_bioyond_to_plr(bioyond_materials: list[dict], type_mapping: dict = 
                     # plr_material.unassign_child_resource(bottle)
                     plr_material.sites[number] = None
                     plr_material[number] = initialize_resource(
-                        {"name": f'{detail["name"]}_{number}', "class": type_mapping[detail["name"]]}, resource_type=ResourcePLR
+                        {"name": f'{detail["name"]}_{number}', "class": type_mapping[detail["name"]][0]}, resource_type=ResourcePLR
                     )
                 else:
                     bottle.tracker.liquids = [
@@ -645,32 +646,59 @@ def resource_bioyond_to_plr(bioyond_materials: list[dict], type_mapping: dict = 
     return plr_materials
 
 
-def resource_plr_to_bioyond(plr_materials: list[ResourcePLR], type_mapping: dict = {}, warehouse_mapping: dict = {}) -> list[dict]:
+def resource_plr_to_bioyond(plr_resources: list[ResourcePLR], type_mapping: dict = {}, warehouse_mapping: dict = {}) -> list[dict]:
     bioyond_materials = []
-    for plr_material in plr_materials:
-        material = {
-            "name": plr_material.name,
-            "typeName": plr_material.__class__.__name__,
-            "code": plr_material.code,
-            "quantity": 0,
-            "detail": [],
-            "locations": [],
-        }
-        if hasattr(plr_material, "capacity") and plr_material.capacity > 1:
-            for idx in range(plr_material.capacity):
-                bottle = plr_material[idx]
-                detail = {
-                    "x": (idx // (plr_material.num_items_x * plr_material.num_items_y)) + 1,
-                    "y": ((idx % (plr_material.num_items_x * plr_material.num_items_y)) // plr_material.num_items_x) + 1,
-                    "z": (idx % plr_material.num_items_x) + 1,
+    for resource in plr_resources:
+        if hasattr(resource, "capacity") and resource.capacity > 1:
+            material = {
+                "typeId": type_mapping.get(resource.model)[1],
+                "name": resource.name,
+                "unit": "个",
+                "quantity": 1,
+                "details": [],
+                "Parameters": "{}"
+            }
+            for bottle in resource.children:
+                if isinstance(resource, ItemizedCarrier):
+                    site = resource.get_child_identifier(bottle)
+                else:
+                    site = {"x": bottle.location.x - 1, "y": bottle.location.y - 1}
+                detail_item = {
+                    "typeId": type_mapping.get(bottle.model)[1],
+                    "name": bottle.name,
                     "code": bottle.code if hasattr(bottle, "code") else "",
                     "quantity": sum(qty for _, qty in bottle.tracker.liquids) if hasattr(bottle, "tracker") else 0,
+                    "x": site["x"] + 1,
+                    "y": site["y"] + 1,
+                    "molecular": 1,
+                    "Parameters": json.dumps({"molecular": 1})
                 }
-                material["detail"].append(detail)
-            material["quantity"] = 1.0
+                material["details"].append(detail_item)
         else:
-            bottle = plr_material[0] if plr_material.capacity > 0 else plr_material
-            material["quantity"] = sum(qty for _, qty in bottle.tracker.liquids) if hasattr(plr_material, "tracker") else 0
+            bottle = resource[0] if resource.capacity > 0 else resource
+            material = {
+                "typeId": "3a14196b-24f2-ca49-9081-0cab8021bf1a",
+                "name": resource.get("name", ""),
+                "unit": "",
+                "quantity": sum(qty for _, qty in bottle.tracker.liquids) if hasattr(bottle, "tracker") else 0,
+                "Parameters": "{}"
+            }
+
+        if resource.parent is not None and isinstance(resource.parent, ItemizedCarrier):
+            site_in_parent = resource.parent.get_child_identifier(resource)
+            material["locations"] = [
+                {
+                    "id": warehouse_mapping[resource.parent.name]["site_uuids"][site_in_parent["identifier"]],
+                    "whid": warehouse_mapping[resource.parent.name]["uuid"],
+                    "whName": resource.parent.name,
+                    "x": site_in_parent["z"] + 1,
+                    "y": site_in_parent["y"] + 1,
+                    "z": 1,
+                    "quantity": 0
+                }
+            ],
+
+        print(f"material_data: {material}")
         bioyond_materials.append(material)
     return bioyond_materials
 
