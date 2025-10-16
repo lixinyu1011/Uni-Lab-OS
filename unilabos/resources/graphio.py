@@ -4,6 +4,7 @@ import json
 import os.path
 import traceback
 from typing import Union, Any, Dict, List, Tuple
+import uuid
 import networkx as nx
 from pylabrobot.resources import ResourceHolder
 from unilabos_msgs.msg import Resource
@@ -16,6 +17,7 @@ from unilabos.ros.nodes.resource_tracker import (
     ResourceDictInstance,
     ResourceTreeSet,
 )
+from unilabos.utils import logger
 from unilabos.utils.banner_print import print_status
 
 try:
@@ -52,7 +54,7 @@ def canonicalize_nodes_data(
         if not node.get("type"):
             node["type"] = "device"
             print_status(f"Warning: Node {node.get('id', 'unknown')} missing 'type', defaulting to 'device'", "warning")
-        if not node.get("name"):
+        if node.get("name", None) is None:
             node["name"] = node.get("id")
             print_status(f"Warning: Node {node.get('id', 'unknown')} missing 'name', defaulting to {node['name']}", "warning")
         if not isinstance(node.get("position"), dict):
@@ -66,8 +68,12 @@ def canonicalize_nodes_data(
             z = node.pop("z", None)
             if z is not None:
                 node["position"]["position"]["z"] = z
+        if "sample_id" in node:
+            sample_id = node.pop("sample_id")
+            if sample_id:
+                logger.error(f"{node}的sample_id参数已弃用，sample_id: {sample_id}")
         for k in list(node.keys()):
-            if k not in ["id", "uuid", "name", "description", "schema", "model", "icon", "parent_uuid", "parent", "type", "class", "position", "config", "data"]:
+            if k not in ["id", "uuid", "name", "description", "schema", "model", "icon", "parent_uuid", "parent", "type", "class", "position", "config", "data", "children"]:
                 v = node.pop(k)
                 node["config"][k] = v
 
@@ -629,6 +635,7 @@ def resource_bioyond_to_plr(bioyond_materials: list[dict], type_mapping: Dict[st
             {"name": material["name"], "class": className}, resource_type=ResourcePLR
         )
         plr_material.code = material.get("code", "") and material.get("barCode", "") or ""
+        plr_material.unilabos_uuid = str(uuid.uuid4())
 
         # 处理子物料（detail）
         if material.get("detail") and len(material["detail"]) > 0:
@@ -774,6 +781,7 @@ def initialize_resource(resource_config: dict, resource_type: Any = None) -> Uni
             else:
                 r = resource_plr
         elif resource_class_config["type"] == "unilabos":
+            raise ValueError(f"No more support for unilabos Resource class {resource_class_config}")
             res_instance: RegularContainer = RESOURCE(id=resource_config["name"])
             res_instance.ulr_resource = convert_to_ros_msg(
                 Resource, {k: v for k, v in resource_config.items() if k != "class"}

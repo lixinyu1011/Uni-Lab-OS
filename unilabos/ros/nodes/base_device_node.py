@@ -6,7 +6,7 @@ import threading
 import time
 import traceback
 import uuid
-from typing import get_type_hints, TypeVar, Generic, Dict, Any, Type, TypedDict, Optional, List, TYPE_CHECKING
+from typing import get_type_hints, TypeVar, Generic, Dict, Any, Type, TypedDict, Optional, List, TYPE_CHECKING, Union
 
 from concurrent.futures import ThreadPoolExecutor
 import asyncio
@@ -132,6 +132,7 @@ class ROSLoggerAdapter:
 def init_wrapper(
     self,
     device_id: str,
+    device_uuid: str,
     driver_class: type[T],
     device_config: Dict[str, Any],
     status_types: Dict[str, Any],
@@ -150,6 +151,7 @@ def init_wrapper(
     if children is None:
         children = []
     kwargs["device_id"] = device_id
+    kwargs["device_uuid"] = device_uuid
     kwargs["driver_class"] = driver_class
     kwargs["device_config"] = device_config
     kwargs["driver_params"] = driver_params
@@ -266,6 +268,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
         self,
         driver_instance: T,
         device_id: str,
+        device_uuid: str,
         status_types: Dict[str, Any],
         action_value_mappings: Dict[str, Any],
         hardware_interface: Dict[str, Any],
@@ -278,6 +281,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
         Args:
             driver_instance: 设备实例
             device_id: 设备标识符
+            device_uuid: 设备标识符
             status_types: 需要发布的状态和传感器信息
             action_value_mappings: 设备动作
             hardware_interface: 硬件接口配置
@@ -285,7 +289,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
         """
         self.driver_instance = driver_instance
         self.device_id = device_id
-        self.uuid = str(uuid.uuid4())
+        self.uuid = device_uuid
         self.publish_high_frequency = False
         self.callback_group = ReentrantCallbackGroup()
         self.resource_tracker = resource_tracker
@@ -554,6 +558,11 @@ class BaseROS2DeviceNode(Node, Generic[T]):
     async def update_resource(self, resources: List["ResourcePLR"]):
         r = SerialCommand.Request()
         tree_set = ResourceTreeSet.from_plr_resources(resources)
+        for tree in tree_set.trees:
+            root_node = tree.root_node
+            if not root_node.res_content.uuid_parent:
+                logger.warning(f"更新无父节点物料{root_node}，自动以当前设备作为根节点")
+                root_node.res_content.parent_uuid = self.uuid
         r.command = json.dumps({"data": {"data": tree_set.dump()}, "action": "update"})
         response: SerialCommand_Response = await self._resource_clients["c2s_update_resource_tree"].call_async(r)  # type: ignore
         try:
@@ -648,15 +657,27 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                             results.append({"success": True, "action": "update"})
                     elif action == "remove":
                         # 移除资源
-                        plr_resources: List[ResourcePLR] = [
-                            self.resource_tracker.uuid_to_resources[i] for i in resources_uuid
-                        ]
+                        found_resources: List[List[Union[ResourcePLR, dict]]] = self.resource_tracker.figure_resource(
+                            [{"uuid": uid} for uid in resources_uuid], try_mode=True
+                        )
+                        found_plr_resources = []
+                        other_plr_resources = []
+                        for res_list in found_resources:
+                            for res in res_list:
+                                if issubclass(res.__class__, ResourcePLR):
+                                    found_plr_resources.append(res)
+                                else:
+                                    other_plr_resources.append(res)
                         func = getattr(self.driver_instance, "resource_tree_remove", None)
                         if callable(func):
-                            func(plr_resources)
-                        for plr_resource in plr_resources:
+                            func(found_plr_resources)
+                        for plr_resource in found_plr_resources:
                             plr_resource.parent.unassign_child_resource(plr_resource)
                             self.resource_tracker.remove_resource(plr_resource)
+                            self.lab_logger().info(f"移除物料 {plr_resource} 及其子节点")
+                        for res in other_plr_resources:
+                            self.resource_tracker.remove_resource(res)
+                            self.lab_logger().info(f"移除物料 {res} 及其子节点")
                         results.append({"success": True, "action": "remove"})
                 except Exception as e:
                     error_msg = f"Error processing {action} operation: {str(e)}"
@@ -936,7 +957,10 @@ class BaseROS2DeviceNode(Node, Generic[T]):
 
                             # 通过资源跟踪器获取本地实例
                             final_resources = queried_resources if is_sequence else queried_resources[0]
-                            action_kwargs[k] = self.resource_tracker.figure_resource(final_resources, try_mode=False)
+                            final_resources = self.resource_tracker.figure_resource({"name": final_resources.name}, try_mode=False) if not is_sequence else [
+                                self.resource_tracker.figure_resource({"name": res.name}, try_mode=False) for res in queried_resources
+                            ]
+                            action_kwargs[k] = final_resources
 
                         except Exception as e:
                             self.lab_logger().error(f"{action_name} 物料实例获取失败: {e}\n{traceback.format_exc()}")
@@ -1347,6 +1371,7 @@ class ROS2DeviceNode:
     def __init__(
         self,
         device_id: str,
+        device_uuid: str,
         driver_class: Type[T],
         device_config: Dict[str, Any],
         driver_params: Dict[str, Any],
@@ -1362,6 +1387,7 @@ class ROS2DeviceNode:
 
         Args:
             device_id: 设备标识符
+            device_uuid: 设备uuid
             driver_class: 设备类
             device_config: 原始初始化的json
             driver_params: driver初始化的参数
@@ -1436,6 +1462,7 @@ class ROS2DeviceNode:
                 children=children,
                 driver_instance=self._driver_instance,  # type: ignore
                 device_id=device_id,
+                device_uuid=device_uuid,
                 status_types=status_types,
                 action_value_mappings=action_value_mappings,
                 hardware_interface=hardware_interface,
@@ -1446,6 +1473,7 @@ class ROS2DeviceNode:
             self._ros_node = BaseROS2DeviceNode(
                 driver_instance=self._driver_instance,
                 device_id=device_id,
+                device_uuid=device_uuid,
                 status_types=status_types,
                 action_value_mappings=action_value_mappings,
                 hardware_interface=hardware_interface,
