@@ -10,7 +10,7 @@
             "type": "device",
             "class": "reaction_station.bioyond",
             "config": {
-                "bioyond_config": {
+                "config": {
                     "api_key": "DE9BDDA0",
                     "api_host": "http://192.168.1.200:44402",
                     "workflow_mappings": {
