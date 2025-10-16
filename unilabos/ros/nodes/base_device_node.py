@@ -582,7 +582,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
         - update: 更新现有资源
         - remove: 从资源树中移除资源
         """
-        from pylabrobot.resources import Resource as ResourcePLR
+        from pylabrobot.resources.resource import Resource as ResourcePLR
         try:
             data = json.loads(req.command)
             results = []
