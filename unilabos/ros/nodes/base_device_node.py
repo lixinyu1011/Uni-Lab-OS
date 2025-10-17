@@ -943,7 +943,7 @@ class BaseROS2DeviceNode(Node, Generic[T]):
                             queried_resources = []
                             for resource_data in resource_inputs:
                                 r = SerialCommand.Request()
-                                r.command = json.dumps({"id": resource_data["id"], "with_children": True})
+                                r.command = json.dumps({"id": resource_data["id"], "uuid": resource_data.get("uuid", None), "with_children": True})
                                 # 发送请求并等待响应
                                 response: SerialCommand_Response = await self._resource_clients[
                                     "resource_get"
