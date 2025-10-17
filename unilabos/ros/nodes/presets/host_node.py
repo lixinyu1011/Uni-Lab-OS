@@ -1070,7 +1070,12 @@ class HostNode(BaseROS2DeviceNode):
         """
         try:
             data = json.loads(request.command)
-            http_req = self.bridges[-1].resource_get(data["id"], data["with_children"])
+            if "uuid" in data and data["uuid"] is not None:
+                http_req = self.bridges[-1].resource_tree_get([data["uuid"]], data["with_children"])
+            elif "id" in data and data["id"].startswith("/"):
+                http_req = self.bridges[-1].resource_get(data["id"], data["with_children"])
+            else:
+                raise ValueError("没有使用正确的物料 id 或 uuid")
             response.response = json.dumps(http_req["data"])
             return response
         except Exception as e:
