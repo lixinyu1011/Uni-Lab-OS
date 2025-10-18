@@ -74,6 +74,7 @@ class ItemizedCarrier(ResourcePLR):
     num_items_x: int = 0,
     num_items_y: int = 0,
     num_items_z: int = 0,
+    layout: str = "x-y",
     sites: Optional[Dict[Union[int, str], Optional[ResourcePLR]]] = None,
     category: Optional[str] = "carrier",
     model: Optional[str] = None,
@@ -405,6 +406,7 @@ class ItemizedCarrier(ResourcePLR):
       "num_items_x": self.num_items_x,
       "num_items_y": self.num_items_y,
       "num_items_z": self.num_items_z,
+      "layout": self.layout,
       "sites": [{
         "label": str(identifier),
         "visible": True if self[identifier] is not None else False,
