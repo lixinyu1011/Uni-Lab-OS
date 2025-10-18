@@ -653,11 +653,10 @@ def resource_bioyond_to_plr(bioyond_materials: list[dict], type_mapping: Dict[st
                     bottle = plr_material[number] = initialize_resource(
                         {"name": f'{detail["name"]}_{number}', "class": type_mapping[typeName][0]}, resource_type=ResourcePLR
                     )
-                else:
                     bottle.tracker.liquids = [
                         (detail["name"], float(detail.get("quantity", 0)) if detail.get("quantity") else 0)
                     ]
-                bottle.code = detail.get("code", "")
+                    bottle.code = detail.get("code", "")
         else:
             bottle = plr_material[0] if plr_material.capacity > 0 else plr_material
             bottle.tracker.liquids = [
