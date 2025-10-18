@@ -164,8 +164,9 @@ class ItemizedCarrier(ResourcePLR):
         break
     if not found:
       raise ValueError(f"Resource {resource} is not assigned to this carrier")
-    if hasattr(resource, "unassign"):
-      resource.unassign()
+    super().unassign_child_resource(resource)
+    # if hasattr(resource, "unassign"):
+    #   resource.unassign()
 
   def get_child_identifier(self, child: ResourcePLR):
     """Get the identifier information for a given child resource.
