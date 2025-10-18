@@ -647,11 +647,11 @@ def resource_bioyond_to_plr(bioyond_materials: list[dict], type_mapping: Dict[st
                     + (detail.get("y", 0) - 1)
                 )
                 bottle = plr_material[number]
-                if detail["name"] in type_mapping:
+                if detail["typeName"] in type_mapping:
                     # plr_material.unassign_child_resource(bottle)
                     plr_material.sites[number] = None
                     plr_material[number] = initialize_resource(
-                        {"name": f'{detail["name"]}_{number}', "class": type_mapping[detail["name"]][0]}, resource_type=ResourcePLR
+                        {"name": f'{detail["name"]}_{number}', "class": type_mapping[detail["typeName"]][0]}, resource_type=ResourcePLR
                     )
                 else:
                     bottle.tracker.liquids = [

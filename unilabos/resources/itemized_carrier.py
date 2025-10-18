@@ -150,7 +150,7 @@ class ItemizedCarrier(ResourcePLR):
   def assign_resource_to_site(self, resource: ResourcePLR, spot: int):
     if self.sites[spot] is not None and not isinstance(self.sites[spot], ResourceHolder):
       raise ValueError(f"spot {spot} already has a resource, {resource}")
-    self.assign_child_resource(resource, location=self.child_locations.get(str(spot)), spot=spot)
+    self.assign_child_resource(resource, location=self.child_locations.get(list(self._ordering.keys())[spot]), spot=spot)
 
   def unassign_child_resource(self, resource: ResourcePLR):
     found = False
