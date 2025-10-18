@@ -88,6 +88,8 @@ class ItemizedCarrier(ResourcePLR):
     )
     self.num_items = len(sites)
     self.num_items_x, self.num_items_y, self.num_items_z = num_items_x, num_items_y, num_items_z
+    self.layout = "z-y" if self.num_items_z > 1 and self.num_items_x == 1 else "x-z" if self.num_items_z > 1 and self.num_items_y == 1 else "x-y"
+
     if isinstance(sites, dict):
       sites = sites or {}
       self.sites: List[Optional[ResourcePLR]] = list(sites.values())
