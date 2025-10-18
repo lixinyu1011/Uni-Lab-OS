@@ -32,7 +32,7 @@ class ResourceDictPositionObject(BaseModel):
 class ResourceDictPosition(BaseModel):
     size: ResourceDictPositionSize = Field(description="Resource size", default_factory=ResourceDictPositionSize)
     scale: ResourceDictPositionScale = Field(description="Resource scale", default_factory=ResourceDictPositionScale)
-    layout: Literal["2d"] = Field(description="Resource layout", default="2d")
+    layout: Literal["2d", "x-y", "z-y", "x-z"] = Field(description="Resource layout", default="x-y")
     position: ResourceDictPositionObject = Field(
         description="Resource position", default_factory=ResourceDictPositionObject
     )
@@ -42,7 +42,7 @@ class ResourceDictPosition(BaseModel):
     rotation: ResourceDictPositionObject = Field(
         description="Resource rotation", default_factory=ResourceDictPositionObject
     )
-    cross_section_type: Literal["rectangle"] = Field(description="Cross section type", default="rectangle")
+    cross_section_type: Literal["rectangle", "circle", "rounded_rectangle"] = Field(description="Cross section type", default="rectangle")
 
 
 # 统一的资源字典模型，parent 自动序列化为 parent_uuid，children 不序列化
@@ -139,7 +139,7 @@ class ResourceDictInstance(object):
         if not content.get("data"):
             content["data"] = {}
         if "pose" not in content:
-            content["pose"] = content["position"]
+            content["pose"] = content.get("position", {})
         return ResourceDictInstance(ResourceDict.model_validate(content))
 
     def get_nested_dict(self) -> Dict[str, Any]:
