@@ -643,8 +643,8 @@ def resource_bioyond_to_plr(bioyond_materials: list[dict], type_mapping: Dict[st
             for detail in material["detail"]:
                 number = (
                     (detail.get("z", 0) - 1) * plr_material.num_items_x * plr_material.num_items_y
-                    + (detail.get("x", 0) - 1) * plr_material.num_items_x
-                    + (detail.get("y", 0) - 1)
+                    + (detail.get("y", 0) - 1) * plr_material.num_items_y
+                    + (detail.get("x", 0) - 1)
                 )
                 bottle = plr_material[number]
                 if detail["typeName"] in type_mapping:
