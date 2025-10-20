@@ -1,8 +1,22 @@
 {
   "nodes": [
     {
+      "id": "bioyond_cell_workstation",
+      "name": "配液分液工站",
+      "children": [
+      ],
+      "parent": null,
+      "type": "device",
+      "class": "bioyond_cell",
+      "config": {
+          "protocol_type": [],
+          "station_resource": {}
+      },
+      "data": {}
+  },
+    {
       "id": "BatteryStation",
-      "name": "扣电工作站",
+      "name": "扣电组装工作站",
       "children": [
           "coin_cell_deck"
       ],
@@ -15,7 +29,7 @@
           "z": 0
       },
       "config": {
-          "debug_mode": false,
+          "debug_mode": true,
           "_comment": "protocol_type接外部工站固定写法字段，一般为空，deck写法也固定",
           "protocol_type": [],
           "deck": {

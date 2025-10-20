@@ -75,31 +75,6 @@ reaction_station.bioyond:
           title: load_bioyond_data_from_file参数
           type: object
         type: UniLabJsonCommand
-      auto-merge_workflow_with_parameters:
-        feedback: {}
-        goal: {}
-        goal_default:
-          json_str: null
-        handles: {}
-        placeholder_keys: {}
-        result: {}
-        schema:
-          description: ''
-          properties:
-            feedback: {}
-            goal:
-              properties:
-                json_str:
-                  type: string
-              required:
-              - json_str
-              type: object
-            result: {}
-          required:
-          - goal
-          title: merge_workflow_with_parameters参数
-          type: object
-        type: UniLabJsonCommand
       auto-post_init:
         feedback: {}
         goal: {}
@@ -729,6 +704,7 @@ reaction_station.bioyond:
     status_types:
       all_workflows: dict
       bioyond_status: dict
+      station_info: dict
       workstation_status: dict
     type: python
   config_info: []
@@ -742,8 +718,6 @@ reaction_station.bioyond:
           type: string
         deck:
           type: string
-        station_config:
-          type: string
       required: []
       type: object
     data:
@@ -752,11 +726,14 @@ reaction_station.bioyond:
           type: object
         bioyond_status:
           type: object
+        station_info:
+          type: object
         workstation_status:
           type: object
       required:
       - bioyond_status
       - all_workflows
+      - station_info
       - workstation_status
       type: object
   version: 1.0.0
