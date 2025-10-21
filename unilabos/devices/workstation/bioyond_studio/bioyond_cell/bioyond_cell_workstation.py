@@ -167,6 +167,12 @@ class BioyondCellWorkstation(WorkstationBase):
             self.service.start()
             self.http_service_started = True
             logger.info(f"WorkstationHTTPService成功启动: {host}:{port}")
+            # 启动成功后，上报本机推送地址（3.36）
+            try:
+                r = self.update_push_ip(host, port)
+                logger.info(f"更新推送IP结果: {r}")
+            except Exception as e:
+                logger.warning(f"调用更新推送IP接口失败: {e}")
             #一直挂着，直到进程退出
             while True:
                 time.sleep(1)
@@ -206,6 +212,48 @@ class BioyondCellWorkstation(WorkstationBase):
             logger.info(f"{self.bioyond_config['base_url'].rstrip('/')}/{path.lstrip('/')}")
             logger.error(f"POST {path} 失败: {e}")
             return {"error": str(e)}
+
+    def _put_lims(self, path: str, data: Optional[Any] = None) -> Dict[str, Any]:
+        """LIMS API：PUT {apiKey/requestTime,data} 包装"""
+        payload = {
+            "apiKey": self.bioyond_config["api_key"],
+            "requestTime": _iso_local_now_ms()
+        }
+        if data is not None:
+            payload["data"] = data
+
+        if self.debug_mode:
+            logger.info(f"[DEBUG] PUT {path} with payload={payload}")
+            return {"debug": True, "url": self._url(path), "payload": payload, "status": "ok"}
+
+        try:
+            response = requests.put(
+                self._url(path),
+                json=payload,
+                timeout=self.bioyond_config.get("timeout", 30),
+                headers={"Content-Type": "application/json"}
+            )
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.info(f"{self.bioyond_config['base_url'].rstrip('/')}/{path.lstrip('/')}")
+            logger.error(f"PUT {path} 失败: {e}")
+            return {"error": str(e)}
+
+    # -------------------- 3.36 更新推送 IP 地址 --------------------
+    def update_push_ip(self, ip: Optional[str] = None, port: Optional[int] = None) -> Dict[str, Any]:
+        """
+        3.36 更新推送 IP 地址接口（PUT）
+        URL: /api/lims/order/ip-config
+        请求体：{ apiKey, requestTime, data: { ip, port } }
+        """
+        target_ip = ip or self.bioyond_config.get("HTTP_host", "")
+        target_port = int(port or self.bioyond_config.get("HTTP_port", 0))
+        data = {"ip": target_ip, "port": target_port}
+
+        # 固定接口路径，不做其他路径兼容
+        path = "/api/lims/order/ip-config"
+        return self._put_lims(path, data)
 
     # -------------------- 单点接口封装 --------------------
     # 2.17 入库物料（单个）
