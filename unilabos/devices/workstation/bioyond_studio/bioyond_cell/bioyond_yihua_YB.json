@@ -10,13 +10,9 @@
       "class": "bioyond_cell",
       "config": {
           "protocol_type": [],
-          "station_resource": {},
+          "station_resource": {}
 
-          "bioyond_config": {
-              "api_key": "8A819E5C",
-              "api_host": "http://192.168.1.200:44388",
-              "debug_mode": false
-          }
+
       },
       "data": {}
   },
