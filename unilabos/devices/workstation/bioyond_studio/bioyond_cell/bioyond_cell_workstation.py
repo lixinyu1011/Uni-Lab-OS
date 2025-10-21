@@ -42,7 +42,7 @@ class BioyondCellWorkstation(WorkstationBase):
             "api_key": "8A819E5C",
             "timeout": 30,
             "report_token": "CHANGE_ME_TOKEN",
-            "HTTP_host": "172.21.32.90", 
+            "HTTP_host": "172.21.33.126", 
             "HTTP_port": 8080,
             "debug_mode": False
         } # report_token ：unilab自己的令牌report_token（0928未启用）
@@ -51,6 +51,8 @@ class BioyondCellWorkstation(WorkstationBase):
         deck = kwargs.pop("deck", None)
         self.device_id = kwargs.pop("device_id", "bioyond_cell_workstation")
         super().__init__(deck=deck, station_resource=station_resource, *args, **kwargs)
+        # 步骤通量任务通知铃
+        self._pending_events: dict[str, threading.Event] = {}
         logger.info(f"Bioyond工作站初始化完成 (debug_mode={self.debug_mode})")
 
         # 实例化并在后台线程启动 HTTP 报送服务
@@ -61,6 +63,98 @@ class BioyondCellWorkstation(WorkstationBase):
             t.start()
         except Exception as e:
             logger.error(f"unilab-HTTP后台线程启动失败: {e}")
+
+    # http报送服务
+    def process_step_finish_report(self, report_request):
+        stepId = report_request.data.get("stepId")
+        logger.info(f"步骤完成: stepId: {stepId}, stepName:{report_request.data.get('stepName')}")
+        return report_request.data.get('executionStatus')
+
+    def process_sample_finish_report(self, report_request):
+        logger.info(f"通量完成: {report_request.data.get('sampleId')}")
+        return {"status": "received"}
+
+    def process_order_finish_report(self, report_request, used_materials=None):
+        order_code = report_request.data.get("orderCode")
+        
+        logger.info(f"任务完成: {order_code}, status={report_request.data.get('status')}")
+        self._set_pending_event(order_code)
+        return {"status": "received"}
+
+    def _set_pending_event(self, taskname: Optional[str]) -> None:
+        if not taskname:
+            return
+        event = self._pending_events.get(taskname)
+        if event is None:
+            event = threading.Event()
+            self._pending_events[taskname] = event
+        event.set()
+
+    def _wait_for_order_completion(self, order_code: Optional[str], timeout: int = 600) -> bool:
+        if not order_code:
+            logger.warning("无法等待任务完成：order_code 为空")
+            return False
+        event = self._pending_events.get(order_code)
+        if event is None:
+            event = threading.Event()
+            self._pending_events[order_code] = event
+        elif event.is_set():
+            logger.info(f"任务 {order_code} 在等待之前已完成")
+            self._pending_events.pop(order_code, None)
+            return True
+        logger.info(f"等待任务 {order_code} 完成 (timeout={timeout}s)")
+        finished = event.wait(timeout)
+        if not finished:
+            logger.warning(f"等待任务 {order_code} 完成超时（{timeout}s）")
+        self._pending_events.pop(order_code, None)
+        return finished
+
+    def _wait_for_response_orders(self, response: Dict[str, Any], context: str, timeout: int = 600) -> None:
+        order_codes = self._extract_order_codes(response)
+        if not order_codes:
+            logger.warning(f"{context} 响应中未找到 orderCode，无法跟踪任务完成")
+            return
+        for code in order_codes:
+            self._wait_for_order_completion(code, timeout=timeout)
+
+    @staticmethod
+    def _extract_order_codes(response: Dict[str, Any]) -> List[str]:
+        order_codes: List[str] = []
+        if not isinstance(response, dict):
+            return order_codes
+        data = response.get("data")
+        keys = ["orderCode", "order_code", "orderId", "order_id"]
+        if isinstance(data, dict):
+            for key in keys:
+                if key in data and data[key]:
+                    order_codes.append(str(data[key]))
+            if not order_codes and "orders" in data and isinstance(data["orders"], list):
+                for order in data["orders"]:
+                    if isinstance(order, dict):
+                        for key in keys:
+                            if key in order and order[key]:
+                                order_codes.append(str(order[key]))
+        elif isinstance(data, list):
+            for item in data:
+                if isinstance(item, dict):
+                    for key in keys:
+                        if key in item and item[key]:
+                            order_codes.append(str(item[key]))
+        elif isinstance(data, str):
+            if data:
+                order_codes.append(data)
+        meta = response.get("orderCode")
+        if meta:
+            order_codes.append(str(meta))
+        # 去重
+        seen = set()
+        unique_codes: List[str] = []
+        for code in order_codes:
+            if code not in seen:
+                seen.add(code)
+                unique_codes.append(code)
+        return unique_codes
+
 
     def _start_http_service(self, host: Optional[str] = None, port: Optional[int] = None) -> None:
         host = host or self.bioyond_config.get("HTTP_host", "")
@@ -261,7 +355,9 @@ class BioyondCellWorkstation(WorkstationBase):
             logger.warning("没有有效的上料条目，已跳过提交。")
             return {"code": 0, "message": "no valid items", "data": []}
         logger.info(items)
-        return self._post_lims("/api/lims/order/auto-feeding4to3", items)
+        response = self._post_lims("/api/lims/order/auto-feeding4to3", items)
+        self._wait_for_response_orders(response, "auto_feeding4to3")
+        return response
 
 
 
@@ -327,7 +423,9 @@ class BioyondCellWorkstation(WorkstationBase):
             if item["materialId"] or item["materialType"]:
                 items.append(item)
 
-        return self._post_lims("/api/lims/order/auto-feeding4to3", items)
+        response = self._post_lims("/api/lims/order/auto-feeding4to3", items)
+        self._wait_for_response_orders(response, "auto_feeding4to3_from_xlsx")
+        return response
 
     def auto_batch_outbound_from_xlsx(self, xlsx_path: str) -> Dict[str, Any]:
         """
@@ -392,7 +490,9 @@ class BioyondCellWorkstation(WorkstationBase):
                 "z": as_int(row[c_z]),
             })
 
-        return self._post_lims("/api/lims/storage/auto-batch-out-bound", items)
+        response = self._post_lims("/api/lims/storage/auto-batch-out-bound", items)
+        self._wait_for_response_orders(response, "auto_batch_outbound_from_xlsx")
+        return response
 
     # 2.14 新建实验
     def create_orders(self, xlsx_path: str) -> Dict[str, Any]:
@@ -517,6 +617,7 @@ class BioyondCellWorkstation(WorkstationBase):
         # self.wait_for_transfer_task()
         # logger.info(f"3-2-1 转运完成，返回结果")
         # return r321
+        self._wait_for_response_orders(response, "create_orders", timeout=1800)
         return response
 
     # 2.7 启动调度
@@ -641,9 +742,18 @@ class BioyondCellWorkstation(WorkstationBase):
 # --------------------------------
 if __name__ == "__main__":
     ws = BioyondCellWorkstation()
-    # logger.info(ws.scheduler_start())
+    logger.info(ws.scheduler_start())
 
     logger.info(ws.auto_feeding4to3())
+    logger.info(ws.create_orders(r"unilabos\devices\workstation\bioyond_studio\bioyond_cell\2025092701.xlsx"))
+    logger.info(ws.transfer_3_to_2_to_1())
+
+    logger.info(ws.transfer_1_to_2())
+
+
+
+    while True:
+        time.sleep(1)
     # re=ws.scheduler_stop()
     # re = ws.transfer_3_to_2_to_1()
 

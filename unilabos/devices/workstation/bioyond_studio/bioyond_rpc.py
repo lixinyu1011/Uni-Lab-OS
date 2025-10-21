@@ -47,8 +47,8 @@ class BioyondV1RPC(BaseRequest):
         super().__init__()
         print("开始初始化 BioyondV1RPC")
         self.config = config
-        self.api_key = config["api_key"]
-        self.host = config["api_host"]
+        self.api_key = config["8A819E5C"]
+        self.host = config["http://172.16.11.219:44388"]
         self._logger = SimpleLogger()
         self.material_cache = {}
         self._load_material_cache()
@@ -61,7 +61,7 @@ class BioyondV1RPC(BaseRequest):
 
         :return: 当前时间的 ISO 8601 格式字符串
         """
-        current_time = datetime.now(timezone.utc).isoformat(
+        current_time = datetime.now().isoformat(
             timespec='milliseconds'
         )
         # 替换时区部分为 'Z'

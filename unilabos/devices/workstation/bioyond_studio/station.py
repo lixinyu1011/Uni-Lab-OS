@@ -20,6 +20,7 @@ from unilabos.ros.nodes.base_device_node import ROS2DeviceNode, BaseROS2DeviceNo
 from unilabos.ros.nodes.presets.workstation import ROS2WorkstationNode
 from pylabrobot.resources.resource import Resource as ResourcePLR
 
+from unilabos.resources.bioyond.decks import YB_Deck
 from unilabos.devices.workstation.bioyond_studio.config import (
     API_CONFIG, WORKFLOW_MAPPINGS, MATERIAL_TYPE_MAPPINGS, WAREHOUSE_MAPPING
 )
@@ -135,7 +136,7 @@ class BioyondWorkstation(WorkstationBase):
         # 初始化父类
         super().__init__(
             # 桌子
-            deck=deck,
+            deck=YB_Deck("YB_Deck14"),
             *args,
             **kwargs,
         )
@@ -467,7 +468,7 @@ def create_bioyond_workstation_example():
     """创建Bioyond工作站示例"""
 
     # 配置参数
-    device_id = "bioyond_workstation_001"
+    device_id = "bioyond_cell_workstation_001"
 
     # 子资源配置
     children = {
@@ -486,8 +487,8 @@ def create_bioyond_workstation_example():
 
     # Bioyond配置
     bioyond_config = {
-        "base_url": "http://bioyond.example.com/api",
-        "api_key": "your_api_key_here",
+        "base_url": "http://172.16.11.219:44388",
+        "api_key": "8A819E5C",
         "sync_interval": 60,  # 60秒同步一次
         "timeout": 30
     }
@@ -511,4 +512,18 @@ def create_bioyond_workstation_example():
 
 
 if __name__ == "__main__":
+    by = create_bioyond_workstation_example()
+    by.get_workstation_status()
+    by.get_device_status()
+    by.get_bioyond_status()
+    by.get_station_info()
+    by.get_workstation_status()
+    by.get_bioyond_status()
+    by.get_station_info()
+    by.get_workstation_status()
+    by.get_bioyond_status()
+    by.get_station_info()
+    by.get_workstation_status()
+    by.get_bioyond_status()
+    by.get_station_info()
     pass
