@@ -9,9 +9,14 @@ import time
 from datetime import datetime, timedelta
 import re
 import threading
+import os
 
 from urllib3 import response
 from unilabos.devices.workstation.workstation_base import WorkstationBase
+from unilabos.devices.workstation.bioyond_studio.station import BioyondWorkstation
+from unilabos.devices.workstation.bioyond_studio.config import (
+    BIOYOND_FULL_CONFIG, WORKFLOW_MAPPINGS, MATERIAL_TYPE_MAPPINGS, WAREHOUSE_MAPPING
+)
 from unilabos.devices.workstation.workstation_http_service import WorkstationHTTPService
 from unilabos.utils.log import logger
 
@@ -22,7 +27,7 @@ def _iso_local_now_ms() -> str:
     return dt.strftime("%Y-%m-%dT%H:%M:%S.") + f"{int(dt.microsecond/1000):03d}Z"
 
 
-class BioyondCellWorkstation(WorkstationBase):
+class BioyondCellWorkstation(BioyondWorkstation):
     """
     集成 Bioyond LIMS 的工作站示例，
     覆盖：入库(2.17/2.18) → 新建实验(2.14) → 启动调度(2.7) →
@@ -37,20 +42,18 @@ class BioyondCellWorkstation(WorkstationBase):
         *args, **kwargs,
         ):
 
+        # 使用统一配置，支持自定义覆盖
         self.bioyond_config = bioyond_config or {
-            "base_url": "http://172.16.11.219:44388",
-            "api_key": "8A819E5C",
-            "timeout": 30,
-            "report_token": "CHANGE_ME_TOKEN",
-            "HTTP_host": "172.21.33.126", 
-            "HTTP_port": 8080,
-            "debug_mode": False
-        } # report_token ：unilab自己的令牌report_token（0928未启用）
+            **BIOYOND_FULL_CONFIG,  # 从 config.py 加载完整配置
+            "workflow_mappings": WORKFLOW_MAPPINGS,
+            "material_type_mappings": MATERIAL_TYPE_MAPPINGS,
+            "warehouse_mapping": WAREHOUSE_MAPPING
+        }
         self.debug_mode = self.bioyond_config["debug_mode"]
         self.http_service_started = False
         deck = kwargs.pop("deck", None)
         self.device_id = kwargs.pop("device_id", "bioyond_cell_workstation")
-        super().__init__(deck=deck, station_resource=station_resource, *args, **kwargs)
+        super().__init__(bioyond_config=self.bioyond_config, deck=deck, station_resource=station_resource, *args, **kwargs)
         # 步骤通量任务通知铃
         self._pending_events: dict[str, threading.Event] = {}
         logger.info(f"Bioyond工作站初始化完成 (debug_mode={self.debug_mode})")
@@ -793,7 +796,9 @@ if __name__ == "__main__":
     logger.info(ws.scheduler_start())
 
     logger.info(ws.auto_feeding4to3())
-    logger.info(ws.create_orders(r"unilabos\devices\workstation\bioyond_studio\bioyond_cell\2025092701.xlsx"))
+    # 使用正斜杠或 Path 对象来指定文件路径
+    excel_path = Path("unilabos/devices/workstation/bioyond_studio/bioyond_cell/2025092701.xlsx")
+    logger.info(ws.create_orders(excel_path))
     logger.info(ws.transfer_3_to_2_to_1())
 
     logger.info(ws.transfer_1_to_2())

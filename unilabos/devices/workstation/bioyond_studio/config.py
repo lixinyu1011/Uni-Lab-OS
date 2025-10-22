@@ -2,11 +2,32 @@
 """
 配置文件 - 包含所有配置信息和映射关系
 """
+import os
 
-# API配置
+# ==================== API 基础配置 ====================
+# 支持通过环境变量覆盖默认值
 API_CONFIG = {
-    "api_key": "",
-    "api_host": ""
+    "api_key": os.getenv("BIOYOND_API_KEY", "8A819E5C"),
+    "api_host": os.getenv("BIOYOND_API_HOST", "http://172.16.11.219:44388"),
+}
+
+# ==================== 完整的 Bioyond 配置 ====================
+# BioyondCellWorkstation 默认配置（包含所有必需参数）
+BIOYOND_FULL_CONFIG = {
+    # API 连接配置
+    "base_url": os.getenv("BIOYOND_API_HOST", "http://172.16.11.219:44388"),
+    "api_key": os.getenv("BIOYOND_API_KEY", "8A819E5C"),
+    "timeout": int(os.getenv("BIOYOND_TIMEOUT", "30")),
+    
+    # 报送配置
+    "report_token": os.getenv("BIOYOND_REPORT_TOKEN", "CHANGE_ME_TOKEN"),
+    
+    # HTTP 服务配置
+    "HTTP_host": os.getenv("BIOYOND_HTTP_HOST", "0.0.0.0"),  # 0.0.0.0 绑定所有网络接口
+    "HTTP_port": int(os.getenv("BIOYOND_HTTP_PORT", "8080")),
+    
+    # 调试模式
+    "debug_mode": os.getenv("BIOYOND_DEBUG_MODE", "False").lower() == "true",
 }
 
 # 工作流映射配置

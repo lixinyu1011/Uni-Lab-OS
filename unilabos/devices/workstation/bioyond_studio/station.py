@@ -165,8 +165,8 @@ class BioyondWorkstation(WorkstationBase):
         self.workflow_sequence = []
         self.pending_task_params = []
 
-        if "workflow_mappings" in bioyond_config:
-            self._set_workflow_mappings(bioyond_config["workflow_mappings"])
+        if self.bioyond_config and "workflow_mappings" in self.bioyond_config:
+            self._set_workflow_mappings(self.bioyond_config["workflow_mappings"])
         logger.info(f"Bioyond工作站初始化完成")
 
     def post_init(self, ros_node: ROS2WorkstationNode):

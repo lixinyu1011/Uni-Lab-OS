@@ -47,8 +47,8 @@ class BioyondV1RPC(BaseRequest):
         super().__init__()
         print("开始初始化 BioyondV1RPC")
         self.config = config
-        self.api_key = config["8A819E5C"]
-        self.host = config["http://172.16.11.219:44388"]
+        self.api_key = config.get("api_key", "")
+        self.host = config.get("api_host", "") or config.get("base_url", "")
         self._logger = SimpleLogger()
         self.material_cache = {}
         self._load_material_cache()
