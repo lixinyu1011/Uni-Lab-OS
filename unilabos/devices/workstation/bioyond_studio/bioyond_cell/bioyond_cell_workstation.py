@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 import re
 import threading
 import os
+import socket
 
 from urllib3 import response
 from unilabos.devices.workstation.workstation_base import WorkstationBase
@@ -170,12 +171,29 @@ class BioyondCellWorkstation(BioyondWorkstation):
             self.service.start()
             self.http_service_started = True
             logger.info(f"WorkstationHTTPService成功启动: {host}:{port}")
+            
             # 启动成功后，上报本机推送地址（3.36）
             try:
-                r = self.update_push_ip(host, port)
-                logger.info(f"更新推送IP结果: {r}")
+                # 优先使用配置中的 report_ip
+                report_ip = self.bioyond_config.get("report_ip", "").strip()
+                
+                # 如果配置中没有指定 report_ip，且监听地址是 0.0.0.0，则自动检测
+                if not report_ip and host in ("0.0.0.0", ""):
+                    # 从 Bioyond 配置中提取服务器地址
+                    bioyond_server = self.bioyond_config.get("base_url", "")
+                    if bioyond_server:
+                        import urllib.parse
+                        parsed = urllib.parse.urlparse(bioyond_server)
+                    
+                elif not report_ip:
+                    # 如果没有配置 report_ip，使用监听地址
+                    report_ip = host
+                
+                r = self.update_push_ip(report_ip, port)
+                logger.info(f"向 Bioyond 报送推送地址: {report_ip}:{port}, 结果: {r}")
             except Exception as e:
                 logger.warning(f"调用更新推送IP接口失败: {e}")
+            
             #一直挂着，直到进程退出
             while True:
                 time.sleep(1)

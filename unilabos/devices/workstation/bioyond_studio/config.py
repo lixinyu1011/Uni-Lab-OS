@@ -23,8 +23,9 @@ BIOYOND_FULL_CONFIG = {
     "report_token": os.getenv("BIOYOND_REPORT_TOKEN", "CHANGE_ME_TOKEN"),
     
     # HTTP 服务配置
-    "HTTP_host": os.getenv("BIOYOND_HTTP_HOST", "0.0.0.0"),  # 0.0.0.0 绑定所有网络接口
+    "HTTP_host": os.getenv("BIOYOND_HTTP_HOST", "0.0.0.0"),  # HTTP服务监听地址（0.0.0.0 表示监听所有网络接口）
     "HTTP_port": int(os.getenv("BIOYOND_HTTP_PORT", "8080")),
+    "report_ip": os.getenv("BIOYOND_REPORT_IP", "172.21.33.141"),  # 报送给 Bioyond 的本机IP地址（留空则自动检测）
     
     # 调试模式
     "debug_mode": os.getenv("BIOYOND_DEBUG_MODE", "False").lower() == "true",
