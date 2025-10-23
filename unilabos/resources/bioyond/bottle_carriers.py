@@ -57,7 +57,7 @@ def BIOYOND_Electrolyte_6VialCarrier(name: str) -> BottleCarrier:
         size_y=carrier_size_y,
         size_z=carrier_size_z,
         sites=sites,
-        model="BIOYOND_Electrolyte_6VialCarrier",
+        model="Electrolyte_6VialCarrier",
     )
     carrier.num_items_x = 3
     carrier.num_items_y = 2
@@ -95,7 +95,7 @@ def BIOYOND_Electrolyte_1BottleCarrier(name: str) -> BottleCarrier:
             resource_size_y=beaker_diameter,
             name_prefix=name,
         ),
-        model="BIOYOND_Electrolyte_1BottleCarrier",
+        model="Electrolyte_1BottleCarrier",
     )
     carrier.num_items_x = 1
     carrier.num_items_y = 1
@@ -144,7 +144,7 @@ def BIOYOND_PolymerStation_6StockCarrier(name: str) -> BottleCarrier:
         size_y=carrier_size_y,
         size_z=carrier_size_z,
         sites=sites,
-        model="BIOYOND_PolymerStation_6VialCarrier",
+        model="6StockCarrier",
     )
     carrier.num_items_x = 3
     carrier.num_items_y = 2
@@ -195,7 +195,7 @@ def BIOYOND_PolymerStation_6VialCarrier(name: str) -> BottleCarrier:
         size_y=carrier_size_y,
         size_z=carrier_size_z,
         sites=sites,
-        model="BIOYOND_PolymerStation_6VialCarrier",
+        model="6VialCarrier",
     )
     carrier.num_items_x = 3
     carrier.num_items_y = 2
@@ -236,7 +236,7 @@ def BIOYOND_PolymerStation_1BottleCarrier(name: str) -> BottleCarrier:
             resource_size_y=beaker_diameter,
             name_prefix=name,
         ),
-        model="BIOYOND_PolymerStation_1BottleCarrier",
+        model="1BottleCarrier",
     )
     carrier.num_items_x = 1
     carrier.num_items_y = 1
@@ -273,7 +273,7 @@ def BIOYOND_PolymerStation_1FlaskCarrier(name: str) -> BottleCarrier:
             resource_size_y=beaker_diameter,
             name_prefix=name,
         ),
-        model="BIOYOND_PolymerStation_1FlaskCarrier",
+        model="1FlaskCarrier",
     )
     carrier.num_items_x = 1
     carrier.num_items_y = 1
@@ -321,7 +321,7 @@ def BIOYOND_PolymerStation_6x5ml_DispensingVialCarrier(name: str) -> BottleCarri
         size_y=carrier_size_y,
         size_z=carrier_size_z,
         sites=sites,
-        model="BIOYOND_PolymerStation_6x5ml_DispensingVialCarrier",
+        model="6x5ml_DispensingVialCarrier",
     )
     carrier.num_items_x = 3
     carrier.num_items_y = 2
@@ -371,7 +371,7 @@ def BIOYOND_PolymerStation_6x20ml_DispensingVialCarrier(name: str) -> BottleCarr
         size_y=carrier_size_y,
         size_z=carrier_size_z,
         sites=sites,
-        model="BIOYOND_PolymerStation_6x20ml_DispensingVialCarrier",
+        model="6x20ml_DispensingVialCarrier",
     )
     carrier.num_items_x = 3
     carrier.num_items_y = 2
@@ -421,7 +421,7 @@ def BIOYOND_PolymerStation_6x_SmallSolutionBottleCarrier(name: str) -> BottleCar
         size_y=carrier_size_y,
         size_z=carrier_size_z,
         sites=sites,
-        model="BIOYOND_PolymerStation_6x_SmallSolutionBottleCarrier",
+        model="6x_SmallSolutionBottleCarrier",
     )
     carrier.num_items_x = 3
     carrier.num_items_y = 2
@@ -471,7 +471,7 @@ def BIOYOND_PolymerStation_4x_LargeSolutionBottleCarrier(name: str) -> BottleCar
         size_y=carrier_size_y,
         size_z=carrier_size_z,
         sites=sites,
-        model="BIOYOND_PolymerStation_4x_LargeSolutionBottleCarrier",
+        model="4x_LargeSolutionBottleCarrier",
     )
     carrier.num_items_x = 2
     carrier.num_items_y = 2
@@ -521,7 +521,7 @@ def BIOYOND_PolymerStation_6x_LargeDispenseHeadCarrier(name: str) -> BottleCarri
         size_y=carrier_size_y,
         size_z=carrier_size_z,
         sites=sites,
-        model="BIOYOND_PolymerStation_6x_LargeDispenseHeadCarrier",
+        model="6x_LargeDispenseHeadCarrier",
     )
     carrier.num_items_x = 3
     carrier.num_items_y = 2
@@ -560,7 +560,7 @@ def BIOYOND_PolymerStation_AdapterBlock(name: str) -> BottleCarrier:
             resource_size_y=adapter_diameter,
             name_prefix=name,
         ),
-        model="BIOYOND_PolymerStation_AdapterBlock",
+        model="AdapterBlock",
     )
     carrier.num_items_x = 1
     carrier.num_items_y = 1
@@ -608,7 +608,7 @@ def BIOYOND_PolymerStation_TipBox(name: str) -> BottleCarrier:
         size_y=carrier_size_y,
         size_z=carrier_size_z,
         sites=sites,
-        model="BIOYOND_PolymerStation_TipBox",
+        model="TipBox",
     )
     carrier.num_items_x = 12
     carrier.num_items_y = 8
