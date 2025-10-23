@@ -1007,9 +1007,42 @@ class BioyondCellWorkstation(BioyondWorkstation):
         logger.info(f"\n正在执行批量入库，共 {len(inbound_items)} 条记录...")
         result = self.storage_batch_inbound(inbound_items)
         
-        if result.get("code") == 1:
+        inbound_success = result.get("code") == 1
+        
+        if inbound_success:
             logger.info(f"✓ 批量入库成功！")
             logger.info(f"  响应数据: {result.get('data', {})}")
+            
+            # 步骤3: 同步物料数据
+            logger.info(f"\n【步骤3/3】同步物料数据到系统...")
+            if hasattr(self, 'resource_synchronizer') and self.resource_synchronizer:
+                try:
+                    # 尝试同步不同类型的物料
+                    # typeMode: 0=耗材, 1=样品, 2=试剂
+                    sync_success = False
+                    for type_mode in [0, 1, 2]:
+                        try:
+                            logger.info(f"  尝试同步 typeMode={type_mode} 的物料...")
+                            bioyond_data = self.hardware_interface.stock_material(
+                                f'{{"typeMode": {type_mode}, "includeDetail": true}}'
+                            )
+                            if bioyond_data:
+                                logger.info(f"  ✓ 获取到 {len(bioyond_data) if isinstance(bioyond_data, list) else 1} 条物料数据")
+                                sync_success = True
+                        except Exception as e:
+                            logger.debug(f"  typeMode={type_mode} 同步失败: {e}")
+                            continue
+                    
+                    if sync_success:
+                        logger.info(f"✓ 物料数据同步完成")
+                    else:
+                        logger.warning(f"⚠ 物料数据同步未获取到数据（这是正常的，新创建的物料可能需要时间才能查询到）")
+                        
+                except Exception as e:
+                    logger.warning(f"⚠ 物料数据同步出错: {e}")
+                    logger.info(f"  提示：新创建的物料已成功入库，同步失败不影响使用")
+            else:
+                logger.warning("⚠ 资源同步器未初始化，跳过同步")
         else:
             logger.error(f"✗ 批量入库失败！")
             logger.error(f"  响应: {result}")
@@ -1019,7 +1052,7 @@ class BioyondCellWorkstation(BioyondWorkstation):
         logger.info("=" * 60 + "\n")
         
         return {
-            "success": result.get("code") == 1,
+            "success": inbound_success,
             "created_materials": created_materials,
             "inbound_result": result,
             "total_created": len(created_materials),
