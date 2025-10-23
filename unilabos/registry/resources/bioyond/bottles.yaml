@@ -48,3 +48,93 @@ BIOYOND_PolymerStation_Solution_Beaker:
   icon: ''
   init_param_schema: {}
   version: 1.0.0
+BIOYOND_PolymerStation_100ml_Liquid_Bottle:
+  category:
+  - yb3
+  class:
+    module: unilabos.resources.bioyond.bottles:BIOYOND_PolymerStation_100ml_Liquid_Bottle
+    type: pylabrobot
+  handles: []
+  icon: ''
+  init_param_schema: {}
+  version: 1.0.0
+BIOYOND_PolymerStation_Liquid_Bottle:
+  category:
+  - yb3
+  class:
+    module: unilabos.resources.bioyond.bottles:BIOYOND_PolymerStation_Liquid_Bottle
+    type: pylabrobot
+  handles: []
+  icon: ''
+  init_param_schema: {}
+  version: 1.0.0
+BIOYOND_PolymerStation_High_Viscosity_Liquid_Bottle:
+  category:
+  - yb3
+  class:
+    module: unilabos.resources.bioyond.bottles:BIOYOND_PolymerStation_High_Viscosity_Liquid_Bottle
+    type: pylabrobot
+  handles: []
+  icon: ''
+  init_param_schema: {}
+  version: 1.0.0
+BIOYOND_PolymerStation_Large_Dispense_Head:
+  category:
+  - yb3
+  class:
+    module: unilabos.resources.bioyond.bottles:BIOYOND_PolymerStation_Large_Dispense_Head
+    type: pylabrobot
+  handles: []
+  icon: ''
+  init_param_schema: {}
+  version: 1.0.0
+BIOYOND_PolymerStation_5ml_Dispensing_Vial:
+  category:
+  - yb3
+  class:
+    module: unilabos.resources.bioyond.bottles:BIOYOND_PolymerStation_5ml_Dispensing_Vial
+    type: pylabrobot
+  handles: []
+  icon: ''
+  init_param_schema: {}
+  version: 1.0.0
+BIOYOND_PolymerStation_20ml_Dispensing_Vial:
+  category:
+  - yb3
+  class:
+    module: unilabos.resources.bioyond.bottles:BIOYOND_PolymerStation_20ml_Dispensing_Vial
+    type: pylabrobot
+  handles: []
+  icon: ''
+  init_param_schema: {}
+  version: 1.0.0
+BIOYOND_PolymerStation_Small_Solution_Bottle:
+  category:
+  - yb3
+  class:
+    module: unilabos.resources.bioyond.bottles:BIOYOND_PolymerStation_Small_Solution_Bottle
+    type: pylabrobot
+  handles: []
+  icon: ''
+  init_param_schema: {}
+  version: 1.0.0
+BIOYOND_PolymerStation_Large_Solution_Bottle:
+  category:
+  - yb3
+  class:
+    module: unilabos.resources.bioyond.bottles:BIOYOND_PolymerStation_Large_Solution_Bottle
+    type: pylabrobot
+  handles: []
+  icon: ''
+  init_param_schema: {}
+  version: 1.0.0
+BIOYOND_PolymerStation_Pipette_Tip:
+  category:
+  - yb3
+  class:
+    module: unilabos.resources.bioyond.bottles:BIOYOND_PolymerStation_Pipette_Tip
+    type: pylabrobot
+  handles: []
+  icon: ''
+  init_param_schema: {}
+  version: 1.0.0

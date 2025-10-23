@@ -90,3 +90,166 @@ def BIOYOND_PolymerStation_Reagent_Bottle(
         barcode=barcode,
         model="BIOYOND_PolymerStation_Reagent_Bottle",
     )
+
+
+def BIOYOND_PolymerStation_100ml_Liquid_Bottle(
+    name: str,
+    diameter: float = 50.0,
+    height: float = 80.0,
+    max_volume: float = 100000.0,  # 100mL
+    barcode: str = None,
+) -> Bottle:
+    """创建100ml液体瓶"""
+    return Bottle(
+        name=name,
+        diameter=diameter,
+        height=height,
+        max_volume=max_volume,
+        barcode=barcode,
+        model="BIOYOND_PolymerStation_100ml_Liquid_Bottle",
+    )
+
+
+def BIOYOND_PolymerStation_Liquid_Bottle(
+    name: str,
+    diameter: float = 40.0,
+    height: float = 70.0,
+    max_volume: float = 50000.0,  # 50mL
+    barcode: str = None,
+) -> Bottle:
+    """创建液体瓶"""
+    return Bottle(
+        name=name,
+        diameter=diameter,
+        height=height,
+        max_volume=max_volume,
+        barcode=barcode,
+        model="BIOYOND_PolymerStation_Liquid_Bottle",
+    )
+
+
+def BIOYOND_PolymerStation_High_Viscosity_Liquid_Bottle(
+    name: str,
+    diameter: float = 45.0,
+    height: float = 75.0,
+    max_volume: float = 60000.0,  # 60mL
+    barcode: str = None,
+) -> Bottle:
+    """创建高粘液瓶"""
+    return Bottle(
+        name=name,
+        diameter=diameter,
+        height=height,
+        max_volume=max_volume,
+        barcode=barcode,
+        model="BIOYOND_PolymerStation_High_Viscosity_Liquid_Bottle",
+    )
+
+
+def BIOYOND_PolymerStation_Large_Dispense_Head(
+    name: str,
+    diameter: float = 35.0,
+    height: float = 90.0,
+    max_volume: float = 50000.0,  # 50mL
+    barcode: str = None,
+) -> Bottle:
+    """创建加样头(大)"""
+    return Bottle(
+        name=name,
+        diameter=diameter,
+        height=height,
+        max_volume=max_volume,
+        barcode=barcode,
+        model="BIOYOND_PolymerStation_Large_Dispense_Head",
+    )
+
+
+def BIOYOND_PolymerStation_5ml_Dispensing_Vial(
+    name: str,
+    diameter: float = 15.0,
+    height: float = 45.0,
+    max_volume: float = 5000.0,  # 5mL
+    barcode: str = None,
+) -> Bottle:
+    """创建5ml分液瓶"""
+    return Bottle(
+        name=name,
+        diameter=diameter,
+        height=height,
+        max_volume=max_volume,
+        barcode=barcode,
+        model="BIOYOND_PolymerStation_5ml_Dispensing_Vial",
+    )
+
+
+def BIOYOND_PolymerStation_20ml_Dispensing_Vial(
+    name: str,
+    diameter: float = 20.0,
+    height: float = 65.0,
+    max_volume: float = 20000.0,  # 20mL
+    barcode: str = None,
+) -> Bottle:
+    """创建20ml分液瓶"""
+    return Bottle(
+        name=name,
+        diameter=diameter,
+        height=height,
+        max_volume=max_volume,
+        barcode=barcode,
+        model="BIOYOND_PolymerStation_20ml_Dispensing_Vial",
+    )
+
+
+def BIOYOND_PolymerStation_Small_Solution_Bottle(
+    name: str,
+    diameter: float = 35.0,
+    height: float = 60.0,
+    max_volume: float = 40000.0,  # 40mL
+    barcode: str = None,
+) -> Bottle:
+    """创建配液瓶(小)"""
+    return Bottle(
+        name=name,
+        diameter=diameter,
+        height=height,
+        max_volume=max_volume,
+        barcode=barcode,
+        model="BIOYOND_PolymerStation_Small_Solution_Bottle",
+    )
+
+
+def BIOYOND_PolymerStation_Large_Solution_Bottle(
+    name: str,
+    diameter: float = 55.0,
+    height: float = 90.0,
+    max_volume: float = 150000.0,  # 150mL
+    barcode: str = None,
+) -> Bottle:
+    """创建配液瓶(大)"""
+    return Bottle(
+        name=name,
+        diameter=diameter,
+        height=height,
+        max_volume=max_volume,
+        barcode=barcode,
+        model="BIOYOND_PolymerStation_Large_Solution_Bottle",
+    )
+
+
+def BIOYOND_PolymerStation_Pipette_Tip(
+    name: str,
+    diameter: float = 10.0,
+    height: float = 50.0,
+    max_volume: float = 1000.0,  # 1mL
+    barcode: str = None,
+) -> Bottle:
+    """创建枪头"""
+    return Bottle(
+        name=name,
+        diameter=diameter,
+        height=height,
+        max_volume=max_volume,
+        barcode=barcode,
+        model="BIOYOND_PolymerStation_Pipette_Tip",
+    )
+

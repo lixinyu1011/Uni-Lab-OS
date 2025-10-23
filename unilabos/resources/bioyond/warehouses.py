@@ -39,9 +39,9 @@ def bioyond_warehouse_1x2x2(name: str) -> WareHouse:
     """创建BioYond 4x1x4仓库"""
     return warehouse_factory(
         name=name,
-        num_items_x=1,
+        num_items_x=2,
         num_items_y=2,
-        num_items_z=2,
+        num_items_z=1,
         dx=10.0,
         dy=10.0,
         dz=10.0,

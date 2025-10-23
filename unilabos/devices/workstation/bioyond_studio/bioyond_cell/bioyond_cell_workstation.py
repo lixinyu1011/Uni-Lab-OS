@@ -80,8 +80,15 @@ class BioyondCellWorkstation(BioyondWorkstation):
 
     def process_order_finish_report(self, report_request, used_materials=None):
         order_code = report_request.data.get("orderCode")
+        status = report_request.data.get("status")
+        logger.info(f"report_request: {report_request}")
+
+        logger.info(f"任务完成: {order_code}, status={status}")
         
-        logger.info(f"任务完成: {order_code}, status={report_request.data.get('status')}")
+        # 记录订单状态码
+        if order_code:
+            self.order_status[order_code] = status
+        
         self._set_pending_event(order_code)
         return {"status": "received"}
 
@@ -119,7 +126,18 @@ class BioyondCellWorkstation(BioyondWorkstation):
             logger.warning(f"{context} 响应中未找到 orderCode，无法跟踪任务完成")
             return
         for code in order_codes:
-            self._wait_for_order_completion(code, timeout=timeout)
+            finished = self._wait_for_order_completion(code, timeout=timeout)
+            if finished:
+                # 检查订单返回码是否为30（正常完成）
+                status = self.order_status.get(code)
+                if status == 30 or status == "30":
+                    logger.info(f"订单 {code} 成功完成，状态码: {status}")
+                else:
+                    logger.warning(f"订单 {code} 完成但状态码异常: {status} (期望: 30, -11=异常停止, -12=人工停止)")
+                # 清理状态记录
+                self.order_status.pop(code, None)
+            else:
+                logger.error(f"订单 {code} 等待超时，未收到完成通知")
 
     @staticmethod
     def _extract_order_codes(response: Dict[str, Any]) -> List[str]:
@@ -296,7 +314,7 @@ class BioyondCellWorkstation(BioyondWorkstation):
     def auto_feeding4to3(
         self,
         # ★ 修改点：默认模板路径
-        xlsx_path: Optional[str] = "unilabos/devices/workstation/bioyond_studio/bioyond_cell/样品导入模板.xlsx",
+        xlsx_path: Optional[str] = "/Users/calvincao/Desktop/work/uni-lab-all/Uni-Lab-OS/unilabos/devices/workstation/bioyond_studio/bioyond_cell/样品导入模板.xlsx",
         # ---------------- WH4 - 加样头面 (Z=1, 12个点位) ----------------
         WH4_x1_y1_z1_1_materialName: str = "", WH4_x1_y1_z1_1_quantity: float = 0.0,
         WH4_x2_y1_z1_2_materialName: str = "", WH4_x2_y1_z1_2_quantity: float = 0.0,
@@ -812,8 +830,8 @@ class BioyondCellWorkstation(BioyondWorkstation):
 if __name__ == "__main__":
     ws = BioyondCellWorkstation()
     logger.info(ws.scheduler_start())
-
-    logger.info(ws.auto_feeding4to3())
+    #TODO：新建入库
+    logger.info(ws.auto_feeding4to3()) #搬运物料到3号箱
     # 使用正斜杠或 Path 对象来指定文件路径
     excel_path = Path("unilabos/devices/workstation/bioyond_studio/bioyond_cell/2025092701.xlsx")
     logger.info(ws.create_orders(excel_path))
