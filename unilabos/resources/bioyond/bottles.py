@@ -16,7 +16,7 @@ def BIOYOND_PolymerStation_Solid_Stock(
         height=height,
         max_volume=max_volume,
         barcode=barcode,
-        model="BIOYOND_PolymerStation_Solid_Stock",
+        model="Solid_Stock",
     )
 
 
@@ -34,7 +34,7 @@ def BIOYOND_PolymerStation_Solid_Vial(
         height=height,
         max_volume=max_volume,
         barcode=barcode,
-        model="BIOYOND_PolymerStation_Solid_Vial",
+        model="Solid_Vial",
     )
 
 
@@ -52,7 +52,7 @@ def BIOYOND_PolymerStation_Liquid_Vial(
         height=height,
         max_volume=max_volume,
         barcode=barcode,
-        model="BIOYOND_PolymerStation_Liquid_Vial",
+        model="Liquid_Vial",
     )
 
 
@@ -70,7 +70,7 @@ def BIOYOND_PolymerStation_Solution_Beaker(
         height=height,
         max_volume=max_volume,
         barcode=barcode,
-        model="BIOYOND_PolymerStation_Solution_Beaker",
+        model="Solution_Beaker",
     )
 
 
@@ -88,7 +88,7 @@ def BIOYOND_PolymerStation_Reagent_Bottle(
         height=height,
         max_volume=max_volume,
         barcode=barcode,
-        model="BIOYOND_PolymerStation_Reagent_Bottle",
+        model="Reagent_Bottle",
     )
 
 
@@ -106,7 +106,7 @@ def BIOYOND_PolymerStation_100ml_Liquid_Bottle(
         height=height,
         max_volume=max_volume,
         barcode=barcode,
-        model="BIOYOND_PolymerStation_100ml_Liquid_Bottle",
+        model="100ml_Liquid_Bottle",
     )
 
 
@@ -124,7 +124,7 @@ def BIOYOND_PolymerStation_Liquid_Bottle(
         height=height,
         max_volume=max_volume,
         barcode=barcode,
-        model="BIOYOND_PolymerStation_Liquid_Bottle",
+        model="Liquid_Bottle",
     )
 
 
@@ -142,7 +142,7 @@ def BIOYOND_PolymerStation_High_Viscosity_Liquid_Bottle(
         height=height,
         max_volume=max_volume,
         barcode=barcode,
-        model="BIOYOND_PolymerStation_High_Viscosity_Liquid_Bottle",
+        model="High_Viscosity_Liquid_Bottle",
     )
 
 
@@ -160,7 +160,7 @@ def BIOYOND_PolymerStation_Large_Dispense_Head(
         height=height,
         max_volume=max_volume,
         barcode=barcode,
-        model="BIOYOND_PolymerStation_Large_Dispense_Head",
+        model="Large_Dispense_Head",
     )
 
 
@@ -178,7 +178,7 @@ def BIOYOND_PolymerStation_5ml_Dispensing_Vial(
         height=height,
         max_volume=max_volume,
         barcode=barcode,
-        model="BIOYOND_PolymerStation_5ml_Dispensing_Vial",
+        model="5ml_Dispensing_Vial",
     )
 
 
@@ -196,7 +196,7 @@ def BIOYOND_PolymerStation_20ml_Dispensing_Vial(
         height=height,
         max_volume=max_volume,
         barcode=barcode,
-        model="BIOYOND_PolymerStation_20ml_Dispensing_Vial",
+        model="20ml_Dispensing_Vial",
     )
 
 
@@ -214,7 +214,7 @@ def BIOYOND_PolymerStation_Small_Solution_Bottle(
         height=height,
         max_volume=max_volume,
         barcode=barcode,
-        model="BIOYOND_PolymerStation_Small_Solution_Bottle",
+        model="Small_Solution_Bottle",
     )
 
 
@@ -232,7 +232,7 @@ def BIOYOND_PolymerStation_Large_Solution_Bottle(
         height=height,
         max_volume=max_volume,
         barcode=barcode,
-        model="BIOYOND_PolymerStation_Large_Solution_Bottle",
+        model="Large_Solution_Bottle",
     )
 
 
@@ -250,6 +250,6 @@ def BIOYOND_PolymerStation_Pipette_Tip(
         height=height,
         max_volume=max_volume,
         barcode=barcode,
-        model="BIOYOND_PolymerStation_Pipette_Tip",
+        model="Pipette_Tip",
     )
 
