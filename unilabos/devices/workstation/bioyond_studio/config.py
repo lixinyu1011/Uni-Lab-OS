@@ -19,9 +19,9 @@ API_CONFIG = {
     "report_token": os.getenv("BIOYOND_REPORT_TOKEN", "CHANGE_ME_TOKEN"),
     
     # HTTP 服务配置
-    "HTTP_host": os.getenv("unilab_HTTP_HOST", "172.21.32.164"),  # HTTP服务监听地址（0.0.0.0 表示监听所有网络接口）
-    "HTTP_port": int(os.getenv("unilab_HTTP_PORT", "8080")),
-    
+    "HTTP_host": os.getenv("BIOYOND_HTTP_HOST", "0.0.0.0"),  # HTTP服务监听地址（0.0.0.0 表示监听所有网络接口）
+    "HTTP_port": int(os.getenv("BIOYOND_HTTP_PORT", "8080")),
+    "report_ip": os.getenv("BIOYOND_REPORT_IP", "172.21.32.172"),  # 报送给 Bioyond 的本机IP地址（留空则自动检测）
     # 调试模式
     "debug_mode": False,
 }
@@ -57,7 +57,14 @@ WAREHOUSE_MAPPING = {
 
 # 物料类型配置
 MATERIAL_TYPE_MAPPINGS = {
-"20ml分液瓶": ("YB_6x20ml_DispensingVialCarrier", "3a14196e-5dfe-6e21-0c79-fe2036d052c4"),
+    "烧杯": ("BIOYOND_PolymerStation_1FlaskCarrier", "3a14196b-24f2-ca49-9081-0cab8021bf1a"),
+    "试剂瓶": ("BIOYOND_PolymerStation_1BottleCarrier", ""),
+    "样品板": ("BIOYOND_PolymerStation_6StockCarrier", "3a14196e-b7a0-a5da-1931-35f3000281e9"),
+    "分装板": ("BIOYOND_PolymerStation_6VialCarrier", "3a14196e-5dfe-6e21-0c79-fe2036d052c4"),
+    "样品瓶": ("BIOYOND_PolymerStation_Solid_Stock", "3a14196a-cf7d-8aea-48d8-b9662c7dba94"),
+    "90%分装小瓶": ("BIOYOND_PolymerStation_Solid_Vial", "3a14196c-cdcf-088d-dc7d-5cf38f0ad9ea"),
+    "10%分装小瓶": ("BIOYOND_PolymerStation_Liquid_Vial", "3a14196c-76be-2279-4e22-7310d69aed68"),
+    "20ml分液瓶": ("BIOYOND_PolymerStation_6x20ml_DispensingVialCarrier", "3a14196e-5dfe-6e21-0c79-fe2036d052c4"),
     "100ml液体": ("BIOYOND_PolymerStation_100ml_Liquid_Bottle", "d37166b3-ecaa-481e-bd84-3032b795ba07"),
     "液": ("BIOYOND_PolymerStation_Liquid_Bottle", "3a190ca1-2add-2b23-f8e1-bbd348b7f790"),
     "高粘液": ("BIOYOND_PolymerStation_High_Viscosity_Liquid_Bottle", "abe8df30-563d-43d2-85e0-cabec59ddc16"),
@@ -73,7 +80,6 @@ MATERIAL_TYPE_MAPPINGS = {
     "适配器块": ("BIOYOND_PolymerStation_AdapterBlock", "efc3bb32-d504-4890-91c0-b64ed3ac80cf"),
     "枪头盒": ("BIOYOND_PolymerStation_TipBox", "3a192c2e-20f3-a44a-0334-c8301839d0b3"),
     "枪头": ("BIOYOND_PolymerStation_Pipette_Tip", "b6196971-1050-46da-9927-333e8dea062d"),
-    # YB信息
 }
 
 SOLID_LIQUID_MAPPINGS = {

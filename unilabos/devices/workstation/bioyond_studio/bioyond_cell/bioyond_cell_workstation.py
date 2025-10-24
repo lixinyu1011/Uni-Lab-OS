@@ -12,6 +12,7 @@ import threading
 import json
 
 from urllib3 import response
+from unilabos.devices.workstation.workstation_base import WorkstationBase
 from unilabos.devices.workstation.bioyond_studio.station import BioyondWorkstation, BioyondResourceSynchronizer
 from unilabos.devices.workstation.bioyond_studio.config import (
     API_CONFIG, MATERIAL_TYPE_MAPPINGS, WAREHOUSE_MAPPING, SOLID_LIQUID_MAPPINGS
@@ -796,20 +797,170 @@ class BioyondCellWorkstation(BioyondWorkstation):
                 "warningQuantity": data.get("warningQuantity", ""),
                 "details": data.get("details", [])
             }
+            
+            logger.info(f"正在创建第 {i}/{total} 个固体物料: {name}")
+            result = self._post_lims("/api/lims/storage/material", material_data)
+            
+            if result and result.get("code") == 1:
+                # data 字段可能是字符串（物料ID）或字典（包含id字段）
+                data = result.get("data")
+                if isinstance(data, str):
+                    # data 直接是物料ID字符串
+                    material_id = data
+                elif isinstance(data, dict):
+                    # data 是字典，包含id字段
+                    material_id = data.get("id")
+                else:
+                    material_id = None
+                
+                if material_id:
+                    created_materials.append({
+                        "name": name,
+                        "materialId": material_id,
+                        "typeId": type_id
+                    })
+                    logger.info(f"✓ 成功创建物料: {name}, ID: {material_id}")
+                else:
+                    logger.error(f"✗ 创建物料失败: {name}, 未返回ID")
+                    logger.error(f"  响应数据: {result}")
+            else:
+                error_msg = result.get("error") or result.get("message", "未知错误")
+                logger.error(f"✗ 创建物料失败: {name}")
+                logger.error(f"  错误信息: {error_msg}")
+                logger.error(f"  完整响应: {result}")
+                
+            # 避免请求过快
+            time.sleep(0.3)
+        
+        logger.info(f"物料创建完成，成功创建 {len(created_materials)}/{total} 个固体物料")
+        return created_materials
 
-            logger.info(f"正在 POST 创建物料: {name}")
+    def _sync_materials_safe(self) -> bool:
+        """仅使用 BioyondResourceSynchronizer 执行同步（与 station.py 保持一致）。"""
+        if hasattr(self, 'resource_synchronizer') and self.resource_synchronizer:
             try:
-                # ✅ 真正执行 POST
-                result = self._post_lims("/api/lims/storage/material", data)
-                logger.info(f"响应: {result}")
+                return bool(self.resource_synchronizer.sync_from_external())
             except Exception as e:
-                logger.error(f"✗ 创建物料失败: {name}, 错误: {e}")
-                results.append({name: {"error": str(e)}})
-            time.sleep(0.3)  # 避免请求过快
-        return results
+                logger.error(f"同步失败: {e}")
+                return False
+        logger.warning("资源同步器未初始化")
+        return False
+
+    def _load_warehouse_locations(self, warehouse_name: str) -> tuple[List[str], List[str]]:
+        """从配置加载仓库位置信息
+        
+        Args:
+            warehouse_name: 仓库名称
+            
+        Returns:
+            (location_ids, position_names) 元组
+        """
+        warehouse_mapping = self.bioyond_config.get("warehouse_mapping", WAREHOUSE_MAPPING)
+        
+        if warehouse_name not in warehouse_mapping:
+            raise ValueError(f"配置中未找到仓库: {warehouse_name}。可用: {list(warehouse_mapping.keys())}")
+        
+        site_uuids = warehouse_mapping[warehouse_name].get("site_uuids", {})
+        if not site_uuids:
+            raise ValueError(f"仓库 {warehouse_name} 没有配置位置")
+        
+        # 按顺序获取位置ID和名称
+        location_ids = []
+        position_names = []
+        for key in sorted(site_uuids.keys()):
+            location_ids.append(site_uuids[key])
+            position_names.append(key)
+        
+        return location_ids, position_names
 
 
+    def create_and_inbound_materials(
+        self,
+        material_names: Optional[List[str]] = None,
+        type_id: str = "3a190ca0-b2f6-9aeb-8067-547e72c11469",
+        warehouse_name: str = "粉末加样头堆栈"
+    ) -> Dict[str, Any]:
+        """
+        传参与默认列表方式创建物料并入库（不使用CSV）。
 
+        Args:
+            material_names: 物料名称列表；默认使用 [LiPF6, LiDFOB, DTD, LiFSI, LiPO2F2]
+            type_id: 物料类型ID
+            warehouse_name: 目标仓库名（用于取位置信息）
+
+        Returns:
+            执行结果字典
+        """
+        logger.info("=" * 60)
+        logger.info(f"开始执行：从参数创建物料并批量入库到 {warehouse_name}")
+        logger.info("=" * 60)
+
+        try:
+            # 1) 准备物料名称（默认值）
+            default_materials = ["LiPF6", "LiDFOB", "DTD", "LiFSI", "LiPO2F2"]
+            mat_names = [m.strip() for m in (material_names or default_materials) if str(m).strip()]
+            if not mat_names:
+                return {"success": False, "error": "物料名称列表为空"}
+
+            # 2) 加载仓库位置信息
+            all_location_ids, position_names = self._load_warehouse_locations(warehouse_name)
+            logger.info(f"✓ 加载 {len(all_location_ids)} 个位置 ({position_names[0]} ~ {position_names[-1]})")
+
+            # 限制数量不超过可用位置
+            if len(mat_names) > len(all_location_ids):
+                logger.warning(f"物料数量超出位置数量，仅处理前 {len(all_location_ids)} 个")
+                mat_names = mat_names[:len(all_location_ids)]
+
+            # 3) 创建物料
+            logger.info(f"\n【步骤1/3】创建 {len(mat_names)} 个固体物料...")
+            created_materials = self.create_solid_materials(mat_names, type_id)
+            if not created_materials:
+                return {"success": False, "error": "没有成功创建任何物料"}
+
+            # 4) 批量入库
+            logger.info(f"\n【步骤2/3】批量入库物料...")
+            location_ids = all_location_ids[:len(created_materials)]
+            selected_positions = position_names[:len(created_materials)]
+
+            inbound_items = [
+                {"materialId": mat["materialId"], "locationId": loc_id}
+                for mat, loc_id in zip(created_materials, location_ids)
+            ]
+
+            for material, position in zip(created_materials, selected_positions):
+                logger.info(f"  - {material['name']} → {position}")
+
+            result = self.storage_batch_inbound(inbound_items)
+            if result.get("code") != 1:
+                logger.error(f"✗ 批量入库失败: {result}")
+                return {"success": False, "error": "批量入库失败", "created_materials": created_materials, "inbound_result": result}
+
+            logger.info("✓ 批量入库成功")
+
+            # 5) 同步
+            logger.info(f"\n【步骤3/3】同步物料数据...")
+            if self._sync_materials_safe():
+                logger.info("✓ 物料数据同步完成")
+            else:
+                logger.warning("⚠ 物料数据同步未完成（可忽略，不影响已创建与入库的数据）")
+
+            logger.info("\n" + "=" * 60)
+            logger.info("流程完成")
+            logger.info("=" * 60 + "\n")
+
+            return {
+                "success": True,
+                "created_materials": created_materials,
+                "inbound_result": result,
+                "total_created": len(created_materials),
+                "total_inbound": len(inbound_items),
+                "warehouse": warehouse_name,
+                "positions": selected_positions
+            }
+
+        except Exception as e:
+            logger.error(f"✗ 执行失败: {e}")
+            return {"success": False, "error": str(e)}
 
 
 # --------------------------------
@@ -824,7 +975,7 @@ if __name__ == "__main__":
     for r in results:
         logger.info(r)
     # 从CSV文件读取物料列表并批量创建入库
-    # logger.info(ws.create_and_inbound_materials_from_csv())
+    result = ws.create_and_inbound_materials()
     
     # 继续后续流程
     # logger.info(ws.auto_feeding4to3()) #搬运物料到3号箱
