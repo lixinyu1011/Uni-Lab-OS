@@ -1,0 +1,312 @@
+electrolysiswaterplatform_device:
+  category:
+  - electrolysis_water_platfrom
+  class:
+    action_value_mappings:
+      auto-build_tx_frame:
+        feedback: {}
+        goal: {}
+        goal_default:
+          current_ma: null
+          ki: null
+          mode: null
+          pump_percent: null
+          temp_c: null
+          voltage_mv: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                current_ma:
+                  type: integer
+                ki:
+                  type: number
+                mode:
+                  type: integer
+                pump_percent:
+                  type: number
+                temp_c:
+                  type: number
+                voltage_mv:
+                  type: integer
+              required:
+              - mode
+              - current_ma
+              - voltage_mv
+              - temp_c
+              - ki
+              - pump_percent
+              type: object
+            result: {}
+          required:
+          - goal
+          title: build_tx_frame参数
+          type: object
+        type: UniLabJsonCommand
+      auto-close_serial:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: close_serial参数
+          type: object
+        type: UniLabJsonCommand
+      auto-open_serial:
+        feedback: {}
+        goal: {}
+        goal_default:
+          baudrate: null
+          port: null
+          timeout: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                baudrate:
+                  type: string
+                port:
+                  type: string
+                timeout:
+                  type: string
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: open_serial参数
+          type: object
+        type: UniLabJsonCommand
+      auto-parse_rx_payload:
+        feedback: {}
+        goal: {}
+        goal_default:
+          dat13: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                dat13:
+                  type: string
+              required:
+              - dat13
+              type: object
+            result: {}
+          required:
+          - goal
+          title: parse_rx_payload参数
+          type: object
+        type: UniLabJsonCommand
+      auto-rx_thread_fn:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: rx_thread_fn参数
+          type: object
+        type: UniLabJsonCommand
+      auto-start:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: start参数
+          type: object
+        type: UniLabJsonCommand
+      auto-stop:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: stop参数
+          type: object
+        type: UniLabJsonCommand
+      auto-try_parse_rx_frame:
+        feedback: {}
+        goal: {}
+        goal_default:
+          frame15: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                frame15:
+                  type: string
+              required:
+              - frame15
+              type: object
+            result: {}
+          required:
+          - goal
+          title: try_parse_rx_frame参数
+          type: object
+        type: UniLabJsonCommand
+      auto-tx_thread_fn:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: tx_thread_fn参数
+          type: object
+        type: UniLabJsonCommand
+    module: unilabos.devices.electrolysis_water_platfrom.electrolysis_water_platfrom:ElectrolysisWaterPlatform
+    status_types:
+      current:
+        description: 当前电流值（mA）
+        get_method: get_current
+        msg_type: std_msgs/msg/Float32
+        period: 1.0
+      voltage:
+        description: 当前电压值（mV）
+        get_method: get_voltage
+        msg_type: std_msgs/msg/Float32
+        period: 1.0
+      temperature:
+        description: 当前温度值（℃）
+        get_method: get_temperature
+        msg_type: std_msgs/msg/Float32
+        period: 1.0
+      tds:
+        description: 当前TDS值（ppm）
+        get_method: get_tds
+        msg_type: std_msgs/msg/Float32
+        period: 1.0
+      gas_flow:
+        description: 当前气体流量（sccm）
+        get_method: get_gas_flow
+        msg_type: std_msgs/msg/Float32
+        period: 1.0
+      liquid_flow:
+        description: 当前液体流量（mL）
+        get_method: get_liquid_flow
+        msg_type: std_msgs/msg/Float32
+        period: 1.0
+      ph:
+        description: 当前pH值
+        get_method: get_ph
+        msg_type: std_msgs/msg/Float32
+        period: 1.0
+      connection_status:
+        description: 串口连接状态
+        get_method: get_connection_status
+        msg_type: std_msgs/msg/Bool
+        period: 5.0
+      timestamp:
+        description: 最后更新时间
+        get_method: get_timestamp
+        msg_type: std_msgs/msg/String
+        period: 1.0
+    type: python
+  config_info: []
+  description: ''
+  handles: []
+  icon: ''
+  init_param_schema:
+    config:
+      properties:
+        baudrate:
+          default: 115200
+          type: integer
+        csv_path:
+          type: string
+        deck:
+          type: object
+        port:
+          default: COM10
+          type: string
+        timeout:
+          default: 0.2
+          type: number
+      required:
+      - deck
+      type: object
+    data:
+      properties: {}
+      required: []
+      type: object
+  registry_type: device
+  version: 1.0.0

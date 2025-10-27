@@ -1,0 +1,16 @@
+{
+  "nodes": [
+    {
+        "id": "electrolysis_water_platfrom",
+        "name": "电解水平台",
+        "parent": null,
+        "type": "device",
+        "class": "electrolysiswaterplatform_device",
+        "config": {},
+        "data": {},
+        "children": [
+        ]
+    }
+  ],
+  "links": []
+}

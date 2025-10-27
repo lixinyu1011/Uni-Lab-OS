@@ -20,7 +20,7 @@ class ElectrolysisWaterPlatform(WorkstationBase):
     def __init__(
         self, 
         deck: Deck,
-        port: str = "COM10",
+        port: str = "COM5",
         baudrate: int = 115200,
         csv_path: Optional[str] = None,
         timeout: float = 0.2,
@@ -48,6 +48,20 @@ class ElectrolysisWaterPlatform(WorkstationBase):
         self.rx_thread: Optional[threading.Thread] = None
         self.tx_thread: Optional[threading.Thread] = None
         
+        # 存储最新的传感器数据（用于云端上报）
+        self._latest_data: Dict[str, Any] = {
+            "Current_mA": 0,
+            "Voltage_mV": 0,
+            "Temperature_C": 0.0,
+            "TDS_ppm": 0,
+            "GasFlow_sccm": 0,
+            "LiquidFlow_mL": 0,
+            "pH": 0.0,
+            "timestamp": "",
+            "is_connected": False
+        }
+        self._data_lock = threading.Lock()  # 线程安全锁
+        
         # ==== 接收（下位机->上位机）：固定 1+13+1 = 15 字节 ====
         self.RX_HEAD = 0x3E
         self.RX_TAIL = 0x3E
@@ -69,9 +83,14 @@ class ElectrolysisWaterPlatform(WorkstationBase):
             ser.reset_input_buffer()
             ser.reset_output_buffer()
             self.ser = ser
+            # 更新连接状态
+            with self._data_lock:
+                self._latest_data["is_connected"] = True
             return ser
         except serial.SerialException as e:
             print(f"[ERR] 无法打开串口 {port}: {e}")
+            with self._data_lock:
+                self._latest_data["is_connected"] = False
             return None
 
     def close_serial(self):
@@ -79,6 +98,9 @@ class ElectrolysisWaterPlatform(WorkstationBase):
         if self.ser and self.ser.is_open:
             self.ser.close()
             print("[INFO] 串口已关闭")
+        # 更新连接状态
+        with self._data_lock:
+            self._latest_data["is_connected"] = False
 
     @staticmethod
     def u16_be(h: int, l: int) -> int:
@@ -168,6 +190,13 @@ class ElectrolysisWaterPlatform(WorkstationBase):
                                        parsed["pH"]]
                                 writer.writerow(row)
                                 f.flush()
+                                
+                                # 更新最新数据（用于云端上报）
+                                with self._data_lock:
+                                    self._latest_data.update(parsed)
+                                    self._latest_data["timestamp"] = ts
+                                    self._latest_data["is_connected"] = True
+                                
                                 # 若不想打印可注释下一行
                                 # print(f"[{ts}] I={parsed['Current_mA']} mA, V={parsed['Voltage_mV']} mV, "
                                 #       f"T={parsed['Temperature_C']} °C, TDS={parsed['TDS_ppm']}, "
@@ -284,6 +313,86 @@ class ElectrolysisWaterPlatform(WorkstationBase):
             self.tx_thread.join(timeout=2.0)
         self.close_serial()
         print("[INFO] 电解水平台已停止")
+    
+    # ============ 实时数据获取接口（用于云端上报）============
+    
+    def get_latest_data(self) -> Dict[str, Any]:
+        """获取最新的所有传感器数据"""
+        with self._data_lock:
+            return self._latest_data.copy()
+    
+    def get_current(self) -> float:
+        """获取当前电流值（mA）"""
+        with self._data_lock:
+            return float(self._latest_data["Current_mA"])
+    
+    def get_voltage(self) -> float:
+        """获取当前电压值（mV）"""
+        with self._data_lock:
+            return float(self._latest_data["Voltage_mV"])
+    
+    def get_temperature(self) -> float:
+        """获取当前温度值（℃）"""
+        with self._data_lock:
+            return self._latest_data["Temperature_C"]
+    
+    def get_tds(self) -> float:
+        """获取当前TDS值（ppm）"""
+        with self._data_lock:
+            return float(self._latest_data["TDS_ppm"])
+    
+    def get_gas_flow(self) -> float:
+        """获取当前气体流量（sccm）"""
+        with self._data_lock:
+            return float(self._latest_data["GasFlow_sccm"])
+    
+    def get_liquid_flow(self) -> float:
+        """获取当前液体流量（mL）"""
+        with self._data_lock:
+            return float(self._latest_data["LiquidFlow_mL"])
+    
+    def get_ph(self) -> float:
+        """获取当前pH值"""
+        with self._data_lock:
+            return self._latest_data["pH"]
+    
+    def get_connection_status(self) -> bool:
+        """获取串口连接状态"""
+        with self._data_lock:
+            return self._latest_data["is_connected"]
+    
+    def get_timestamp(self) -> str:
+        """获取最后更新时间"""
+        with self._data_lock:
+            return self._latest_data["timestamp"]
+    
+    def send_command(self, mode: int, current_ma: int, voltage_mv: int, temp_c: float, ki: float = 0.0, pump_percent: float = 0.0) -> bool:
+        """
+        便捷方法：发送控制命令到下位机
+        
+        Args:
+            mode: 0=恒压模式, 1=恒流模式
+            current_ma: 电流设定值（mA）
+            voltage_mv: 电压设定值（mV）
+            temp_c: 温度设定值（℃）
+            ki: Ki参数（0.0-20.0）
+            pump_percent: 泵速百分比（0-100）
+        
+        Returns:
+            bool: 发送是否成功
+        """
+        if not self.ser or not self.ser.is_open:
+            print("[ERR] 串口未连接")
+            return False
+        
+        try:
+            frame = self.build_tx_frame(mode, current_ma, voltage_mv, temp_c, ki, pump_percent)
+            self.ser.write(frame)
+            print(f"[TX] 命令已发送: mode={mode}, I={current_ma}mA, V={voltage_mv}mV, T={temp_c}℃")
+            return True
+        except Exception as e:
+            print(f"[ERR] 发送命令失败: {e}")
+            return False
 
 
 # ================== 主入口 ==================
