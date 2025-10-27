@@ -18,6 +18,7 @@ def bioyond_warehouse_1x4x4(name: str) -> WareHouse:
     )
 
 
+
 def bioyond_warehouse_1x4x2(name: str) -> WareHouse:
     """创建BioYond 4x1x2仓库"""
     return warehouse_factory(
@@ -39,16 +40,16 @@ def bioyond_warehouse_1x2x2(name: str) -> WareHouse:
     """创建BioYond 4x1x4仓库"""
     return warehouse_factory(
         name=name,
-        num_items_x=2,
+        num_items_x=1,
         num_items_y=2,
-        num_items_z=1,
+        num_items_z=2,
         dx=10.0,
         dy=10.0,
         dz=10.0,
         item_dx=137.0,
         item_dy=96.0,
         item_dz=120.0,
-        category="YB_warehouse",
+        category="warehouse",
     )
 def bioyond_warehouse_10x1x1(name: str) -> WareHouse:
     """创建BioYond 4x1x4仓库"""
