@@ -842,10 +842,10 @@ class BaseROS2DeviceNode(Node, Generic[T]):
 
     async def transfer_resource_to_another(
         self,
-        plr_resources: List["ResourcePLR"],
-        target_device_id: str,
-        target_resources: List["ResourcePLR"],
-        sites: List[str],
+        plr_resources: List["ResourcePLR"], # 奔耀转一下
+        target_device_id: str,  # 扣电站
+        target_resources: List["ResourcePLR"],  # 扣电站deck
+        sites: List[str],  # 扣电站A01， B02
     ):
         # 准备工作
         uids = []

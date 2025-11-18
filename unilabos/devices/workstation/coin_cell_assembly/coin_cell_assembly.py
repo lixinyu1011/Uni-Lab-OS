@@ -1037,7 +1037,7 @@ class CoinCellAssemblyWorkstation(WorkstationBase):
             
             #接收信息
             data_open_circuit_voltage = self.data_open_circuit_voltage
-            data_pole_weight = self.data_pole_weight
+            data_pole_weight = self.data_pole_weight   # masses
             data_assembly_time = self.data_assembly_time
             data_assembly_pressure = self.data_assembly_pressure
             data_electrolyte_volume = self.data_electrolyte_volume
