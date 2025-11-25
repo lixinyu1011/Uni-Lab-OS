@@ -1,0 +1,39 @@
+ConstantCurrentSource:
+  category:
+  - WE
+  - electrolysis_water_platfrom
+  class:
+    module: unilabos.devices.electrolysis_water_platfrom.electrolysis_deck:ConstantCurrentSource
+    type: pylabrobot
+  description: ConstantCurrentSource
+  handles: []
+  icon: 恒流源.webp
+  init_param_schema: {}
+  registry_type: resource
+  version: 1.0.0
+ConstantVoltageSource:
+  category:
+  - WE
+  - electrolysis_water_platfrom
+  class:
+    module: unilabos.devices.electrolysis_water_platfrom.electrolysis_deck:ConstantVoltageSource
+    type: pylabrobot
+  description: ConstantVoltageSource
+  handles: []
+  icon: 恒压源.webp
+  init_param_schema: {}
+  registry_type: resource
+  version: 1.0.0
+ElectrolysisDeck:
+  category:
+  - WE
+  - electrolysis_water_platfrom
+  class:
+    module: unilabos.devices.electrolysis_water_platfrom.electrolysis_deck:ElectrolysisDeck
+    type: pylabrobot
+  description: 电解水平台专用 Deck
+  handles: []
+  icon: 电解水平台Deck.webp
+  init_param_schema: {}
+  registry_type: resource
+  version: 1.0.0

@@ -9,6 +9,8 @@ from typing import Dict, Any, Optional
 from pylabrobot.resources import Deck
 
 from unilabos.devices.workstation.workstation_base import WorkstationBase
+from unilabos.devices.electrolysis_water_platfrom.electrolysis_deck import create_electrolysis_deck, ElectrolysisDeck
+from unilabos.utils.log import logger
 
 # 串口配置常量
 DEFAULT_PORT = "COM5"
@@ -24,23 +26,33 @@ class ElectrolysisWaterPlatform(WorkstationBase):
     
     def __init__(
         self,
+        config: dict = None, 
         deck: Optional[Deck] = None,
         port: str = DEFAULT_PORT,
         baudrate: int = DEFAULT_BAUDRATE,
         csv_path: Optional[str] = None,
         timeout: float = DEFAULT_TIMEOUT,
-        **kwargs
-    ):
-        # 如果 deck 为 None，尝试从 kwargs 中获取
-        if deck is None:
-            deck = kwargs.pop('deck', None)
+        *args,
+        **kwargs):
+
+        # 处理 deck 参数
+        if deck is None and config:
+            deck = config.get('deck')
+
         
-        # 如果仍然为 None，创建一个默认的空 Deck
+        # 如果仍然为 None，创建默认的电解水平台专用 Deck
         if deck is None:
-            print("[INFO] 创建默认 Deck（电解水平台不需要物料管理）")
-            deck = Deck()
+            print("[INFO] 没有传入 deck，创建电解水平台专用 Deck（包含恒压源、恒流源、反应器）")
+            deck = create_electrolysis_deck(
+                deck_name="electrolysis_deck",
+                size_x=800.0,  # Deck 长度
+                size_y=600.0,  # Deck 宽度
+                size_z=100.0,  # Deck 高度
+                setup=True     # 自动配置资源
+            )
         
-        super().__init__(deck, **kwargs)
+        super().__init__(deck=deck, *args, **kwargs)
+        
         
         # ========== 配置 ==========
         self.port = port
@@ -369,6 +381,44 @@ class ElectrolysisWaterPlatform(WorkstationBase):
         
         self._ros_node = ros_node
         print(f"[INFO] 电解水平台 ROS2 节点已就绪: {ros_node.device_id}")
+        
+        # 显示 Deck 上的资源信息
+        if hasattr(self, 'deck') and self.deck is not None:
+            if isinstance(self.deck, ElectrolysisDeck):
+                print(f"[INFO] 电解水平台 Deck 资源配置:")
+                print(f"  Deck 尺寸: {self.deck.get_size_x():.0f}×{self.deck.get_size_y():.0f}×{self.deck.get_size_z():.0f} mm")
+                
+                # 显示电源
+                if hasattr(self.deck, 'power_sources') and self.deck.power_sources:
+                    print(f"  电源 ({len(self.deck.power_sources)} 个):")
+                    for name, source in self.deck.power_sources.items():
+                        print(f"    - {name}: {source.max_voltage}V / {source.max_current}mA")
+                
+                # 显示反应器
+                if hasattr(self.deck, 'reactors') and self.deck.reactors:
+                    print(f"  反应器 ({len(self.deck.reactors)} 个):")
+                    for name, reactor in self.deck.reactors.items():
+                        print(f"    - {name}: {reactor.volume}mL")
+            
+            elif len(self.deck.children) > 0:
+                print(f"[INFO] Deck 资源列表 ({len(self.deck.children)} 个):")
+                for child in self.deck.children:
+                    location = child.location
+                    print(f"  - {child.name} ({child.category})")
+                    print(f"    位置: X={location.x:.1f}mm, Y={location.y:.1f}mm, Z={location.z:.1f}mm")
+        
+        # 上传 deck 资源（如果存在）
+        # 注意：只上传 deck，不上传设备本身，避免 PLR 资源转换错误
+        if hasattr(self, 'deck') and self.deck is not None:
+            try:
+                print(f"[INFO] 正在上传 Deck 资源到云端...")
+                ROS2DeviceNode.run_async_func(self._ros_node.update_resource, True, **{
+                    "resources": [self.deck]
+                })
+                print(f"[✓] Deck 资源上传成功")
+            except Exception as e:
+                # Deck 上传失败不应该影响设备运行
+                print(f"[WARN] Deck 资源上传失败（不影响设备运行）: {e}")
     
     # ================== 状态属性（供ROS2发布使用）==================
     @property

@@ -4,14 +4,71 @@
       "id": "electrolysis_water_platfrom",
       "name": "电解水测试平台",
       "parent": null,
-      "children": [],
+      "children": [
+        "electrolysis_deck"
+      ],
       "type": "device",
       "class": "electrolysiswaterplatform_device",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "pose": {
+        "size": {
+          "width": 900.0,
+          "height": 700.0,
+          "depth": 150.0
+        },
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        }
+      },
       "config": {
+        "deck": {
+          "data": {
+            "_resource_child_name": "electrolysis_deck",
+            "_resource_type": "unilabos.devices.electrolysis_water_platfrom.electrolysis_deck:ElectrolysisDeck"
+          }
+        },
         "protocol_type": [],
         "port": "COM5",
         "baudrate": 115200,
         "timeout": 0.2
+      },
+      "data": {}
+    },
+    {
+      "id": "electrolysis_deck",
+      "name": "电解水平台Deck",
+      "children": [],
+      "parent": "electrolysis_water_platfrom",
+      "type": "deck",
+      "class": "ElectrolysisDeck",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "config": {
+        "type": "ElectrolysisDeck",
+        "size_x": 800.0,
+        "size_y": 600.0,
+        "size_z": 100.0,
+        "setup": true,
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "type": "Rotation"
+        }
       },
       "data": {}
     }

@@ -1,0 +1,261 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 1.0  # 更新频率，单位 Hz (每秒更新一次)
+
+    # 控制器列表
+    controllers:
+      # 恒压模式控制器 - 基于深度学习模型的电压控制
+      voltage_controller:
+        type: DeepLearningController  # 深度学习控制器
+        mode: constant_voltage  # 恒压模式
+        inputs: 
+          current_feedback:  # 电流反馈（从传感器读取）
+            topic: /devices/electrolysis_water_platfrom/current  # 输入话题
+            type: str  # 输入数据类型（需要转换为 float）
+          voltage_feedback:  # 电压反馈
+            topic: /devices/electrolysis_water_platfrom/voltage
+            type: str
+          temperature_feedback:  # 温度反馈
+            topic: /devices/electrolysis_water_platfrom/temperature
+            type: str
+        outputs: 
+          control_command:  # 控制输出
+            topic: /devices/electrolysis_water_platfrom/control_cmd  # 输出话题
+            type: dict  # 输出数据类型
+            # 输出格式：
+            # {
+            #   "mode": 0,           # 0=恒压, 1=恒流
+            #   "current_ma": 1000,  # 目标电流 (mA)
+            #   "voltage_mv": 3500,  # 目标电压 (mV)
+            #   "temp_c": 25.0,      # 目标温度 (℃)
+            #   "ki": 1.0,           # Ki 参数
+            #   "pump_percent": 50   # 泵速百分比
+            # }
+        parameters:
+          mode: 0  # 0=恒压模式
+          target_voltage: 3500  # 目标电压 (mV)
+          target_current: 1000  # 目标电流上限 (mA)
+          target_temperature: 25.0  # 目标温度 (℃)
+          ki_value: 1.0  # Ki 参数
+          pump_speed: 50  # 泵速百分比 (0-100)
+          control_rate: 1.0  # 控制频率 (Hz)
+          
+          # 深度学习模型配置
+          model:
+            path: "models/electrolysis_cv_model.pth"  # 模型文件路径
+            type: "pytorch"  # 模型类型: 'pytorch' 或 'tensorflow'
+            device: "cpu"  # 计算设备: 'cpu' 或 'cuda'
+            
+            # 输入特征（传感器读数）
+            input_features:
+              - current      # 电流 (mA)
+              - voltage      # 电压 (mV)
+              - temperature  # 温度 (℃)
+              - ph           # pH 值
+              - gas_flow     # 气体流量 (sccm)
+              - liquid_flow  # 液体流量 (mL)
+            
+            # 输出特征（控制命令）
+            output_features:
+              - control_voltage  # 控制电压 (mV)
+              - control_current  # 控制电流 (mA)
+            
+            # 数据归一化参数（根据训练数据设置）
+            normalization:
+              input_mean: [1000, 3500, 25, 7, 50, 30]
+              input_std: [500, 1000, 5, 2, 25, 15]
+              output_mean: [3500, 1000]
+              output_std: [1000, 500]
+          
+          # 安全限制
+          max_voltage: 5000  # 最大电压 (mV)
+          max_current: 2000  # 最大电流 (mA)
+          min_voltage: 0  # 最小电压 (mV)
+          min_current: 0  # 最小电流 (mA)
+
+      # 恒流模式控制器 - 基于深度学习模型的电流控制
+      current_controller:
+        type: DeepLearningController  # 深度学习控制器
+        mode: constant_current  # 恒流模式
+        inputs: 
+          current_feedback:  # 电流反馈
+            topic: /devices/electrolysis_water_platfrom/current
+            type: str
+          voltage_feedback:  # 电压反馈
+            topic: /devices/electrolysis_water_platfrom/voltage
+            type: str
+          temperature_feedback:  # 温度反馈
+            topic: /devices/electrolysis_water_platfrom/temperature
+            type: str
+        outputs: 
+          control_command:  # 控制输出
+            topic: /devices/electrolysis_water_platfrom/control_cmd
+            type: dict
+        parameters:
+          mode: 1  # 1=恒流模式
+          target_current: 1500  # 目标电流 (mA)
+          target_voltage: 5000  # 目标电压上限 (mV)
+          target_temperature: 25.0  # 目标温度 (℃)
+          ki_value: 1.5  # Ki 参数
+          pump_speed: 80  # 泵速百分比 (0-100)
+          control_rate: 1.0  # 控制频率 (Hz)
+          
+          # 深度学习模型配置
+          model:
+            path: "models/electrolysis_cc_model.pth"  # 恒流模式模型
+            type: "pytorch"
+            device: "cpu"
+            
+            input_features:
+              - current
+              - voltage
+              - temperature
+              - ph
+              - gas_flow
+              - liquid_flow
+            
+            output_features:
+              - control_voltage
+              - control_current
+            
+            normalization:
+              input_mean: [1500, 4000, 25, 7, 80, 40]
+              input_std: [500, 1000, 5, 2, 30, 20]
+              output_mean: [4000, 1500]
+              output_std: [1000, 500]
+          
+          # 安全限制
+          max_voltage: 5000  # 最大电压 (mV)
+          max_current: 2000  # 最大电流 (mA)
+          min_voltage: 0  # 最小电压 (mV)
+          min_current: 0  # 最小电流 (mA)
+
+      # 温度控制器 - 控制反应温度
+      temperature_controller:
+        type: PIDController
+        inputs: 
+          temperature_feedback:
+            topic: /devices/electrolysis_water_platfrom/temperature
+            type: str
+          ph_feedback:  # pH 值反馈
+            topic: /devices/electrolysis_water_platfrom/ph
+            type: str
+        outputs: 
+          temperature_setpoint:
+            topic: /devices/electrolysis_water_platfrom/temp_setpoint
+            type: float
+        parameters:
+          target_temperature: 30.0  # 目标温度 (℃)
+          kp: 2.0
+          ki: 0.5
+          kd: 0.2
+          max_output: 50.0  # 最大输出 (℃)
+          min_output: 10.0  # 最小输出 (℃)
+
+      # 多变量控制器 - 同时控制电流、电压和温度
+      multi_variable_controller:
+        type: AdvancedController
+        inputs: 
+          current:
+            topic: /devices/electrolysis_water_platfrom/current
+            type: str
+          voltage:
+            topic: /devices/electrolysis_water_platfrom/voltage
+            type: str
+          temperature:
+            topic: /devices/electrolysis_water_platfrom/temperature
+            type: str
+          ph:
+            topic: /devices/electrolysis_water_platfrom/ph
+            type: str
+          gas_flow:
+            topic: /devices/electrolysis_water_platfrom/gas_flow
+            type: str
+          liquid_flow:
+            topic: /devices/electrolysis_water_platfrom/liquid_flow
+            type: str
+        outputs: 
+          control_command:
+            topic: /devices/electrolysis_water_platfrom/control_cmd
+            type: dict
+        parameters:
+          # 控制目标
+          mode: 0  # 0=恒压, 1=恒流
+          target_voltage: 3500  # mV
+          target_current: 1200  # mA
+          target_temperature: 28.0  # ℃
+          target_ph: 7.0  # pH 值
+          target_gas_flow: 100  # sccm
+          
+          # 控制参数
+          ki_value: 1.2
+          pump_speed: 60
+          
+          # 多变量 PID 参数
+          voltage_kp: 0.5
+          voltage_ki: 0.1
+          voltage_kd: 0.05
+          
+          current_kp: 1.0
+          current_ki: 0.2
+          current_kd: 0.1
+          
+          temp_kp: 2.0
+          temp_ki: 0.5
+          temp_kd: 0.2
+          
+          # 优化参数
+          optimization_enabled: true
+          efficiency_target: 0.85  # 目标效率
+          
+          # 安全约束
+          safety_limits:
+            max_voltage: 5000
+            max_current: 2000
+            max_temperature: 80.0
+            min_temperature: 10.0
+            max_ph: 14.0
+            min_ph: 0.0
+
+# 控制器激活配置
+active_controllers:
+  - voltage_controller  # 默认激活恒压控制器
+  # - current_controller  # 取消注释以激活恒流控制器
+  # - temperature_controller  # 取消注释以激活温度控制器
+  # - multi_variable_controller  # 取消注释以激活多变量控制器
+
+# 数据记录配置
+data_logging:
+  enabled: true
+  log_file: "electrolysis_control_log.csv"
+  log_rate: 1.0  # 记录频率 Hz
+  fields:
+    - timestamp
+    - current
+    - voltage
+    - temperature
+    - ph
+    - gas_flow
+    - liquid_flow
+    - control_mode
+    - setpoint_voltage
+    - setpoint_current
+
+# 报警配置
+alarms:
+  enabled: true
+  conditions:
+    over_current:
+      threshold: 2000  # mA
+      action: "reduce_voltage"
+    over_voltage:
+      threshold: 5000  # mV
+      action: "reduce_current"
+    over_temperature:
+      threshold: 60.0  # ℃
+      action: "emergency_stop"
+    abnormal_ph:
+      min: 2.0
+      max: 12.0
+      action: "pause_and_alert"
+

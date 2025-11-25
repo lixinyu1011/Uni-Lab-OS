@@ -99,6 +99,56 @@ electrolysiswaterplatform_device:
           title: open_serial参数
           type: object
         type: UniLabJsonCommand
+      auto-parse_rx_payload:
+        feedback: {}
+        goal: {}
+        goal_default:
+          dat13: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                dat13:
+                  type: string
+              required:
+              - dat13
+              type: object
+            result: {}
+          required:
+          - goal
+          title: parse_rx_payload参数
+          type: object
+        type: UniLabJsonCommand
+      auto-post_init:
+        feedback: {}
+        goal: {}
+        goal_default:
+          ros_node: null
+        handles: {}
+        placeholder_keys: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                ros_node:
+                  type: string
+              required:
+              - ros_node
+              type: object
+            result: {}
+          required:
+          - goal
+          title: post_init参数
+          type: object
+        type: UniLabJsonCommand
       auto-rx_thread_fn:
         feedback: {}
         goal: {}
@@ -230,10 +280,12 @@ electrolysiswaterplatform_device:
         baudrate:
           default: 115200
           type: integer
+        config:
+          type: object
         csv_path:
           type: string
         deck:
-          type: object
+          type: string
         port:
           default: COM5
           type: string
