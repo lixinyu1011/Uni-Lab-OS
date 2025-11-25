@@ -261,29 +261,28 @@ class DeviceActionManager:
             device_key = job_info.device_action_key
 
             # 如果是正在执行的任务
-            if (
-                device_key in self.active_jobs and self.active_jobs[device_key].job_id == job_id
-            ):  # 后面需要和cancel_goal进行联动，而不是在这里进行处理，现在默认等待这个job结束
-                # del self.active_jobs[device_key]
-                # job_info.status = JobStatus.ENDED
-                # # 从all_jobs中移除
-                # del self.all_jobs[job_id]
-                # job_log = format_job_log(job_info.job_id, job_info.task_id, job_info.device_id, job_info.action_name)
-                # logger.info(f"[DeviceActionManager] Active job {job_log} cancelled for {device_key}")
+            if device_key in self.active_jobs and self.active_jobs[device_key].job_id == job_id:
+                # 清理active job状态
+                del self.active_jobs[device_key]
+                job_info.status = JobStatus.ENDED
+                # 从all_jobs中移除
+                del self.all_jobs[job_id]
+                job_log = format_job_log(job_info.job_id, job_info.task_id, job_info.device_id, job_info.action_name)
+                logger.info(f"[DeviceActionManager] Active job {job_log} cancelled for {device_key}")
 
-                # # 启动下一个任务
-                # if device_key in self.device_queues and self.device_queues[device_key]:
-                #     next_job = self.device_queues[device_key].pop(0)
-                #     # 将下一个job设置为READY状态并放入active_jobs
-                #     next_job.status = JobStatus.READY
-                #     next_job.update_timestamp()
-                #     next_job.set_ready_timeout(10)
-                #     self.active_jobs[device_key] = next_job
-                #     next_job_log = format_job_log(next_job.job_id, next_job.task_id,
-                #                                   next_job.device_id, next_job.action_name)
-                #     logger.info(f"[DeviceActionManager] Next job {next_job_log} can start after cancel")
-                #     return True
-                pass
+                # 启动下一个任务
+                if device_key in self.device_queues and self.device_queues[device_key]:
+                    next_job = self.device_queues[device_key].pop(0)
+                    # 将下一个job设置为READY状态并放入active_jobs
+                    next_job.status = JobStatus.READY
+                    next_job.update_timestamp()
+                    next_job.set_ready_timeout(10)
+                    self.active_jobs[device_key] = next_job
+                    next_job_log = format_job_log(
+                        next_job.job_id, next_job.task_id, next_job.device_id, next_job.action_name
+                    )
+                    logger.info(f"[DeviceActionManager] Next job {next_job_log} can start after cancel")
+                return True
 
             # 如果是排队中的任务
             elif device_key in self.device_queues:
@@ -360,6 +359,7 @@ class MessageProcessor:
         self.device_manager = device_manager
         self.queue_processor = None  # 延迟设置
         self.websocket_client = None  # 延迟设置
+        self.session_id = ""
 
         # WebSocket连接
         self.websocket = None
@@ -428,7 +428,10 @@ class MessageProcessor:
                     ssl=ssl_context,
                     ping_interval=WSConfig.ping_interval,
                     ping_timeout=10,
-                    additional_headers={"Authorization": f"Lab {BasicConfig.auth_secret()}"},
+                    additional_headers={
+                        "Authorization": f"Lab {BasicConfig.auth_secret()}",
+                        "EdgeSession": f"{self.session_id}",
+                    },
                     logger=ws_logger,
                 ) as websocket:
                     self.websocket = websocket
@@ -573,6 +576,9 @@ class MessageProcessor:
                 await self._handle_resource_tree_update(message_data, "update")
             elif message_type == "remove_material":
                 await self._handle_resource_tree_update(message_data, "remove")
+            elif message_type == "session_id":
+                self.session_id = message_data.get("session_id")
+                logger.info(f"[MessageProcessor] Session ID: {self.session_id}")
             else:
                 logger.debug(f"[MessageProcessor] Unknown message type: {message_type}")
 
@@ -741,31 +747,51 @@ class MessageProcessor:
                 job_info.action_name if job_info else "",
             )
 
-            # 按job_id取消单个job
+            # 先通知HostNode取消ROS2 action（如果存在）
+            host_node = HostNode.get_instance(0)
+            ros_cancel_success = False
+            if host_node:
+                ros_cancel_success = host_node.cancel_goal(job_id)
+                if ros_cancel_success:
+                    logger.info(f"[MessageProcessor] ROS2 cancel request sent for job {job_log}")
+                else:
+                    logger.debug(
+                        f"[MessageProcessor] Job {job_log} not in ROS2 goals " "(may be queued or already finished)"
+                    )
+
+            # 按job_id取消单个job（清理状态机）
             success = self.device_manager.cancel_job(job_id)
             if success:
-                # 通知HostNode取消
-                host_node = HostNode.get_instance(0)
-                if host_node:
-                    host_node.cancel_goal(job_id)
-                logger.info(f"[MessageProcessor] Job {job_log} cancelled")
+                logger.info(f"[MessageProcessor] Job {job_log} cancelled from queue/active list")
 
                 # 通知QueueProcessor有队列更新
                 if self.queue_processor:
                     self.queue_processor.notify_queue_update()
             else:
-                logger.warning(f"[MessageProcessor] Failed to cancel job {job_log}")
+                logger.warning(f"[MessageProcessor] Failed to cancel job {job_log} from queue")
 
         elif task_id:
-            # 按task_id取消所有相关job
+            # 先通知HostNode取消所有ROS2 actions
+            # 需要先获取所有相关job_ids
+            jobs_to_cancel = []
+            with self.device_manager.lock:
+                jobs_to_cancel = [
+                    job_info for job_info in self.device_manager.all_jobs.values() if job_info.task_id == task_id
+                ]
+
+            host_node = HostNode.get_instance(0)
+            if host_node and jobs_to_cancel:
+                ros_cancelled_count = 0
+                for job_info in jobs_to_cancel:
+                    if host_node.cancel_goal(job_info.job_id):
+                        ros_cancelled_count += 1
+                logger.info(
+                    f"[MessageProcessor] Sent ROS2 cancel for " f"{ros_cancelled_count}/{len(jobs_to_cancel)} jobs"
+                )
+
+            # 按task_id取消所有相关job（清理状态机）
             cancelled_job_ids = self.device_manager.cancel_jobs_by_task_id(task_id)
             if cancelled_job_ids:
-                # 通知HostNode取消所有job
-                host_node = HostNode.get_instance(0)
-                if host_node:
-                    for cancelled_job_id in cancelled_job_ids:
-                        host_node.cancel_goal(cancelled_job_id)
-
                 logger.info(f"[MessageProcessor] Cancelled {len(cancelled_job_ids)} jobs for task_id: {task_id}")
 
                 # 通知QueueProcessor有队列更新
@@ -1056,11 +1082,19 @@ class QueueProcessor:
         """处理任务完成"""
         # 获取job信息用于日志
         job_info = self.device_manager.get_job_info(job_id)
+
+        # 如果job不存在，说明可能已被手动取消
+        if not job_info:
+            logger.debug(
+                f"[QueueProcessor] Job {job_id[:8]} not found in manager " "(may have been cancelled manually)"
+            )
+            return
+
         job_log = format_job_log(
             job_id,
-            job_info.task_id if job_info else "",
-            job_info.device_id if job_info else "",
-            job_info.action_name if job_info else "",
+            job_info.task_id,
+            job_info.device_id,
+            job_info.action_name,
         )
 
         logger.info(f"[QueueProcessor] Job {job_log} completed with status: {status}")
@@ -1168,6 +1202,18 @@ class WebSocketClient(BaseCommunicationClient):
             return
 
         logger.info("[WebSocketClient] Stopping connection")
+
+        # 发送 normal_exit 消息
+        if self.is_connected():
+            try:
+                session_id = self.message_processor.session_id
+                message = {"action": "normal_exit", "data": {"session_id": session_id}}
+                self.message_processor.send_message(message)
+                logger.info(f"[WebSocketClient] Sent normal_exit message with session_id: {session_id}")
+                # 给一点时间让消息发送出去
+                time.sleep(1)
+            except Exception as e:
+                logger.warning(f"[WebSocketClient] Failed to send normal_exit message: {str(e)}")
 
         # 停止两个核心线程
         self.message_processor.stop()

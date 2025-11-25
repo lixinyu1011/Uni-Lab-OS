@@ -1,12 +1,14 @@
 from __future__ import annotations
-import re
-import traceback
-from typing import List, Sequence, Optional, Literal, Union, Iterator, Dict, Any, Callable, Set, cast
-from collections import Counter
+
 import asyncio
 import time
-import pprint as pp
+import traceback
+from collections import Counter
+from typing import List, Sequence, Optional, Literal, Union, Iterator, Dict, Any, Callable, Set, cast
+
 from pylabrobot.liquid_handling import LiquidHandler, LiquidHandlerBackend, LiquidHandlerChatterboxBackend, Strictness
+from unilabos.devices.liquid_handling.rviz_backend import UniLiquidHandlerRvizBackend
+from unilabos.devices.liquid_handling.laiyu.backend.laiyu_v_backend import UniLiquidHandlerLaiyuBackend
 from pylabrobot.liquid_handling.liquid_handler import TipPresenceProbingMethod
 from pylabrobot.liquid_handling.standard import GripDirection
 from pylabrobot.resources import (
@@ -25,13 +27,20 @@ from pylabrobot.resources import (
     Tip,
 )
 
+from unilabos.ros.nodes.base_device_node import BaseROS2DeviceNode
+
 
 class LiquidHandlerMiddleware(LiquidHandler):
-    def __init__(self, backend: LiquidHandlerBackend, deck: Deck, simulator: bool = False, channel_num: int = 8):
+    def __init__(self, backend: LiquidHandlerBackend, deck: Deck, simulator: bool = False, channel_num: int = 8, **kwargs):
         self._simulator = simulator
         self.channel_num = channel_num
+        joint_config = kwargs.get("joint_config", None)
         if simulator:
-            self._simulate_backend = LiquidHandlerChatterboxBackend(channel_num)
+            if joint_config:
+                self._simulate_backend = UniLiquidHandlerRvizBackend(channel_num, kwargs["total_height"],
+                                                                     joint_config=joint_config, lh_device_id=deck.name)
+            else:
+                self._simulate_backend = LiquidHandlerChatterboxBackend(channel_num)
             self._simulate_handler = LiquidHandlerAbstract(self._simulate_backend, deck, False)
         super().__init__(backend, deck)
 
@@ -215,7 +224,6 @@ class LiquidHandlerMiddleware(LiquidHandler):
             offsets,
             liquid_height,
             blow_out_air_volume,
-            spread,
             **backend_kwargs,
         )
 
@@ -536,6 +544,7 @@ class LiquidHandlerMiddleware(LiquidHandler):
 class LiquidHandlerAbstract(LiquidHandlerMiddleware):
     """Extended LiquidHandler with additional operations."""
     support_touch_tip = True
+    _ros_node: BaseROS2DeviceNode
 
     def __init__(self, backend: LiquidHandlerBackend, deck: Deck, simulator: bool=False, channel_num:int = 8):
         """Initialize a LiquidHandler.
@@ -548,8 +557,11 @@ class LiquidHandlerAbstract(LiquidHandlerMiddleware):
         self.group_info = dict()
         super().__init__(backend, deck, simulator, channel_num)
 
+    def post_init(self, ros_node: BaseROS2DeviceNode):
+        self._ros_node = ros_node
+
     @classmethod
-    def set_liquid(self, wells: list[Well], liquid_names: list[str], volumes: list[float]):
+    def set_liquid(cls, wells: list[Well], liquid_names: list[str], volumes: list[float]):
         """Set the liquid in a well."""
         for well, liquid_name, volume in zip(wells, liquid_names, volumes):
             well.set_liquids([(liquid_name, volume)])  # type: ignore
@@ -1081,7 +1093,7 @@ class LiquidHandlerAbstract(LiquidHandlerMiddleware):
                 print(f"Waiting time: {msg}")
                 print(f"Current time: {time.strftime('%H:%M:%S')}")
                 print(f"Time to finish: {time.strftime('%H:%M:%S', time.localtime(time.time() + seconds))}")
-            await asyncio.sleep(seconds)
+            await self._ros_node.sleep(seconds)
             if msg:
                 print(f"Done: {msg}")
                 print(f"Current time: {time.strftime('%H:%M:%S')}")

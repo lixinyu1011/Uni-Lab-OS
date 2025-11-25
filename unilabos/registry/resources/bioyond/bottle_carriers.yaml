@@ -1,137 +1,46 @@
-1BottleCarrier:
+BIOYOND_PolymerStation_1BottleCarrier:
   category:
   - bottle_carriers
   class:
     module: unilabos.resources.bioyond.bottle_carriers:BIOYOND_PolymerStation_1BottleCarrier
     type: pylabrobot
-  description: 1BottleCarrier
+  description: BIOYOND_PolymerStation_1BottleCarrier
   handles: []
   icon: ''
   init_param_schema: {}
   registry_type: resource
   version: 1.0.0
-1FlaskCarrier:
+BIOYOND_PolymerStation_1FlaskCarrier:
   category:
   - bottle_carriers
   class:
     module: unilabos.resources.bioyond.bottle_carriers:BIOYOND_PolymerStation_1FlaskCarrier
     type: pylabrobot
-  description: 1FlaskCarrier
+  description: BIOYOND_PolymerStation_1FlaskCarrier
   handles: []
   icon: ''
   init_param_schema: {}
   registry_type: resource
   version: 1.0.0
-4x_LargeSolutionBottleCarrier:
-  category:
-  - yb3
-  - bottle_carriers
-  class:
-    module: unilabos.resources.bioyond.bottle_carriers:BIOYOND_PolymerStation_4x_LargeSolutionBottleCarrier
-    type: pylabrobot
-  description: 4x_LargeSolutionBottleCarrier
-  handles: []
-  icon: ''
-  init_param_schema: {}
-  registry_type: resource
-  version: 1.0.0
-6StockCarrier:
+BIOYOND_PolymerStation_6StockCarrier:
   category:
   - bottle_carriers
   class:
     module: unilabos.resources.bioyond.bottle_carriers:BIOYOND_PolymerStation_6StockCarrier
     type: pylabrobot
-  description: 6StockCarrier
+  description: BIOYOND_PolymerStation_6StockCarrier
   handles: []
   icon: ''
   init_param_schema: {}
   registry_type: resource
   version: 1.0.0
-6VialCarrier:
+BIOYOND_PolymerStation_8StockCarrier:
   category:
   - bottle_carriers
   class:
-    module: unilabos.resources.bioyond.bottle_carriers:BIOYOND_PolymerStation_6VialCarrier
+    module: unilabos.resources.bioyond.bottle_carriers:BIOYOND_PolymerStation_8StockCarrier
     type: pylabrobot
-  description: 6VialCarrier
-  handles: []
-  icon: ''
-  init_param_schema: {}
-  registry_type: resource
-  version: 1.0.0
-6x20ml_DispensingVialCarrier:
-  category:
-  - yb3
-  - bottle_carriers
-  class:
-    module: unilabos.resources.bioyond.bottle_carriers:BIOYOND_PolymerStation_6x20ml_DispensingVialCarrier
-    type: pylabrobot
-  description: 6x20ml_DispensingVialCarrier
-  handles: []
-  icon: ''
-  init_param_schema: {}
-  registry_type: resource
-  version: 1.0.0
-6x5ml_DispensingVialCarrier:
-  category:
-  - yb3
-  - bottle_carriers
-  class:
-    module: unilabos.resources.bioyond.bottle_carriers:BIOYOND_PolymerStation_6x5ml_DispensingVialCarrier
-    type: pylabrobot
-  description: 6x5ml_DispensingVialCarrier
-  handles: []
-  icon: ''
-  init_param_schema: {}
-  registry_type: resource
-  version: 1.0.0
-6x_LargeDispenseHeadCarrier:
-  category:
-  - yb3
-  - bottle_carriers
-  class:
-    module: unilabos.resources.bioyond.bottle_carriers:BIOYOND_PolymerStation_6x_LargeDispenseHeadCarrier
-    type: pylabrobot
-  description: 6x_LargeDispenseHeadCarrier
-  handles: []
-  icon: ''
-  init_param_schema: {}
-  registry_type: resource
-  version: 1.0.0
-6x_SmallSolutionBottleCarrier:
-  category:
-  - yb3
-  - bottle_carriers
-  class:
-    module: unilabos.resources.bioyond.bottle_carriers:BIOYOND_PolymerStation_6x_SmallSolutionBottleCarrier
-    type: pylabrobot
-  description: 6x_SmallSolutionBottleCarrier
-  handles: []
-  icon: ''
-  init_param_schema: {}
-  registry_type: resource
-  version: 1.0.0
-AdapterBlock:
-  category:
-  - yb3
-  - bottle_carriers
-  class:
-    module: unilabos.resources.bioyond.bottle_carriers:BIOYOND_PolymerStation_AdapterBlock
-    type: pylabrobot
-  description: AdapterBlock
-  handles: []
-  icon: ''
-  init_param_schema: {}
-  registry_type: resource
-  version: 1.0.0
-TipBox:
-  category:
-  - yb3
-  - bottle_carriers
-  class:
-    module: unilabos.resources.bioyond.bottle_carriers:BIOYOND_PolymerStation_TipBox
-    type: pylabrobot
-  description: TipBox
+  description: BIOYOND_PolymerStation_8StockCarrier (2x4布局，8个位置)
   handles: []
   icon: ''
   init_param_schema: {}
