@@ -10,6 +10,11 @@ from pylabrobot.resources import Deck
 
 from unilabos.devices.workstation.workstation_base import WorkstationBase
 
+# 串口配置常量
+DEFAULT_PORT = "COM5"
+DEFAULT_BAUDRATE = 115200
+DEFAULT_TIMEOUT = 0.2
+
 
 class ElectrolysisWaterPlatform(WorkstationBase):
     """
@@ -18,14 +23,23 @@ class ElectrolysisWaterPlatform(WorkstationBase):
     """
     
     def __init__(
-        self, 
-        deck: Deck,
-        port: str = "COM5",
-        baudrate: int = 115200,
+        self,
+        deck: Optional[Deck] = None,
+        port: str = DEFAULT_PORT,
+        baudrate: int = DEFAULT_BAUDRATE,
         csv_path: Optional[str] = None,
-        timeout: float = 0.2,
+        timeout: float = DEFAULT_TIMEOUT,
         **kwargs
     ):
+        # 如果 deck 为 None，尝试从 kwargs 中获取
+        if deck is None:
+            deck = kwargs.pop('deck', None)
+        
+        # 如果仍然为 None，创建一个默认的空 Deck
+        if deck is None:
+            print("[INFO] 创建默认 Deck（电解水平台不需要物料管理）")
+            deck = Deck()
+        
         super().__init__(deck, **kwargs)
         
         # ========== 配置 ==========
@@ -48,6 +62,19 @@ class ElectrolysisWaterPlatform(WorkstationBase):
         self.rx_thread: Optional[threading.Thread] = None
         self.tx_thread: Optional[threading.Thread] = None
         
+        # ========== 最新数据存储（用于状态查询）==========
+        self._latest_data = {
+            "timestamp": "",
+            "current": "0",
+            "voltage": "0",
+            "temperature": "0",
+            "tds": "0",
+            "gas_flow": "0",
+            "liquid_flow": "0",
+            "ph": "0"
+        }
+        self._data_lock = threading.Lock()
+        
         # ==== 接收（下位机->上位机）：固定 1+13+1 = 15 字节 ====
         self.RX_HEAD = 0x3E
         self.RX_TAIL = 0x3E
@@ -57,6 +84,34 @@ class ElectrolysisWaterPlatform(WorkstationBase):
         self.TX_HEAD = 0x3E
         self.TX_TAIL = 0xE3  # 协议图中标注 E3 作为帧尾
         self.TX_FRAME_LEN = 1 + 9 + 1  # 11
+        
+        # ========== 自动启动串口连接 ==========
+        # 在后台线程中启动串口连接和数据接收
+        self._init_thread = threading.Thread(target=self._auto_start, daemon=True, name="electrolysis_init")
+        self._init_thread.start()
+    
+    def _auto_start(self):
+        """自动启动串口连接（在后台线程中）"""
+        import time
+        # 稍微延迟，等待系统初始化完成
+        time.sleep(0.5)
+        
+        try:
+            print(f"[INFO] 正在连接电解水平台串口: {self.port} @ {self.baudrate}...")
+            self.ser = self.open_serial()
+            if self.ser:
+                # 只启动接收线程，不启动发送线程（发送线程需要用户输入）
+                self.rx_thread = threading.Thread(target=self.rx_thread_fn, daemon=True, name="electrolysis_rx")
+                self.rx_thread.start()
+                print(f"[✓] 电解水平台串口连接成功: {self.port}")
+                print(f"[✓] 数据接收线程已启动，CSV 文件: {self.csv_path}")
+            else:
+                print(f"[✗] 电解水平台串口连接失败: {self.port}")
+                print(f"[提示] 请检查: 1) 串口号是否正确 2) 设备是否已连接 3) 串口是否被其他程序占用")
+        except Exception as e:
+            print(f"[✗] 电解水平台自动启动失败: {e}")
+            import traceback
+            traceback.print_exc()
     
     def open_serial(self, port: Optional[str] = None, baudrate: Optional[int] = None, timeout: Optional[float] = None) -> Optional[serial.Serial]:
         """打开串口"""
@@ -92,7 +147,6 @@ class ElectrolysisWaterPlatform(WorkstationBase):
         return (v >> 8) & 0xFF, v & 0xFF
 
     # ================== 接收：固定15字节 ==================
-    @property
     def parse_rx_payload(self, dat13: bytes) -> Optional[Dict[str, Any]]:
         """解析 13 字节数据区（下位机发送到上位机）"""
         if len(dat13) != 13:
@@ -169,6 +223,17 @@ class ElectrolysisWaterPlatform(WorkstationBase):
                                        parsed["pH"]]
                                 writer.writerow(row)
                                 f.flush()
+                                
+                                # 更新最新数据（供状态查询使用）
+                                with self._data_lock:
+                                    self._latest_data["timestamp"] = ts
+                                    self._latest_data["current"] = str(parsed["Current_mA"])
+                                    self._latest_data["voltage"] = str(parsed["Voltage_mV"])
+                                    self._latest_data["temperature"] = str(parsed["Temperature_C"])
+                                    self._latest_data["tds"] = str(parsed["TDS_ppm"])
+                                    self._latest_data["gas_flow"] = str(parsed["GasFlow_sccm"])
+                                    self._latest_data["liquid_flow"] = str(parsed["LiquidFlow_mL"])
+                                    self._latest_data["ph"] = str(parsed["pH"])
                                 # 若不想打印可注释下一行
                                 # print(f"[{ts}] I={parsed['Current_mA']} mA, V={parsed['Voltage_mV']} mV, "
                                 #       f"T={parsed['Temperature_C']} °C, TDS={parsed['TDS_ppm']}, "
@@ -263,28 +328,103 @@ class ElectrolysisWaterPlatform(WorkstationBase):
                 continue
     
     def start(self):
-        """启动电解水平台"""
-        self.ser = self.open_serial()
+        """启动电解水平台（用于命令行模式）"""
+        # 如果串口未打开，先打开
+        if not self.ser or not self.ser.is_open:
+            self.ser = self.open_serial()
+        
         if self.ser:
             try:
-                self.rx_thread = threading.Thread(target=self.rx_thread_fn, daemon=True)
-                self.tx_thread = threading.Thread(target=self.tx_thread_fn, daemon=True)
-                self.rx_thread.start()
+                # 如果接收线程未启动，启动它
+                if not self.rx_thread or not self.rx_thread.is_alive():
+                    self.rx_thread = threading.Thread(target=self.rx_thread_fn, daemon=True, name="electrolysis_rx")
+                    self.rx_thread.start()
+                
+                # 启动发送线程（用于交互式命令输入）
+                self.tx_thread = threading.Thread(target=self.tx_thread_fn, daemon=True, name="electrolysis_tx")
                 self.tx_thread.start()
-                print("[INFO] 电解水平台已启动")
+                print("[INFO] 电解水平台已启动（交互模式）")
                 self.tx_thread.join()  # 等待用户输入线程结束（输入 stop）
             finally:
                 self.close_serial()
     
     def stop(self):
         """停止电解水平台"""
+        print("[INFO] 正在停止电解水平台...")
         self.stop_flag = True
-        if self.rx_thread and self.rx_thread.is_alive():
+        
+        # 等待线程结束
+        if hasattr(self, 'rx_thread') and self.rx_thread and self.rx_thread.is_alive():
             self.rx_thread.join(timeout=2.0)
-        if self.tx_thread and self.tx_thread.is_alive():
+        if hasattr(self, 'tx_thread') and self.tx_thread and self.tx_thread.is_alive():
             self.tx_thread.join(timeout=2.0)
+        
+        # 关闭串口
         self.close_serial()
         print("[INFO] 电解水平台已停止")
+    
+    def post_init(self, ros_node):
+        """ROS2 系统初始化完成后的回调"""
+        from unilabos.ros.nodes.base_device_node import ROS2DeviceNode
+        
+        self._ros_node = ros_node
+        print(f"[INFO] 电解水平台 ROS2 节点已就绪: {ros_node.device_id}")
+    
+    # ================== 状态属性（供ROS2发布使用）==================
+    @property
+    def connection_status(self) -> str:
+        """连接状态"""
+        if self.ser and self.ser.is_open:
+            return "Connected"
+        return "Disconnected"
+    
+    @property
+    def timestamp(self) -> str:
+        """最新数据时间戳"""
+        with self._data_lock:
+            return self._latest_data["timestamp"]
+    
+    @property
+    def current(self) -> str:
+        """电流 (mA)"""
+        with self._data_lock:
+            return self._latest_data["current"]
+    
+    @property
+    def voltage(self) -> str:
+        """电压 (mV)"""
+        with self._data_lock:
+            return self._latest_data["voltage"]
+    
+    @property
+    def temperature(self) -> str:
+        """温度 (°C)"""
+        with self._data_lock:
+            return self._latest_data["temperature"]
+    
+    @property
+    def tds(self) -> str:
+        """TDS (ppm)"""
+        with self._data_lock:
+            return self._latest_data["tds"]
+    
+    @property
+    def gas_flow(self) -> str:
+        """气体流量 (sccm)"""
+        with self._data_lock:
+            return self._latest_data["gas_flow"]
+    
+    @property
+    def liquid_flow(self) -> str:
+        """液体流量 (mL)"""
+        with self._data_lock:
+            return self._latest_data["liquid_flow"]
+    
+    @property
+    def ph(self) -> str:
+        """pH值"""
+        with self._data_lock:
+            return self._latest_data["ph"]
 
 
 # ================== 主入口 ==================

@@ -1,16 +1,21 @@
 {
   "nodes": [
     {
-        "id": "electrolysis_water_platfrom",
-        "name": "电解水平台",
-        "parent": null,
-        "type": "device",
-        "class": "electrolysiswaterplatform_device",
-        "config": {},
-        "data": {},
-        "children": [
-        ]
+      "id": "electrolysis_water_platfrom",
+      "name": "电解水测试平台",
+      "parent": null,
+      "children": [],
+      "type": "device",
+      "class": "electrolysiswaterplatform_device",
+      "config": {
+        "protocol_type": [],
+        "port": "COM5",
+        "baudrate": 115200,
+        "timeout": 0.2
+      },
+      "data": {}
     }
   ],
   "links": []
 }
+

@@ -591,7 +591,7 @@ class Registry:
                                 {k: v["return_type"] for k, v in enhanced_info["status_methods"].items()}
                             )
                         for status_name, status_type in device_config["class"]["status_types"].items():
-                            if isinstance(status_type, tuple) or status_type in ["Any", "None", "Unknown"]:
+                            if isinstance(status_type, (tuple, dict)) or status_type in ["Any", "None", "Unknown"]:
                                 status_type = "String"  # 替换成ROS的String，便于显示
                                 device_config["class"]["status_types"][status_name] = status_type
                             try:
