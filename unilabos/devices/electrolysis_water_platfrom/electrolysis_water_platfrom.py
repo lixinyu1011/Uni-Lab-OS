@@ -92,6 +92,7 @@ class ElectrolysisWaterPlatform(WorkstationBase):
         return (v >> 8) & 0xFF, v & 0xFF
 
     # ================== 接收：固定15字节 ==================
+    @property
     def parse_rx_payload(self, dat13: bytes) -> Optional[Dict[str, Any]]:
         """解析 13 字节数据区（下位机发送到上位机）"""
         if len(dat13) != 13:
