@@ -1,6 +1,6 @@
 electrolysiswaterplatform_device:
   category:
-  - electrolysis_water_platfrom
+  - electrolysiswaterplatform
   class:
     action_value_mappings:
       auto-build_tx_frame:
@@ -14,7 +14,6 @@ electrolysiswaterplatform_device:
           temp_c: null
           voltage_mv: null
         handles: {}
-        placeholder_keys: {}
         result: {}
         schema:
           description: ''
@@ -53,7 +52,6 @@ electrolysiswaterplatform_device:
         goal: {}
         goal_default: {}
         handles: {}
-        placeholder_keys: {}
         result: {}
         schema:
           description: ''
@@ -77,7 +75,6 @@ electrolysiswaterplatform_device:
           port: null
           timeout: null
         handles: {}
-        placeholder_keys: {}
         result: {}
         schema:
           description: ''
@@ -105,7 +102,6 @@ electrolysiswaterplatform_device:
         goal_default:
           dat13: null
         handles: {}
-        placeholder_keys: {}
         result: {}
         schema:
           description: ''
@@ -130,7 +126,6 @@ electrolysiswaterplatform_device:
         goal_default:
           ros_node: null
         handles: {}
-        placeholder_keys: {}
         result: {}
         schema:
           description: ''
@@ -154,7 +149,6 @@ electrolysiswaterplatform_device:
         goal: {}
         goal_default: {}
         handles: {}
-        placeholder_keys: {}
         result: {}
         schema:
           description: ''
@@ -170,12 +164,79 @@ electrolysiswaterplatform_device:
           title: rx_thread_fn参数
           type: object
         type: UniLabJsonCommand
+      auto-send_command:
+        feedback: {}
+        goal: {}
+        goal_default:
+          current_ma: null
+          ki: 0.0
+          mode: null
+          pump_percent: 0.0
+          temp_c: 25.0
+          voltage_mv: null
+        handles: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                current_ma:
+                  type: integer
+                ki:
+                  default: 0.0
+                  type: number
+                mode:
+                  type: integer
+                pump_percent:
+                  default: 0.0
+                  type: number
+                temp_c:
+                  default: 25.0
+                  type: number
+                voltage_mv:
+                  type: integer
+              required:
+              - mode
+              - current_ma
+              - voltage_mv
+              type: object
+            result: {}
+          required:
+          - goal
+          title: send_command参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_controller:
+        feedback: {}
+        goal: {}
+        goal_default:
+          controller: null
+        handles: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                controller:
+                  type: string
+              required:
+              - controller
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_controller参数
+          type: object
+        type: UniLabJsonCommand
       auto-start:
         feedback: {}
         goal: {}
         goal_default: {}
         handles: {}
-        placeholder_keys: {}
         result: {}
         schema:
           description: ''
@@ -191,12 +252,31 @@ electrolysiswaterplatform_device:
           title: start参数
           type: object
         type: UniLabJsonCommand
+      auto-start_control_loop:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: start_control_loop参数
+          type: object
+        type: UniLabJsonCommand
       auto-stop:
         feedback: {}
         goal: {}
         goal_default: {}
         handles: {}
-        placeholder_keys: {}
         result: {}
         schema:
           description: ''
@@ -212,13 +292,32 @@ electrolysiswaterplatform_device:
           title: stop参数
           type: object
         type: UniLabJsonCommand
+      auto-stop_control_loop:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: stop_control_loop参数
+          type: object
+        type: UniLabJsonCommand
       auto-try_parse_rx_frame:
         feedback: {}
         goal: {}
         goal_default:
           frame15: null
         handles: {}
-        placeholder_keys: {}
         result: {}
         schema:
           description: ''
@@ -242,7 +341,6 @@ electrolysiswaterplatform_device:
         goal: {}
         goal_default: {}
         handles: {}
-        placeholder_keys: {}
         result: {}
         schema:
           description: ''
@@ -265,6 +363,7 @@ electrolysiswaterplatform_device:
       gas_flow: str
       liquid_flow: str
       ph: str
+      sensor_data: list
       tds: str
       temperature: str
       timestamp: str
@@ -272,25 +371,62 @@ electrolysiswaterplatform_device:
     type: python
   config_info: []
   description: ''
-  handles: []
+  handles:
+  - data_key: input_data
+    data_source: handle
+    data_type: list
+    description: 平台接收数据
+    handler_key: input
+    io_type: target
+    label: input
+    side: SOUTH
+  - data_key: output_data
+    data_source: handle
+    data_type: list
+    description: 平台传出数据
+    handler_key: output
+    io_type: source
+    label: output
+    side: EAST
   icon: ''
   init_param_schema:
     config:
       properties:
+        auto_start_control:
+          default: true
+          type: boolean
         baudrate:
-          default: 115200
           type: integer
         config:
           type: object
         csv_path:
           type: string
         deck:
-          type: string
+          type: object
+        default_current_ma:
+          default: 1000
+          type: integer
+        default_ki:
+          default: 0.0
+          type: number
+        default_mode:
+          default: 0
+          type: integer
+        default_pump_percent:
+          default: 50.0
+          type: number
+        default_temperature_c:
+          default: 25.0
+          type: number
+        default_voltage_mv:
+          default: 2000
+          type: integer
         port:
-          default: COM5
           type: string
+        sampling_interval:
+          default: 1.0
+          type: number
         timeout:
-          default: 0.2
           type: number
       required: []
       type: object
@@ -306,6 +442,8 @@ electrolysiswaterplatform_device:
           type: string
         ph:
           type: string
+        sensor_data:
+          type: array
         tds:
           type: string
         temperature:
@@ -324,6 +462,7 @@ electrolysiswaterplatform_device:
       - gas_flow
       - liquid_flow
       - ph
+      - sensor_data
       type: object
   registry_type: device
   version: 1.0.0

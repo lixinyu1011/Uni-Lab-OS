@@ -1,0 +1,169 @@
+electrolysiscontroller_device:
+  category:
+  - electrolysiscontroller
+  class:
+    action_value_mappings:
+      auto-compute_control:
+        feedback: {}
+        goal: {}
+        goal_default:
+          sensor_data: null
+        handles: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                sensor_data:
+                  items:
+                    type: number
+                  type: array
+              required:
+              - sensor_data
+              type: object
+            result: {}
+          required:
+          - goal
+          title: compute_control参数
+          type: object
+        type: UniLabJsonCommand
+      auto-set_normalization_params:
+        feedback: {}
+        goal: {}
+        goal_default:
+          input_mean: null
+          input_std: null
+          output_mean: null
+          output_std: null
+        handles: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                input_mean:
+                  items:
+                    type: number
+                  type: array
+                input_std:
+                  items:
+                    type: number
+                  type: array
+                output_mean:
+                  items:
+                    type: number
+                  type: array
+                output_std:
+                  items:
+                    type: number
+                  type: array
+              required:
+              - input_mean
+              - input_std
+              - output_mean
+              - output_std
+              type: object
+            result: {}
+          required:
+          - goal
+          title: set_normalization_params参数
+          type: object
+        type: UniLabJsonCommand
+      auto-start_demo_loop:
+        feedback: {}
+        goal: {}
+        goal_default:
+          interval: 2.0
+        handles: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                interval:
+                  default: 2.0
+                  type: number
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: start_demo_loop参数
+          type: object
+        type: UniLabJsonCommand
+      auto-stop_demo_loop:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: {}
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: stop_demo_loop参数
+          type: object
+        type: UniLabJsonCommand
+    module: unilabos.devices.electrolysis_water_platfrom.electrolysis_controller:ElectrolysisController
+    status_types: {}
+    type: python
+  config_info: []
+  description: ''
+  handles:
+  - data_key: input_data
+    data_source: handle
+    data_type: list
+    description: 模型接收数据
+    handler_key: input
+    io_type: target
+    label: input
+    side: NORTH
+  - data_key: output_data
+    data_source: handle
+    data_type: list
+    description: 模型传出数据
+    handler_key: output
+    io_type: source
+    label: output
+    side: WEST
+  icon: ''
+  init_param_schema:
+    config:
+      properties:
+        deck:
+          type: object
+        device:
+          default: cpu
+          type: string
+        input_dim:
+          default: 6
+          type: integer
+        model_path:
+          type: string
+        model_type:
+          default: pytorch
+          type: string
+        output_dim:
+          default: 5
+          type: integer
+      required: []
+      type: object
+    data:
+      properties: {}
+      required: []
+      type: object
+  registry_type: device
+  version: 1.0.0

@@ -4,8 +4,7 @@
       "id": "electrolysis_water_platfrom",
       "name": "电解水测试平台",
       "parent": null,
-      "children": [
-      ],
+      "children": [],
       "type": "device",
       "class": "electrolysiswaterplatform_device",
       "position": {
@@ -31,54 +30,49 @@
         }
       },
       "config": {
-
         "protocol_type": [],
         "port": "COM5",
         "baudrate": 115200,
-        "timeout": 0.2
+        "timeout": 0.2,
+        "deck": null
       }
     },
     {
-      "id": "serial_port",
-      "name": "serial_port",
+      "id": "electrolysis_controller",
+      "name": "时序算法控制",
+      "parent": null,
       "children": [],
-      "parent": "YugongStation",
       "type": "device",
-      "class": "serial",
+      "class": "electrolysiscontroller_device",
       "position": {
-          "x": 620.6111111111111,
-          "y": 171,
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "pose": {
+        "size": {
+          "width": 500.0,
+          "height": 500.0,
+          "depth": 150.0
+        },
+        "position": {
+          "x": 1000,
+          "y": 0,
           "z": 0
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        }
       },
       "config": {
-          "port": "COM5",
-          "baudrate": 115200
-      },
-      "data": {
-      }
-  },
-  {
-      "id": "pump_reagents",
-      "name": "pump_reagents",
-      "children": [],
-      "parent": "YugongStation",
-      "type": "device",
-      "class": "syringepump.runze",
-      "position": {
-          "x": 620.6111111111111,
-          "y": 171,
-          "z": 0
-      },
-      "config": {
-          "port": "/devices/PumpBackbone/Serial/serialwrite",
-          "address": "1",
-          "max_volume": 25.0
-      },
-      "data": {
-          "max_velocity": 1.0,
-          "position": 0.0,
-          "status": "Idle",
-          "valve_position": "0"
+        "protocol_type": [],
+        "deck": null,
+        "model_type": "pytorch",
+        "input_dim": 6,
+        "output_dim": 5,
+        "device": "cpu"
       }
     }
   ],

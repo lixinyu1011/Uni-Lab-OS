@@ -38,10 +38,12 @@ class ElectrolysisWaterPlatform(WorkstationBase):
         default_pump_percent: float = 50.0, # 默认泵速：50%
         sampling_interval: float = 1.0,     # 采样间隔（秒）
         auto_start_control: bool = True,    # 是否自动启动控制
+        deck=None,                          # WorkstationBase 需要的 deck 参数
         *args,
         **kwargs):
 
-        super().__init__(*args, **kwargs)
+        # 初始化父类 WorkstationBase（必须传递 deck 参数）
+        super().__init__(deck=deck, *args, **kwargs)
         
         if config is None:
             config = {}
