@@ -883,7 +883,7 @@ class HostNode(BaseROS2DeviceNode):
 
         if controller_config["parameters"] is None:
             controller_config["parameters"] = {}
-
+        # 传入controller
         controller = ControllerNode(controller_id, controller_func=controller_func, **controller_config)
         self.lab_logger().info(f"[Host Node] Controller {controller_id} created.")
         # rclpy.get_global_executor().add_node(controller)

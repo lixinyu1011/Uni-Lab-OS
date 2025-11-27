@@ -5,7 +5,6 @@
       "name": "电解水测试平台",
       "parent": null,
       "children": [
-        "electrolysis_deck"
       ],
       "type": "device",
       "class": "electrolysiswaterplatform_device",
@@ -32,45 +31,55 @@
         }
       },
       "config": {
-        "deck": {
-          "data": {
-            "_resource_child_name": "electrolysis_deck",
-            "_resource_type": "unilabos.devices.electrolysis_water_platfrom.electrolysis_deck:ElectrolysisDeck"
-          }
-        },
+
         "protocol_type": [],
         "port": "COM5",
         "baudrate": 115200,
         "timeout": 0.2
-      },
-      "data": {}
+      }
     },
     {
-      "id": "electrolysis_deck",
-      "name": "电解水平台Deck",
+      "id": "serial_port",
+      "name": "serial_port",
       "children": [],
-      "parent": "electrolysis_water_platfrom",
-      "type": "deck",
-      "class": "ElectrolysisDeck",
+      "parent": "YugongStation",
+      "type": "device",
+      "class": "serial",
       "position": {
-        "x": 0,
-        "y": 0,
-        "z": 0
+          "x": 620.6111111111111,
+          "y": 171,
+          "z": 0
       },
       "config": {
-        "type": "ElectrolysisDeck",
-        "size_x": 800.0,
-        "size_y": 600.0,
-        "size_z": 100.0,
-        "setup": true,
-        "rotation": {
-          "x": 0,
-          "y": 0,
-          "z": 0,
-          "type": "Rotation"
-        }
+          "port": "COM5",
+          "baudrate": 115200
       },
-      "data": {}
+      "data": {
+      }
+  },
+  {
+      "id": "pump_reagents",
+      "name": "pump_reagents",
+      "children": [],
+      "parent": "YugongStation",
+      "type": "device",
+      "class": "syringepump.runze",
+      "position": {
+          "x": 620.6111111111111,
+          "y": 171,
+          "z": 0
+      },
+      "config": {
+          "port": "/devices/PumpBackbone/Serial/serialwrite",
+          "address": "1",
+          "max_volume": 25.0
+      },
+      "data": {
+          "max_velocity": 1.0,
+          "position": 0.0,
+          "status": "Idle",
+          "valve_position": "0"
+      }
     }
   ],
   "links": []

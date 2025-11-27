@@ -6,10 +6,8 @@ import threading
 import os
 from collections import deque
 from typing import Dict, Any, Optional
-from pylabrobot.resources import Deck
 
 from unilabos.devices.workstation.workstation_base import WorkstationBase
-from unilabos.devices.electrolysis_water_platfrom.electrolysis_deck import create_electrolysis_deck, ElectrolysisDeck
 from unilabos.utils.log import logger
 
 # 串口配置常量
@@ -26,45 +24,55 @@ class ElectrolysisWaterPlatform(WorkstationBase):
     
     def __init__(
         self,
-        config: dict = None, 
-        deck: Optional[Deck] = None,
-        port: str = DEFAULT_PORT,
-        baudrate: int = DEFAULT_BAUDRATE,
+        config: dict = None,
+        port: str = None,
+        baudrate: int = None,
         csv_path: Optional[str] = None,
-        timeout: float = DEFAULT_TIMEOUT,
+        timeout: float = None,
+        # 新增参数：默认控制参数
+        default_mode: int = 0,              # 默认模式：0=恒压，1=恒流
+        default_voltage_mv: int = 2000,      # 默认电压：2000mV (2V)
+        default_current_ma: int = 1000,      # 默认电流：1000mA (1A)
+        default_temperature_c: float = 25.0, # 默认温度：25°C
+        default_ki: float = 0.0,            # 默认Ki参数
+        default_pump_percent: float = 50.0, # 默认泵速：50%
+        sampling_interval: float = 1.0,     # 采样间隔（秒）
+        auto_start_control: bool = True,    # 是否自动启动控制
         *args,
         **kwargs):
 
-        # 处理 deck 参数
-        if deck is None and config:
-            deck = config.get('deck')
-
+        super().__init__(*args, **kwargs)
         
-        # 如果仍然为 None，创建默认的电解水平台专用 Deck
-        if deck is None:
-            print("[INFO] 没有传入 deck，创建电解水平台专用 Deck（包含恒压源、恒流源、反应器）")
-            deck = create_electrolysis_deck(
-                deck_name="electrolysis_deck",
-                size_x=800.0,  # Deck 长度
-                size_y=600.0,  # Deck 宽度
-                size_z=100.0,  # Deck 高度
-                setup=True     # 自动配置资源
-            )
-        
-        super().__init__(deck=deck, *args, **kwargs)
-        
+        if config is None:
+            config = {}
         
         # ========== 配置 ==========
-        self.port = port
-        self.baudrate = baudrate
+        self.port = config.get("port", port) or DEFAULT_PORT
+        self.baudrate = config.get("baudrate", baudrate) or DEFAULT_BAUDRATE
         # 如果没有指定路径，默认保存在代码文件所在目录
         if csv_path is None:
             current_dir = os.path.dirname(os.path.abspath(__file__))
             self.csv_path = os.path.join(current_dir, "stm32_data.csv")
         else:
             self.csv_path = csv_path
-        self.ser_timeout = timeout
+        self.ser_timeout = config.get("timeout", timeout) or DEFAULT_TIMEOUT
         self.chunk_read = 128
+        
+        # ========== 默认控制参数 ==========
+        self.default_mode = config.get("default_mode", default_mode)
+        self.default_voltage_mv = config.get("default_voltage_mv", default_voltage_mv)
+        self.default_current_ma = config.get("default_current_ma", default_current_ma)
+        self.default_temperature_c = config.get("default_temperature_c", default_temperature_c)
+        self.default_ki = config.get("default_ki", default_ki)
+        self.default_pump_percent = config.get("default_pump_percent", default_pump_percent)
+        self.sampling_interval = config.get("sampling_interval", sampling_interval)
+        self.auto_start_control = config.get("auto_start_control", auto_start_control)
+        
+        # ========== 控制器 ==========
+        self.controller = None  # 外部控制器实例（可选）
+        self.use_controller = False  # 是否使用控制器
+        self.control_loop_thread: Optional[threading.Thread] = None
+        self.control_loop_running = False
         
         # 串口对象
         self.ser: Optional[serial.Serial] = None
@@ -112,11 +120,29 @@ class ElectrolysisWaterPlatform(WorkstationBase):
             print(f"[INFO] 正在连接电解水平台串口: {self.port} @ {self.baudrate}...")
             self.ser = self.open_serial()
             if self.ser:
-                # 只启动接收线程，不启动发送线程（发送线程需要用户输入）
+                # 启动接收线程
                 self.rx_thread = threading.Thread(target=self.rx_thread_fn, daemon=True, name="electrolysis_rx")
                 self.rx_thread.start()
                 print(f"[✓] 电解水平台串口连接成功: {self.port}")
                 print(f"[✓] 数据接收线程已启动，CSV 文件: {self.csv_path}")
+                
+                # 如果启用了自动控制，发送初始控制指令
+                if self.auto_start_control:
+                    time.sleep(0.5)  # 等待串口稳定
+                    mode_str = "恒压" if self.default_mode == 0 else "恒流"
+                    print(f"[INFO] 发送初始控制参数: {mode_str} | "
+                          f"电压:{self.default_voltage_mv}mV | "
+                          f"电流:{self.default_current_ma}mA | "
+                          f"泵速:{self.default_pump_percent}%")
+                    self.send_command(
+                        mode=self.default_mode,
+                        current_ma=self.default_current_ma,
+                        voltage_mv=self.default_voltage_mv,
+                        temp_c=self.default_temperature_c,
+                        ki=self.default_ki,
+                        pump_percent=self.default_pump_percent
+                    )
+                    print(f"[✓] 初始控制指令已发送，采样间隔: {self.sampling_interval}秒")
             else:
                 print(f"[✗] 电解水平台串口连接失败: {self.port}")
                 print(f"[提示] 请检查: 1) 串口号是否正确 2) 设备是否已连接 3) 串口是否被其他程序占用")
@@ -127,9 +153,9 @@ class ElectrolysisWaterPlatform(WorkstationBase):
     
     def open_serial(self, port: Optional[str] = None, baudrate: Optional[int] = None, timeout: Optional[float] = None) -> Optional[serial.Serial]:
         """打开串口"""
-        port = port or self.port
-        baudrate = baudrate or self.baudrate
-        timeout = timeout or self.ser_timeout
+        port = self.port
+        baudrate = self.baudrate
+        timeout = self.ser_timeout
         try:
             ser = serial.Serial(port, baudrate, timeout=timeout)
             print(f"[OK] 串口 {port} 已打开，波特率 {baudrate}")
@@ -138,7 +164,7 @@ class ElectrolysisWaterPlatform(WorkstationBase):
             self.ser = ser
             return ser
         except serial.SerialException as e:
-            print(f"[ERR] 无法打开串口 {port}: {e}")
+            print(f"[ERR] 无法打开串口失败 {port}: {e}")
             return None
 
     def close_serial(self):
@@ -174,6 +200,7 @@ class ElectrolysisWaterPlatform(WorkstationBase):
         return {
             "Current_mA": current_mA,
             "Voltage_mV": voltage_mV,
+            
             "Temperature_C": round(temperature_raw / 100.0, 2),
             "TDS_ppm": tds_ppm,
             "GasFlow_sccm": gas_sccm,
@@ -377,48 +404,9 @@ class ElectrolysisWaterPlatform(WorkstationBase):
     
     def post_init(self, ros_node):
         """ROS2 系统初始化完成后的回调"""
-        from unilabos.ros.nodes.base_device_node import ROS2DeviceNode
-        
         self._ros_node = ros_node
         print(f"[INFO] 电解水平台 ROS2 节点已就绪: {ros_node.device_id}")
-        
-        # 显示 Deck 上的资源信息
-        if hasattr(self, 'deck') and self.deck is not None:
-            if isinstance(self.deck, ElectrolysisDeck):
-                print(f"[INFO] 电解水平台 Deck 资源配置:")
-                print(f"  Deck 尺寸: {self.deck.get_size_x():.0f}×{self.deck.get_size_y():.0f}×{self.deck.get_size_z():.0f} mm")
-                
-                # 显示电源
-                if hasattr(self.deck, 'power_sources') and self.deck.power_sources:
-                    print(f"  电源 ({len(self.deck.power_sources)} 个):")
-                    for name, source in self.deck.power_sources.items():
-                        print(f"    - {name}: {source.max_voltage}V / {source.max_current}mA")
-                
-                # 显示反应器
-                if hasattr(self.deck, 'reactors') and self.deck.reactors:
-                    print(f"  反应器 ({len(self.deck.reactors)} 个):")
-                    for name, reactor in self.deck.reactors.items():
-                        print(f"    - {name}: {reactor.volume}mL")
-            
-            elif len(self.deck.children) > 0:
-                print(f"[INFO] Deck 资源列表 ({len(self.deck.children)} 个):")
-                for child in self.deck.children:
-                    location = child.location
-                    print(f"  - {child.name} ({child.category})")
-                    print(f"    位置: X={location.x:.1f}mm, Y={location.y:.1f}mm, Z={location.z:.1f}mm")
-        
-        # 上传 deck 资源（如果存在）
-        # 注意：只上传 deck，不上传设备本身，避免 PLR 资源转换错误
-        if hasattr(self, 'deck') and self.deck is not None:
-            try:
-                print(f"[INFO] 正在上传 Deck 资源到云端...")
-                ROS2DeviceNode.run_async_func(self._ros_node.update_resource, True, **{
-                    "resources": [self.deck]
-                })
-                print(f"[✓] Deck 资源上传成功")
-            except Exception as e:
-                # Deck 上传失败不应该影响设备运行
-                print(f"[WARN] Deck 资源上传失败（不影响设备运行）: {e}")
+        print(f"[INFO] 串口: {self.port}, 波特率: {self.baudrate}")
     
     # ================== 状态属性（供ROS2发布使用）==================
     @property
@@ -475,13 +463,386 @@ class ElectrolysisWaterPlatform(WorkstationBase):
         """pH值"""
         with self._data_lock:
             return self._latest_data["ph"]
+    
+    # ================== 数据采集与控制接口 ==================
+    def get_sensor_data(self) -> list:
+        """
+        获取最新的传感器数据（从parse_rx_payload解析的数据中返回）
+        
+        Returns:
+            list: [timestamp, current_mA, voltage_mV, temperature_C, tds_ppm, gas_flow_sccm, liquid_flow_mL, ph]
+        """
+        with self._data_lock:
+            return [
+                self._latest_data["timestamp"],
+                float(self._latest_data["current"]) if self._latest_data["current"] != "0" else 0.0,
+                float(self._latest_data["voltage"]) if self._latest_data["voltage"] != "0" else 0.0,
+                float(self._latest_data["temperature"]) if self._latest_data["temperature"] != "0" else 0.0,
+                float(self._latest_data["tds"]) if self._latest_data["tds"] != "0" else 0.0,
+                float(self._latest_data["gas_flow"]) if self._latest_data["gas_flow"] != "0" else 0.0,
+                float(self._latest_data["liquid_flow"]) if self._latest_data["liquid_flow"] != "0" else 0.0,
+                float(self._latest_data["ph"]) if self._latest_data["ph"] != "0" else 0.0
+            ]
+    
+    def send_command(
+        self, 
+        mode: int, 
+        current_ma: int, 
+        voltage_mv: int, 
+        temp_c: float = 25.0, 
+        ki: float = 0.0, 
+        pump_percent: float = 0.0
+    ) -> bool:
+        """
+        发送控制指令到电解水平台
+        
+        Args:
+            mode: 控制模式 (0=恒压, 1=恒流)
+            current_ma: 目标电流 (mA)
+            voltage_mv: 目标电压 (mV)
+            temp_c: 目标温度 (°C)
+            ki: Ki 参数 (0.0-20.0)
+            pump_percent: 泵速百分比 (0-100)
+        
+        Returns:
+            bool: 发送是否成功
+        """
+        if not self.ser or not self.ser.is_open:
+            print("[ERR] 串口未连接，无法发送指令")
+            return False
+        
+        try:
+            frame = self.build_tx_frame(mode, current_ma, voltage_mv, temp_c, ki, pump_percent)
+            self.ser.write(frame)
+            mode_str = "恒压" if mode == 0 else "恒流"
+            print(f"[CMD] 发送成功 | {mode_str} | I:{current_ma}mA | V:{voltage_mv}mV | T:{temp_c}°C | Ki:{ki} | 泵:{pump_percent}%")
+            return True
+        except Exception as e:
+            print(f"[ERR] 发送失败: {e}")
+            return False
+    
+    # ================== 控制器接口 ==================
+    def set_controller(self, controller):
+        """
+        设置外部控制器
+        
+        Args:
+            controller: ElectrolysisController 实例
+        """
+        self.controller = controller
+        self.use_controller = True
+        print(f"[Platform] 控制器已设置")
+    
+    def start_control_loop(self):
+        """
+        启动控制循环
+        
+        使用控制器计算控制向量并执行
+        """
+        if not self.use_controller or self.controller is None:
+            print("[Platform] 错误: 未设置控制器，无法启动控制循环")
+            return
+        
+        if self.control_loop_running:
+            print("[Platform] 控制循环已在运行")
+            return
+        
+        self.control_loop_running = True
+        self.control_loop_thread = threading.Thread(
+            target=self._control_loop,
+            daemon=True,
+            name="control_loop"
+        )
+        self.control_loop_thread.start()
+        print(f"[Platform] 控制循环已启动，采样间隔: {self.sampling_interval}秒")
+    
+    def stop_control_loop(self):
+        """停止控制循环"""
+        if not self.control_loop_running:
+            return
+        
+        self.control_loop_running = False
+        if self.control_loop_thread and self.control_loop_thread.is_alive():
+            self.control_loop_thread.join(timeout=2.0)
+        print("[Platform] 控制循环已停止")
+    
+    def _control_loop(self):
+        """
+        控制循环主函数
+        
+        流程：
+        1. 获取传感器数据（平台解析）
+        2. 传给控制器计算
+        3. 获取控制向量
+        4. 解析并执行控制向量
+        """
+        while self.control_loop_running and self.ser and self.ser.is_open:
+            try:
+                # 1. 获取传感器数据
+                sensor_data = self.get_sensor_data()
+                
+                # 解包：[timestamp, current, voltage, temp, tds, gas, liquid, ph]
+                timestamp, current, voltage, temp, tds, gas_flow, liquid_flow, ph = sensor_data
+                
+                # 2. 准备输入数据给控制器：[current, voltage, temp, ph, gas, liquid]
+                input_data = [current, voltage, temp, ph, gas_flow, liquid_flow]
+                
+                # 3. 调用控制器计算控制向量
+                control_vector = self.controller.compute_control(input_data)
+                
+                # 4. 解析并执行控制向量
+                self._execute_control_vector(control_vector)
+                
+            except Exception as e:
+                print(f"[Platform] 控制循环错误: {e}")
+                import traceback
+                traceback.print_exc()
+            
+            # 等待下一个采样周期
+            time.sleep(self.sampling_interval)
+    
+    def _execute_control_vector(self, control_vector: list):
+        """
+        解析控制向量并执行
+        
+        Args:
+            control_vector: [mode, current_ma, voltage_mv, temperature_c, pump_percent]
+        """
+        if len(control_vector) < 5:
+            print(f"[Platform] 警告: 控制向量维度不足，期望5，实际{len(control_vector)}")
+            return
+        
+        # 解析控制向量
+        mode = int(control_vector[0])
+        current_ma = int(control_vector[1])
+        voltage_mv = int(control_vector[2])
+        temperature_c = float(control_vector[3])
+        pump_percent = float(control_vector[4])
+        
+        # 安全限幅
+        mode = max(0, min(1, mode))
+        current_ma = max(0, min(2000, current_ma))
+        voltage_mv = max(0, min(5000, voltage_mv))
+        temperature_c = max(0, min(50, temperature_c))
+        pump_percent = max(0, min(100, pump_percent))
+        
+        # 发送控制指令
+        self.send_command(
+            mode=mode,
+            current_ma=current_ma,
+            voltage_mv=voltage_mv,
+            temp_c=temperature_c,
+            ki=self.default_ki,
+            pump_percent=pump_percent
+        )
+
+
+# ================== 使用示例 ==================
+def example_with_controller():
+    """
+    示例1：使用控制器（平台+深度学习控制器）
+    
+    数据流：
+        平台解析传感器数据 → 控制器计算 → 返回控制向量 → 平台执行
+    """
+    from electrolysis_controller import ElectrolysisController
+    
+    print("="*70)
+    print("示例1：平台 + 控制器（深度学习）")
+    print("="*70)
+    
+    # 1. 创建平台（不自动发送控制指令，由控制器接管）
+    platform = ElectrolysisWaterPlatform(
+        port="COM5",
+        baudrate=115200,
+        sampling_interval=1.0,
+        auto_start_control=False  # 不自动控制，由控制器接管
+    )
+    
+    # 等待平台连接
+    time.sleep(3)
+    
+    # 2. 创建控制器（可选：加载模型）
+    controller = ElectrolysisController(
+        model_path=None,  # 不使用模型，使用简单规则
+        model_type="dummy",
+        input_dim=6,
+        output_dim=5
+    )
+    
+    # 可选：设置归一化参数
+    # controller.set_normalization_params(
+    #     input_mean=[1000, 2500, 25, 7, 50, 30],
+    #     input_std=[500, 1000, 5, 2, 25, 15],
+    #     output_mean=[0, 1000, 2500, 25, 50],
+    #     output_std=[1, 500, 1000, 5, 25]
+    # )
+    
+    # 3. 将控制器设置到平台
+    platform.set_controller(controller)
+    
+    # 4. 启动控制循环
+    platform.start_control_loop()
+    
+    print("\n控制循环运行中...")
+    print(f"{'时间':<20} {'电流(mA)':<12} {'电压(mV)':<12} {'温度(°C)':<10}")
+    print("-"*70)
+    
+    try:
+        # 监控20秒
+        for i in range(20):
+            data = platform.get_sensor_data()
+            timestamp, current, voltage, temp = data[0], data[1], data[2], data[3]
+            if timestamp:
+                print(f"{timestamp:<20} {current:<12.1f} {voltage:<12.1f} {temp:<10.2f}")
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("\n用户中断")
+    finally:
+        platform.stop_control_loop()
+        platform.stop()
+        print("\n平台已停止")
+
+
+def example_simple_start():
+    """
+    示例2：简单启动（使用默认参数，不使用控制器）
+    """
+    print("="*70)
+    print("示例2：简单启动 - 使用默认参数")
+    print("="*70)
+    
+    # 使用默认参数启动：恒压2V，限流1A，泵速50%
+    platform = ElectrolysisWaterPlatform(
+        port="COM5",
+        baudrate=115200,
+        auto_start_control=True  # 自动发送初始控制指令
+    )
+    
+    # 平台会自动：
+    # 1. 连接串口
+    # 2. 启动数据接收
+    # 3. 发送初始控制指令（恒压2000mV，限流1000mA）
+    
+    # 等待连接完成
+    time.sleep(3)
+    
+    try:
+        # 持续获取数据
+        print("\n开始监控数据...")
+        print(f"{'时间':<20} {'电流(mA)':<12} {'电压(mV)':<12} {'温度(°C)':<10}")
+        print("-"*70)
+        
+        for i in range(20):
+            data = platform.get_sensor_data()
+            timestamp, current, voltage, temp = data[0], data[1], data[2], data[3]
+            if timestamp:
+                print(f"{timestamp:<20} {current:<12.1f} {voltage:<12.1f} {temp:<10.2f}")
+            time.sleep(platform.sampling_interval)
+            
+    except KeyboardInterrupt:
+        print("\n用户中断")
+    finally:
+        platform.stop()
+
+
+def example_custom_start():
+    """
+    示例2：自定义启动参数
+    """
+    print("="*70)
+    print("示例2：自定义启动参数")
+    print("="*70)
+    
+    # 自定义控制参数
+    platform = ElectrolysisWaterPlatform(
+        port="COM5",
+        baudrate=115200,
+        default_mode=1,              # 恒流模式
+        default_current_ma=1500,     # 1500mA
+        default_voltage_mv=5000,     # 限压5000mV
+        default_pump_percent=60.0,   # 泵速60%
+        sampling_interval=0.5,       # 采样间隔0.5秒
+        auto_start_control=True      # 自动启动控制
+    )
+    
+    time.sleep(3)
+    
+    try:
+        print("\n监控数据（自定义参数）...")
+        for i in range(10):
+            data = platform.get_sensor_data()
+            if data[0]:
+                print(f"[{i+1}/10] I={data[1]:.1f}mA | V={data[2]:.1f}mV | T={data[3]:.2f}°C")
+            time.sleep(platform.sampling_interval)
+        
+        # 动态修改控制参数
+        print("\n修改控制参数：切换到恒压模式")
+        platform.send_command(
+            mode=0,              # 恒压模式
+            voltage_mv=3000,     # 3000mV
+            current_ma=1000      # 限流1000mA
+        )
+        
+        print("继续监控...")
+        for i in range(5):
+            data = platform.get_sensor_data()
+            if data[0]:
+                print(f"[{i+1}/5] I={data[1]:.1f}mA | V={data[2]:.1f}mV")
+            time.sleep(platform.sampling_interval)
+            
+    except KeyboardInterrupt:
+        print("\n用户中断")
+    finally:
+        platform.stop()
+
+
+def example_config_dict():
+    """
+    示例3：使用配置字典
+    """
+    print("="*70)
+    print("示例3：使用配置字典")
+    print("="*70)
+    
+    config = {
+        "port": "COM5",
+        "baudrate": 115200,
+        "default_mode": 0,
+        "default_voltage_mv": 2500,
+        "default_current_ma": 800,
+        "default_pump_percent": 55.0,
+        "sampling_interval": 2.0,
+        "auto_start_control": True
+    }
+    
+    platform = ElectrolysisWaterPlatform(config=config)
+    time.sleep(3)
+    
+    try:
+        print("\n采样5次...")
+        for i in range(5):
+            data = platform.get_sensor_data()
+            print(f"采样{i+1}: {data}")
+            time.sleep(config["sampling_interval"])
+    except KeyboardInterrupt:
+        print("\n用户中断")
+    finally:
+        platform.stop()
 
 
 # ================== 主入口 ==================
 if __name__ == "__main__":
-    # 创建一个简单的 Deck 用于测试
-    from pylabrobot.resources import Deck
+    print("="*70)
+    print("电解水平台示例程序")
+    print("="*70)
+    print("\n选择运行模式:")
+    print("  1. 平台 + 控制器（深度学习控制）")
+    print("  2. 简单启动（手动控制）")
+    print()
     
-    deck = Deck()
-    platform = ElectrolysisWaterPlatform(deck)
-    platform.start()
+    # 运行示例1：平台 + 控制器（推荐）
+    example_with_controller()
+    
+    # 或运行示例2：简单启动
+    # example_simple_start()
