@@ -1,0 +1,56 @@
+{
+    "nodes": [
+        {
+            "id": "Resin_station",
+            "name": "Resin_station",
+            "children": [
+                "ResinWorkstation_Deck"
+            ],
+            "parent": null,
+            "type": "device",
+            "class": "Resin_station",
+            "position": {
+                "x": 250,
+                "y": 0,
+                "z": 0
+            },
+            "pose": {
+                "size": {
+                    "width": 1217,
+                    "height": 1580,
+                    "depth": 2670
+                }
+            },
+            "config": {
+                "url": "opc.tcp://127.0.0.1:49320",
+                "csv_path": "opcua_nodes_ResinWorkstation.csv",
+                "deck": {
+                    "data": {
+                        "_resource_child_name": "ResinWorkstation_Deck",
+                        "_resource_type": "unilabos.devices.workstation.ResinWorkstation.decks:ResinWorkstation_Deck"
+                    }
+                }
+            },
+            "data": {
+            }
+        },
+        {
+            "id": "ResinWorkstation_Deck",
+            "name": "ResinWorkstation_Deck",
+            "sample_id": null,
+            "children": [],
+            "parent": "Resin_station",
+            "type": "deck",
+            "class": "ResinWorkstation_Deck",
+            "position": {
+                "x": 250,
+                "y": 0,
+                "z": 0
+            },
+            "config": {
+                "type": "ResinWorkstation_Deck"
+            },
+            "data": {}
+        }
+    ]
+}

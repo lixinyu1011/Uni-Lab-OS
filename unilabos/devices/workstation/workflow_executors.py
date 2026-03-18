@@ -12,7 +12,7 @@ from typing import Dict, Any, List, Optional, TYPE_CHECKING
 from abc import ABC, abstractmethod
 
 if TYPE_CHECKING:
-    from unilabos.devices.work_station.workstation_base import WorkstationBase
+    from unilabos.devices.workstation.workstation_base import WorkstationBase
 
 from unilabos.utils.log import logger
 

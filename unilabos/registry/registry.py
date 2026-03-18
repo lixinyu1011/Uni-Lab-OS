@@ -5,6 +5,7 @@ import sys
 import inspect
 import importlib
 import threading
+import traceback
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any, Dict, List, Union, Tuple
@@ -88,6 +89,14 @@ class Registry:
         )
         test_latency_schema["description"] = "用于测试延迟的动作，返回延迟时间和时间差。"
 
+        test_resource_method_info = host_node_enhanced_info.get("action_methods", {}).get("test_resource", {})
+        test_resource_schema = self._generate_unilab_json_command_schema(
+            test_resource_method_info.get("args", []),
+            "test_resource",
+            test_resource_method_info.get("return_annotation"),
+        )
+        test_resource_schema["description"] = "用于测试物料、设备和样本。"
+
         self.device_type_registry.update(
             {
                 "host_node": {
@@ -166,7 +175,8 @@ class Registry:
                                     "res_id": "unilabos_resources",  # 将当前实验室的全部物料id作为下拉框可选择
                                     "device_id": "unilabos_devices",  # 将当前实验室的全部设备id作为下拉框可选择
                                     "parent": "unilabos_nodes",  # 将当前实验室的设备/物料作为下拉框可选择
-                                    "class_name": "unilabos_class",
+                                    "class_name": "unilabos_class",  # 当前实验室物料的class name
+                                    "slot_on_deck": "unilabos_resource_slot:parent",  # 勾选的parent的config中的sites的name，展示name，参数对应slot（index）
                                 },
                             },
                             "test_latency": {
@@ -189,32 +199,7 @@ class Registry:
                                 "goal": {},
                                 "feedback": {},
                                 "result": {},
-                                "schema": {
-                                    "description": "",
-                                    "properties": {
-                                        "feedback": {},
-                                        "goal": {
-                                            "properties": {
-                                                "resource": ros_message_to_json_schema(Resource, "resource"),
-                                                "resources": {
-                                                    "items": {
-                                                        "properties": ros_message_to_json_schema(
-                                                            Resource, "resources"
-                                                        ),
-                                                        "type": "object",
-                                                    },
-                                                    "type": "array",
-                                                },
-                                                "device": {"type": "string"},
-                                                "devices": {"items": {"type": "string"}, "type": "array"},
-                                            },
-                                            "type": "object",
-                                        },
-                                        "result": {},
-                                    },
-                                    "title": "test_resource",
-                                    "type": "object",
-                                },
+                                "schema": test_resource_schema,
                                 "placeholder_keys": {
                                     "device": "unilabos_devices",
                                     "devices": "unilabos_devices",
@@ -944,6 +929,7 @@ class Registry:
                     if is_valid:
                         results.append((file, data, device_ids))
                 except Exception as e:
+                    traceback.print_exc()
                     logger.warning(f"[UniLab Registry] 处理设备文件异常: {file}, 错误: {e}")
 
         # 线程安全地更新注册表
