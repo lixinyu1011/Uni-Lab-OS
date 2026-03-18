@@ -1,0 +1,12 @@
+ResinWorkstation_Deck:
+  category:
+  - ResinWorkstation_Deck
+  class:
+    module: unilabos.devices.workstation.ResinWorkstation.decks:ResinWorkstation_Deck
+    type: pylabrobot
+  description: ResinWorkstation_Deck
+  handles: []
+  icon: ''
+  init_param_schema: {}
+  registry_type: resource
+  version: 1.0.0

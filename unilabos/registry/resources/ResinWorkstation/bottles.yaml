@@ -2,7 +2,7 @@ Hydrogel_Powder_Containing_Bottle:
   category:
   - bottles
   class:
-    module: unilabos.devices.workstation.AI4M.bottles:Hydrogel_Powder_Containing_Bottle
+    module: unilabos.devices.workstation.ResinWorkstation.bottles:Hydrogel_Powder_Containing_Bottle
     type: pylabrobot
   handles: []
   icon: ''
@@ -13,7 +13,7 @@ Hydrogel_Clean_Bottle:
   category:
   - bottles
   class:
-    module: unilabos.devices.workstation.AI4M.bottles:Hydrogel_Clean_Bottle
+    module: unilabos.devices.workstation.ResinWorkstation.bottles:Hydrogel_Clean_Bottle
     type: pylabrobot
   handles: []
   icon: ''
@@ -24,7 +24,7 @@ Hydrogel_Clean_Bottle:
   category:
   - bottles
   class:
-    module: unilabos.devices.workstation.AI4M.bottles:Hydrogel_Waste_Bottle
+    module: unilabos.devices.workstation.ResinWorkstation.bottles:Hydrogel_Waste_Bottle
     type: pylabrobot
   handles: []
   icon: ''
@@ -35,7 +35,7 @@ Electrode:
   category:
   - bottles
   class:
-    module: unilabos.devices.workstation.AI4M.bottles:Electrode
+    module: unilabos.devices.workstation.ResinWorkstation.bottles:Electrode
     type: pylabrobot
   handles: []
   icon: ''

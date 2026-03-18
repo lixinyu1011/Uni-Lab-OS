@@ -1,6 +1,6 @@
-AI4M_station:
+Resin_station:
   category:
-  - AI4M_station
+  - Resin_station
   class:
     action_value_mappings:
       auto-download_auto_params:
@@ -179,7 +179,7 @@ AI4M_station:
                   description: 取烧杯编号，1-5
                   type: integer
                 place_station_id:
-                  description: 放检测编号，1-3
+                  description: 放检测编号，1-8
                   type: integer
               required:
               - pick_beaker_id
@@ -236,7 +236,7 @@ AI4M_station:
             goal:
               properties:
                 pick_station_id:
-                  description: 取检测编号，1-3
+                  description: 取检测编号，1-8
                   type: integer
                 place_beaker_id:
                   description: 放烧杯编号，1-5
@@ -331,7 +331,7 @@ AI4M_station:
                   description: 磁力搅拌仪时间设置
                   type: integer
                 station_id:
-                  description: 检测编号，1-3
+                  description: 检测编号，1-8
                   type: integer
                 syringe_pump_abs_position_set:
                   description: 注射泵绝对位置设置
@@ -362,11 +362,11 @@ AI4M_station:
           title: trigger_station_process参数
           type: object
         type: UniLabJsonCommand
-    module: unilabos.devices.workstation.AI4M.AI4M:AI4MDevice
+    module: unilabos.devices.workstation.ResinWorkstation.ResinWorkstation:ResinWorkstationDevice
     status_types: {}
     type: python
   config_info: []
-  description: AI4M 水凝胶检测工作站，包含机器人、3个检测站、磁力搅拌仪和注射泵，支持手动指令模式和自动作业模式
+  description: Resin树脂工作站，包含机器人、3个检测站、磁力搅拌仪和注射泵，支持手动指令模式和自动作业模式
   handles: []
   icon: Hydrogel module.webp
   init_param_schema:

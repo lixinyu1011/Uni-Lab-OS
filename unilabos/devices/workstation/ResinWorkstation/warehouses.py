@@ -1,16 +1,16 @@
-from unilabos.devices.workstation.AI4M.AI4M_warehouse import WareHouse, warehouse_factory
+from unilabos.devices.workstation.ResinWorkstation.ResinWorkstation_warehouse import WareHouse, warehouse_factory
 
 
 
 # =================== Other ===================
 
 
-def Hydrogel_warehouse_5x3x1(name: str) -> WareHouse:
-    """创建水凝胶模块 5x3x1仓库"""
+def Hydrogel_warehouse_1x5x1(name: str) -> WareHouse:
+    """创建水凝胶模块 1x5x1仓库"""
     return warehouse_factory(
         name=name,
-        num_items_x=5,
-        num_items_y=3,
+        num_items_x=1,
+        num_items_y=5,
         num_items_z=1,
         dx=10.0,
         dy=10.0,
@@ -22,12 +22,12 @@ def Hydrogel_warehouse_5x3x1(name: str) -> WareHouse:
         letter_replace={"A": "R", "C": "F"},
     )
 
-def Station_1_warehouse_1x1x1(name: str) -> WareHouse:
-    """创建检测工站 1x1x1仓库"""
+def Station_1_warehouse_4x2x1(name: str) -> WareHouse:
+    """创建反应工站1仓库（4列 x 2行，共8个槽位）"""
     return warehouse_factory(
         name=name,
-        num_items_x=1,
-        num_items_y=1,
+        num_items_x=4,
+        num_items_y=2,
         num_items_z=1,
         dx=10.0,
         dy=10.0,
@@ -36,7 +36,8 @@ def Station_1_warehouse_1x1x1(name: str) -> WareHouse:
         item_dy=96.0,
         item_dz=120.0,
         category="warehouse",
-        custom_keys=["Station_1"],  # 使用数字1作为编号
+        naming_mode="continuous_number",   # 使用连续数字
+        name_prefix="S1_",                 # 前缀，生成 S1_1, S1_2, ..., S1_8
     )
 
 def Station_2_warehouse_1x1x1(name: str) -> WareHouse:

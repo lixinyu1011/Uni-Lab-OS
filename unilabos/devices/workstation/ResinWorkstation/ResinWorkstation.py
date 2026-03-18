@@ -1,5 +1,5 @@
 """
-AI4M 设备驱动
+ResinWorkstation 设备驱动
 继承自 OPC UA 通讯基类，实现具体的设备动作函数
 """
 
@@ -13,23 +13,23 @@ import threading
 from unilabos.resources.resource_tracker import ResourceTreeSet, SampleUUIDsType, LabSample
 from unilabos.utils.log import logger
 from unilabos.utils.decorator import not_action
-from unilabos.devices.workstation.AI4M.decks import AI4M_deck
-from unilabos.devices.workstation.AI4M.bottle_carriers import Hydrogel_Clean_1BottleCarrier
+from unilabos.devices.workstation.ResinWorkstation.decks import ResinWorkstation_Deck
+from unilabos.devices.workstation.ResinWorkstation.bottle_carriers import Hydrogel_Clean_1BottleCarrier
 
 # 导入通讯基类
-from unilabos.devices.workstation.AI4M.base_opcua_client import OpcUaClientWithSubscription
+from unilabos.devices.workstation.ResinWorkstation.base_opcua_client import OpcUaClientWithSubscription
 
 
-class AI4MDevice(OpcUaClientWithSubscription):
+class ResinWorkstationDevice(OpcUaClientWithSubscription):
     """
-    AI4M 设备类
+    ResinWorkstation 设备类
     继承自 OpcUaClientWithSubscription，实现具体的设备动作函数
     """
     
     def __init__(
         self, 
         url: str, 
-        deck: Optional[AI4M_deck] = None,
+        deck: Optional[ResinWorkstation_Deck] = None,
         csv_path: str = None, 
         username: str = None, 
         password: str = None,
@@ -40,11 +40,11 @@ class AI4MDevice(OpcUaClientWithSubscription):
         **kwargs,
     ):
         """
-        初始化 AI4M 设备
+        初始化 ResinWorkstation 设备
         
         参数:
             url: OPC UA 服务器地址
-            deck: AI4M 资源树配置
+            deck: ResinWorkstation 资源树配置
             csv_path: 节点配置 CSV 文件路径
             username: OPC UA 用户名
             password: OPC UA 密码
@@ -66,7 +66,7 @@ class AI4MDevice(OpcUaClientWithSubscription):
 
         # 处理 deck 参数
         if deck is None or isinstance(deck.get("data") if isinstance(deck, dict) else deck, dict):
-            self.deck = AI4M_deck(setup=True)
+            self.deck = ResinWorkstation_Deck(setup=True)
         else:
             self.deck = deck.get("data") if isinstance(deck, dict) else deck
 
@@ -759,17 +759,17 @@ class AI4MDevice(OpcUaClientWithSubscription):
 
 if __name__ == '__main__':
     # 调试用法
-    A4 = AI4MDevice(
+    A4 = ResinWorkstationDevice(
         url="opc.tcp://127.0.0.1:49320",
-        csv_path="opcua_nodes_AI4M_sim.csv"
+        csv_path="opcua_nodes_ResinWorkstation_sim.csv"
     )
     
     
     A4.trigger_init()
     print("初始化完成")
     
-    # 给水凝胶堆栈A1位置添加clean物料
-    rack_warehouse = A4.deck.warehouses["水凝胶烧杯堆栈"]
+    # 给树脂堆栈A1位置添加clean物料
+    rack_warehouse = A4.deck.warehouses["树脂烧杯堆栈"]
     clean_carrier = Hydrogel_Clean_1BottleCarrier("烧杯")
     
     # 获取A1位置的索引和位置信息
