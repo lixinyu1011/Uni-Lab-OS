@@ -48,7 +48,7 @@ class ResinWorkstation_Deck(Deck):
         # 前端坐标 -> 实际坐标: x' = x * 1.769, y' = y * 1.766
         self.warehouse_locations = {
             "树脂工作站堆栈": Coordinate(083.416, 399.630, 0.0),     # 前端: 9x623
-            "反应工站1": Coordinate(462.610, 949.742, 0.0),         # 前端: 474x139
+            "反应工站1": Coordinate(838.5, 1158.7, 0.0),         # 前端: 474x139
             # "反应工站2": Coordinate(850.9, 706.4, 0.0),         # 前端: 481x400
             # "反应工站3": Coordinate(842.0, 245.5, 0.0)         # 前端: 476x656
         }

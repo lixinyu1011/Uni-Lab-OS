@@ -368,7 +368,7 @@ Resin_station:
   config_info: []
   description: Resin树脂工作站，包含机器人、3个检测站、磁力搅拌仪和注射泵，支持手动指令模式和自动作业模式
   handles: []
-  icon: 
+  icon: Hydrogel module.webp
   init_param_schema:
     config:
       properties:
