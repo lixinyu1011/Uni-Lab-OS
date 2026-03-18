@@ -1,0 +1,2 @@
+内部测试系统
+unilab -g unilabos/devices/workstation/ResinWorkstation/ResinWorkstation.json --ak bd202620-f971-47ea-b6db-6d3290a435cb --sk 3b692978-d933-4955-904d-b0897569cbfe --upload_registry --addr test --disable_browser

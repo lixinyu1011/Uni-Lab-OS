@@ -2,7 +2,7 @@ Hydrogel_Powder_Containing_1BottleCarrier:
   category:
   - bottle_carriers
   class:
-    module: unilabos.devices.workstation.AI4M.bottle_carriers:Hydrogel_Powder_Containing_1BottleCarrier
+    module: unilabos.devices.workstation.ResinWorkstation.bottle_carriers:Hydrogel_Powder_Containing_1BottleCarrier
     type: pylabrobot
   description: Hydrogel_Powder_Containing_1BottleCarrier
   handles: []
@@ -15,7 +15,7 @@ Hydrogel_Clean_1BottleCarrier:
   category:
   - bottle_carriers
   class:
-    module: unilabos.devices.workstation.AI4M.bottle_carriers:Hydrogel_Clean_1BottleCarrier
+    module: unilabos.devices.workstation.ResinWorkstation.bottle_carriers:Hydrogel_Clean_1BottleCarrier
     type: pylabrobot
   description: Hydrogel_Clean_1BottleCarrier
   handles: []
@@ -28,7 +28,7 @@ Hydrogel_Waste_1BottleCarrier:
   category:
   - bottle_carriers
   class:
-    module: unilabos.devices.workstation.AI4M.bottle_carriers:Hydrogel_Waste_1BottleCarrier
+    module: unilabos.devices.workstation.ResinWorkstation.bottle_carriers:Hydrogel_Waste_1BottleCarrier
     type: pylabrobot
   description: Hydrogel_Waste_1BottleCarrier
   handles: []
@@ -41,7 +41,7 @@ Electrode_Holder:
   category:
   - bottle_carriers
   class:
-    module: unilabos.devices.workstation.AI4M.bottle_carriers:Electrode_Holder
+    module: unilabos.devices.workstation.ResinWorkstation.bottle_carriers:Electrode_Holder
     type: pylabrobot
   description: Electrode_Holder
   handles: []

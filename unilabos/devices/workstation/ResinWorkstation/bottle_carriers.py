@@ -1,7 +1,7 @@
 from pylabrobot.resources import create_homogeneous_resources, Coordinate, ResourceHolder, create_ordered_items_2d
 
 from unilabos.resources.itemized_carrier import BottleCarrier
-from unilabos.devices.workstation.AI4M.bottles import Hydrogel_Powder_Containing_Bottle, Hydrogel_Clean_Bottle, Hydrogel_Waste_Bottle, Electrode
+from unilabos.devices.workstation.ResinWorkstation.bottles import Hydrogel_Powder_Containing_Bottle, Hydrogel_Clean_Bottle, Hydrogel_Waste_Bottle, Electrode
 
 # 命名约定：试剂瓶-Bottle，烧杯-Beaker，烧瓶-Flask,小瓶-Vial
 
