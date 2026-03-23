@@ -171,6 +171,15 @@ def parse_args():
         action="store_true",
         help="Disable sending update feedback to server",
     )
+    parser.add_argument(
+        "--yaml",
+        type=str,
+        nargs="+",
+        default=None,
+        help="Generate YAML registry files from Python device class files "
+             "(e.g., --yaml unilabos/devices/workstation/AI4M/AI4M.py)",
+    )
+
     # workflow upload subcommand
     workflow_parser = subparsers.add_parser(
         "workflow_upload",
@@ -214,6 +223,15 @@ def main():
     convert_argv_dashes_to_underscores(parser)
     args = parser.parse_args()
     args_dict = vars(args)
+
+    # 处理 --yaml：独立使用时生成后直接退出，启动时则在 build_registry 之后生成
+    yaml_files = args_dict.get("yaml")
+    if yaml_files and not args_dict.get("command"):
+        # 没有子命令，说明是独立使用，直接生成后退出
+        from unilabos.registry.registry import generate_yaml_for_device
+        for py_file in yaml_files:
+            generate_yaml_for_device(file_path=py_file)
+        return
 
     # 环境检查 - 检查并自动安装必需的包 (可选)
     skip_env_check = args_dict.get("skip_env_check", False)
@@ -359,6 +377,12 @@ def main():
     # 注册表 - check_mode 时强制启用 complete_registry
     complete_registry = args_dict.get("complete_registry", False) or check_mode
     lab_registry = build_registry(args_dict["registry_path"], complete_registry, BasicConfig.upload_registry)
+
+    # 启动时生成 YAML 注册表文件
+    if yaml_files:
+        from unilabos.registry.registry import generate_yaml_for_device
+        for py_file in yaml_files:
+            generate_yaml_for_device(file_path=py_file)
 
     # Check mode: complete_registry 完成后直接退出，git diff 检测由 CI workflow 执行
     if check_mode:

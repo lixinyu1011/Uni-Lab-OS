@@ -1,3 +1,4 @@
+import ast
 import copy
 import io
 import os
@@ -7,7 +8,7 @@ import importlib
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Any, Dict, List, Union, Tuple
+from typing import Any, Dict, List, Optional, Union, Tuple
 
 import yaml
 from unilabos_msgs.msg import Resource
@@ -1047,3 +1048,184 @@ def build_registry(registry_paths=None, complete_registry=False, upload_registry
     lab_registry.setup(complete_registry, upload_registry)
 
     return lab_registry
+
+
+def _file_path_to_module_path(file_path: str) -> str:
+    """
+    将Python文件路径转换为模块路径。
+
+    例如: unilabos/devices/workstation/AI4M/AI4M.py -> unilabos.devices.workstation.AI4M.AI4M
+    """
+    path = Path(file_path).resolve()
+    parts = path.parts
+    for i, part in enumerate(parts):
+        if part == "unilabos":
+            module_parts = list(parts[i:])
+            module_parts[-1] = Path(module_parts[-1]).stem
+            return ".".join(module_parts)
+    return path.stem
+
+
+def _scan_classes_in_file(file_path: str):
+    """扫描Python文件中定义的类名列表。"""
+    with open(file_path, "r", encoding="utf-8") as f:
+        source = f.read()
+    tree = ast.parse(source)
+    return [node.name for node in ast.walk(tree) if isinstance(node, ast.ClassDef)]
+
+
+def _derive_device_id(class_name: str) -> str:
+    """
+    从类名推导设备ID。
+
+    例如: AI4MDevice -> AI4M_station, MyStation -> MyStation_station
+    """
+    name = class_name
+    for suffix in ("Device", "Station", "Workstation"):
+        if name.endswith(suffix) and len(name) > len(suffix):
+            name = name[: -len(suffix)]
+            break
+    return f"{name}_station"
+
+
+def generate_yaml_for_device(
+    file_path: str,
+    class_name: Optional[str] = None,
+    output_dir: Optional[str] = None,
+    device_id: Optional[str] = None,
+):
+    """
+    从Python设备类文件生成YAML注册表文件。
+
+    Args:
+        file_path: Python设备类文件路径
+        class_name: 类名（不指定则自动检测）
+        output_dir: 输出目录（默认 unilabos/registry/devices/）
+        device_id: 设备ID，用作YAML根键（不指定则从类名推导）
+    """
+    abs_file_path = Path(file_path).resolve()
+    if not abs_file_path.exists():
+        print(f"[错误] 文件不存在: {file_path}")
+        return
+    if not abs_file_path.suffix == ".py":
+        print(f"[错误] 不是Python文件: {file_path}")
+        return
+
+    print(f"[信息] 处理文件: {abs_file_path}")
+
+    # 扫描类并选择目标类
+    all_classes = _scan_classes_in_file(str(abs_file_path))
+    if not all_classes:
+        print(f"[错误] 文件中未找到任何类定义: {file_path}")
+        return
+
+    if class_name:
+        if class_name not in all_classes:
+            print(f"[错误] 文件中未找到类 {class_name}，可用的类: {all_classes}")
+            return
+        target_class_name = class_name
+    else:
+        target_class_name = all_classes[0]
+        print(f"[信息] 自动选择类: {target_class_name}")
+
+    # 构建模块路径
+    module_path = _file_path_to_module_path(str(abs_file_path))
+    print(f"[信息] 模块路径: {module_path}")
+
+    file_dir = str(abs_file_path.parent)
+    if file_dir not in sys.path:
+        sys.path.insert(0, file_dir)
+
+    parts = abs_file_path.parts
+    for i, part in enumerate(parts):
+        if part == "unilabos":
+            project_root = str(Path(*parts[:i]))
+            if project_root not in sys.path:
+                sys.path.insert(0, project_root)
+            break
+
+    # 获取类信息
+    full_class_path = f"{module_path}:{target_class_name}"
+    print(f"[信息] 分析类: {full_class_path}")
+
+    try:
+        enhanced_info = get_enhanced_class_info(full_class_path, use_dynamic=True)
+    except Exception as e:
+        print(f"[错误] 获取类信息失败: {e}")
+        return
+
+    if not enhanced_info.get("dynamic_import_success") and not enhanced_info.get("static_analysis_success"):
+        print("[错误] 动态导入和静态分析均失败，无法生成YAML")
+        return
+
+    analysis_mode = "动态导入" if enhanced_info.get("dynamic_import_success") else "静态分析"
+    print(f"[信息] 使用{analysis_mode}成功获取类信息")
+
+    # 生成 schema
+    action_value_mappings = {}
+    for action_name, action_info in enhanced_info.get("action_methods", {}).items():
+        action_value_mappings[f"auto-{action_name}"] = {
+            "type": "UniLabJsonCommandAsync" if action_info.get("is_async") else "UniLabJsonCommand",
+            "goal": {},
+            "feedback": {},
+            "result": {},
+            "schema": lab_registry._generate_unilab_json_command_schema(
+                action_info.get("args", []),
+                action_name,
+                action_info.get("return_annotation"),
+            ),
+            "goal_default": {arg["name"]: arg["default"] for arg in action_info.get("args", [])},
+            "handles": [],
+        }
+        if action_info.get("always_free"):
+            action_value_mappings[f"auto-{action_name}"]["always_free"] = True
+
+    status_types = {k: v["return_type"] for k, v in enhanced_info.get("status_methods", {}).items()}
+
+    init_param_schema = {}
+    if enhanced_info.get("init_params"):
+        init_param_schema["config"] = lab_registry._generate_unilab_json_command_schema(
+            enhanced_info["init_params"], "__init__"
+        )["properties"]["goal"]
+    if enhanced_info.get("status_methods"):
+        init_param_schema["data"] = lab_registry._generate_status_types_schema(enhanced_info["status_methods"])
+
+    # 组装 YAML 结构
+    registry_schema = {
+        "description": enhanced_info.get("class_docstring", ""),
+        "class": {
+            "module": full_class_path,
+            "type": "python",
+            "status_types": status_types,
+            "action_value_mappings": action_value_mappings,
+        },
+        "version": "1.0.0",
+        "handles": [],
+        "icon": "",
+        "init_param_schema": init_param_schema,
+        "registry_type": "device",
+    }
+
+    if not device_id:
+        device_id = _derive_device_id(target_class_name)
+    final_config = {device_id: registry_schema}
+
+    yaml_content = yaml.dump(
+        final_config, allow_unicode=True, default_flow_style=False, Dumper=NoAliasDumper, sort_keys=True
+    )
+
+    # 写入文件
+    if not output_dir:
+        output_dir = str(Path(__file__).parent / "devices")
+
+    os.makedirs(output_dir, exist_ok=True)
+    yaml_filename = abs_file_path.stem + ".yaml"
+    output_file = os.path.join(output_dir, yaml_filename)
+
+    with open(output_file, "w", encoding="utf-8") as f:
+        f.write(yaml_content)
+
+    print(f"[成功] YAML注册表文件已生成: {output_file}")
+    print(f"[信息] 设备ID: {device_id}")
+    print(f"[信息] Actions: {list(action_value_mappings.keys())}")
+    print(f"[信息] Status types: {list(status_types.keys())}")
