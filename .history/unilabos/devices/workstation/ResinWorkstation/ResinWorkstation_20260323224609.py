@@ -12,7 +12,7 @@ from unilabos.resources.resin_workstation import (
 )
 from unilabos.utils.decorator import not_action
 from unilabos.utils.log import logger
-from unilabos.devices.workstation.ResinWorkstation.base_client import UDPClient
+from unilabos.devices.workstation.ResinWorkstation.base_op_client import UDPClient
 
 @dataclass
 class ReactorState:
@@ -94,12 +94,6 @@ class ResinWorkstation(UDPClient):
     ):
         if config is not None and isinstance(config, dict) and "debug_mode" in config:
             debug_mode = bool(config["debug_mode"])
-        if config is not None and isinstance(config, dict) and "timeout" in config:
-            timeout = float(config["timeout"])
-        if config is not None and isinstance(config, dict) and "address" in config:
-            address = str(config["address"])
-        if config is not None and isinstance(config, dict) and "port" in config:
-            port = int(config["port"])
 
         if deck is None and config and isinstance(config, dict) and "deck" in config:
             deck = config.get("deck")

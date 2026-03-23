@@ -1,9 +1,13 @@
+import json
+import socket
+import threading
 import time
 from dataclasses import dataclass, asdict
 from typing import Any, Dict, Optional
 
 from unilabos.devices.workstation.ResinWorkstation.decks import ResinWorkstation_Deck
 from unilabos.ros.nodes.base_device_node import ROS2DeviceNode
+from unilabos.devices.workstation.workstation_base import WorkstationBase
 from unilabos.resources.resin_workstation import (
     ReagentBottle,
     ReagentRack,
@@ -12,7 +16,7 @@ from unilabos.resources.resin_workstation import (
 )
 from unilabos.utils.decorator import not_action
 from unilabos.utils.log import logger
-from unilabos.devices.workstation.ResinWorkstation.base_client import UDPClient
+from unilabos.devices.workstation.ResinWorkstation.base_opcua_client import UDPClient
 
 @dataclass
 class ReactorState:
@@ -79,68 +83,121 @@ class DeviceState:
 
 
 class ResinWorkstation(UDPClient):
-    """树脂工作站驱动：继承 UDPClient，由 super().__init__ 完成 UDP 套接字侧初始化。"""
-
     def __init__(
-        self,
-        config: dict = None,
-        deck: Optional[ResinWorkstation_Deck] = None,
-        address: str = "127.0.0.1",
-        port: int = 8889,
-        debug_mode: bool = False,
-        timeout: float = 5.0,
+        self, 
+        url: str, 
+        deck: Optional[AI4M_deck] = None,
+        csv_path: str = None, 
+        username: str = None, 
+        password: str = None,
+        use_subscription: bool = True,
+        cache_timeout: float = 5.0,
+        subscription_interval: int = 500,
         *args,
         **kwargs,
     ):
-        if config is not None and isinstance(config, dict) and "debug_mode" in config:
-            debug_mode = bool(config["debug_mode"])
-        if config is not None and isinstance(config, dict) and "timeout" in config:
-            timeout = float(config["timeout"])
-        if config is not None and isinstance(config, dict) and "address" in config:
-            address = str(config["address"])
-        if config is not None and isinstance(config, dict) and "port" in config:
-            port = int(config["port"])
+        """
+        初始化 AI4M 设备
+        
+        参数:
+            url: OPC UA 服务器地址
+            deck: AI4M 资源树配置
+            csv_path: 节点配置 CSV 文件路径
+            username: OPC UA 用户名
+            password: OPC UA 密码
+            use_subscription: 是否启用订阅模式
+            cache_timeout: 缓存超时时间（秒）
+            subscription_interval: 订阅发布间隔（毫秒）
+        """
+        # 调用父类构造函数
+        super().__init__(
+            url=url,
+            username=username,
+            password=password,
+            use_subscription=use_subscription,
+            cache_timeout=cache_timeout,
+            subscription_interval=subscription_interval,
+            *args,
+            **kwargs
+        )
 
-        if deck is None and config and isinstance(config, dict) and "deck" in config:
-            deck = config.get("deck")
-
-        if deck is None or isinstance(
-            deck.get("data") if isinstance(deck, dict) else deck, dict
-        ):
-            deck = ResinWorkstation_Deck(setup=True)
+        # 处理 deck 参数
+        if deck is None or isinstance(deck.get("data") if isinstance(deck, dict) else deck, dict):
+            self.deck = AI4M_deck(setup=True)
         else:
-            deck = deck.get("data") if isinstance(deck, dict) else deck
+            self.deck = deck.get("data") if isinstance(deck, dict) else deck
 
-        if deck is None:
+        if self.deck is None:
             raise ValueError("Deck 配置不能为空")
 
-        if isinstance(deck, ResinWorkstationDeck):
-            if not deck.reaction_reagent_rack or not deck.post_process_reagent_rack:
-                logger.info("提供的deck对象试剂架未初始化，正在初始化...")
-                deck.initialize_reagent_racks()
+        # 创建机器人操作的线程锁，防止 pick 和 place 同时执行
+        self._robot_lock = threading.Lock()
+        logger.info("✓ 机器人操作线程锁已初始化")
 
-        if hasattr(deck, "children"):
-            logger.info(f"Deck 初始化完成，加载 {len(deck.children)} 个子资源")
+        # 统计仓库信息
+        warehouse_count = 0
+        if hasattr(self.deck, 'children'):
+            warehouse_count = len(self.deck.children)
+            logger.info(f"Deck 初始化完成，加载 {warehouse_count} 个资源")
+        
+        # 如果提供了 CSV 路径，则直接加载节点
+        if csv_path:
+            self.load_nodes_from_csv(csv_path)
 
-        self.deck = deck
-        super().__init__(address, port, timeout)
-
+    @not_action
+    def post_init(self, ros_node):
+        """ROS2 节点就绪后的初始化"""
+        if not (hasattr(self, 'deck') and self.deck):
+            return
+            
+        if not (hasattr(ros_node, 'resource_tracker') and ros_node.resource_tracker):
+            logger.warning("resource_tracker 不存在，无法注册 deck")
+            return
+        
+        # 保存 ros_node 引用
+        self._ros_node = ros_node
+        
+        # 1. 本地注册（必需）
+        ros_node.resource_tracker.add_resource(self.deck)
+        
+        # 2. 上传云端
+        try:
+            from unilabos.ros.nodes.base_device_node import ROS2DeviceNode
+            ROS2DeviceNode.run_async_func(
+                ros_node.update_resource,
+                True,
+                resources=[self.deck]
+            )
+            logger.info("Deck 已上传到云端")
+        except Exception as e:
+            logger.error(f"上传失败: {e}")
         self.debug_mode = debug_mode
+
+        # UDP客户端初始化
+        self.udp_client = UDPClient(address, port)
+        self.connected = False
+        
+        # 设备状态
         self.success = False
-        self.operation_mode = "local"
-
+        self.operation_mode = "local"  # local or remote
+        
+        # 初始化设备状态对象
         self._device_state = DeviceState()
-        self.set_status_callback(self._handle_status_update)
+        # 设置UDP客户端的状态更新回调
+        self.udp_client.set_status_callback(self._handle_status_update)
+        # 初始化连接
         self.connect_device(address, port)
-
+        
+        # 初始化物料对象映射
         self._reagent_bottles = {}
+        # 同步初始状态
         self._sync_state_to_material_objects()
         logger.info("树脂工作站初始化完成")
 
     @not_action
     def post_init(self, ros_node):
         """ROS 节点就绪后注册 deck 并上传资源树（启动时一次）。"""
-        self._ros_node = ros_node
+        super().post_init(ros_node)
         if not self.deck:
             return
         if not (hasattr(ros_node, "resource_tracker") and ros_node.resource_tracker):
@@ -403,23 +460,23 @@ class ResinWorkstation(UDPClient):
             bool: 连接成功返回True，否则返回False
         """
         if address:
-            self.address = address
+            self.udp_client.address = address
         if port:
-            self.port = port
+            self.udp_client.port = port
 
         if self.debug_mode:
-            self._debug_skip_io = True
+            self.udp_client._debug_skip_io = True
             self.connected = True
             self._device_state.connected = True
             self._device_state.operation_mode = self.operation_mode
             logger.info("debug_mode: 跳过真实 UDP 建连与监听，视为已连接；命令由 send_command 模拟返回")
             return True
 
-        self.connected = self.connect()
+        self.connected = self.udp_client.connect()
         
         # 如果连接成功，启动状态监听
         if self.connected:
-            self.start_listen()
+            self.udp_client.start_listen()
             # 更新设备状态
             self._device_state.connected = True
             self._device_state.operation_mode = self.operation_mode
@@ -433,9 +490,9 @@ class ResinWorkstation(UDPClient):
         Returns:
             bool: 断开成功返回True，否则返回False
         """
-        if getattr(self, "_debug_skip_io", False):
-            self._debug_skip_io = False
-        success = self.disconnect()
+        if getattr(self.udp_client, "_debug_skip_io", False):
+            self.udp_client._debug_skip_io = False
+        success = self.udp_client.disconnect()
         self.connected = False  # 断开连接后，connected状态应该为False
         
         # 更新设备状态
@@ -459,7 +516,7 @@ class ResinWorkstation(UDPClient):
             return False
         
         try:
-            response = self.send_command("TOGGLE_LOCAL_REMOTE_CONTROL", {"mode": mode})
+            response = self.udp_client.send_command("TOGGLE_LOCAL_REMOTE_CONTROL", {"mode": mode})
             if response.get("status") == "success":
                 self.operation_mode = mode
                 return True
@@ -479,7 +536,7 @@ class ResinWorkstation(UDPClient):
             DeviceState: 设备整体状态对象
         """
         # 发送状态查询命令
-        response = self.send_command("GET_DEVICE_STATE")
+        response = self.udp_client.send_command("GET_DEVICE_STATE")
         if response.get("status") == "success":
             # 更新设备状态
             self.update_state(response.get("data", {}))
@@ -497,7 +554,7 @@ class ResinWorkstation(UDPClient):
             Optional[ReagentState]: 试剂状态对象，若不存在则返回None
         """
         # 发送试剂状态查询命令
-        response = self.send_command("GET_REAGENT_STATE", {"reagent_id": reagent_id})
+        response = self.udp_client.send_command("GET_REAGENT_STATE", {"reagent_id": reagent_id})
         if response.get("status") == "success":
             # 更新试剂状态
             self.update_state({"reagents": {reagent_id: response.get("data", {})}})
@@ -512,7 +569,7 @@ class ResinWorkstation(UDPClient):
             Dict[int, ReagentState]: 所有试剂状态字典
         """
         # 发送所有试剂状态查询命令
-        response = self.send_command("GET_ALL_REAGENTS_STATE")
+        response = self.udp_client.send_command("GET_ALL_REAGENTS_STATE")
         if response.get("status") == "success":
             # 更新所有试剂状态
             self.update_state({"reagents": response.get("data", {})})
@@ -530,7 +587,7 @@ class ResinWorkstation(UDPClient):
             Optional[ReactorState]: 反应器状态对象，若不存在则返回None
         """
         # 发送反应器状态查询命令
-        response = self.send_command("GET_REACTOR_STATE", {"reactor_id": reactor_id})
+        response = self.udp_client.send_command("GET_REACTOR_STATE", {"reactor_id": reactor_id})
         if response.get("status") == "success":
             # 更新反应器状态
             self.update_state({"reactors": {reactor_id: response.get("data", {})}})
@@ -548,7 +605,7 @@ class ResinWorkstation(UDPClient):
             Optional[PostProcessState]: 后处理系统状态对象，若不存在则返回None
         """
         # 发送后处理状态查询命令
-        response = self.send_command("GET_POST_PROCESS_STATE", {"post_process_id": post_process_id})
+        response = self.udp_client.send_command("GET_POST_PROCESS_STATE", {"post_process_id": post_process_id})
         if response.get("status") == "success":
             # 更新后处理状态
             self.update_state({"post_processes": {post_process_id: response.get("data", {})}})
@@ -667,7 +724,7 @@ class ResinWorkstation(UDPClient):
             logger.error("设备未连接，无法发送命令")
             return False
         
-        response = self.send_command(command, params)
+        response = self.udp_client.send_command(command, params)
         
         # 对于同步命令，等待并检查响应状态
         if response.get("type") != "async":
@@ -1175,8 +1232,8 @@ class ResinWorkstation(UDPClient):
         
         # 添加额外的设备信息
         status_dict.update({
-            "address": self.address,
-            "port": self.port
+            "address": self.udp_client.address,
+            "port": self.udp_client.port
         })
         
         # 如果是调试模式，覆盖相关状态

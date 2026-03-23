@@ -1,6 +1,4 @@
 Resin_station:
-  category:
-  - Resin_station
   class:
     action_value_mappings:
       auto-connect_device:
@@ -9,7 +7,7 @@ Resin_station:
         goal_default:
           address: null
           port: null
-        handles: {}
+        handles: []
         result: {}
         schema:
           description: ''
@@ -33,7 +31,7 @@ Resin_station:
         feedback: {}
         goal: {}
         goal_default: {}
-        handles: {}
+        handles: []
         result: {}
         schema:
           description: ''
@@ -56,7 +54,7 @@ Resin_station:
           blocking: false
           post_process_id: null
           timeout: null
-        handles: {}
+        handles: []
         result: {}
         schema:
           description: ''
@@ -85,7 +83,7 @@ Resin_station:
         goal: {}
         goal_default:
           post_process_id: null
-        handles: {}
+        handles: []
         result: {}
         schema:
           description: ''
@@ -109,7 +107,7 @@ Resin_station:
         goal: {}
         goal_default:
           post_process_id: null
-        handles: {}
+        handles: []
         result: {}
         schema:
           description: ''
@@ -139,7 +137,7 @@ Resin_station:
           suck_speed: 4.0
           timeout: null
           volume: null
-        handles: {}
+        handles: []
         result: {}
         schema:
           description: ''
@@ -180,7 +178,7 @@ Resin_station:
         goal: {}
         goal_default:
           reactor_id: null
-        handles: {}
+        handles: []
         result: {}
         schema:
           description: ''
@@ -204,7 +202,7 @@ Resin_station:
         goal: {}
         goal_default:
           reactor_id: null
-        handles: {}
+        handles: []
         result: {}
         schema:
           description: ''
@@ -228,7 +226,7 @@ Resin_station:
         goal: {}
         goal_default:
           reactor_id: null
-        handles: {}
+        handles: []
         result: {}
         schema:
           description: ''
@@ -252,7 +250,7 @@ Resin_station:
         goal: {}
         goal_default:
           reactor_id: null
-        handles: {}
+        handles: []
         result: {}
         schema:
           description: ''
@@ -280,7 +278,7 @@ Resin_station:
           solution_id: null
           timeout: null
           volume: null
-        handles: {}
+        handles: []
         result: {}
         schema:
           description: ''
@@ -316,7 +314,7 @@ Resin_station:
         goal_default:
           reactor_id: null
           speed: null
-        handles: {}
+        handles: []
         result: {}
         schema:
           description: ''
@@ -343,7 +341,7 @@ Resin_station:
         goal: {}
         goal_default:
           reactor_id: null
-        handles: {}
+        handles: []
         result: {}
         schema:
           description: ''
@@ -368,7 +366,7 @@ Resin_station:
         goal_default:
           reactor_id: null
           temperature: null
-        handles: {}
+        handles: []
         result: {}
         schema:
           description: ''
@@ -395,7 +393,7 @@ Resin_station:
         goal: {}
         goal_default:
           mode: null
-        handles: {}
+        handles: []
         result: {}
         schema:
           description: ''
@@ -425,7 +423,7 @@ Resin_station:
           to_col: null
           to_rack: null
           to_row: null
-        handles: {}
+        handles: []
         result: {}
         schema:
           description: ''
@@ -470,7 +468,7 @@ Resin_station:
           reagent_id: null
           timeout: null
           volume_change: null
-        handles: {}
+        handles: []
         result: {}
         schema:
           description: ''
@@ -502,7 +500,7 @@ Resin_station:
         goal: {}
         goal_default:
           state_data: null
-        handles: {}
+        handles: []
         result: {}
         schema:
           description: ''
@@ -528,7 +526,7 @@ Resin_station:
           blocking: false
           seconds: null
           timeout: null
-        handles: {}
+        handles: []
         result: {}
         schema:
           description: ''
@@ -557,12 +555,11 @@ Resin_station:
       all_reagents_info: dict
       device_status: dict
       latest_device_status: dict
-      reagent_bottle: String
-      reagent_bottle_by_position: String
-      reagent_info: String
-      reagent_rack: String
+      reagent_bottle: Any
+      reagent_bottle_by_position: Any
+      reagent_info: Any
+      reagent_rack: Any
     type: python
-  config_info: []
   description: ''
   handles: []
   icon: ''

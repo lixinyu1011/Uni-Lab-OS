@@ -4,6 +4,7 @@ from typing import Any, Dict, Optional
 
 from unilabos.devices.workstation.ResinWorkstation.decks import ResinWorkstation_Deck
 from unilabos.ros.nodes.base_device_node import ROS2DeviceNode
+from unilabos.devices.workstation.workstation_base import WorkstationBase
 from unilabos.resources.resin_workstation import (
     ReagentBottle,
     ReagentRack,
@@ -12,7 +13,7 @@ from unilabos.resources.resin_workstation import (
 )
 from unilabos.utils.decorator import not_action
 from unilabos.utils.log import logger
-from unilabos.devices.workstation.ResinWorkstation.base_client import UDPClient
+from unilabos.devices.workstation.ResinWorkstation.base_opcua_client import UDPClient
 
 @dataclass
 class ReactorState:
@@ -79,8 +80,6 @@ class DeviceState:
 
 
 class ResinWorkstation(UDPClient):
-    """树脂工作站驱动：继承 UDPClient，由 super().__init__ 完成 UDP 套接字侧初始化。"""
-
     def __init__(
         self,
         config: dict = None,
@@ -94,12 +93,6 @@ class ResinWorkstation(UDPClient):
     ):
         if config is not None and isinstance(config, dict) and "debug_mode" in config:
             debug_mode = bool(config["debug_mode"])
-        if config is not None and isinstance(config, dict) and "timeout" in config:
-            timeout = float(config["timeout"])
-        if config is not None and isinstance(config, dict) and "address" in config:
-            address = str(config["address"])
-        if config is not None and isinstance(config, dict) and "port" in config:
-            port = int(config["port"])
 
         if deck is None and config and isinstance(config, dict) and "deck" in config:
             deck = config.get("deck")
@@ -122,8 +115,8 @@ class ResinWorkstation(UDPClient):
         if hasattr(deck, "children"):
             logger.info(f"Deck 初始化完成，加载 {len(deck.children)} 个子资源")
 
-        self.deck = deck
-        super().__init__(address, port, timeout)
+        WorkstationBase.__init__(self, deck=deck, *args, **kwargs)
+        UDPClient.__init__(self, address, port, timeout)
 
         self.debug_mode = debug_mode
         self.success = False
@@ -140,7 +133,7 @@ class ResinWorkstation(UDPClient):
     @not_action
     def post_init(self, ros_node):
         """ROS 节点就绪后注册 deck 并上传资源树（启动时一次）。"""
-        self._ros_node = ros_node
+        super().post_init(ros_node)
         if not self.deck:
             return
         if not (hasattr(ros_node, "resource_tracker") and ros_node.resource_tracker):

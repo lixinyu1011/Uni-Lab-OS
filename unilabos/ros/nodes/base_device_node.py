@@ -2022,7 +2022,7 @@ class ROS2DeviceNode:
             from unilabos.ros.nodes.presets.workstation import ROS2WorkstationNode
 
             self._ros_node = ROS2WorkstationNode(
-                protocol_type=driver_params["protocol_type"],
+                protocol_type=driver_params.get("protocol_type", []),
                 children=children,
                 driver_instance=self._driver_instance,  # type: ignore
                 device_id=device_id,

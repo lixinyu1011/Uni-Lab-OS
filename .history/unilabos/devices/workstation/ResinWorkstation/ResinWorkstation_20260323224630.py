@@ -96,10 +96,6 @@ class ResinWorkstation(UDPClient):
             debug_mode = bool(config["debug_mode"])
         if config is not None and isinstance(config, dict) and "timeout" in config:
             timeout = float(config["timeout"])
-        if config is not None and isinstance(config, dict) and "address" in config:
-            address = str(config["address"])
-        if config is not None and isinstance(config, dict) and "port" in config:
-            port = int(config["port"])
 
         if deck is None and config and isinstance(config, dict) and "deck" in config:
             deck = config.get("deck")

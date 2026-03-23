@@ -24,7 +24,7 @@
             "config": {
                 "address": "127.0.0.1",
                 "port": 8889,
-                "debug_mode": true,
+                "debug_mode": t,
                 "protocol_type": [],
                 "deck": {
                     "data": {
