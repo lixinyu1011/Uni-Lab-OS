@@ -18,7 +18,7 @@ from unilabos.devices.workstation.AI4M.bottle_carriers import Hydrogel_Clean_1Bo
 
 # 导入通讯基类
 from unilabos.devices.workstation.AI4M.base_opcua_client import OpcUaClientWithSubscription
-
+from unilabos.utils.decorator import always_free
 
 class AI4MDevice(OpcUaClientWithSubscription):
     """
@@ -490,7 +490,7 @@ class AI4MDevice(OpcUaClientWithSubscription):
             "message": f"机器人从检测站{pick_station_id}取烧杯并放回位置{place_beaker_id}完成",
             "unilabos_samples": [LabSample(sample_uuid=sample_uuid, oss_path="", extra={"carrier_info": carrier_info, "place_beaker_id": place_beaker_id, "pick_station_id": pick_station_id} if isinstance(content, str) else content.serialize()) for sample_uuid, content in (sample_uuids.items() if sample_uuids else {})]
         }
-
+    @always_free
     def trigger_station_process(
         self,
         station_id: int,

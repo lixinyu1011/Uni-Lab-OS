@@ -1,0 +1,232 @@
+AI4M_station:
+  class:
+    action_value_mappings:
+      auto-download_auto_params:
+        feedback: {}
+        goal: {}
+        goal_default:
+          auto_job_stop_delay: null
+          mag_stir_heat_temp: null
+          mag_stir_stir_speed: null
+          mag_stir_time_set: null
+          syringe_pump_abs_position_set: null
+        handles: []
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                auto_job_stop_delay:
+                  type: integer
+                mag_stir_heat_temp:
+                  type: integer
+                mag_stir_stir_speed:
+                  type: integer
+                mag_stir_time_set:
+                  type: integer
+                syringe_pump_abs_position_set:
+                  type: integer
+              required:
+              - mag_stir_stir_speed
+              - mag_stir_heat_temp
+              - mag_stir_time_set
+              - syringe_pump_abs_position_set
+              - auto_job_stop_delay
+              type: object
+            result: {}
+          required:
+          - goal
+          title: download_auto_params参数
+          type: object
+        type: UniLabJsonCommand
+      auto-start_auto_mode:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: start_auto_mode参数
+          type: object
+        type: UniLabJsonCommand
+      auto-start_manual_mode:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: start_manual_mode参数
+          type: object
+        type: UniLabJsonCommand
+      auto-trigger_init:
+        feedback: {}
+        goal: {}
+        goal_default: {}
+        handles: []
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties: {}
+              required: []
+              type: object
+            result: {}
+          required:
+          - goal
+          title: trigger_init参数
+          type: object
+        type: UniLabJsonCommand
+      auto-trigger_robot_pick_beaker:
+        feedback: {}
+        goal: {}
+        goal_default:
+          pick_beaker_id: null
+          place_station_id: null
+        handles: []
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                pick_beaker_id:
+                  type: integer
+                place_station_id:
+                  type: integer
+              required:
+              - pick_beaker_id
+              type: object
+            result: {}
+          required:
+          - goal
+          title: trigger_robot_pick_beaker参数
+          type: object
+        type: UniLabJsonCommand
+      auto-trigger_robot_place_beaker:
+        feedback: {}
+        goal: {}
+        goal_default:
+          pick_station_id: null
+          place_beaker_id: null
+        handles: []
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                pick_station_id:
+                  type: integer
+                place_beaker_id:
+                  type: integer
+              required:
+              - place_beaker_id
+              - pick_station_id
+              type: object
+            result: {}
+          required:
+          - goal
+          title: trigger_robot_place_beaker参数
+          type: object
+        type: UniLabJsonCommand
+      auto-trigger_station_process:
+        always_free: true
+        feedback: {}
+        goal: {}
+        goal_default:
+          mag_stir_heat_temp: null
+          mag_stir_stir_speed: null
+          mag_stir_time_set: null
+          station_id: null
+          syringe_pump_abs_position_set: null
+        handles: []
+        result: {}
+        schema:
+          description: ''
+          properties:
+            feedback: {}
+            goal:
+              properties:
+                mag_stir_heat_temp:
+                  type: integer
+                mag_stir_stir_speed:
+                  type: integer
+                mag_stir_time_set:
+                  type: integer
+                station_id:
+                  type: integer
+                syringe_pump_abs_position_set:
+                  type: integer
+              required:
+              - station_id
+              - mag_stir_stir_speed
+              - mag_stir_heat_temp
+              - mag_stir_time_set
+              - syringe_pump_abs_position_set
+              type: object
+            result: {}
+          required:
+          - goal
+          title: trigger_station_process参数
+          type: object
+        type: UniLabJsonCommand
+    module: unilabos.devices.workstation.AI4M.AI4M:AI4MDevice
+    status_types: {}
+    type: python
+  description: ''
+  handles: []
+  icon: ''
+  init_param_schema:
+    config:
+      properties:
+        cache_timeout:
+          default: 5.0
+          type: number
+        csv_path:
+          type: string
+        deck:
+          type: string
+        password:
+          type: string
+        subscription_interval:
+          default: 500
+          type: integer
+        url:
+          type: string
+        use_subscription:
+          default: true
+          type: boolean
+        username:
+          type: string
+      required:
+      - url
+      type: object
+  registry_type: device
+  version: 1.0.0
