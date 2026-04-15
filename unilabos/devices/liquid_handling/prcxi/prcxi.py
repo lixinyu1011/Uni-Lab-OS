@@ -1,11 +1,14 @@
 import asyncio
 import collections
+from collections import OrderedDict
 import contextlib
 import json
 import os
 import socket
 import time
+import uuid
 from typing import Any, List, Dict, Optional, Tuple, TypedDict, Union, Sequence, Iterator, Literal
+from pylabrobot.liquid_handling.standard import GripDirection
 
 from pylabrobot.liquid_handling import (
     LiquidHandlerBackend,
@@ -27,9 +30,32 @@ from pylabrobot.liquid_handling.standard import (
     ResourceMove,
     ResourceDrop,
 )
-from pylabrobot.resources import Tip, Deck, Plate, Well, TipRack, Resource, Container, Coordinate, TipSpot, Trash
+from pylabrobot.resources import (
+    ResourceHolder,
+    ResourceStack,
+    Tip,
+    Deck,
+    Plate,
+    Well,
+    TipRack,
+    Resource,
+    Container,
+    Coordinate,
+    TipSpot,
+    Trash,
+    PlateAdapter,
+    TubeRack,
+)
 
-from unilabos.devices.liquid_handling.liquid_handler_abstract import LiquidHandlerAbstract
+from unilabos.devices.liquid_handling.liquid_handler_abstract import (
+    LiquidHandlerAbstract,
+    SimpleReturn,
+    SetLiquidReturn,
+    SetLiquidFromPlateReturn,
+    TransferLiquidReturn,
+)
+from unilabos.registry.placeholder_type import ResourceSlot
+from unilabos.resources.resource_tracker import ResourceTreeSet
 from unilabos.ros.nodes.base_device_node import BaseROS2DeviceNode
 
 
@@ -65,13 +91,104 @@ class PRCXI9300Deck(Deck):
     该类定义了 PRCXI 9300 的工作台布局和槽位信息。
     """
 
-    def __init__(self, name: str, size_x: float, size_y: float, size_z: float, **kwargs):
-        super().__init__(name, size_x, size_y, size_z)
-        self.slots = [None] * 6  # PRCXI 9300 有 6 个槽位
+    # T1-T16 默认位置 (4列×4行)
+    _DEFAULT_SITE_POSITIONS = [
+        (0, 0, 0), (138, 0, 0), (276, 0, 0), (414, 0, 0),         # T1-T4
+        (0, 96, 0), (138, 96, 0), (276, 96, 0), (414, 96, 0),     # T5-T8
+        (0, 192, 0), (138, 192, 0), (276, 192, 0), (414, 192, 0), # T9-T12
+        (0, 288, 0), (138, 288, 0), (276, 288, 0), (414, 288, 0), # T13-T16
+    ]
+    _DEFAULT_SITE_SIZE = {"width": 128.0, "height": 86, "depth": 0}
+    _DEFAULT_CONTENT_TYPE = ["plate", "tip_rack", "plates", "tip_racks", "tube_rack", "adaptor"]
+
+    def __init__(self, name: str, size_x: float, size_y: float, size_z: float,
+                 sites: Optional[List[Dict[str, Any]]] = None, **kwargs):
+        super().__init__(size_x, size_y, size_z, name)
+        if sites is not None:
+            self.sites: List[Dict[str, Any]] = [dict(s) for s in sites]
+        else:
+            self.sites = []
+            for i, (x, y, z) in enumerate(self._DEFAULT_SITE_POSITIONS):
+                self.sites.append({
+                    "label": f"T{i + 1}",
+                    "visible": True,
+                    "position": {"x": x, "y": y, "z": z},
+                    "size": dict(self._DEFAULT_SITE_SIZE),
+                    "content_type": list(self._DEFAULT_CONTENT_TYPE),
+                })
+        # _ordering: label -> None, 用于外部通过 list(keys()).index(site) 将 Tn 转换为 spot index
+        self._ordering = collections.OrderedDict(
+            (site["label"], None) for site in self.sites
+        )
+
+    def _get_site_location(self, idx: int) -> Coordinate:
+        pos = self.sites[idx]["position"]
+        return Coordinate(pos["x"], pos["y"], pos["z"])
+
+    def _get_site_resource(self, idx: int) -> Optional[Resource]:
+        site_loc = self._get_site_location(idx)
+        for child in self.children:
+            if child.location == site_loc:
+                return child
+        return None
+
+    def assign_child_resource(
+        self,
+        resource: Resource,
+        location: Optional[Coordinate] = None,
+        reassign: bool = True,
+        spot: Optional[int] = None,
+    ):
+        idx = spot
+        if spot is not None:
+            idx = spot
+        else:
+            for i, site in enumerate(self.sites):
+                site_loc = self._get_site_location(i)
+                if site.get("label") == resource.name:
+                    idx = i
+                    break
+                if location is not None and site_loc == location:
+                    idx = i
+                    break
+
+        if idx is None:
+            for i in range(len(self.sites)):
+                if self._get_site_resource(i) is None:
+                    idx = i
+                    break
+
+        if idx is None:
+            raise ValueError(f"No available site on deck '{self.name}' for resource '{resource.name}'")
+
+        if not reassign and self._get_site_resource(idx) is not None:
+            raise ValueError(f"Site {idx} ('{self.sites[idx]['label']}') is already occupied")
+
+        loc = self._get_site_location(idx)
+        super().assign_child_resource(resource, location=loc, reassign=reassign)
+
+    def assign_child_at_slot(self, resource: Resource, slot: int, reassign: bool = False) -> None:
+        self.assign_child_resource(resource, spot=slot - 1, reassign=reassign)
+
+    def serialize(self) -> dict:
+        data = super().serialize()
+        sites_out = []
+        for i, site in enumerate(self.sites):
+            occupied = self._get_site_resource(i)
+            sites_out.append({
+                "label": site["label"],
+                "visible": site.get("visible", True),
+                "occupied_by": occupied.name if occupied is not None else None,
+                "position": site["position"],
+                "size": site["size"],
+                "content_type": site["content_type"],
+            })
+        data["sites"] = sites_out
+        return data
 
 
-class PRCXI9300Container(Plate, TipRack):
-    """PRCXI 9300 的专用 Container 类，继承自 Plate和TipRack。
+class PRCXI9300Container(Container):
+    """PRCXI 9300 的专用 Container 类，继承自 Plate，用于槽位定位和未知模块。
 
     该类定义了 PRCXI 9300 的工作台布局和槽位信息。
     """
@@ -83,11 +200,10 @@ class PRCXI9300Container(Plate, TipRack):
         size_y: float,
         size_z: float,
         category: str,
-        ordering: collections.OrderedDict,
         model: Optional[str] = None,
         **kwargs,
     ):
-        super().__init__(name, size_x, size_y, size_z, category=category, ordering=ordering, model=model)
+        super().__init__(name, size_x, size_y, size_z, category=category, model=model)
         self._unilabos_state = {}
 
     def load_state(self, state: Dict[str, Any]) -> None:
@@ -101,18 +217,210 @@ class PRCXI9300Container(Plate, TipRack):
         return data
 
 
+class PRCXI9300Plate(Plate):
+    """
+    专用孔板类：
+    1. 继承自 PLR 原生 Plate，保留所有物理特性。
+    2. 增加 material_info 参数，用于在初始化时直接绑定 Unilab UUID。
+    """
+
+    def __init__(
+        self,
+        name: str,
+        size_x: float,
+        size_y: float,
+        size_z: float,
+        category: str = "plate",
+        ordered_items: collections.OrderedDict = None,
+        ordering: Optional[collections.OrderedDict] = None,
+        model: Optional[str] = None,
+        material_info: Optional[Dict[str, Any]] = None,
+        **kwargs,
+    ):
+        # 如果 ordered_items 不为 None，直接使用
+        items = None
+        ordering_param = None
+        if ordered_items is not None:
+            items = ordered_items
+        elif ordering is not None:
+            # 检查 ordering 中的值是否是字符串（从 JSON 反序列化时的情况）
+            # 如果是字符串，说明这是位置名称，需要让 Plate 自己创建 Well 对象
+            # 我们只传递位置信息（键），不传递值，使用 ordering 参数
+            if ordering:
+                values = list(ordering.values())
+                value = values[0]
+                if isinstance(value, str):
+                    # ordering 的值是字符串，只使用键（位置信息）创建新的 OrderedDict
+                    # 传递 ordering 参数而不是 ordered_items，让 Plate 自己创建 Well 对象
+                    items = None
+                    # 使用 ordering 参数，只包含位置信息（键）
+                    ordering_param = collections.OrderedDict((k, None) for k in ordering.keys())
+                elif value is None:
+                    ordering_param = ordering
+            else:
+                # ordering 的值已经是对象，可以直接使用
+                items = ordering
+                ordering_param = None
+
+        # 根据情况传递不同的参数
+        if items is not None:
+            super().__init__(
+                name, size_x, size_y, size_z, ordered_items=items, category=category, model=model, **kwargs
+            )
+        elif ordering_param is not None:
+            # 传递 ordering 参数，让 Plate 自己创建 Well 对象
+            super().__init__(
+                name, size_x, size_y, size_z, ordering=ordering_param, category=category, model=model, **kwargs
+            )
+        else:
+            super().__init__(name, size_x, size_y, size_z, category=category, model=model, **kwargs)
+
+        self._unilabos_state = {}
+        if material_info:
+            self._unilabos_state["Material"] = material_info
+
+    def load_state(self, state: Dict[str, Any]) -> None:
+        super().load_state(state)
+        self._unilabos_state = state
+
+    def serialize_state(self) -> Dict[str, Dict[str, Any]]:
+        try:
+            data = super().serialize_state()
+        except AttributeError:
+            data = {}
+        if hasattr(self, "_unilabos_state") and self._unilabos_state:
+            safe_state = {}
+            for k, v in self._unilabos_state.items():
+                # 如果是 Material 字典，深入检查
+                if k == "Material" and isinstance(v, dict):
+                    safe_material = {}
+                    for mk, mv in v.items():
+                        # 只保留基本数据类型 (字符串, 数字, 布尔值, 列表, 字典)
+                        if isinstance(mv, (str, int, float, bool, list, dict, type(None))):
+                            safe_material[mk] = mv
+                        else:
+                            # 打印日志提醒（可选）
+                            # print(f"Warning: Removing non-serializable key {mk} from {self.name}")
+                            pass
+                    safe_state[k] = safe_material
+                # 其他顶层属性也进行类型检查
+                elif isinstance(v, (str, int, float, bool, list, dict, type(None))):
+                    safe_state[k] = v
+
+            data.update(safe_state)
+        return data  # 其他顶层属性也进行类型检查
+
+
+class PRCXI9300TipRack(TipRack):
+    """专用吸头盒类"""
+
+    def __init__(
+        self,
+        name: str,
+        size_x: float,
+        size_y: float,
+        size_z: float,
+        category: str = "tip_rack",
+        ordered_items: collections.OrderedDict = None,
+        ordering: Optional[collections.OrderedDict] = None,
+        model: Optional[str] = None,
+        material_info: Optional[Dict[str, Any]] = None,
+        **kwargs,
+    ):
+        # 如果 ordered_items 不为 None，直接使用
+        if ordered_items is not None:
+            items = ordered_items
+        elif ordering is not None:
+            # 检查 ordering 中的值类型来决定如何处理：
+            # - 字符串值（从 JSON 反序列化）: 只用键创建 ordering_param
+            # - None 值（从第二次往返序列化）: 同样只用键创建 ordering_param
+            # - 对象值（已经是实际的 Resource 对象）: 直接作为 ordered_items 使用
+            first_val = next(iter(ordering.values()), None) if ordering else None
+            if not ordering or first_val is None or isinstance(first_val, str):
+                # ordering 的值是字符串或 None，只使用键（位置信息）创建新的 OrderedDict
+                # 传递 ordering 参数而不是 ordered_items，让 TipRack 自己创建 Tip 对象
+                items = None
+                ordering_param = collections.OrderedDict((k, None) for k in ordering.keys())
+            else:
+                # ordering 的值已经是对象，可以直接使用
+                items = ordering
+                ordering_param = None
+        else:
+            items = None
+            ordering_param = None
+
+        # 根据情况传递不同的参数
+        if items is not None:
+            super().__init__(
+                name, size_x, size_y, size_z, ordered_items=items, category=category, model=model, **kwargs
+            )
+        elif ordering_param is not None:
+            # 传递 ordering 参数，让 TipRack 自己创建 Tip 对象
+            super().__init__(
+                name, size_x, size_y, size_z, ordering=ordering_param, category=category, model=model, **kwargs
+            )
+        else:
+            super().__init__(name, size_x, size_y, size_z, category=category, model=model, **kwargs)
+        self._unilabos_state = {}
+        if material_info:
+            self._unilabos_state["Material"] = material_info
+
+    def load_state(self, state: Dict[str, Any]) -> None:
+        super().load_state(state)
+        self._unilabos_state = state
+
+    def serialize_state(self) -> Dict[str, Dict[str, Any]]:
+        try:
+            data = super().serialize_state()
+        except AttributeError:
+            data = {}
+        if hasattr(self, "_unilabos_state") and self._unilabos_state:
+            safe_state = {}
+            for k, v in self._unilabos_state.items():
+                # 如果是 Material 字典，深入检查
+                if k == "Material" and isinstance(v, dict):
+                    safe_material = {}
+                    for mk, mv in v.items():
+                        # 只保留基本数据类型 (字符串, 数字, 布尔值, 列表, 字典)
+                        if isinstance(mv, (str, int, float, bool, list, dict, type(None))):
+                            safe_material[mk] = mv
+                        else:
+                            # 打印日志提醒（可选）
+                            # print(f"Warning: Removing non-serializable key {mk} from {self.name}")
+                            pass
+                    safe_state[k] = safe_material
+                # 其他顶层属性也进行类型检查
+                elif isinstance(v, (str, int, float, bool, list, dict, type(None))):
+                    safe_state[k] = v
+
+            data.update(safe_state)
+        return data
+
+
 class PRCXI9300Trash(Trash):
     """PRCXI 9300 的专用 Trash 类，继承自 Trash。
 
     该类定义了 PRCXI 9300 的工作台布局和槽位信息。
     """
 
-    def __init__(self, name: str, size_x: float, size_y: float, size_z: float, category: str, **kwargs):
+    def __init__(
+        self,
+        name: str,
+        size_x: float,
+        size_y: float,
+        size_z: float,
+        category: str = "trash",
+        material_info: Optional[Dict[str, Any]] = None,
+        **kwargs,
+    ):
+
         if name != "trash":
-            name = "trash"
-            print("PRCXI9300Trash name must be 'trash', using 'trash' instead.")
-        super().__init__(name, size_x, size_y, size_z, category=category, **kwargs)
+            print(f"Warning: PRCXI9300Trash usually expects name='trash' for backend logic, but got '{name}'.")
+        super().__init__(name, size_x, size_y, size_z, **kwargs)
         self._unilabos_state = {}
+        # 初始化时注入 UUID
+        if material_info:
+            self._unilabos_state["Material"] = material_info
 
     def load_state(self, state: Dict[str, Any]) -> None:
         """从给定的状态加载工作台信息。"""
@@ -120,8 +428,197 @@ class PRCXI9300Trash(Trash):
         self._unilabos_state = state
 
     def serialize_state(self) -> Dict[str, Dict[str, Any]]:
-        data = super().serialize_state()
-        data.update(self._unilabos_state)
+        try:
+            data = super().serialize_state()
+        except AttributeError:
+            data = {}
+        if hasattr(self, "_unilabos_state") and self._unilabos_state:
+            safe_state = {}
+            for k, v in self._unilabos_state.items():
+                # 如果是 Material 字典，深入检查
+                if k == "Material" and isinstance(v, dict):
+                    safe_material = {}
+                    for mk, mv in v.items():
+                        # 只保留基本数据类型 (字符串, 数字, 布尔值, 列表, 字典)
+                        if isinstance(mv, (str, int, float, bool, list, dict, type(None))):
+                            safe_material[mk] = mv
+                        else:
+                            # 打印日志提醒（可选）
+                            # print(f"Warning: Removing non-serializable key {mk} from {self.name}")
+                            pass
+                    safe_state[k] = safe_material
+                # 其他顶层属性也进行类型检查
+                elif isinstance(v, (str, int, float, bool, list, dict, type(None))):
+                    safe_state[k] = v
+
+            data.update(safe_state)
+        return data
+
+
+class PRCXI9300TubeRack(TubeRack):
+    """
+    专用管架类：用于 EP 管架、试管架等。
+    继承自 PLR 的 TubeRack，并支持注入 material_info (UUID)。
+    """
+
+    def __init__(
+        self,
+        name: str,
+        size_x: float,
+        size_y: float,
+        size_z: float,
+        category: str = "tube_rack",
+        items: Optional[Dict[str, Any]] = None,
+        ordered_items: Optional[OrderedDict] = None,
+        ordering: Optional[OrderedDict] = None,
+        model: Optional[str] = None,
+        material_info: Optional[Dict[str, Any]] = None,
+        **kwargs,
+    ):
+
+        # 如果 ordered_items 不为 None，直接使用
+        if ordered_items is not None:
+            items_to_pass = ordered_items
+            ordering_param = None
+        elif ordering is not None:
+            # 检查 ordering 中的值类型来决定如何处理：
+            # - 字符串值（从 JSON 反序列化）: 只用键创建 ordering_param
+            # - None 值（从第二次往返序列化）: 同样只用键创建 ordering_param
+            # - 对象值（已经是实际的 Resource 对象）: 直接作为 ordered_items 使用
+            first_val = next(iter(ordering.values()), None) if ordering else None
+            if not ordering or first_val is None or isinstance(first_val, str):
+                # ordering 的值是字符串或 None，只使用键（位置信息）创建新的 OrderedDict
+                # 传递 ordering 参数而不是 ordered_items，让 TubeRack 自己创建 Tube 对象
+                items_to_pass = None
+                ordering_param = collections.OrderedDict((k, None) for k in ordering.keys())
+            else:
+                # ordering 的值已经是对象，可以直接使用
+                items_to_pass = ordering
+                ordering_param = None
+        elif items is not None:
+            # 兼容旧的 items 参数
+            items_to_pass = items
+            ordering_param = None
+        else:
+            items_to_pass = None
+            ordering_param = None
+
+        # 根据情况传递不同的参数
+        if items_to_pass is not None:
+            super().__init__(name, size_x, size_y, size_z, ordered_items=items_to_pass, model=model, **kwargs)
+        elif ordering_param is not None:
+            # 传递 ordering 参数，让 TubeRack 自己创建 Tube 对象
+            super().__init__(name, size_x, size_y, size_z, ordering=ordering_param, model=model, **kwargs)
+        else:
+            super().__init__(name, size_x, size_y, size_z, model=model, **kwargs)
+
+        self._unilabos_state = {}
+        if material_info:
+            self._unilabos_state["Material"] = material_info
+
+    def serialize_state(self) -> Dict[str, Dict[str, Any]]:
+        try:
+            data = super().serialize_state()
+        except AttributeError:
+            data = {}
+        if hasattr(self, "_unilabos_state") and self._unilabos_state:
+            safe_state = {}
+            for k, v in self._unilabos_state.items():
+                # 如果是 Material 字典，深入检查
+                if k == "Material" and isinstance(v, dict):
+                    safe_material = {}
+                    for mk, mv in v.items():
+                        # 只保留基本数据类型 (字符串, 数字, 布尔值, 列表, 字典)
+                        if isinstance(mv, (str, int, float, bool, list, dict, type(None))):
+                            safe_material[mk] = mv
+                        else:
+                            # 打印日志提醒（可选）
+                            # print(f"Warning: Removing non-serializable key {mk} from {self.name}")
+                            pass
+                    safe_state[k] = safe_material
+                # 其他顶层属性也进行类型检查
+                elif isinstance(v, (str, int, float, bool, list, dict, type(None))):
+                    safe_state[k] = v
+
+            data.update(safe_state)
+        return data
+
+
+class PRCXI9300PlateAdapter(PlateAdapter):
+    """
+    专用板式适配器类：用于承载 Plate 的底座（如 PCR 适配器、磁吸架等）。
+    支持注入 material_info (UUID)。
+    """
+
+    def __init__(
+        self,
+        name: str,
+        size_x: float,
+        size_y: float,
+        size_z: float,
+        category: str = "plate_adapter",
+        model: Optional[str] = None,
+        material_info: Optional[Dict[str, Any]] = None,
+        # 参数给予默认值 (标准96孔板尺寸)
+        adapter_hole_size_x: float = 127.76,
+        adapter_hole_size_y: float = 85.48,
+        adapter_hole_size_z: float = 10.0,  # 假设凹槽深度或板子放置高度
+        dx: Optional[float] = None,
+        dy: Optional[float] = None,
+        dz: float = 0.0,  # 默认Z轴偏移
+        **kwargs,
+    ):
+
+        # 自动居中计算：如果未指定 dx/dy，则根据适配器尺寸和孔尺寸计算居中位置
+        if dx is None:
+            dx = (size_x - adapter_hole_size_x) / 2
+        if dy is None:
+            dy = (size_y - adapter_hole_size_y) / 2
+
+        super().__init__(
+            name=name,
+            size_x=size_x,
+            size_y=size_y,
+            size_z=size_z,
+            dx=dx,
+            dy=dy,
+            dz=dz,
+            adapter_hole_size_x=adapter_hole_size_x,
+            adapter_hole_size_y=adapter_hole_size_y,
+            adapter_hole_size_z=adapter_hole_size_z,
+            model=model,
+            **kwargs,
+        )
+
+        self._unilabos_state = {}
+        if material_info:
+            self._unilabos_state["Material"] = material_info
+
+    def serialize_state(self) -> Dict[str, Dict[str, Any]]:
+        try:
+            data = super().serialize_state()
+        except AttributeError:
+            data = {}
+        if hasattr(self, "_unilabos_state") and self._unilabos_state:
+            safe_state = {}
+            for k, v in self._unilabos_state.items():
+                # 如果是 Material 字典，深入检查
+                if k == "Material" and isinstance(v, dict):
+                    safe_material = {}
+                    for mk, mv in v.items():
+                        # 只保留基本数据类型 (字符串, 数字, 布尔值, 列表, 字典)
+                        if isinstance(mv, (str, int, float, bool, list, dict, type(None))):
+                            safe_material[mk] = mv
+                        else:
+                            # 打印日志提醒（可选）
+                            # print(f"Warning: Removing non-serializable key {mk} from {self.name}")
+                            pass
+                    safe_state[k] = safe_material
+                # 其他顶层属性也进行类型检查
+                elif isinstance(v, (str, int, float, bool, list, dict, type(None))):
+                    safe_state[k] = v
+
+            data.update(safe_state)
         return data
 
 
@@ -137,7 +634,7 @@ class PRCXI9300Handler(LiquidHandlerAbstract):
 
     def __init__(
         self,
-        deck: Deck,
+        deck: PRCXI9300Deck,
         host: str,
         port: int,
         timeout: float,
@@ -151,12 +648,15 @@ class PRCXI9300Handler(LiquidHandlerAbstract):
         is_9320=False,
     ):
         tablets_info = []
-        count = 0
-        for child in deck.children:
-            if "Material" in child._unilabos_state:
-                count += 1
+        for site_id in range(len(deck.sites)):
+            child = deck._get_site_resource(site_id)
+            # 如果放其他类型的物料，是不可以的
+            if hasattr(child, "_unilabos_state") and "Material" in child._unilabos_state:
+                number = site_id + 1
                 tablets_info.append(
-                    WorkTablets(Number=count, Code=f"T{count}", Material=child._unilabos_state["Material"])
+                    WorkTablets(
+                        Number=number, Code=f"T{number}", Material=child._unilabos_state["Material"]
+                    )
                 )
         if is_9320:
             print("当前设备是9320")
@@ -176,8 +676,13 @@ class PRCXI9300Handler(LiquidHandlerAbstract):
         super().post_init(ros_node)
         self._unilabos_backend.post_init(ros_node)
 
-    def set_liquid(self, wells: list[Well], liquid_names: list[str], volumes: list[float]):
+    def set_liquid(self, wells: list[Well], liquid_names: list[str], volumes: list[float]) -> SetLiquidReturn:
         return super().set_liquid(wells, liquid_names, volumes)
+
+    def set_liquid_from_plate(
+        self, plate: ResourceSlot, well_names: list[str], liquid_names: list[str], volumes: list[float]
+    ) -> SetLiquidFromPlateReturn:
+        return super().set_liquid_from_plate(plate, well_names, liquid_names, volumes)
 
     def set_group(self, group_name: str, wells: List[Well], volumes: List[float]):
         return super().set_group(group_name, wells, volumes)
@@ -298,7 +803,7 @@ class PRCXI9300Handler(LiquidHandlerAbstract):
         mix_liquid_height: Optional[float] = None,
         delays: Optional[List[int]] = None,
         none_keys: List[str] = [],
-    ):
+    ) -> TransferLiquidReturn:
         return await super().transfer_liquid(
             sources,
             targets,
@@ -433,6 +938,38 @@ class PRCXI9300Handler(LiquidHandlerAbstract):
     async def move_to(self, well: Well, dis_to_top: float = 0, channel: int = 0):
         return await super().move_to(well, dis_to_top, channel)
 
+    async def shaker_action(self, time: int, module_no: int, amplitude: int, is_wait: bool):
+        return await self._unilabos_backend.shaker_action(time, module_no, amplitude, is_wait)
+
+    async def heater_action(self, temperature: float, time: int):
+        return await self._unilabos_backend.heater_action(temperature, time)
+
+    async def move_plate(
+        self,
+        plate: Plate,
+        to: Resource,
+        intermediate_locations: Optional[List[Coordinate]] = None,
+        pickup_offset: Coordinate = Coordinate.zero(),
+        destination_offset: Coordinate = Coordinate.zero(),
+        drop_direction: GripDirection = GripDirection.FRONT,
+        pickup_direction: GripDirection = GripDirection.FRONT,
+        pickup_distance_from_top: float = 13.2 - 3.33,
+        **backend_kwargs,
+    ):
+
+        return await super().move_plate(
+            plate,
+            to,
+            intermediate_locations,
+            pickup_offset,
+            destination_offset,
+            drop_direction,
+            pickup_direction,
+            pickup_distance_from_top,
+            target_plate_number=to,
+            **backend_kwargs,
+        )
+
 
 class PRCXI9300Backend(LiquidHandlerBackend):
     """PRCXI 9300 的后端实现，继承自 LiquidHandlerBackend。
@@ -474,6 +1011,51 @@ class PRCXI9300Backend(LiquidHandlerBackend):
         self._num_channels = channel_num
         self._execute_setup = setup
         self.debug = debug
+        self.axis = "Left"
+
+    async def shaker_action(self, time: int, module_no: int, amplitude: int, is_wait: bool):
+        step = self.api_client.shaker_action(
+            time=time,
+            module_no=module_no,
+            amplitude=amplitude,
+            is_wait=is_wait,
+        )
+        self.steps_todo_list.append(step)
+        return step
+
+    async def pick_up_resource(self, pickup: ResourcePickup, **backend_kwargs):
+
+        resource = pickup.resource
+        offset = pickup.offset
+        pickup_distance_from_top = pickup.pickup_distance_from_top
+        direction = pickup.direction
+
+        plate_number = int(resource.parent.name.replace("T", ""))
+        is_whole_plate = True
+        balance_height = 0
+        step = self.api_client.clamp_jaw_pick_up(plate_number, is_whole_plate, balance_height)
+
+        self.steps_todo_list.append(step)
+        return step
+
+    async def drop_resource(self, drop: ResourceDrop, **backend_kwargs):
+
+        plate_number = None
+        target_plate_number = backend_kwargs.get("target_plate_number", None)
+        if target_plate_number is not None:
+            plate_number = int(target_plate_number.name.replace("T", ""))
+
+        is_whole_plate = True
+        balance_height = 0
+        if plate_number is None:
+            raise ValueError("target_plate_number is required when dropping a resource")
+        step = self.api_client.clamp_jaw_drop(plate_number, is_whole_plate, balance_height)
+        self.steps_todo_list.append(step)
+        return step
+
+    async def heater_action(self, temperature: float, time: int):
+        print(f"\n\nHeater action: temperature={temperature}, time={time}\n\n")
+        # return await self.api_client.heater_action(temperature, time)
 
     def post_init(self, ros_node: BaseROS2DeviceNode):
         self._ros_node = ros_node
@@ -505,7 +1087,11 @@ class PRCXI9300Backend(LiquidHandlerBackend):
         print(f"PRCXI9300Backend created solution with ID: {solution_id}")
         self.api_client.load_solution(solution_id)
         print(json.dumps(self.steps_todo_list, indent=2))
-        return self.api_client.start()
+        if not self.api_client.start():
+            return False
+        if not self.api_client.wait_for_finish():
+            return False
+        return True
 
     @classmethod
     def check_channels(cls, use_channels: List[int]) -> List[int]:
@@ -523,19 +1109,19 @@ class PRCXI9300Backend(LiquidHandlerBackend):
                 error_code = self.api_client.get_error_code()
                 if error_code:
                     print(f"PRCXI9300 error code detected: {error_code}")
-                
+
                 # 清除错误代码
                 self.api_client.clear_error_code()
                 print("PRCXI9300 error code cleared.")
-                
+                self.api_client.call("IAutomation", "Stop")
                 # 执行重置
                 print("Starting PRCXI9300 reset...")
                 self.api_client.call("IAutomation", "Reset")
-                
+
                 # 检查重置状态并等待完成
                 while not self.is_reset_ok:
                     print("Waiting for PRCXI9300 to reset...")
-                    if hasattr(self, '_ros_node') and self._ros_node is not None:
+                    if hasattr(self, "_ros_node") and self._ros_node is not None:
                         await self._ros_node.sleep(1)
                     else:
                         await asyncio.sleep(1)
@@ -551,12 +1137,23 @@ class PRCXI9300Backend(LiquidHandlerBackend):
 
     async def pick_up_tips(self, ops: List[Pickup], use_channels: List[int] = None):
         """Pick up tips from the specified resource."""
-
+        # INSERT_YOUR_CODE
+        # Ensure use_channels is converted to a list of ints if it's an array
+        if hasattr(use_channels, "tolist"):
+            _use_channels = use_channels.tolist()
+        else:
+            _use_channels = list(use_channels) if use_channels is not None else None
+        if _use_channels == [0]:
+            axis = "Left"
+        elif _use_channels == [1]:
+            axis = "Right"
+        else:
+            raise ValueError("Invalid use channels: " + str(_use_channels))
         plate_indexes = []
         for op in ops:
             plate = op.resource.parent
-            deck = plate.parent
-            plate_index = deck.children.index(plate)
+            deck = plate.parent.parent
+            plate_index = deck.children.index(plate.parent)
             # print(f"Plate index: {plate_index}, Plate name: {plate.name}")
             # print(f"Number of children in deck: {len(deck.children)}")
 
@@ -581,6 +1178,7 @@ class PRCXI9300Backend(LiquidHandlerBackend):
             hole_row = tipspot_index % 8 + 1
 
         step = self.api_client.Load(
+            axis=axis,
             dosage=0,
             plate_no=PlateNo,
             is_whole_plate=False,
@@ -595,13 +1193,23 @@ class PRCXI9300Backend(LiquidHandlerBackend):
 
     async def drop_tips(self, ops: List[Drop], use_channels: List[int] = None):
         """Pick up tips from the specified resource."""
-
+        if hasattr(use_channels, "tolist"):
+            _use_channels = use_channels.tolist()
+        else:
+            _use_channels = list(use_channels) if use_channels is not None else None
+        if _use_channels == [0]:
+            axis = "Left"
+        elif _use_channels == [1]:
+            axis = "Right"
+        else:
+            raise ValueError("Invalid use channels: " + str(_use_channels))
         # 检查trash #
         if ops[0].resource.name == "trash":
 
-            PlateNo = ops[0].resource.parent.children.index(ops[0].resource) + 1
+            PlateNo = ops[0].resource.parent.parent.children.index(ops[0].resource.parent) + 1
 
             step = self.api_client.UnLoad(
+                axis=axis,
                 dosage=0,
                 plate_no=PlateNo,
                 is_whole_plate=False,
@@ -619,8 +1227,8 @@ class PRCXI9300Backend(LiquidHandlerBackend):
         plate_indexes = []
         for op in ops:
             plate = op.resource.parent
-            deck = plate.parent
-            plate_index = deck.children.index(plate)
+            deck = plate.parent.parent
+            plate_index = deck.children.index(plate.parent)
             plate_indexes.append(plate_index)
         if len(set(plate_indexes)) != 1:
             raise ValueError(
@@ -644,6 +1252,7 @@ class PRCXI9300Backend(LiquidHandlerBackend):
             hole_row = tipspot_index % 8 + 1
 
         step = self.api_client.UnLoad(
+            axis=axis,
             dosage=0,
             plate_no=PlateNo,
             is_whole_plate=False,
@@ -670,9 +1279,9 @@ class PRCXI9300Backend(LiquidHandlerBackend):
 
         plate_indexes = []
         for op in targets:
-            deck = op.parent.parent
+            deck = op.parent.parent.parent
             plate = op.parent
-            plate_index = deck.children.index(plate)
+            plate_index = deck.children.index(plate.parent)
             plate_indexes.append(plate_index)
 
         if len(set(plate_indexes)) != 1:
@@ -710,12 +1319,21 @@ class PRCXI9300Backend(LiquidHandlerBackend):
 
     async def aspirate(self, ops: List[SingleChannelAspiration], use_channels: List[int] = None):
         """Aspirate liquid from the specified resources."""
-
+        if hasattr(use_channels, "tolist"):
+            _use_channels = use_channels.tolist()
+        else:
+            _use_channels = list(use_channels) if use_channels is not None else None
+        if _use_channels == [0]:
+            axis = "Left"
+        elif _use_channels == [1]:
+            axis = "Right"
+        else:
+            raise ValueError("Invalid use channels: " + str(_use_channels))
         plate_indexes = []
         for op in ops:
             plate = op.resource.parent
-            deck = plate.parent
-            plate_index = deck.children.index(plate)
+            deck = plate.parent.parent
+            plate_index = deck.children.index(plate.parent)
             plate_indexes.append(plate_index)
 
         if len(set(plate_indexes)) != 1:
@@ -743,6 +1361,7 @@ class PRCXI9300Backend(LiquidHandlerBackend):
             hole_row = tipspot_index % 8 + 1
 
         step = self.api_client.Imbibing(
+            axis=axis,
             dosage=int(volumes[0]),
             plate_no=PlateNo,
             is_whole_plate=False,
@@ -757,12 +1376,21 @@ class PRCXI9300Backend(LiquidHandlerBackend):
 
     async def dispense(self, ops: List[SingleChannelDispense], use_channels: List[int] = None):
         """Dispense liquid into the specified resources."""
-
+        if hasattr(use_channels, "tolist"):
+            _use_channels = use_channels.tolist()
+        else:
+            _use_channels = list(use_channels) if use_channels is not None else None
+        if _use_channels == [0]:
+            axis = "Left"
+        elif _use_channels == [1]:
+            axis = "Right"
+        else:
+            raise ValueError("Invalid use channels: " + str(_use_channels))
         plate_indexes = []
         for op in ops:
             plate = op.resource.parent
-            deck = plate.parent
-            plate_index = deck.children.index(plate)
+            deck = plate.parent.parent
+            plate_index = deck.children.index(plate.parent)
             plate_indexes.append(plate_index)
 
         if len(set(plate_indexes)) != 1:
@@ -791,6 +1419,7 @@ class PRCXI9300Backend(LiquidHandlerBackend):
             hole_row = tipspot_index % 8 + 1
 
         step = self.api_client.Tapping(
+            axis=axis,
             dosage=int(volumes[0]),
             plate_no=PlateNo,
             is_whole_plate=False,
@@ -815,14 +1444,8 @@ class PRCXI9300Backend(LiquidHandlerBackend):
     async def dispense96(self, dispense: Union[MultiHeadDispensePlate, MultiHeadDispenseContainer]):
         raise NotImplementedError("The Opentrons backend does not support the 96 head.")
 
-    async def pick_up_resource(self, pickup: ResourcePickup):
-        raise NotImplementedError("The Opentrons backend does not support the robotic arm.")
-
     async def move_picked_up_resource(self, move: ResourceMove):
-        raise NotImplementedError("The Opentrons backend does not support the robotic arm.")
-
-    async def drop_resource(self, drop: ResourceDrop):
-        raise NotImplementedError("The Opentrons backend does not support the robotic arm.")
+        pass
 
     def can_pick_up_tip(self, channel_idx: int, tip: Tip) -> bool:
         return True  # PRCXI9300Backend does not have tip compatibility issues
@@ -856,7 +1479,30 @@ class PRCXI9300Api:
 
     def _raw_request(self, payload: str) -> str:
         if self.debug:
-            return " "
+            # 调试/仿真模式下直接返回可解析的模拟 JSON，避免后续 json.loads 报错
+            try:
+                req = json.loads(payload)
+                method = req.get("MethodName")
+            except Exception:
+                method = None
+
+            data: Any = True
+            if method in {"AddSolution"}:
+                data = str(uuid.uuid4())
+            elif method in {"AddWorkTabletMatrix", "AddWorkTabletMatrix2"}:
+                data = {"Success": True, "Message": "debug mock"}
+            elif method in {"GetErrorCode"}:
+                data = ""
+            elif method in {"RemoveErrorCodet", "Reset", "Start", "LoadSolution", "Pause", "Resume", "Stop"}:
+                data = True
+            elif method in {"GetStepStateList", "GetStepStatus", "GetStepState"}:
+                data = []
+            elif method in {"GetLocation"}:
+                data = {"X": 0, "Y": 0, "Z": 0}
+            elif method in {"GetResetStatus"}:
+                data = False
+
+            return json.dumps({"Success": True, "Msg": "debug mock", "Data": data})
         with contextlib.closing(socket.socket()) as sock:
             sock.settimeout(self.timeout)
             sock.connect((self.host, self.port))
@@ -889,6 +1535,27 @@ class PRCXI9300Api:
     # ---------------------------------------------------- 自动化控制（IAutomation）
     def start(self) -> bool:
         return self.call("IAutomation", "Start")
+
+    def wait_for_finish(self) -> bool:
+        success = False
+        start = False
+        while not success:
+            status = self.step_state_list()
+            if len(status) == 1:
+                start = True
+            if status is None:
+                break
+            if len(status) == 0:
+                break
+            if status[-1]["State"] == 2 and start:
+                success = True
+            elif status[-1]["State"] > 2:
+                break
+            elif status[-1]["State"] == 0:
+                start = True
+            else:
+                time.sleep(1)
+        return success
 
     def call(self, service: str, method: str, params: Optional[list] = None) -> Any:
         payload = json.dumps(
@@ -976,9 +1643,10 @@ class PRCXI9300Api:
         assist_fun4: str = "",
         assist_fun5: str = "",
         liquid_method: str = "NormalDispense",
+        axis: str = "Left",
     ) -> Dict[str, Any]:
         return {
-            "StepAxis": self.axis,
+            "StepAxis": axis,
             "Function": "Load",
             "DosageNum": dosage,
             "PlateNo": plate_no,
@@ -1014,9 +1682,10 @@ class PRCXI9300Api:
         assist_fun4: str = "",
         assist_fun5: str = "",
         liquid_method: str = "NormalDispense",
+        axis: str = "Left",
     ) -> Dict[str, Any]:
         return {
-            "StepAxis": self.axis,
+            "StepAxis": axis,
             "Function": "Imbibing",
             "DosageNum": dosage,
             "PlateNo": plate_no,
@@ -1052,9 +1721,10 @@ class PRCXI9300Api:
         assist_fun4: str = "",
         assist_fun5: str = "",
         liquid_method: str = "NormalDispense",
+        axis: str = "Left",
     ) -> Dict[str, Any]:
         return {
-            "StepAxis": self.axis,
+            "StepAxis": axis,
             "Function": "Tapping",
             "DosageNum": dosage,
             "PlateNo": plate_no,
@@ -1090,9 +1760,10 @@ class PRCXI9300Api:
         assist_fun4: str = "",
         assist_fun5: str = "",
         liquid_method: str = "NormalDispense",
+        axis: str = "Left",
     ) -> Dict[str, Any]:
         return {
-            "StepAxis": self.axis,
+            "StepAxis": axis,
             "Function": "Blending",
             "DosageNum": dosage,
             "PlateNo": plate_no,
@@ -1128,9 +1799,10 @@ class PRCXI9300Api:
         assist_fun4: str = "",
         assist_fun5: str = "",
         liquid_method: str = "NormalDispense",
+        axis: str = "Left",
     ) -> Dict[str, Any]:
         return {
-            "StepAxis": self.axis,
+            "StepAxis": axis,
             "Function": "UnLoad",
             "DosageNum": dosage,
             "PlateNo": plate_no,
@@ -1147,6 +1819,50 @@ class PRCXI9300Api:
             "AssistFun5": assist_fun5,
             "HoleNumbers": hole_numbers,
             "LiquidDispensingMethod": liquid_method,
+        }
+
+    def clamp_jaw_pick_up(
+        self,
+        plate_no: int,
+        is_whole_plate: bool,
+        balance_height: int,
+    ) -> Dict[str, Any]:
+        return {
+            "StepAxis": "ClampingJaw",
+            "Function": "DefectiveLift",
+            "PlateNo": plate_no,
+            "IsWholePlate": is_whole_plate,
+            "HoleRow": 1,
+            "HoleCol": 1,
+            "BalanceHeight": balance_height,
+            "PlateOrHoleNum": f"T{plate_no}",
+        }
+
+    def clamp_jaw_drop(
+        self,
+        plate_no: int,
+        is_whole_plate: bool,
+        balance_height: int,
+    ) -> Dict[str, Any]:
+        return {
+            "StepAxis": "ClampingJaw",
+            "Function": "PutDown",
+            "PlateNo": plate_no,
+            "IsWholePlate": is_whole_plate,
+            "HoleRow": 1,
+            "HoleCol": 1,
+            "BalanceHeight": balance_height,
+            "PlateOrHoleNum": f"T{plate_no}",
+        }
+
+    def shaker_action(self, time: int, module_no: int, amplitude: int, is_wait: bool):
+        return {
+            "StepAxis": "Left",
+            "Function": "Shaking",
+            "AssistFun1": time,
+            "AssistFun2": module_no,
+            "AssistFun3": amplitude,
+            "AssistFun4": is_wait,
         }
 
 
@@ -1509,31 +2225,33 @@ if __name__ == "__main__":
     from pylabrobot.resources.opentrons.tip_racks import tipone_96_tiprack_200ul, opentrons_96_tiprack_10ul
     from pylabrobot.resources.opentrons.plates import corning_96_wellplate_360ul_flat, nest_96_wellplate_2ml_deep
 
-    def get_well_container(name: str) -> PRCXI9300Container:
+    def get_well_container(name: str) -> PRCXI9300Plate:
         well_containers = corning_96_wellplate_360ul_flat(name).serialize()
-        plate = PRCXI9300Container(
-            name=name, size_x=50, size_y=50, size_z=10, category="plate", ordering=well_containers["ordering"]
+        plate = PRCXI9300Plate(
+            name=name, size_x=50, size_y=50, size_z=10, category="plate", ordered_items=well_containers["ordering"]
         )
         plate_serialized = plate.serialize()
         plate_serialized["parent_name"] = deck.name
         well_containers.update({k: v for k, v in plate_serialized.items() if k not in ["children"]})
-        new_plate: PRCXI9300Container = PRCXI9300Container.deserialize(well_containers)
+        new_plate: PRCXI9300Plate = PRCXI9300Plate.deserialize(well_containers)
         return new_plate
 
-    def get_tip_rack(name: str, child_prefix: str = "tip") -> PRCXI9300Container:
+    def get_tip_rack(name: str, child_prefix: str = "tip") -> PRCXI9300TipRack:
         tip_racks = opentrons_96_tiprack_10ul(name).serialize()
-        tip_rack = PRCXI9300Container(
+        tip_rack = PRCXI9300TipRack(
             name=name,
             size_x=50,
             size_y=50,
             size_z=10,
             category="tip_rack",
-            ordering=collections.OrderedDict({k: f"{child_prefix}_{k}" for k, v in tip_racks["ordering"].items()}),
+            ordered_items=collections.OrderedDict(
+                {k: f"{child_prefix}_{k}" for k, v in tip_racks["ordering"].items()}
+            ),
         )
         tip_rack_serialized = tip_rack.serialize()
         tip_rack_serialized["parent_name"] = deck.name
         tip_racks.update({k: v for k, v in tip_rack_serialized.items() if k not in ["children"]})
-        new_tip_rack: PRCXI9300Container = PRCXI9300Container.deserialize(tip_racks)
+        new_tip_rack: PRCXI9300TipRack = PRCXI9300TipRack.deserialize(tip_racks)
         return new_tip_rack
 
     plate1 = get_tip_rack("RackT1")
@@ -1580,8 +2298,8 @@ if __name__ == "__main__":
             }
         }
     )
-    plate7 = PRCXI9300Container(
-        name="plateT7", size_x=50, size_y=50, size_z=10, category="plate", ordering=collections.OrderedDict()
+    plate7 = PRCXI9300Plate(
+        name="plateT7", size_x=50, size_y=50, size_z=10, category="plate", ordered_items=collections.OrderedDict()
     )
     plate7.load_state({"Material": {"uuid": "04211a2dc93547fe9bf6121eac533650"}})
     plate8 = get_tip_rack("PlateT8")
@@ -1655,13 +2373,13 @@ if __name__ == "__main__":
     deck.assign_child_resource(plate1, location=Coordinate(0, 0, 0))
     deck.assign_child_resource(plate2, location=Coordinate(0, 0, 0))
     deck.assign_child_resource(
-        PRCXI9300Container(
+        PRCXI9300Plate(
             name="container_for_nothin3",
             size_x=50,
             size_y=50,
             size_z=10,
             category="plate",
-            ordering=collections.OrderedDict(),
+            ordered_items=collections.OrderedDict(),
         ),
         location=Coordinate(0, 0, 0),
     )
@@ -1669,48 +2387,48 @@ if __name__ == "__main__":
     deck.assign_child_resource(plate5, location=Coordinate(0, 0, 0))
     deck.assign_child_resource(plate6, location=Coordinate(0, 0, 0))
     deck.assign_child_resource(
-        PRCXI9300Container(
+        PRCXI9300Plate(
             name="container_for_nothing7",
             size_x=50,
             size_y=50,
             size_z=10,
             category="plate",
-            ordering=collections.OrderedDict(),
+            ordered_items=collections.OrderedDict(),
         ),
         location=Coordinate(0, 0, 0),
     )
     deck.assign_child_resource(
-        PRCXI9300Container(
+        PRCXI9300Plate(
             name="container_for_nothing8",
             size_x=50,
             size_y=50,
             size_z=10,
             category="plate",
-            ordering=collections.OrderedDict(),
+            ordered_items=collections.OrderedDict(),
         ),
         location=Coordinate(0, 0, 0),
     )
     deck.assign_child_resource(plate9, location=Coordinate(0, 0, 0))
     deck.assign_child_resource(plate10, location=Coordinate(0, 0, 0))
     deck.assign_child_resource(
-        PRCXI9300Container(
+        PRCXI9300Plate(
             name="container_for_nothing11",
             size_x=50,
             size_y=50,
             size_z=10,
             category="plate",
-            ordering=collections.OrderedDict(),
+            ordered_items=collections.OrderedDict(),
         ),
         location=Coordinate(0, 0, 0),
     )
     deck.assign_child_resource(
-        PRCXI9300Container(
+        PRCXI9300Plate(
             name="container_for_nothing12",
             size_x=50,
             size_y=50,
             size_z=10,
             category="plate",
-            ordering=collections.OrderedDict(),
+            ordered_items=collections.OrderedDict(),
         ),
         location=Coordinate(0, 0, 0),
     )
@@ -1723,43 +2441,37 @@ if __name__ == "__main__":
 
     A = tree_to_list([resource_plr_to_ulab(deck)])
     with open("deck.json", "w", encoding="utf-8") as f:
-        A.insert(0, {
-            "id": "PRCXI",
-            "name": "PRCXI",
-            "parent": None,
-            "type": "device",
-            "class": "liquid_handler.prcxi",
-            "position": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-            },
-            "config": {
-                "deck": {
-                    "_resource_child_name": "PRCXI_Deck",
-                    "_resource_type": "unilabos.devices.liquid_handling.prcxi.prcxi:PRCXI9300Deck"
+        A.insert(
+            0,
+            {
+                "id": "PRCXI",
+                "name": "PRCXI",
+                "parent": None,
+                "type": "device",
+                "class": "liquid_handler.prcxi",
+                "position": {"x": 0, "y": 0, "z": 0},
+                "config": {
+                    "deck": {
+                        "_resource_child_name": "PRCXI_Deck",
+                        "_resource_type": "unilabos.devices.liquid_handling.prcxi.prcxi:PRCXI9300Deck",
+                    },
+                    "host": "192.168.0.121",
+                    "port": 9999,
+                    "timeout": 10.0,
+                    "axis": "Right",
+                    "channel_num": 1,
+                    "setup": False,
+                    "debug": True,
+                    "simulator": True,
+                    "matrix_id": "5de524d0-3f95-406c-86dd-f83626ebc7cb",
+                    "is_9320": True,
                 },
-                "host": "192.168.0.121",
-                "port": 9999,
-                "timeout": 10.0,
-                "axis": "Right",
-                "channel_num": 1,
-                "setup": False,
-                "debug": True,
-                "simulator": True,
-                "matrix_id": "5de524d0-3f95-406c-86dd-f83626ebc7cb",
-                "is_9320": True
+                "data": {},
+                "children": ["PRCXI_Deck"],
             },
-            "data": {},
-            "children": [
-                "PRCXI_Deck"
-            ]
-        })
+        )
         A[1]["parent"] = "PRCXI"
-        json.dump({
-            "nodes": A,
-            "links": []
-        }, f, indent=4, ensure_ascii=False)
+        json.dump({"nodes": A, "links": []}, f, indent=4, ensure_ascii=False)
 
     handler = PRCXI9300Handler(
         deck=deck,
@@ -1800,7 +2512,6 @@ if __name__ == "__main__":
     asyncio.run(handler.run_protocol())
     time.sleep(5)
     os._exit(0)
-
 
     prcxi_api = PRCXI9300Api(host="192.168.0.121", port=9999)
     prcxi_api.list_matrices()

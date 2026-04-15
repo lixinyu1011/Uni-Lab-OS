@@ -9,11 +9,11 @@ import asyncio
 import inspect
 import traceback
 from abc import abstractmethod
-from typing import Type, Any, Dict, Optional, TypeVar, Generic
+from typing import Type, Any, Dict, Optional, TypeVar, Generic, List
 
-from unilabos.resources.graphio import nested_dict_to_list, resource_ulab_to_plr
-from unilabos.ros.nodes.resource_tracker import DeviceNodeResourceTracker
-from unilabos.utils import logger, import_manager
+from unilabos.resources.resource_tracker import DeviceNodeResourceTracker, ResourceTreeSet, ResourceDictInstance, \
+    ResourceTreeInstance
+from unilabos.utils import logger
 from unilabos.utils.cls_creator import create_instance_from_config
 
 # 定义泛型类型变量
@@ -33,7 +33,7 @@ class DeviceClassCreator(Generic[T]):
     这个类提供了从任意类创建实例的通用方法。
     """
 
-    def __init__(self, cls: Type[T], children: Dict[str, Any], resource_tracker: DeviceNodeResourceTracker):
+    def __init__(self, cls: Type[T], children: List[ResourceDictInstance], resource_tracker: DeviceNodeResourceTracker):
         """
         初始化设备类创建器
 
@@ -50,9 +50,10 @@ class DeviceClassCreator(Generic[T]):
         附加资源到设备类实例
         """
         if self.device_instance is not None:
-            for c in self.children.values():
-                if c["type"] != "device":
-                    self.resource_tracker.add_resource(c)
+            for c in self.children:
+                if c.res_content.type != "device":
+                    res = ResourceTreeSet([ResourceTreeInstance(c)]).to_plr_resources()[0]
+                    self.resource_tracker.add_resource(res)
 
     def create_instance(self, data: Dict[str, Any]) -> T:
         """
@@ -94,7 +95,7 @@ class PyLabRobotCreator(DeviceClassCreator[T]):
     这个类提供了针对PyLabRobot设备类的实例创建方法，特别处理deserialize方法。
     """
 
-    def __init__(self, cls: Type[T], children: Dict[str, Any], resource_tracker: DeviceNodeResourceTracker):
+    def __init__(self, cls: Type[T], children: List[ResourceDictInstance], resource_tracker: DeviceNodeResourceTracker):
         """
         初始化PyLabRobot设备类创建器
 
@@ -111,15 +112,15 @@ class PyLabRobotCreator(DeviceClassCreator[T]):
     def attach_resource(self):
         pass  # 只能增加实例化物料，原来默认物料仅为字典查询
 
-    def _process_resource_mapping(self, resource, source_type):
-        if source_type == dict:
-            from pylabrobot.resources.resource import Resource
-
-            return nested_dict_to_list(resource), Resource
-        return resource, source_type
+    # def _process_resource_mapping(self, resource, source_type):
+    #     if source_type == dict:
+    #         from pylabrobot.resources.resource import Resource
+    #
+    #         return nested_dict_to_list(resource), Resource
+    #     return resource, source_type
 
     def _process_resource_references(
-        self, data: Any, to_dict=False, states=None, prefix_path="", name_to_uuid=None
+        self, data: Any, processed_child_names: Optional[Dict[str, Any]], to_dict=False, states=None, prefix_path="", name_to_uuid=None
     ) -> Any:
         """
         递归处理资源引用，替换_resource_child_name对应的资源
@@ -134,7 +135,7 @@ class PyLabRobotCreator(DeviceClassCreator[T]):
         Returns:
             处理后的数据
         """
-        from pylabrobot.resources import Deck, Resource
+        from pylabrobot.resources import Resource
 
         if states is None:
             states = {}
@@ -142,15 +143,21 @@ class PyLabRobotCreator(DeviceClassCreator[T]):
         if isinstance(data, dict):
             if "_resource_child_name" in data:
                 child_name = data["_resource_child_name"]
-                if child_name in self.children:
-                    resource = self.children[child_name]
+                resource: Optional[ResourceDictInstance] = None
+                for child in self.children:
+                    if child.res_content.name == child_name:
+                        resource = child
+                if resource is not None:
                     if "_resource_type" in data:
                         type_path = data["_resource_type"]
                         try:
-                            target_type = import_manager.get_class(type_path)
-                            contain_model = not issubclass(target_type, Deck)
-                            resource, target_type = self._process_resource_mapping(resource, target_type)
-                            resource_instance: Resource = resource_ulab_to_plr(resource, contain_model)  # 带state
+                            # target_type = import_manager.get_class(type_path)
+                            # contain_model = not issubclass(target_type, Deck)
+                            # resource, target_type = self._process_resource_mapping(resource, target_type)
+                            res_tree = ResourceTreeInstance(resource)
+                            res_tree_set = ResourceTreeSet([res_tree])
+                            resource_instance: Resource = res_tree_set.to_plr_resources()[0]
+                            # resource_instance: Resource = resource_ulab_to_plr(resource, contain_model)  # 带state
                             states[prefix_path] = resource_instance.serialize_all_state()
                             # 使用 prefix_path 作为 key 存储资源状态
                             if to_dict:
@@ -158,6 +165,7 @@ class PyLabRobotCreator(DeviceClassCreator[T]):
                                 states[prefix_path] = resource_instance.serialize_all_state()
                                 return serialized
                             else:
+                                processed_child_names[child_name] = resource_instance
                                 self.resource_tracker.add_resource(resource_instance)
                                 # 立即设置UUID，state已经在resource_ulab_to_plr中处理过了
                                 if name_to_uuid:
@@ -176,12 +184,12 @@ class PyLabRobotCreator(DeviceClassCreator[T]):
             result = {}
             for key, value in data.items():
                 new_prefix = f"{prefix_path}.{key}" if prefix_path else key
-                result[key] = self._process_resource_references(value, to_dict, states, new_prefix, name_to_uuid)
+                result[key] = self._process_resource_references(value, processed_child_names, to_dict, states, new_prefix, name_to_uuid)
             return result
 
         elif isinstance(data, list):
             return [
-                self._process_resource_references(item, to_dict, states, f"{prefix_path}[{i}]", name_to_uuid)
+                self._process_resource_references(item, processed_child_names, to_dict, states, f"{prefix_path}[{i}]", name_to_uuid)
                 for i, item in enumerate(data)
             ]
 
@@ -202,12 +210,12 @@ class PyLabRobotCreator(DeviceClassCreator[T]):
         stack = None
 
         # 递归遍历 children 构建 name_to_uuid 映射
-        def collect_name_to_uuid(children_dict: Dict[str, Any], result: Dict[str, str]):
+        def collect_name_to_uuid(children_list: List[ResourceDictInstance], result: Dict[str, str]):
             """递归遍历嵌套的 children 字典，收集 name 到 uuid 的映射"""
-            for child in children_dict.values():
-                if isinstance(child, dict):
-                    result[child["name"]] = child["uuid"]
-                    collect_name_to_uuid(child["children"], result)
+            for child in children_list:
+                if isinstance(child, ResourceDictInstance):
+                    result[child.res_content.name] = child.res_content.uuid
+                    collect_name_to_uuid(child.children, result)
 
         name_to_uuid = {}
         collect_name_to_uuid(self.children, name_to_uuid)
@@ -228,7 +236,7 @@ class PyLabRobotCreator(DeviceClassCreator[T]):
             # 首先处理资源引用
             states = {}
             processed_data = self._process_resource_references(
-                data, to_dict=True, states=states, name_to_uuid=name_to_uuid
+                data, {}, to_dict=True, states=states, name_to_uuid=name_to_uuid
             )
 
             try:
@@ -264,7 +272,12 @@ class PyLabRobotCreator(DeviceClassCreator[T]):
                         arg_value = spec_args[param_name].annotation
                         data[param_name]["_resource_type"] = self.device_cls.__module__ + ":" + arg_value
                         logger.debug(f"自动补充 _resource_type: {data[param_name]['_resource_type']}")
-                processed_data = self._process_resource_references(data, to_dict=False, name_to_uuid=name_to_uuid)
+                processed_child_names = {}
+                processed_data = self._process_resource_references(data, processed_child_names, to_dict=False, name_to_uuid=name_to_uuid)
+                for child_name, resource_instance in processed_data.items():
+                    for ind, name in enumerate([child.res_content.name for child in self.children]):
+                        if name == child_name:
+                            self.children.pop(ind)
                 self.device_instance = super(PyLabRobotCreator, self).create_instance(processed_data)  # 补全变量后直接调用，调用的自身的attach_resource
             except Exception as e:
                 logger.error(f"PyLabRobot创建实例失败: {e}")
@@ -313,7 +326,7 @@ class WorkstationNodeCreator(DeviceClassCreator[T]):
     这个类提供了针对WorkstationNode设备类的实例创建方法，处理children参数。
     """
 
-    def __init__(self, cls: Type[T], children: Dict[str, Any], resource_tracker: DeviceNodeResourceTracker):
+    def __init__(self, cls: Type[T], children: List[ResourceDictInstance], resource_tracker: DeviceNodeResourceTracker):
         """
         初始化WorkstationNode设备类创建器
 
@@ -336,9 +349,10 @@ class WorkstationNodeCreator(DeviceClassCreator[T]):
         try:
             # 创建实例，额外补充一个给protocol node的字段，后面考虑取消
             data["children"] = self.children
-            for material_id, child in self.children.items():
-                if child["type"] != "device":
-                    self.resource_tracker.add_resource(self.children[material_id])
+            # super(WorkstationNodeCreator, self).create_instance(data)的时候会attach
+            # for child in self.children:
+            #     if child.res_content.type != "device":
+            #         self.resource_tracker.add_resource(child.get_plr_nested_dict())
             deck_dict = data.get("deck")
             if deck_dict:
                 from pylabrobot.resources import Deck, Resource
