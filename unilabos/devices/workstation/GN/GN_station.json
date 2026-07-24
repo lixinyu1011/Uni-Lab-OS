@@ -1,0 +1,249 @@
+{
+    "nodes": [
+        {
+            "id": "GN_station",
+            "name": "GN_station",
+            "children": [
+                "gn_solid_weighing"
+            ],
+            "parent": null,
+            "type": "device",
+            "class": "GN_station",
+            "position": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+            },
+            "pose": {
+                "size": {
+                    "width": 400,
+                    "height": 300,
+                    "depth": 0
+                },
+                "layout": "2d",
+                "position": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                },
+                "scale": {
+                    "x": 1,
+                    "y": 1,
+                    "z": 1
+                }
+            },
+            "config": {
+                "protocol_type": []
+            },
+            "data": {}
+        },
+        {
+            "id": "gn_solid_weighing",
+            "name": "固体加样",
+            "children": [],
+            "parent": "GN_station",
+            "type": "device",
+            "class": "gn_solid_weighing",
+            "position": {
+                "x": 100,
+                "y": 90,
+                "z": 0
+            },
+            "pose": {
+                "size": {
+                    "width": 150,
+                    "height": 180,
+                    "depth": 400
+                }
+            },
+            "config": {
+                "url": "opc.tcp://192.168.6.6:4840",
+                "xlsx_path": "OPC_UA协议1.3.4(1).xlsx",
+                "use_subscription": true
+            },
+            "data": {
+                "actions": [
+                    {
+                        "menu_id": "1",
+                        "name": "夹爪夹取（料架）",
+                        "action": "auto-execute_command",
+                        "params": {
+                            "cmd_type": 12,
+                            "x_pos": 20,
+                            "y_pos": 2100,
+                            "material_z_pos": 0,
+                            "gripper_z_pos": 2200,
+                            "door_pos": 0,
+                            "volune_weight": 0,
+                            "x_speed": 300,
+                            "y_speed": 300,
+                            "material_z_speed": 0,
+                            "gripper_z_speed": 300,
+                            "door_speed": 0,
+                            "timeout": 180.0
+                        }
+                    },
+                    {
+                        "menu_id": "2",
+                        "name": "夹爪放置（加样工位）",
+                        "action": "auto-execute_command",
+                        "params": {
+                            "cmd_type": 13,
+                            "x_pos": -1730,
+                            "y_pos": 1540,
+                            "material_z_pos": 0,
+                            "gripper_z_pos": 1130,
+                            "door_pos": 0,
+                            "volune_weight": 0,
+                            "x_speed": 300,
+                            "y_speed": 300,
+                            "material_z_speed": 0,
+                            "gripper_z_speed": 300,
+                            "door_speed": 0,
+                            "timeout": 180.0
+                        }
+                    },
+                    {
+                        "menu_id": "3",
+                        "name": "取料筒后向外",
+                        "action": "auto-execute_command",
+                        "params": {
+                            "cmd_type": 10,
+                            "x_pos": -1900,
+                            "y_pos": 2220,
+                            "material_z_pos": 235000,
+                            "gripper_z_pos": 0,
+                            "door_pos": 0,
+                            "volune_weight": 0,
+                            "x_speed": 500,
+                            "y_speed": 500,
+                            "material_z_speed": 0,
+                            "gripper_z_speed": 0,
+                            "door_speed": 0,
+                            "timeout": 180.0
+                        }
+                    },
+                    {
+                        "menu_id": "4",
+                        "name": "料筒加样",
+                        "action": "auto-execute_command",
+                        "params": {
+                            "cmd_type": 11,
+                            "x_pos": -300,
+                            "y_pos": 700,
+                            "material_z_pos": 40000,
+                            "gripper_z_pos": 0,
+                            "door_pos": 3700,
+                            "volune_weight": 30,
+                            "x_speed": 500,
+                            "y_speed": 500,
+                            "material_z_speed": 0,
+                            "gripper_z_speed": 0,
+                            "door_speed": 150,
+                            "timeout": 600.0
+                        }
+                    },
+                    {
+                        "menu_id": "5",
+                        "name": "放料筒向里",
+                        "action": "auto-execute_command",
+                        "params": {
+                            "cmd_type": 18,
+                            "x_pos": -1900,
+                            "y_pos": 2220,
+                            "material_z_pos": 235000,
+                            "gripper_z_pos": 0,
+                            "door_pos": 0,
+                            "volune_weight": 0,
+                            "x_speed": 500,
+                            "y_speed": 500,
+                            "material_z_speed": 0,
+                            "gripper_z_speed": 0,
+                            "door_speed": 0,
+                            "timeout": 180.0
+                        }
+                    },
+                    {
+                        "menu_id": "6",
+                        "name": "夹爪夹取（加样工位）",
+                        "action": "auto-execute_command",
+                        "params": {
+                            "cmd_type": 12,
+                            "x_pos": -1730,
+                            "y_pos": 1540,
+                            "material_z_pos": 0,
+                            "gripper_z_pos": 1130,
+                            "door_pos": 0,
+                            "volune_weight": 0,
+                            "x_speed": 300,
+                            "y_speed": 300,
+                            "material_z_speed": 0,
+                            "gripper_z_speed": 300,
+                            "door_speed": 0,
+                            "timeout": 180.0
+                        }
+                    },
+                    {
+                        "menu_id": "7",
+                        "name": "夹爪放置（料架）",
+                        "action": "auto-execute_command",
+                        "params": {
+                            "cmd_type": 13,
+                            "x_pos": 20,
+                            "y_pos": 2100,
+                            "material_z_pos": 0,
+                            "gripper_z_pos": 2180,
+                            "door_pos": 0,
+                            "volune_weight": 0,
+                            "x_speed": 300,
+                            "y_speed": 300,
+                            "material_z_speed": 0,
+                            "gripper_z_speed": 300,
+                            "door_speed": 0,
+                            "timeout": 180.0
+                        }
+                    },
+                    {
+                        "menu_id": "8",
+                        "name": "复位",
+                        "action": "auto-execute_command",
+                        "params": {
+                            "cmd_type": 20,
+                            "x_pos": 0,
+                            "y_pos": 0,
+                            "material_z_pos": 0,
+                            "gripper_z_pos": 0,
+                            "door_pos": 0,
+                            "volune_weight": 0,
+                            "x_speed": 0,
+                            "y_speed": 0,
+                            "material_z_speed": 0,
+                            "gripper_z_speed": 0,
+                            "door_speed": 0,
+                            "timeout": 180.0
+                        }
+                    },
+                    {
+                        "menu_id": "14",
+                        "name": "天枰去皮",
+                        "action": "auto-execute_command",
+                        "params": {
+                            "cmd_type": 14,
+                            "timeout": 180.0
+                        }
+                    },
+                    {
+                        "menu_id": "15",
+                        "name": "天枰称重",
+                        "action": "auto-execute_command",
+                        "params": {
+                            "cmd_type": 15,
+                            "timeout": 180.0
+                        }
+                    }
+                ]
+            }
+        }
+    ],
+    "links": []
+}
